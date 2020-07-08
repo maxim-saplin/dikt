@@ -39,6 +39,7 @@ class Dictionary extends ChangeNotifier {
       _lookupWord = '';
       matches.clear();
     } else {
+      value = value?.toLowerCase();
       _lookupWord = value;
       _getMatchesForWord(value);
     }
@@ -46,6 +47,7 @@ class Dictionary extends ChangeNotifier {
   }
 
   void _getMatchesForWord(String lookup) {
+    lookup = lookup?.toLowerCase();
     int n = 0;
     matches.clear();
 
@@ -69,6 +71,7 @@ class Dictionary extends ChangeNotifier {
   }
 
   String getArticle(String word) {
+    word = word?.toLowerCase();
     return words[word];
   }
 
