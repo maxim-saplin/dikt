@@ -23,6 +23,7 @@ class History {
   }
 
   void addWord(String word) {
+    word = word?.toLowerCase();
     if (_words.contains(word)) _words.remove(word);
 
     if (_words.length > maxWords) {
