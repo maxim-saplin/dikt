@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:dikt/models/dictionary.dart';
 import 'package:dikt/screens/settings.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 class Lookup extends StatelessWidget {
   static const double _barHeight = 60;
@@ -60,36 +61,41 @@ class LookupWords extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Widget sv = CustomScrollView(
+      slivers: [
+        SliverToBoxAdapter(child: SizedBox(height: 12)),
+        SliverList(
+          delegate: SliverChildBuilderDelegate((context, index) {
+            return _Entry(index, dictionary, history);
+          },
+              childCount: _emptyEntries +
+                  (dictionary.isLookupWordEmpty
+                      ? history.wordsCount
+                      : dictionary.matchesCount)),
+        ),
+      ],
+      semanticChildCount: dictionary.matchesCount,
+      scrollDirection: Axis.vertical,
+      reverse: true,
+    );
+
+    if (!kIsWeb) {
+      sv = ShaderMask(
+          shaderCallback: (rect) {
+            return LinearGradient(
+              begin: Alignment.bottomCenter,
+              end: Alignment.topCenter,
+              colors: [Colors.black, Colors.transparent],
+            ).createShader(Rect.fromLTRB(0, 0, rect.width, rect.height - 200));
+          },
+          blendMode: BlendMode.dstIn,
+          child: sv);
+    }
+
     return Padding(
         padding: EdgeInsets.only(
             left: 0.0, top: 0.0, right: 0.0, bottom: _barHeight),
-        child: ShaderMask(
-            shaderCallback: (rect) {
-              return LinearGradient(
-                begin: Alignment.bottomCenter,
-                end: Alignment.topCenter,
-                colors: [Colors.black, Colors.transparent],
-              ).createShader(
-                  Rect.fromLTRB(0, 0, rect.width, rect.height - 200));
-            },
-            blendMode: BlendMode.dstIn,
-            child: CustomScrollView(
-              slivers: [
-                SliverToBoxAdapter(child: SizedBox(height: 12)),
-                SliverList(
-                  delegate: SliverChildBuilderDelegate((context, index) {
-                    return _Entry(index, dictionary, history);
-                  },
-                      childCount: _emptyEntries +
-                          (dictionary.isLookupWordEmpty
-                              ? history.wordsCount
-                              : dictionary.matchesCount)),
-                ),
-              ],
-              semanticChildCount: dictionary.matchesCount,
-              scrollDirection: Axis.vertical,
-              reverse: true,
-            )));
+        child: sv);
   }
 }
 
