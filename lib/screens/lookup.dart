@@ -17,8 +17,19 @@ class Lookup extends StatelessWidget {
         body: Stack(children: [
       !dictionary.isLoaded
           ? Center(child: Text('One moment please'))
-          : LookupWords(
-              barHeight: _barHeight, dictionary: dictionary, history: history),
+          : (dictionary.isLookupWordEmpty && history.wordsCount < 1
+              ? Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 100.0,
+                  child: Text(
+                    'Type-in word below\n↓ ↓ ↓',
+                    textAlign: TextAlign.center,
+                  ))
+              : LookupWords(
+                  barHeight: _barHeight,
+                  dictionary: dictionary,
+                  history: history)),
       _SearchBar(),
       SettingsButton(),
     ]));
@@ -140,20 +151,11 @@ class _Entry extends StatelessWidget {
           child: LimitedBox(
             maxHeight: 48,
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Expanded(
-                  child: Text(
-                    word,
-                    textAlign: dictionary.isLookupWordEmpty
-                        ? TextAlign.end
-                        : TextAlign.start,
-                    style: TextStyle(
-                        fontStyle: dictionary.isLookupWordEmpty
-                            ? FontStyle.italic
-                            : FontStyle.normal),
-                  ),
-                ),
+                Expanded(child: Text(dictionary.isLookupWordEmpty ? '' : word)),
+                Text(dictionary.isLookupWordEmpty ? word : '·',
+                    style: TextStyle(fontStyle: FontStyle.italic)),
               ],
             ),
           ),
@@ -162,9 +164,11 @@ class _Entry extends StatelessWidget {
 }
 
 class _SearchBar extends StatelessWidget {
+  static var _controller = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
-    var model = Provider.of<Dictionary>(context);
+    var dictionary = Provider.of<Dictionary>(context, listen: false);
 
     return Positioned(
         bottom: 0.0,
@@ -176,27 +180,35 @@ class _SearchBar extends StatelessWidget {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: Stack(children: [
-                  model.isLoaded
+                  dictionary.isLoaded
                       ? TextField(
+                          controller: _controller,
                           autofocus: true,
                           onChanged: (text) {
-                            model.lookupWord = text;
+                            dictionary.lookupWord = text;
                           },
                           style: TextStyle(fontSize: 20.0),
                           decoration: InputDecoration(
-                            fillColor: Colors.amber,
-                            border: InputBorder.none,
-                            hintText: 'Search',
-                          ))
+                              border: InputBorder.none,
+                              hintText: 'Search',
+                              suffix: GestureDetector(
+                                  onTap: () {
+                                    dictionary.lookupWord = '';
+                                    _controller.clear();
+                                  },
+                                  child: Text(dictionary.isLoaded
+                                      ? (dictionary.isLookupWordEmpty
+                                          ? ''
+                                          : (dictionary.matchesCount >
+                                                  dictionary.maxResults
+                                              ? dictionary.maxResults
+                                                      .toString() +
+                                                  '+'
+                                              : dictionary.matchesCount
+                                                  .toString()))
+                                      : '0_0'))),
+                        )
                       : Text('Loading...'),
-                  Positioned.fill(
-                      child: Align(
-                          alignment: Alignment.centerRight,
-                          child: Text(model.isLoaded
-                              ? (model.matchesCount > model.maxResults
-                                  ? model.maxResults.toString() + '+'
-                                  : model.matchesCount.toString())
-                              : '0_0'))),
                 ]))));
   }
 }
