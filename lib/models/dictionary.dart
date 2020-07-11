@@ -2,6 +2,7 @@ import 'dart:async' show Future;
 import 'package:flutter/services.dart' show rootBundle;
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
+import 'package:hive/hive.dart';
 
 class Dictionary extends ChangeNotifier {
   Map<String, String> words;
@@ -9,7 +10,7 @@ class Dictionary extends ChangeNotifier {
   final int maxResults = 100;
 
   Dictionary() {
-    loadJson = rootBundle.loadString('assets/dictionary_compact.json');
+    loadJson = rootBundle.loadString('assets/EnRuBig.json');
     loadJson.then((value) {
       words = jsonDecode(value).cast<String, String>();
       isLoaded = true;
@@ -72,6 +73,7 @@ class Dictionary extends ChangeNotifier {
 
   String getArticle(String word) {
     word = word?.toLowerCase();
+    if (!words.containsKey(word)) return '';
     return words[word];
   }
 
@@ -86,5 +88,9 @@ class Dictionary extends ChangeNotifier {
       _isLoaded = value;
       notifyListeners();
     }
+  }
+
+  void notify() {
+    notifyListeners();
   }
 }

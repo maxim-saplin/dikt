@@ -38,4 +38,9 @@ class History {
     _words = [];
     PreferencesSingleton.sp.remove(_historyParam);
   }
+
+  void removeWord(String word) {
+    word = word?.toLowerCase();
+    if (_words.contains(word)) _words.remove(word);
+  }
 }
