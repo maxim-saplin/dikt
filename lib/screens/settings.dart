@@ -37,8 +37,7 @@ class Settings extends StatelessWidget {
             onPressed: () {
               Provider.of<History>(context, listen: false).clear();
               // Lazy implementing propper update, using workaround
-              Provider.of<Dictionary>(context, listen: false).lookupWord = ' ';
-              Provider.of<Dictionary>(context, listen: false).lookupWord = '';
+              Provider.of<Dictionary>(context, listen: false).notify();
             },
           )
         ]),

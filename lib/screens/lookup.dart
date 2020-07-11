@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 import 'package:dikt/models/dictionary.dart';
 import 'package:dikt/screens/settings.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter_html/flutter_html.dart';
+import 'package:flutter_html/style.dart';
 
 class Lookup extends StatelessWidget {
   static const double _barHeight = 60;
@@ -132,21 +134,8 @@ class _Entry extends StatelessWidget {
         child: GestureDetector(
           onTap: () {
             if (word == '' || word == null) return;
-            showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  String article;
-                  if (dictionary.isLookupWordEmpty) {
-                    article = dictionary.getArticle(word);
-                  } else {
-                    article = dictionary.getArticleFromMatches(index);
-                    history.addWord(word);
-                  }
 
-                  return AlertDialog(
-                      title: SelectableText(word),
-                      content: SelectableText(article));
-                });
+            showArticle(context, dictionary, history, word);
           },
           child: LimitedBox(
             maxHeight: 48,
@@ -161,6 +150,48 @@ class _Entry extends StatelessWidget {
           ),
         ));
   }
+}
+
+void showArticle(
+    BuildContext context, Dictionary dictionary, History history, String word) {
+  showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        String article;
+        if (dictionary.isLookupWordEmpty) {
+          article = dictionary.getArticle(word);
+          if (article == '') {
+            article = "N/A";
+            history.removeWord(word);
+          }
+        } else {
+          article = dictionary.getArticle(word);
+          history.addWord(word);
+        }
+
+        // return AlertDialog(
+        //     title: SelectableText(word),
+        //     content: SelectableText(article));
+
+        return AlertDialog(
+            title: SelectableText(word),
+            content: SingleChildScrollView(
+                padding: EdgeInsets.all(0),
+                child: Html(
+                  data: article,
+                  onLinkTap: (url) {
+                    //dictionary.lookupWord = url;
+                    showArticle(context, dictionary, history, url);
+                  },
+                  style: {
+                    "div": Style(
+                      fontFamily: 'sans-serif-light',
+                      padding: EdgeInsets.all(0),
+                      //backgroundColor: Colors.yellow
+                    ),
+                  },
+                )));
+      });
 }
 
 class _SearchBar extends StatelessWidget {

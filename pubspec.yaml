@@ -26,6 +26,8 @@ dependencies:
   
   provider: ^4.0.2
   shared_preferences: 
+  flutter_html: ^1.0.0-pre.1
+  hive: ^1.4.1+1
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -49,7 +51,7 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - assets/dictionary.json
+    - assets/EnRuBig.json
     - assets/dictionary_compact.json
 
   # An image asset can refer to one or more resolution-specific "variants", see
