@@ -66,37 +66,41 @@ class Dictionary extends ChangeNotifier {
 
   int _numberOfIsolates = 4;
   int _curFile = 0;
+  int _runningIsolates = 0;
+  int _filesRemaining = 0;
 
   void iterateInIsolate(String fileName, int maxFile) {
     if (_curFile == 0) {
+      _filesRemaining = maxFile + 1;
       for (var i = 0; i < _numberOfIsolates; i++) {
         if (_curFile > maxFile) break;
         var asset = sprintf(fileName, [_curFile]);
-        isolateProcessBundleAsset(
-            asset, fileName, _curFile, maxFile, _curFile == maxFile);
+        isolateProcessBundleAsset(asset, fileName, _curFile, maxFile);
         _curFile++;
       }
     } else {
       if (_curFile > maxFile) return;
       var asset = sprintf(fileName, [_curFile]);
-      isolateProcessBundleAsset(
-          asset, fileName, _curFile, maxFile, _curFile == maxFile);
+      isolateProcessBundleAsset(asset, fileName, _curFile, maxFile);
       _curFile++;
     }
   }
 
   void isolateProcessBundleAsset(
-      String asset, String fileName, int curFile, int maxFile, bool last) {
+      String asset, String fileName, int curFile, int maxFile) {
+    _runningIsolates++;
+    _filesRemaining--;
     rootBundle.loadString(asset).then((assetValue) {
       compute(isolateBody, IsolateParams(assetValue, curFile)).then((value) {
-        if (last) {
+        _runningIsolates--;
+        if (_runningIsolates == 0 && _filesRemaining == 0) {
           _box.putAll(value).then((value) {
             isLoaded = true;
             print('JSON loaded to Hive DB: ' + DateTime.now().toString());
           });
         } else {
           _box.putAll(value);
-          iterateInIsolate(fileName, maxFile);
+          if (_filesRemaining > 0) iterateInIsolate(fileName, maxFile);
         }
       });
     });
