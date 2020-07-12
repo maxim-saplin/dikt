@@ -25,7 +25,8 @@ class Lookup extends StatelessWidget {
                   right: 0,
                   bottom: 100.0,
                   child: Text(
-                    'Type-in word below\n↓ ↓ ↓',
+                    dictionary.totalWords.toString() +
+                        ' words\n\nType-in text below\n↓ ↓ ↓',
                     textAlign: TextAlign.center,
                   ))
               : LookupWords(
@@ -157,11 +158,11 @@ void showArticle(
   showDialog(
       context: context,
       builder: (BuildContext context) {
-        String article;
+        Future<String> article;
         if (dictionary.isLookupWordEmpty) {
           article = dictionary.getArticle(word);
-          if (article == '') {
-            article = "N/A";
+          if (article == null) {
+            article = Future<String>.value('N/A');
             history.removeWord(word);
           }
         } else {
@@ -176,22 +177,31 @@ void showArticle(
         return AlertDialog(
             title: SelectableText(word),
             content: SingleChildScrollView(
-                padding: EdgeInsets.all(0),
-                child: Html(
-                  data: article,
-                  onLinkTap: (url) {
-                    //dictionary.lookupWord = url;
-                    showArticle(context, dictionary, history, url);
-                  },
-                  style: {
-                    "div": Style(
-                        fontFamily: 'sans-serif-light',
-                        padding: EdgeInsets.all(0),
-                        fontSize: FontSize(19)
-                        //backgroundColor: Colors.yellow
-                        ),
-                  },
-                )));
+              padding: EdgeInsets.all(0),
+              child: FutureBuilder(
+                future: article,
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    return Html(
+                      data: snapshot.data,
+                      onLinkTap: (url) {
+                        //dictionary.lookupWord = url;
+                        showArticle(context, dictionary, history, url);
+                      },
+                      style: {
+                        "div": Style(
+                            fontFamily: 'sans-serif-light',
+                            padding: EdgeInsets.all(0),
+                            fontSize: FontSize(19)
+                            //backgroundColor: Colors.yellow
+                            ),
+                      },
+                    );
+                  }
+                  return Text('...');
+                },
+              ),
+            ));
       });
 }
 
