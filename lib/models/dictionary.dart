@@ -3,19 +3,45 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:sprintf/sprintf.dart';
 
 class Dictionary extends ChangeNotifier {
-  Map<String, String> words;
+  //Map<String, String> words;
   Future loadJson;
   final int maxResults = 100;
+  Box<String> _box;
 
   Dictionary() {
-    loadJson = rootBundle.loadString('assets/EnRuBig.json');
+    const fileName = 'assets/En-En-WordNet3-%02i.json';
+    const maxFile = 14;
+    int file = 0;
+
+    Hive.initFlutter().then((value) {
+      Hive.openBox<String>("enRuBig").then((box) {
+        _box = box;
+        if (_box.isEmpty) {
+          iterateJson(fileName, file, maxFile);
+        } else
+          isLoaded = true;
+      }).catchError((e) {
+        var err = e;
+      });
+    });
+  }
+
+  void iterateJson(String fileName, int file, int maxFile) {
+    var asset = sprintf(fileName, [file]);
+    file++;
+    loadJson = rootBundle.loadString(asset);
     loadJson.then((value) {
-      words = jsonDecode(value).cast<String, String>();
-      isLoaded = true;
-    }).catchError((e) {
-      var err = e;
+      Map<String, String> words = jsonDecode(value).cast<String, String>();
+      _box.putAll(words).then((value) {
+        if (file != maxFile)
+          iterateJson(fileName, file, maxFile);
+        else
+          isLoaded = true;
+      });
     });
   }
 
@@ -52,7 +78,8 @@ class Dictionary extends ChangeNotifier {
     int n = 0;
     matches.clear();
 
-    for (var k in words.keys) {
+    //for (var k in words.keys) {
+    for (var k in _box.keys) {
       if (k.startsWith(lookup)) {
         n++;
         matches.add(k);
@@ -68,13 +95,16 @@ class Dictionary extends ChangeNotifier {
 
   String getArticleFromMatches(int n) {
     if (n > matches.length - 1) return '';
-    return words[matches[n]];
+    //return words[matches[n]];
+    return _box.get(matches[n]);
   }
 
   String getArticle(String word) {
     word = word?.toLowerCase();
-    if (!words.containsKey(word)) return '';
-    return words[word];
+    if (!_box.containsKey(word)) return '';
+    return _box.get(word);
+    // if (!words.containsKey(word)) return '';
+    // return words[word];
   }
 
   bool _isLoaded = false;

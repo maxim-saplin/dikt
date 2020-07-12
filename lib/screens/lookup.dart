@@ -185,10 +185,11 @@ void showArticle(
                   },
                   style: {
                     "div": Style(
-                      fontFamily: 'sans-serif-light',
-                      padding: EdgeInsets.all(0),
-                      //backgroundColor: Colors.yellow
-                    ),
+                        fontFamily: 'sans-serif-light',
+                        padding: EdgeInsets.all(0),
+                        fontSize: FontSize(19)
+                        //backgroundColor: Colors.yellow
+                        ),
                   },
                 )));
       });
