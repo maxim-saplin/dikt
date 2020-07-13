@@ -12,7 +12,7 @@ class Lookup extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var dictionary = Provider.of<Dictionary>(context);
+    var dictionary = Provider.of<MasterDictionary>(context);
     var history = Provider.of<History>(context, listen: false);
 
     return Scaffold(
@@ -34,29 +34,35 @@ class Lookup extends StatelessWidget {
                   dictionary: dictionary,
                   history: history)),
       _SearchBar(),
-      SettingsButton(),
+      TopButtons(),
     ]));
   }
 }
 
-class SettingsButton extends StatelessWidget {
+class TopButtons extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
         minimum: const EdgeInsets.all(20),
         child: Align(
             alignment: Alignment.topRight,
-            child: IconButton(
-              icon: Icon(Icons.settings),
-              onPressed: () {
-                showDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return AlertDialog(
-                          title: Text('Settings'), content: Settings());
-                    });
-              },
-            )));
+            child: Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+              IconButton(icon: Icon(Icons.dns, size: 30), onPressed: () {}),
+              IconButton(
+                icon: Icon(
+                  Icons.apps,
+                  size: 30,
+                ),
+                onPressed: () {
+                  showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                            title: Text('Settings'), content: Settings());
+                      });
+                },
+              )
+            ])));
   }
 }
 
@@ -68,7 +74,7 @@ class LookupWords extends StatelessWidget {
       : _barHeight = barHeight;
 
   final double _barHeight;
-  final Dictionary dictionary;
+  final MasterDictionary dictionary;
   final History history;
 
   static const int _emptyEntries = 5; //allow to reach top items
@@ -115,7 +121,7 @@ class LookupWords extends StatelessWidget {
 
 class _Entry extends StatelessWidget {
   final int index;
-  final Dictionary dictionary;
+  final MasterDictionary dictionary;
   final History history;
 
   _Entry(this.index, this.dictionary, this.history, {Key key})
@@ -153,8 +159,8 @@ class _Entry extends StatelessWidget {
   }
 }
 
-void showArticle(
-    BuildContext context, Dictionary dictionary, History history, String word) {
+void showArticle(BuildContext context, MasterDictionary dictionary,
+    History history, String word) {
   showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -210,7 +216,7 @@ class _SearchBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var dictionary = Provider.of<Dictionary>(context, listen: false);
+    var dictionary = Provider.of<MasterDictionary>(context, listen: false);
 
     return Positioned(
         bottom: 0.0,
@@ -242,12 +248,13 @@ class _SearchBar extends StatelessWidget {
                                       ? (dictionary.isLookupWordEmpty
                                           ? ''
                                           : (dictionary.matchesCount >
-                                                  dictionary.maxResults
-                                              ? dictionary.maxResults
-                                                      .toString() +
-                                                  '+'
-                                              : dictionary.matchesCount
-                                                  .toString()))
+                                                      dictionary.maxResults
+                                                  ? dictionary.maxResults
+                                                          .toString() +
+                                                      '+'
+                                                  : dictionary.matchesCount
+                                                      .toString()) +
+                                              '  ╳')
                                       : '0_0'))),
                         )
                       : Text('Loading...'),

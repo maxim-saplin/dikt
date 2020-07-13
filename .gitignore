@@ -21,3 +21,13 @@ doc/api/
 *.js.map
 .DS_Store
 assets/EnRuBig.json
+assets/dictionaries/EnRuUniversal00.json
+assets/dictionaries/EnRuUniversal01.json
+assets/dictionaries/EnRuUniversal02.json
+assets/dictionaries/EnRuUniversal03.json
+assets/dictionaries/EnRuUniversal04.json
+assets/dictionaries/EnRuUniversal05.json
+assets/dictionaries/EnRuUniversal06.json
+assets/dictionaries/EnRuUniversal07.json
+assets/dictionaries/EnRuUniversal08.json
+assets/dictionaries/EnRuUniversal09.json

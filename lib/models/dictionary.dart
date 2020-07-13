@@ -1,4 +1,5 @@
 import 'dart:async' show Future;
+import 'dart:typed_data';
 import 'package:flutter/services.dart' show rootBundle;
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
@@ -8,46 +9,21 @@ import 'package:sprintf/sprintf.dart';
 import 'package:archive/archive.dart';
 import 'package:flutter/material.dart';
 
-class IsolateParams {
-  const IsolateParams(this.assetValue, this.file);
-  final String assetValue;
-  final int file;
-}
-
-Map<String, String> isolateBody(IsolateParams params) {
-  print('  JSON loading IN ISOLATE, file ' + params.file.toString());
-  //WidgetsFlutterBinding.ensureInitialized();
-  var i = 0;
-  var gzip = new GZipEncoder();
-  var words = jsonDecode(params.assetValue, reviver: (k, v) {
-    if (i % 1000 == 0) print('  JSON decoded objects: ' + i.toString());
-    i++;
-    if (v is String) {
-      var bytes = utf8.encode(v);
-      var gzipBytes = gzip.encode(bytes);
-      var s = base64.encode(gzipBytes);
-      return s;
-    } else
-      return v;
-  });
-  return words.cast<String, String>();
-}
-
-class Dictionary extends ChangeNotifier {
+class MasterDictionary extends ChangeNotifier {
   //Map<String, String> words;
   Future loadJson;
   final int maxResults = 100;
-  LazyBox<String> _box;
+  LazyBox<Uint8List> _box;
   GZipDecoder _gZipDecoder = GZipDecoder();
 
-  Dictionary() {
+  MasterDictionary() {
     const fileName = 'assets/En-En-WordNet3-%02i.json';
     const maxFile = 14;
     //int file = 0;
 
     print('Hive init: ' + DateTime.now().toString());
     Hive.initFlutter().then((value) {
-      Hive.openLazyBox<String>("enRuBig").then((box) {
+      Hive.openLazyBox<Uint8List>("enRuBig").then((box) {
         _box = box;
         if (_box.isEmpty) {
           print('Loading JSON to Hive DB: ' + DateTime.now().toString());
@@ -106,41 +82,41 @@ class Dictionary extends ChangeNotifier {
     });
   }
 
-  void iterateJson(String fileName, int file, int maxFile) {
-    print('  JSON loading, iteration ' +
-        file.toString() +
-        ' of ' +
-        maxFile.toString());
-    var asset = sprintf(fileName, [file]);
-    file++;
-    loadJson = rootBundle.loadString(asset);
-    loadJson.then((value) {
-      var i = 0;
-      var gzip = new GZipEncoder();
-      // still there's Map of string create and stored internally which is passed to the method at the end of decoding, though returning nulls should save mem
-      jsonDecode(value, reviver: (k, v) {
-        //try {
-        if (i % 1000 == 0) print('  JSON decoded objects: ' + i.toString());
-        i++;
-        if (v is String) {
-          var bytes = utf8.encode(v);
-          var gzipBytes = gzip.encode(bytes);
-          var s = base64.encode(gzipBytes);
-          _box.put(k as String, s);
-        }
-        // } catch (error) {
-        //   var err = error;
-        // }
-        return null;
-      });
-      if (file != maxFile + 1)
-        iterateJson(fileName, file, maxFile);
-      else {
-        isLoaded = true;
-        print('JSON loaded to Hive DB: ' + DateTime.now().toString());
-      }
-    });
-  }
+  // void iterateJson(String fileName, int file, int maxFile) {
+  //   print('  JSON loading, iteration ' +
+  //       file.toString() +
+  //       ' of ' +
+  //       maxFile.toString());
+  //   var asset = sprintf(fileName, [file]);
+  //   file++;
+  //   loadJson = rootBundle.loadString(asset);
+  //   loadJson.then((value) {
+  //     var i = 0;
+  //     var gzip = new GZipEncoder();
+  //     // still there's Map of string create and stored internally which is passed to the method at the end of decoding, though returning nulls should save mem
+  //     jsonDecode(value, reviver: (k, v) {
+  //       //try {
+  //       if (i % 1000 == 0) print('  JSON decoded objects: ' + i.toString());
+  //       i++;
+  //       if (v is String) {
+  //         var bytes = utf8.encode(v);
+  //         var gzipBytes = gzip.encode(bytes);
+  //         var s = base64.encode(gzipBytes);
+  //         _box.put(k as String, s);
+  //       }
+  //       // } catch (error) {
+  //       //   var err = error;
+  //       // }
+  //       return null;
+  //     });
+  //     if (file != maxFile + 1)
+  //       iterateJson(fileName, file, maxFile);
+  //     else {
+  //       isLoaded = true;
+  //       print('JSON loaded to Hive DB: ' + DateTime.now().toString());
+  //     }
+  //   });
+  // }
 
   List<String> matches = [];
 
@@ -194,8 +170,8 @@ class Dictionary extends ChangeNotifier {
     return matches[n];
   }
 
-  Future<String> _unzip(String articleBase64) async {
-    var articleBytes = base64.decode(articleBase64);
+  Future<String> _unzip(Uint8List articleBytes) async {
+    //var articleBytes = base64.decode(articleBase64);
     var bytes = _gZipDecoder.decodeBytes(articleBytes);
     var article = utf8.decode(bytes);
     return article;
@@ -230,4 +206,31 @@ class Dictionary extends ChangeNotifier {
   void notify() {
     notifyListeners();
   }
+}
+
+class IsolateParams {
+  const IsolateParams(this.assetValue, this.file);
+  final String assetValue;
+  final int file;
+}
+
+Map<String, Uint8List> isolateBody(IsolateParams params) {
+  print('  JSON loading IN ISOLATE, file ' + params.file.toString());
+  //WidgetsFlutterBinding.ensureInitialized();
+  var i = 0;
+  var gzip = new GZipEncoder();
+  var words = jsonDecode(params.assetValue, reviver: (k, v) {
+    if (i % 1000 == 0) print('  JSON decoded objects: ' + i.toString());
+    i++;
+    if (v is String) {
+      var bytes = utf8.encode(v);
+      var gzipBytes = gzip.encode(bytes);
+      var b = Uint8List.fromList(gzipBytes);
+      return b;
+      //var s = base64.encode(gzipBytes);
+      //return s;
+    } else
+      return v;
+  });
+  return words.cast<String, Uint8List>();
 }
