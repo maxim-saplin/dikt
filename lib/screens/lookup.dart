@@ -192,8 +192,15 @@ void showArticle(BuildContext context, MasterDictionary dictionary,
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
                     return Column(
-                        children: snapshot.data
-                            .map<Widget>((Article article) => Html(
+                      children: (snapshot.data as List<Article>)
+                          .map((Article article) => [
+                                Align(
+                                    alignment: Alignment.centerRight,
+                                    child: Text(article.dictionaryName,
+                                        style: TextStyle(
+                                            fontSize: 14,
+                                            fontStyle: FontStyle.italic))),
+                                Html(
                                   data: article.article,
                                   onLinkTap: (url) {
                                     //dictionary.lookupWord = url;
@@ -208,8 +215,11 @@ void showArticle(BuildContext context, MasterDictionary dictionary,
                                         //backgroundColor: Colors.yellow
                                         ),
                                   },
-                                ))
-                            .toList());
+                                )
+                              ])
+                          .expand((i) => i)
+                          .toList(),
+                    );
                   }
                   return Text('...');
                 },

@@ -5,5 +5,6 @@ class HiveField {
   /// The index of this field.
   final int index;
 
+  ///
   const HiveField(this.index);
 }
