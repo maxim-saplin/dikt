@@ -1,4 +1,4 @@
-import 'package:dikt/models/dictionary.dart';
+import 'package:dikt/models/masterDictionary.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:dikt/models/preferences.dart';

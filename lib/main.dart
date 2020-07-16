@@ -1,13 +1,16 @@
 import 'package:dikt/common/preferencesSingleton.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:dikt/models/dictionary.dart';
+import 'package:dikt/models/masterDictionary.dart';
 import 'package:dikt/models/preferences.dart';
 import 'package:dikt/screens/lookup.dart';
 import 'package:dikt/models/history.dart';
+import 'package:flutter/services.dart';
+import 'models/dictionaryManager.dart';
 
 void main() async {
   await PreferencesSingleton.init();
+  await DictionaryManager.init();
   runApp(MyApp());
 }
 
@@ -16,26 +19,38 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
         providers: [
-          ChangeNotifierProvider<MasterDictionary>(
-            create: (context) => MasterDictionary(),
+          ChangeNotifierProvider<DictionaryManager>(
+            create: (context) => DictionaryManager(),
           ),
           ChangeNotifierProvider<Preferences>(
             create: (context) => Preferences(),
           ),
           Provider(create: (context) => History()),
+          ChangeNotifierProxyProvider<DictionaryManager, MasterDictionary>(
+              create: (context) => MasterDictionary(),
+              update: (context, manager, master) {
+                master.dictionaryManager = manager;
+                master.init();
+                return master;
+              }),
         ],
         child: Consumer<Preferences>(
-          builder: (context, preferences, child) => MaterialApp(
-            title: 'dikt',
-            initialRoute: '/',
-            routes: {
-              '/': (context) => Lookup(),
-            },
-            themeMode: preferences.themeMode,
-            theme: lightTheme,
-            darkTheme: darkTheme,
-          ),
-        ));
+            builder: (context, preferences, child) => MaterialApp(
+                  title: 'dikt',
+                  initialRoute: '/',
+                  routes: {
+                    '/': (context) {
+                      SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+                        systemNavigationBarColor: Theme.of(context)
+                            .canvasColor, // navigation bar color
+                      ));
+                      return Lookup();
+                    },
+                  },
+                  themeMode: preferences.themeMode,
+                  theme: lightTheme,
+                  darkTheme: darkTheme,
+                )));
   }
 
   final ThemeData lightTheme = ThemeData.light().copyWith(

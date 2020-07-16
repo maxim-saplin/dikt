@@ -1,4 +1,4 @@
-package com.example.dikt
+package com.saplin.dikt
 
 import io.flutter.embedding.android.FlutterActivity
 

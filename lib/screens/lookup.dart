@@ -1,11 +1,13 @@
 import 'package:dikt/models/history.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:dikt/models/dictionary.dart';
+import 'package:dikt/models/masterDictionary.dart';
 import 'package:dikt/screens/settings.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_html/style.dart';
+
+const String dictionariesMetaBoxName = "_dictionaries/\$meta\\";
 
 class Lookup extends StatelessWidget {
   static const double _barHeight = 60;
@@ -25,7 +27,7 @@ class Lookup extends StatelessWidget {
                   right: 0,
                   bottom: 100.0,
                   child: Text(
-                    dictionary.totalWords.toString() +
+                    dictionary.totalEntries.toString() +
                         ' words\n\nType-in text below\n↓ ↓ ↓',
                     textAlign: TextAlign.center,
                   ))
@@ -164,15 +166,16 @@ void showArticle(BuildContext context, MasterDictionary dictionary,
   showDialog(
       context: context,
       builder: (BuildContext context) {
-        Future<String> article;
+        Future<List<Article>> articles;
         if (dictionary.isLookupWordEmpty) {
-          article = dictionary.getArticle(word);
-          if (article == null) {
-            article = Future<String>.value('N/A');
+          articles = dictionary.getArticles(word);
+          if (articles == null) {
+            articles =
+                Future<List<Article>>.value([Article('N/A', 'N/A', 'N/A')]);
             history.removeWord(word);
           }
         } else {
-          article = dictionary.getArticle(word);
+          articles = dictionary.getArticles(word);
           history.addWord(word);
         }
 
@@ -185,24 +188,28 @@ void showArticle(BuildContext context, MasterDictionary dictionary,
             content: SingleChildScrollView(
               padding: EdgeInsets.all(0),
               child: FutureBuilder(
-                future: article,
+                future: articles,
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
-                    return Html(
-                      data: snapshot.data,
-                      onLinkTap: (url) {
-                        //dictionary.lookupWord = url;
-                        showArticle(context, dictionary, history, url);
-                      },
-                      style: {
-                        "div": Style(
-                            fontFamily: 'sans-serif-light',
-                            padding: EdgeInsets.all(0),
-                            fontSize: FontSize(19)
-                            //backgroundColor: Colors.yellow
-                            ),
-                      },
-                    );
+                    return Column(
+                        children: snapshot.data
+                            .map<Widget>((Article article) => Html(
+                                  data: article.article,
+                                  onLinkTap: (url) {
+                                    //dictionary.lookupWord = url;
+                                    showArticle(
+                                        context, dictionary, history, url);
+                                  },
+                                  style: {
+                                    "div": Style(
+                                        fontFamily: 'sans-serif-light',
+                                        padding: EdgeInsets.all(0),
+                                        fontSize: FontSize(19)
+                                        //backgroundColor: Colors.yellow
+                                        ),
+                                  },
+                                ))
+                            .toList());
                   }
                   return Text('...');
                 },
