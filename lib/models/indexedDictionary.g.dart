@@ -20,13 +20,14 @@ class IndexedDictionaryAdapter extends TypeAdapter<IndexedDictionary> {
       ..name = fields[0] as String
       ..enabled = fields[1] as bool
       ..boxName = fields[2] as String
-      ..isReadyToUse = fields[3] as bool;
+      ..isReadyToUse = fields[3] as bool
+      ..order = fields[4] as int;
   }
 
   @override
   void write(BinaryWriter writer, IndexedDictionary obj) {
     writer
-      ..writeByte(4)
+      ..writeByte(5)
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
@@ -34,6 +35,8 @@ class IndexedDictionaryAdapter extends TypeAdapter<IndexedDictionary> {
       ..writeByte(2)
       ..write(obj.boxName)
       ..writeByte(3)
-      ..write(obj.isReadyToUse);
+      ..write(obj.isReadyToUse)
+      ..writeByte(4)
+      ..write(obj.order);
   }
 }

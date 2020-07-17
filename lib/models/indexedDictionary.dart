@@ -18,4 +18,7 @@ class IndexedDictionary extends HiveObject {
   LazyBox<Uint8List> get box {
     return Hive.lazyBox(boxName);
   }
+
+  @HiveField(4)
+  int order;
 }

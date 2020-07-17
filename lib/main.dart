@@ -1,12 +1,13 @@
 import 'package:dikt/common/preferencesSingleton.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:dikt/models/masterDictionary.dart';
-import 'package:dikt/models/preferences.dart';
-import 'package:dikt/screens/lookup.dart';
-import 'package:dikt/models/history.dart';
 import 'package:flutter/services.dart';
-import 'models/dictionaryManager.dart';
+
+import './models/masterDictionary.dart';
+import './models/preferences.dart';
+import './screens/lookup.dart';
+import './models/history.dart';
+import './models/dictionaryManager.dart';
 
 void main() async {
   await PreferencesSingleton.init();
@@ -71,6 +72,12 @@ class MyApp extends StatelessWidget {
       fontFamily: 'Montserrat',
       color: Colors.black,
     ),
+    subtitle2: TextStyle(
+      fontSize: 16.0,
+      fontFamily: 'Montserrat',
+      fontStyle: FontStyle.italic,
+      color: Colors.black,
+    ),
     // standard Text()
     bodyText2: TextStyle(
         fontSize: 20.0, fontFamily: 'Montserrat', color: Colors.black),
@@ -97,6 +104,12 @@ class MyApp extends StatelessWidget {
     subtitle1: TextStyle(
       fontSize: 20.0,
       fontFamily: 'Montserrat',
+      color: Colors.white,
+    ),
+    subtitle2: TextStyle(
+      fontSize: 16.0,
+      fontFamily: 'Montserrat',
+      fontStyle: FontStyle.italic,
       color: Colors.white,
     ),
     bodyText2: TextStyle(

@@ -1,11 +1,15 @@
 import 'package:dikt/models/history.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:dikt/models/masterDictionary.dart';
 import 'package:dikt/screens/settings.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:flutter_html/flutter_html.dart';
-import 'package:flutter_html/style.dart';
+
+import '../models/masterDictionary.dart';
+import './settings.dart';
+import './wordArticles.dart';
+import '../common/simpleSimpleDialog.dart' show SimpleSimpleDialog;
 
 const String dictionariesMetaBoxName = "_dictionaries/\$meta\\";
 
@@ -143,7 +147,6 @@ class _Entry extends StatelessWidget {
         child: GestureDetector(
           onTap: () {
             if (word == '' || word == null) return;
-
             showArticle(context, dictionary, history, word);
           },
           child: LimitedBox(
@@ -179,52 +182,17 @@ void showArticle(BuildContext context, MasterDictionary dictionary,
           history.addWord(word);
         }
 
-        // return AlertDialog(
-        //     title: SelectableText(word),
-        //     content: SelectableText(article));
-
-        return AlertDialog(
-            title: SelectableText(word),
-            content: SingleChildScrollView(
-              padding: EdgeInsets.all(0),
-              child: FutureBuilder(
-                future: articles,
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    return Column(
-                      children: (snapshot.data as List<Article>)
-                          .map((Article article) => [
-                                Align(
-                                    alignment: Alignment.centerRight,
-                                    child: Text(article.dictionaryName,
-                                        style: TextStyle(
-                                            fontSize: 14,
-                                            fontStyle: FontStyle.italic))),
-                                Html(
-                                  data: article.article,
-                                  onLinkTap: (url) {
-                                    //dictionary.lookupWord = url;
-                                    showArticle(
-                                        context, dictionary, history, url);
-                                  },
-                                  style: {
-                                    "div": Style(
-                                        fontFamily: 'sans-serif-light',
-                                        padding: EdgeInsets.all(0),
-                                        fontSize: FontSize(19)
-                                        //backgroundColor: Colors.yellow
-                                        ),
-                                  },
-                                )
-                              ])
-                          .expand((i) => i)
-                          .toList(),
-                    );
-                  }
-                  return Text('...');
-                },
-              ),
-            ));
+        return SimpleSimpleDialog(
+            // title: SelectableText(word),
+            //scrollable: false,
+            children: [
+              WordArticles(
+                articles: articles,
+                word: word,
+                showAnotherWord: (word) =>
+                    showArticle(context, dictionary, history, word),
+              )
+            ]);
       });
 }
 

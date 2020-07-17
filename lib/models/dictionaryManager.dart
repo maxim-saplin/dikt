@@ -1,5 +1,8 @@
 import 'dart:async' show Future, Completer;
 import 'dart:typed_data';
+import 'dart:io';
+import 'dart:core';
+import 'dart:math';
 import 'package:flutter/services.dart' show rootBundle;
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
@@ -16,6 +19,9 @@ class BundledDictionary {
   final int maxFileIndex;
   const BundledDictionary(
       this.assetFileNamePattern, this.name, this.maxFileIndex);
+  String get boxName {
+    return 'dik_' + name.replaceAll(RegExp('[^A-Za-z0-9]'), '');
+  }
 }
 
 const bundledDictionaries = [
@@ -52,16 +58,17 @@ class DictionaryManager extends ChangeNotifier {
         var d = IndexedDictionary();
         var bd = bundledDictionaries[i];
         d.name = bd.name;
-        d.boxName = 'dik_' + bd.name.replaceAll(RegExp('[^A-Za-z0-9]'), '');
+        d.boxName = bd.boxName;
         d.enabled = true;
         d.isReadyToUse = false;
+        d.order = i;
         _dictionaries.put(d.boxName, d);
         //notifyListeners(); // let listeners know there're pending dictionaries
       }
 
       for (var i = 0; i < _dictionaries.length; i++) {
-        var d = _dictionaries.getAt(i);
         var bd = bundledDictionaries[i];
+        var d = _dictionaries.get(bd.boxName);
         var box = await Hive.openLazyBox<Uint8List>(d.boxName);
         var indexer = BundledIndexer(bd.assetFileNamePattern, bd.maxFileIndex,
             i == bundledDictionaries.length - 1 ? completer : null, box);
@@ -90,6 +97,10 @@ class DictionaryManager extends ChangeNotifier {
         var d = _dictionaries.getAt(i);
         _dictionariesList.add(d);
       }
+      _dictionariesList.sort((a, b) {
+        if (a.order == null || b.order == null) return 0;
+        return a.order - b.order;
+      });
     }
     return _dictionariesList;
   }
@@ -127,7 +138,7 @@ class BundledIndexer {
     return runCompleter.future;
   }
 
-  int _numberOfIsolates = 4;
+  int _numberOfIsolates = max(2, Platform.numberOfProcessors);
   int _curFile = 0;
   int _runningIsolates = 0;
   int _filesRemaining = 0;
