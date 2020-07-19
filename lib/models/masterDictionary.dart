@@ -20,76 +20,13 @@ class MasterDictionary extends ChangeNotifier {
   GZipDecoder _gZipDecoder = GZipDecoder();
   DictionaryManager dictionaryManager;
 
-  MasterDictionary() {
-    /*  const fileName = 'assets/En-En-WordNet3-%02i.json';
-    const maxFile = 14;
-
-   print('Hive init: ' + DateTime.now().toString());
-    Hive.initFlutter().then((value) {
-      Hive.openLazyBox<Uint8List>("enRuBig").then((box) {
-        _box = box;
-        if (_box.isEmpty) {
-          print('Loading JSON to Hive DB: ' + DateTime.now().toString());
-          //iterateJson(fileName, file, maxFile);
-          iterateInIsolate(fileName, maxFile);
-        } else {
-          isLoaded = true;
-          print('JSON was already loaded to Hive DB: ' +
-              DateTime.now().toString());
-        }
-      }).catchError((e) {
-        var err = e;
-      });
-    });*/
-  }
-
   void init() {
-    dictionaryManager
-        .loadBundledDictionaries()
-        .then((value) => isLoaded = true);
+    print('Master dictionary init started: ' + DateTime.now().toString());
+    dictionaryManager.loadBundledDictionaries().then((value) {
+      isLoaded = true;
+      print('Master dictionary init completed: ' + DateTime.now().toString());
+    });
   }
-
-  // int _numberOfIsolates = 4;
-  // int _curFile = 0;
-  // int _runningIsolates = 0;
-  // int _filesRemaining = 0;
-
-  // void iterateInIsolate(String fileName, int maxFile) {
-  //   if (_curFile == 0) {
-  //     _filesRemaining = maxFile + 1;
-  //     for (var i = 0; i < _numberOfIsolates; i++) {
-  //       if (_curFile > maxFile) break;
-  //       var asset = sprintf(fileName, [_curFile]);
-  //       isolateProcessBundleAsset(asset, fileName, _curFile, maxFile);
-  //       _curFile++;
-  //     }
-  //   } else {
-  //     if (_curFile > maxFile) return;
-  //     var asset = sprintf(fileName, [_curFile]);
-  //     isolateProcessBundleAsset(asset, fileName, _curFile, maxFile);
-  //     _curFile++;
-  //   }
-  // }
-
-  // void isolateProcessBundleAsset(
-  //     String asset, String fileName, int curFile, int maxFile) {
-  //   _runningIsolates++;
-  //   _filesRemaining--;
-  //   rootBundle.loadString(asset).then((assetValue) {
-  //     compute(isolateBody, IsolateParams(assetValue, curFile)).then((value) {
-  //       _runningIsolates--;
-  //       if (_runningIsolates == 0 && _filesRemaining == 0) {
-  //         _box.putAll(value).then((value) {
-  //           isLoaded = true;
-  //           print('JSON loaded to Hive DB: ' + DateTime.now().toString());
-  //         });
-  //       } else {
-  //         _box.putAll(value);
-  //         if (_filesRemaining > 0) iterateInIsolate(fileName, maxFile);
-  //       }
-  //     });
-  //   });
-  // }
 
   List<String> matches = [];
 
@@ -172,9 +109,6 @@ class MasterDictionary extends ChangeNotifier {
     var word = matches[n];
 
     return getArticles(word);
-    // if (n > matches.length - 1) return null; //Future<String>.value('');
-    // var article = _unzip(await _box.get(matches[n]));
-    // return article;
   }
 
   Future<List<Article>> getArticles(String word) async {

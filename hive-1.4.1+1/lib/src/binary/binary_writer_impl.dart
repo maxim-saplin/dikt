@@ -220,8 +220,11 @@ class BinaryWriterImpl extends BinaryWriter {
   void writeKey(dynamic key) {
     if (key is String) {
       writeByte(FrameKeyType.asciiStringT);
-      writeByte(key.length);
-      _addBytes(key.codeUnits);
+      var b = utf8.encode(key);
+      writeByte(b.length); //TODO, what if length is greater than 255
+      _addBytes(b);
+      //writeByte(key.length);
+      //_addBytes(key.codeUnits);
     } else {
       writeByte(FrameKeyType.uintT);
       writeUint32(key as int);

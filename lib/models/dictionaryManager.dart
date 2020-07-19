@@ -26,11 +26,11 @@ class BundledDictionary {
 
 const bundledDictionaries = [
   BundledDictionary(
-      'assets/dictionaries/EnRuUniversal%02i.json', 'EN/RU Universal', 9),
+      'assets/dictionaries/EnRuUniversal%02i.json', 'EN/RU Universal', 9), //9
+  BundledDictionary('assets/dictionaries/En-En-WordNet3-%02i.json',
+      'EN/EN WordNet 3', 14), //14
   BundledDictionary(
-      'assets/dictionaries/En-En-WordNet3-%02i.json', 'EN/EN WordNet 3', 14),
-  BundledDictionary(
-      'assets/dictionaries/RuEnUniversal%02i.json', 'RU/EN Universal', 8),
+      'assets/dictionaries/RuEnUniversal%02i.json', 'RU/EN Universal', 8), //8
 ];
 
 class DictionaryManager extends ChangeNotifier {
@@ -65,7 +65,6 @@ class DictionaryManager extends ChangeNotifier {
         d.isReadyToUse = false;
         d.order = i;
         _dictionaries.put(d.boxName, d);
-        //notifyListeners(); // let listeners know there're pending dictionaries
       }
 
       for (var i = 0; i < _dictionaries.length; i++) {
@@ -81,7 +80,6 @@ class DictionaryManager extends ChangeNotifier {
         } catch (err) {
           d.isError = true;
         }
-        //notifyListeners(); // let other's know there're upadtes to dictionaries state
       }
     }
 
