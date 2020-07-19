@@ -26,9 +26,11 @@ class BundledDictionary {
 
 const bundledDictionaries = [
   BundledDictionary(
-      'assets/dictionaries/EnRuUniversal%02i.json', 'EN->RU: Universal', 9),
+      'assets/dictionaries/EnRuUniversal%02i.json', 'EN/RU Universal', 9),
   BundledDictionary(
-      'assets/dictionaries/En-En-WordNet3-%02i.json', 'EN->EN: WordNet 3', 14),
+      'assets/dictionaries/En-En-WordNet3-%02i.json', 'EN/EN WordNet 3', 14),
+  BundledDictionary(
+      'assets/dictionaries/RuEnUniversal%02i.json', 'RU/EN Universal', 8),
 ];
 
 class DictionaryManager extends ChangeNotifier {

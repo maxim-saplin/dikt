@@ -38,7 +38,7 @@ dependencies:
   cupertino_icons: ^0.1.3
 
 dependency_overrides:
-  path: ^1.6.4
+  dartx: ^0.3.0
   hive: # custom version remove box key assetion to be ASCII string not greater than 255 chars
     path: ./hive-1.4.1+1/
 

@@ -37,6 +37,13 @@ class MyApp extends StatelessWidget {
         ],
         child: Consumer<Preferences>(
             builder: (context, preferences, child) => MaterialApp(
+                  builder: (BuildContext context, Widget child) {
+                    return MediaQuery(
+                      data:
+                          MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
+                      child: child,
+                    );
+                  },
                   title: 'dikt',
                   initialRoute: '/',
                   routes: {

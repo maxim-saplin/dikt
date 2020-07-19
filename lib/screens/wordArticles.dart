@@ -34,7 +34,7 @@ class WordArticles extends StatelessWidget {
                             child: Container(
                           padding: EdgeInsets.all(12),
                           height: 48.0,
-                          color: Theme.of(context).canvasColor,
+                          color: Theme.of(context).cardColor,
                           child: Text(article.dictionaryName,
                               style: Theme.of(context).textTheme.subtitle2),
                           alignment: Alignment.centerRight,
