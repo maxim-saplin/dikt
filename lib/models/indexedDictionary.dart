@@ -16,7 +16,7 @@ class IndexedDictionary extends HiveObject {
       isReadyToUse; //e.g. indexing can fail in the process, created though not complete box must be deleted
   bool isError;
   LazyBox<Uint8List> get box {
-    return Hive.lazyBox(boxName);
+    return Hive.lazyBox<Uint8List>(boxName);
   }
 
   @HiveField(4)

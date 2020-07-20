@@ -33,6 +33,39 @@ const bundledDictionaries = [
       'assets/dictionaries/RuEnUniversal%02i.json', 'RU/EN Universal', 8), //8
 ];
 
+enum DictionaryBeingProcessedState { pending, inprogress, success, error }
+
+class DictionaryBeingProcessed {
+  final String name;
+  final BundledDictionary bundledDictiopnary;
+  final IndexedDictionary indexedDictionary;
+
+  // DictionaryBeingProcessed(this.name)
+  // : this.bundledDictiopnary = null, this.indexedDictiopnary = null;
+
+  DictionaryBeingProcessed.bundled(this.bundledDictiopnary)
+      : this.name = bundledDictiopnary.name,
+        this.indexedDictionary = null;
+
+  DictionaryBeingProcessed.indexed(this.indexedDictionary)
+      : this.name = indexedDictionary.name,
+        this.bundledDictiopnary = null;
+
+  DictionaryBeingProcessedState _state = DictionaryBeingProcessedState.pending;
+
+  DictionaryBeingProcessedState get state {
+    return _state;
+  }
+
+  set state(DictionaryBeingProcessedState value) {
+    if (value != _state) {
+      _state = value;
+    }
+  }
+}
+
+enum ManagerCurrentOperation { preparing, indexing, loading }
+
 class DictionaryManager extends ChangeNotifier {
   static const dictionairesBoxName = 'dictionairesBoxName';
   static Box<IndexedDictionary> _dictionaries;
@@ -43,47 +76,95 @@ class DictionaryManager extends ChangeNotifier {
     _dictionaries = await Hive.openBox(dictionairesBoxName);
   }
 
-  Future<void> loadBundledDictionaries() async {
+  Future<void> loadDictionaries() async {
     _isRunning = true;
-    var completer = Completer<void>();
+    _currentOperation = ManagerCurrentOperation.preparing;
 
-    if (_dictionaries.length == bundledDictionaries.length) {
-      //TODO: make proper vefication{
-      for (var i = 0; i < _dictionaries.length; i++) {
-        var d = _dictionaries.getAt(i);
-        await Hive.openLazyBox<Uint8List>(d.boxName);
-      }
-      completer.complete();
-    } else {
-      print('Loading JSON to Hive DB: ' + DateTime.now().toString());
-      for (var i = 0; i < bundledDictionaries.length; i++) {
-        var d = IndexedDictionary();
-        var bd = bundledDictionaries[i];
-        d.name = bd.name;
-        d.boxName = bd.boxName;
-        d.enabled = true;
-        d.isReadyToUse = false;
-        d.order = i;
-        _dictionaries.put(d.boxName, d);
-      }
+    _dictionariesBeingProcessed = List<DictionaryBeingProcessed>();
 
-      for (var i = 0; i < _dictionaries.length; i++) {
-        var bd = bundledDictionaries[i];
-        var d = _dictionaries.get(bd.boxName);
-        var box = await Hive.openLazyBox<Uint8List>(d.boxName);
-        var indexer = BundledIndexer(bd.assetFileNamePattern, bd.maxFileIndex,
-            i == bundledDictionaries.length - 1 ? completer : null, box);
+    for (var i in bundledDictionaries) {
+      if (!_dictionaries.containsKey(i.boxName)) {
+        _dictionariesBeingProcessed.add(DictionaryBeingProcessed.bundled(i));
+      }
+    }
+
+    if (_dictionariesBeingProcessed.length > 0) {
+      _currentOperation = ManagerCurrentOperation.indexing;
+      await indexBundledDictionaries(_dictionariesBeingProcessed);
+    }
+
+    _currentOperation = ManagerCurrentOperation.loading;
+    _dictionariesBeingProcessed = [];
+
+    for (var i in _dictionaries.keys) {
+      var d = _dictionaries.get(i);
+      if (d.isReadyToUse)
+        _dictionariesBeingProcessed
+            .add(DictionaryBeingProcessed.indexed(_dictionaries.get(i)));
+    }
+
+    if (_dictionariesBeingProcessed.length > 0) {
+      notifyListeners();
+      for (var i in _dictionariesBeingProcessed) {
         try {
-          await indexer.run();
-          d.isReadyToUse = true;
-          d.save();
+          i.state = DictionaryBeingProcessedState.inprogress;
+          notifyListeners();
+          await Hive.openLazyBox<Uint8List>(i.indexedDictionary.boxName);
+
+          i.state = DictionaryBeingProcessedState.success;
+          notifyListeners();
         } catch (err) {
-          d.isError = true;
+          print("Error loading box: " +
+              i.indexedDictionary.boxName +
+              "\n" +
+              err.toString());
+
+          i.state = DictionaryBeingProcessedState.error;
+          notifyListeners();
         }
       }
     }
 
     _isRunning = false;
+  }
+
+  Future<void> indexBundledDictionaries(
+      List<DictionaryBeingProcessed> bds) async {
+    var completer = Completer<void>();
+
+    print('Loading JSON to Hive DB: ' + DateTime.now().toString());
+    for (var i = 0; i < bds.length; i++) {
+      var d = IndexedDictionary();
+      var bd = bds[i].bundledDictiopnary;
+      print('  /Dictionary: ' + bd.name);
+
+      bds[i].state = DictionaryBeingProcessedState.inprogress;
+      notifyListeners();
+
+      d.name = bd.name;
+      d.boxName = bd.boxName;
+      d.enabled = true;
+      d.isReadyToUse = false;
+      d.order = i;
+      _dictionaries.put(d.boxName, d);
+      var box = await Hive.openLazyBox<Uint8List>(d.boxName);
+      var indexer = BundledIndexer(bd.assetFileNamePattern, bd.maxFileIndex,
+          i == bds.length - 1 ? completer : null, box);
+      try {
+        await indexer.run();
+        d.isReadyToUse = true;
+        d.save();
+
+        bds[i].state = DictionaryBeingProcessedState.success;
+        notifyListeners();
+      } catch (err) {
+        d.isError = true;
+        print("Error indexing box: " + d.boxName + "\n" + err.toString());
+
+        bds[i].state = DictionaryBeingProcessedState.error;
+        notifyListeners();
+      }
+    }
 
     return completer.future;
   }
@@ -95,7 +176,7 @@ class DictionaryManager extends ChangeNotifier {
       _dictionariesList = new List<IndexedDictionary>();
       for (var i = 0; i < _dictionaries.length; i++) {
         var d = _dictionaries.getAt(i);
-        _dictionariesList.add(d);
+        if (d.isReadyToUse) _dictionariesList.add(d);
       }
       _dictionariesList.sort((a, b) {
         if (a.order == null || b.order == null) return 0;
@@ -103,6 +184,12 @@ class DictionaryManager extends ChangeNotifier {
       });
     }
     return _dictionariesList;
+  }
+
+  List<DictionaryBeingProcessed> _dictionariesBeingProcessed = [];
+
+  List<DictionaryBeingProcessed> get dictionariesBeingProcessed {
+    return _dictionariesBeingProcessed;
   }
 
   bool __isRunning;
@@ -114,6 +201,21 @@ class DictionaryManager extends ChangeNotifier {
   set _isRunning(bool value) {
     if (value != __isRunning) {
       __isRunning = value;
+      notifyListeners();
+    }
+  }
+
+  ManagerCurrentOperation __currentOperation =
+      ManagerCurrentOperation.preparing;
+
+  ManagerCurrentOperation get currentOperation {
+    return __currentOperation;
+  }
+
+  set _currentOperation(ManagerCurrentOperation value) {
+    if (value != __currentOperation) {
+      __currentOperation = value;
+      notifyListeners();
     }
   }
 }

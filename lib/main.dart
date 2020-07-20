@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dikt/common/preferencesSingleton.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -27,13 +29,21 @@ class MyApp extends StatelessWidget {
             create: (context) => Preferences(),
           ),
           Provider(create: (context) => History()),
-          ChangeNotifierProxyProvider<DictionaryManager, MasterDictionary>(
-              create: (context) => MasterDictionary(),
-              update: (context, manager, master) {
-                master.dictionaryManager = manager;
-                master.init();
-                return master;
-              }),
+          ChangeNotifierProvider<MasterDictionary>(create: (context) {
+            var master = MasterDictionary();
+            master.dictionaryManager =
+                Provider.of<DictionaryManager>(context, listen: false);
+            Timer(Duration.zero, () => master.init()); // run after UI is built
+            return master;
+          }),
+          // ChangeNotifierProxyProvider<DictionaryManager, MasterDictionary>(
+          //     create: (context) => MasterDictionary(),
+          //     update: (context, manager, master) {
+          //       master.dictionaryManager = manager;
+          //       Timer(Duration.zero,
+          //           () => master.init()); // run after UI is built
+          //       return master;
+          //     }),
         ],
         child: Consumer<Preferences>(
             builder: (context, preferences, child) => MaterialApp(

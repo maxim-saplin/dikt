@@ -1,10 +1,12 @@
+import 'package:dikt/models/dictionaryManager.dart';
 import 'package:dikt/models/history.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:dikt/models/masterDictionary.dart';
 import 'package:dikt/screens/settings.dart';
+import 'package:enum_to_string/enum_to_string.dart';
+import 'package:double_back_to_close_app/double_back_to_close_app.dart';
 
 import '../models/masterDictionary.dart';
 import './settings.dart';
@@ -20,28 +22,47 @@ class Lookup extends StatelessWidget {
   Widget build(BuildContext context) {
     var dictionary = Provider.of<MasterDictionary>(context);
     var history = Provider.of<History>(context, listen: false);
+    var manager = Provider.of<DictionaryManager>(context);
 
     return Scaffold(
-        body: Stack(children: [
-      !dictionary.isLoaded
-          ? Center(child: Text('One moment please'))
-          : (dictionary.isLookupWordEmpty && history.wordsCount < 1
-              ? Positioned(
-                  left: 0,
-                  right: 0,
-                  bottom: 100.0,
-                  child: Text(
-                    dictionary.totalEntries.toString() +
-                        ' words\n\nType-in text below\n↓ ↓ ↓',
-                    textAlign: TextAlign.center,
-                  ))
-              : LookupWords(
-                  barHeight: _barHeight,
-                  dictionary: dictionary,
-                  history: history)),
-      _SearchBar(),
-      TopButtons(),
-    ]));
+        body: DoubleBackToCloseApp(
+            snackBar: const SnackBar(
+              content: Text('Tap back again to quit'),
+            ),
+            child: Stack(children: [
+              !dictionary.isLoaded
+                  ? Center(
+                      child: Text('One moment please' +
+                          '\n' +
+                          EnumToString.parse(manager.currentOperation) +
+                          ': ' +
+                          manager.dictionariesBeingProcessed.length.toString() +
+                          '\n' +
+                          manager.dictionariesBeingProcessed.fold(
+                              '',
+                              (accum, value) =>
+                                  accum +
+                                  '\n' +
+                                  value.name +
+                                  ': ' +
+                                  EnumToString.parse(value.state))))
+                  : (dictionary.isLookupWordEmpty && history.wordsCount < 1
+                      ? Positioned(
+                          left: 0,
+                          right: 0,
+                          bottom: 100.0,
+                          child: Text(
+                            dictionary.totalEntries.toString() +
+                                ' words\n\nType-in text below\n↓ ↓ ↓',
+                            textAlign: TextAlign.center,
+                          ))
+                      : LookupWords(
+                          barHeight: _barHeight,
+                          dictionary: dictionary,
+                          history: history)),
+              _SearchBar(),
+              TopButtons(),
+            ])));
   }
 }
 
