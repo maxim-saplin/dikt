@@ -31,6 +31,8 @@ const bundledDictionaries = [
       'EN/EN WordNet 3', 14), //14
   BundledDictionary(
       'assets/dictionaries/RuEnUniversal%02i.json', 'RU/EN Universal', 8), //8
+  BundledDictionary('assets/dictionaries/RuByUniversal%02i.json',
+      'RU/BY НАН РБ (ред. Крапивы)', 10), //10
 ];
 
 enum DictionaryBeingProcessedState { pending, inprogress, success, error }
@@ -39,9 +41,6 @@ class DictionaryBeingProcessed {
   final String name;
   final BundledDictionary bundledDictiopnary;
   final IndexedDictionary indexedDictionary;
-
-  // DictionaryBeingProcessed(this.name)
-  // : this.bundledDictiopnary = null, this.indexedDictiopnary = null;
 
   DictionaryBeingProcessed.bundled(this.bundledDictiopnary)
       : this.name = bundledDictiopnary.name,
@@ -62,6 +61,18 @@ class DictionaryBeingProcessed {
       _state = value;
     }
   }
+
+  int _progressPercent;
+
+  int get progressPercent {
+    return _progressPercent;
+  }
+
+  set progressPercent(int value) {
+    if (_progressPercent != value) {
+      _progressPercent = value;
+    }
+  }
 }
 
 enum ManagerCurrentOperation { preparing, indexing, loading }
@@ -78,27 +89,52 @@ class DictionaryManager extends ChangeNotifier {
 
   Future<void> loadDictionaries() async {
     _isRunning = true;
+
     _currentOperation = ManagerCurrentOperation.preparing;
+    await _chackAndindexBundledDictionaries();
 
-    _dictionariesBeingProcessed = List<DictionaryBeingProcessed>();
-
-    for (var i in bundledDictionaries) {
-      if (!_dictionaries.containsKey(i.boxName)) {
-        _dictionariesBeingProcessed.add(DictionaryBeingProcessed.bundled(i));
-      }
-    }
-
-    if (_dictionariesBeingProcessed.length > 0) {
-      _currentOperation = ManagerCurrentOperation.indexing;
-      await indexBundledDictionaries(_dictionariesBeingProcessed);
-    }
+    _initDictionaryCollections();
 
     _currentOperation = ManagerCurrentOperation.loading;
+    await _loadEnabledDictionaries();
+
+    _isRunning = false;
+  }
+
+  void _initDictionaryCollections() {
+    _dictionariesReadyList = new List<IndexedDictionary>();
+    for (var i = 0; i < _dictionaries.length; i++) {
+      var d = _dictionaries.getAt(i);
+      if (d.isReadyToUse) _dictionariesReadyList.add(d);
+    }
+    _sortReadyDictionaries();
+
+    _dictionariesEnabledList = new List<IndexedDictionary>();
+    for (var i = 0; i < _dictionariesReadyList.length; i++) {
+      var d = _dictionariesReadyList[i];
+      if (d.isEnabled) _dictionariesEnabledList.add(d);
+    }
+  }
+
+  void _sortReadyDictionaries() {
+    _dictionariesReadyList.sort((a, b) {
+      if (a.order == null || b.order == null) return 0;
+      return a.order - b.order;
+    });
+    var i = 0;
+    for (var d in _dictionariesReadyList) {
+      d.order = i;
+      i++;
+      d.save();
+    }
+  }
+
+  Future _loadEnabledDictionaries() async {
     _dictionariesBeingProcessed = [];
 
     for (var i in _dictionaries.keys) {
       var d = _dictionaries.get(i);
-      if (d.isReadyToUse)
+      if (d.isReadyToUse && d.isEnabled)
         _dictionariesBeingProcessed
             .add(DictionaryBeingProcessed.indexed(_dictionaries.get(i)));
     }
@@ -110,7 +146,6 @@ class DictionaryManager extends ChangeNotifier {
           i.state = DictionaryBeingProcessedState.inprogress;
           notifyListeners();
           await Hive.openLazyBox<Uint8List>(i.indexedDictionary.boxName);
-
           i.state = DictionaryBeingProcessedState.success;
           notifyListeners();
         } catch (err) {
@@ -124,11 +159,24 @@ class DictionaryManager extends ChangeNotifier {
         }
       }
     }
-
-    _isRunning = false;
   }
 
-  Future<void> indexBundledDictionaries(
+  Future _chackAndindexBundledDictionaries() async {
+    _dictionariesBeingProcessed = List<DictionaryBeingProcessed>();
+
+    for (var i in bundledDictionaries) {
+      if (!_dictionaries.containsKey(i.boxName)) {
+        _dictionariesBeingProcessed.add(DictionaryBeingProcessed.bundled(i));
+      }
+    }
+
+    if (_dictionariesBeingProcessed.length > 0) {
+      _currentOperation = ManagerCurrentOperation.indexing;
+      await _indexBundledDictionaries(_dictionariesBeingProcessed);
+    }
+  }
+
+  Future<void> _indexBundledDictionaries(
       List<DictionaryBeingProcessed> bds) async {
     var completer = Completer<void>();
 
@@ -143,13 +191,16 @@ class DictionaryManager extends ChangeNotifier {
 
       d.name = bd.name;
       d.boxName = bd.boxName;
-      d.enabled = true;
+      d.isEnabled = true;
       d.isReadyToUse = false;
       d.order = i;
       _dictionaries.put(d.boxName, d);
       var box = await Hive.openLazyBox<Uint8List>(d.boxName);
       var indexer = BundledIndexer(bd.assetFileNamePattern, bd.maxFileIndex,
-          i == bds.length - 1 ? completer : null, box);
+          i == bds.length - 1 ? completer : null, box, (progress) {
+        bds[i].progressPercent = progress;
+        notifyListeners();
+      });
       try {
         await indexer.run();
         d.isReadyToUse = true;
@@ -169,21 +220,38 @@ class DictionaryManager extends ChangeNotifier {
     return completer.future;
   }
 
-  List<IndexedDictionary> _dictionariesList = [];
+  List<IndexedDictionary> _dictionariesReadyList = [];
 
-  List<IndexedDictionary> get dictionaries {
-    if (_dictionariesList.length != _dictionaries.length) {
-      _dictionariesList = new List<IndexedDictionary>();
-      for (var i = 0; i < _dictionaries.length; i++) {
-        var d = _dictionaries.getAt(i);
-        if (d.isReadyToUse) _dictionariesList.add(d);
+  List<IndexedDictionary> get dictionariesReady {
+    return _dictionariesReadyList;
+  }
+
+  List<IndexedDictionary> _dictionariesEnabledList = [];
+
+  List<IndexedDictionary> get dictionariesEnabled {
+    return _dictionariesEnabledList;
+  }
+
+  void reorder(int oldIndex, int newIndex) {
+    for (var i = 0; i < _dictionariesReadyList.length; i++) {
+      if (newIndex < oldIndex) {
+        if (i < newIndex)
+          _dictionariesReadyList[i].order--;
+        else
+          _dictionariesReadyList[i].order++;
+      } else {
+        if (i <= newIndex)
+          _dictionariesReadyList[i].order--;
+        else
+          _dictionariesReadyList[i].order++;
       }
-      _dictionariesList.sort((a, b) {
-        if (a.order == null || b.order == null) return 0;
-        return a.order - b.order;
-      });
     }
-    return _dictionariesList;
+
+    _dictionariesReadyList[oldIndex].order = newIndex;
+
+    _sortReadyDictionaries();
+
+    notifyListeners();
   }
 
   List<DictionaryBeingProcessed> _dictionariesBeingProcessed = [];
@@ -232,8 +300,10 @@ class BundledIndexer {
   final Completer<void> runCompleter = Completer<void>();
   final LazyBox<Uint8List> box;
   final int maxFile;
+  final Function(int progressPercent) updateProgress;
 
-  BundledIndexer(this.namePattern, this.maxFile, this.completer, this.box);
+  BundledIndexer(this.namePattern, this.maxFile, this.completer, this.box,
+      this.updateProgress);
 
   Future<void> run() async {
     iterateInIsolate();
@@ -272,12 +342,14 @@ class BundledIndexer {
       _runningIsolates--;
       if (_runningIsolates == 0 && _filesRemaining == 0) {
         await box.putAll(computeValue);
-        //isLoaded = true;
+        if (updateProgress != null) updateProgress(100);
         completer?.complete();
         runCompleter.complete();
         print('JSON loaded to Hive DB: ' + DateTime.now().toString());
       } else {
         box.putAll(computeValue);
+        if (updateProgress != null)
+          updateProgress((100 - _filesRemaining / (maxFile + 1) * 100).round());
         if (_filesRemaining > 0) iterateInIsolate();
       }
     } catch (err) {

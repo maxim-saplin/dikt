@@ -9,9 +9,11 @@ import 'package:enum_to_string/enum_to_string.dart';
 import 'package:double_back_to_close_app/double_back_to_close_app.dart';
 
 import '../models/masterDictionary.dart';
+import '../common/simpleSimpleDialog.dart'
+    show SimpleSimpleDialog; //TODO: cleanup this file
 import './settings.dart';
 import './wordArticles.dart';
-import '../common/simpleSimpleDialog.dart' show SimpleSimpleDialog;
+import './dictionaries.dart';
 
 const String dictionariesMetaBoxName = "_dictionaries/\$meta\\";
 
@@ -45,7 +47,12 @@ class Lookup extends StatelessWidget {
                                   '\n' +
                                   value.name +
                                   ': ' +
-                                  EnumToString.parse(value.state))))
+                                  (value.state ==
+                                              DictionaryBeingProcessedState
+                                                  .inprogress &&
+                                          value.progressPercent != null
+                                      ? value.progressPercent.toString() + '%'
+                                      : EnumToString.parse(value.state)))))
                   : (dictionary.isLookupWordEmpty && history.wordsCount < 1
                       ? Positioned(
                           left: 0,
@@ -74,7 +81,17 @@ class TopButtons extends StatelessWidget {
         child: Align(
             alignment: Alignment.topRight,
             child: Row(mainAxisAlignment: MainAxisAlignment.end, children: [
-              IconButton(icon: Icon(Icons.dns, size: 30), onPressed: () {}),
+              IconButton(
+                  icon: Icon(Icons.dns, size: 30),
+                  onPressed: () {
+                    showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return SimpleSimpleDialog(
+                              title: Text('Dictionaries'),
+                              children: [Dictionaries()]);
+                        });
+                  }),
               IconButton(
                 icon: Icon(
                   Icons.apps,

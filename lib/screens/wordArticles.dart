@@ -5,7 +5,7 @@ import 'package:flutter_html/style.dart';
 import 'package:flutter_sticky_header/flutter_sticky_header.dart';
 
 class WordArticles extends StatelessWidget {
-  const WordArticles(
+  WordArticles(
       {Key key,
       @required this.articles,
       @required this.word,
@@ -15,6 +15,7 @@ class WordArticles extends StatelessWidget {
   final Future<List<Article>> articles;
   final String word;
   final Function(String word) showAnotherWord;
+  final ScrollController scrollController = ScrollController();
 
   @override
   Widget build(BuildContext context) {
@@ -24,50 +25,59 @@ class WordArticles extends StatelessWidget {
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             var list = snapshot.data as List<Article>;
-            return CustomScrollView(
-              semanticChildCount: list.length,
-              scrollDirection: Axis.vertical,
-              shrinkWrap: true,
-              slivers: list
-                  .map((article) => SliverStickyHeader(
-                        header: Align(
-                            child: Container(
-                          padding: EdgeInsets.all(12),
-                          height: 48.0,
-                          color: Theme.of(context).cardColor,
-                          child: Text(article.dictionaryName,
-                              style: Theme.of(context).textTheme.subtitle2),
-                          alignment: Alignment.centerRight,
-                        )),
-                        sliver: SliverList(
-                          delegate: SliverChildBuilderDelegate((context, i) {
-                            return Padding(
-                                padding: EdgeInsets.fromLTRB(12, 0, 12, 12),
-                                child: Html(
-                                  data: article.article,
-                                  onLinkTap: (url) {
-                                    if (showAnotherWord != null)
-                                      showAnotherWord(url);
-                                  },
-                                  style: {
-                                    "div": Style(
-                                        fontFamily: 'sans-serif-light',
-                                        padding: EdgeInsets.all(0),
-                                        fontSize: FontSize(19)),
-                                  },
-                                ));
-                          }, childCount: 1),
-                        ),
-                      ))
-                  .toList(),
-            );
+            return Padding(
+                padding: EdgeInsets.fromLTRB(0, 25, 0, 0),
+                child: PrimaryScrollController(
+                    controller: scrollController,
+                    child: Scrollbar(
+                        child: CustomScrollView(
+                      semanticChildCount: list.length,
+                      scrollDirection: Axis.vertical,
+                      shrinkWrap: true,
+                      slivers: list
+                          .map((article) => SliverStickyHeader(
+                                header: Align(
+                                    child: Container(
+                                  padding: EdgeInsets.fromLTRB(18, 0, 18, 0),
+                                  height: 30.0,
+                                  color: Theme.of(context).cardColor,
+                                  child: Text(article.dictionaryName,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .subtitle2),
+                                  alignment: Alignment.bottomRight,
+                                )),
+                                sliver: SliverList(
+                                  delegate:
+                                      SliverChildBuilderDelegate((context, i) {
+                                    return Padding(
+                                        padding:
+                                            EdgeInsets.fromLTRB(10, 0, 10, 10),
+                                        child: Html(
+                                          data: article.article,
+                                          onLinkTap: (url) {
+                                            if (showAnotherWord != null)
+                                              showAnotherWord(url);
+                                          },
+                                          style: {
+                                            "div": Style(
+                                                fontFamily: 'sans-serif-light',
+                                                padding: EdgeInsets.all(0),
+                                                fontSize: FontSize(19)),
+                                          },
+                                        ));
+                                  }, childCount: 1),
+                                ),
+                              ))
+                          .toList(),
+                    ))));
           }
           return Center(child: Text('...'));
         },
       ),
       Container(
-          padding: EdgeInsets.all(12),
-          height: 48.0,
+          padding: EdgeInsets.fromLTRB(18, 12, 10, 10),
+          height: 44.0,
           child: SelectableText(
             word,
             style: Theme.of(context).textTheme.headline6,

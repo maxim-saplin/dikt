@@ -36,7 +36,8 @@ class MasterDictionary extends ChangeNotifier {
 
   int get totalEntries {
     var c = 0;
-    for (var i in dictionaryManager.dictionaries) c += i.box.length;
+    for (var i in dictionaryManager.dictionariesEnabled)
+      if (i.box != null) c += i.box.length;
     return c;
   }
 
@@ -68,7 +69,7 @@ class MasterDictionary extends ChangeNotifier {
     matches.clear();
 
     //for (var k in words.keys) {
-    for (var d in dictionaryManager.dictionaries) {
+    for (var d in dictionaryManager.dictionariesEnabled) {
       //TODO: consider interleaving
       for (var k in d.box.keys) {
         if (k.startsWith(lookup) && !matches.contains(k)) {
@@ -116,7 +117,7 @@ class MasterDictionary extends ChangeNotifier {
 
     List<Article> articles = [];
 
-    for (var d in dictionaryManager.dictionaries) {
+    for (var d in dictionaryManager.dictionariesEnabled) {
       var a = await d.box.get(word);
       if (a != null)
         articles.add(Article(word, await _unzipIsolate(a), d.name));

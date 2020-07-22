@@ -93,7 +93,7 @@ class MyApp extends StatelessWidget {
       fontSize: 16.0,
       fontFamily: 'Montserrat',
       fontStyle: FontStyle.italic,
-      color: Colors.black,
+      color: Colors.black.withAlpha(128),
     ),
     // standard Text()
     bodyText2: TextStyle(
@@ -104,6 +104,9 @@ class MyApp extends StatelessWidget {
         fontFamily: 'Montserrat',
         fontStyle: FontStyle.italic,
         color: Colors.black),
+    // Dictionary card, dictionary  name
+    caption: TextStyle(
+        fontSize: 17.0, fontFamily: 'Montserrat', color: Colors.black),
   ));
 
   final ThemeData darkTheme = ThemeData.dark().copyWith(
@@ -127,9 +130,12 @@ class MyApp extends StatelessWidget {
       fontSize: 16.0,
       fontFamily: 'Montserrat',
       fontStyle: FontStyle.italic,
-      color: Colors.white,
+      color: Colors.white.withAlpha(128),
     ),
     bodyText2: TextStyle(
         fontSize: 20.0, fontFamily: 'Montserrat', color: Colors.white),
+    // Dictionary card, dictionary  name
+    caption: TextStyle(
+        fontSize: 17.0, fontFamily: 'Montserrat', color: Colors.white),
   ));
 }

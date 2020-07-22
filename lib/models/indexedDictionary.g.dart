@@ -18,7 +18,7 @@ class IndexedDictionaryAdapter extends TypeAdapter<IndexedDictionary> {
     };
     return IndexedDictionary()
       ..name = fields[0] as String
-      ..enabled = fields[1] as bool
+      ..isEnabled = fields[1] as bool
       ..boxName = fields[2] as String
       ..isReadyToUse = fields[3] as bool
       ..order = fields[4] as int;
@@ -31,7 +31,7 @@ class IndexedDictionaryAdapter extends TypeAdapter<IndexedDictionary> {
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
-      ..write(obj.enabled)
+      ..write(obj.isEnabled)
       ..writeByte(2)
       ..write(obj.boxName)
       ..writeByte(3)
