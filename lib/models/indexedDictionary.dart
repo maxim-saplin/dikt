@@ -24,6 +24,11 @@ class IndexedDictionary extends HiveObject {
     return Hive.lazyBox<Uint8List>(boxName);
   }
 
+  Future<LazyBox<Uint8List>> openBox() async {
+    if (!Hive.isBoxOpen(boxName)) return await Hive.openLazyBox(boxName);
+    return box;
+  }
+
   double get fileSizeMb {
     var file = File(box.path);
     return file.lengthSync() / 1024 / 1024;

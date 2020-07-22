@@ -249,8 +249,28 @@ class DictionaryManager extends ChangeNotifier {
 
     _dictionariesReadyList[oldIndex].order = newIndex;
 
-    _sortReadyDictionaries();
+    _initDictionaryCollections();
 
+    notifyListeners();
+  }
+
+  void switchIsEnabled(IndexedDictionary dictionary) {
+    dictionary.isEnabled = !dictionary.isEnabled;
+    dictionary.save();
+    _initDictionaryCollections();
+    notifyListeners();
+  }
+
+  void deleteReadyDictionary(int index) {
+    var d = _dictionariesReadyList[index];
+    d.box.deleteFromDisk();
+    if (bundledDictionaries.any((e) => e.boxName == d.boxName)) {
+      d.isReadyToUse = false;
+      d.save();
+    } else {
+      d.delete();
+    }
+    _initDictionaryCollections();
     notifyListeners();
   }
 
@@ -349,7 +369,9 @@ class BundledIndexer {
       } else {
         box.putAll(computeValue);
         if (updateProgress != null)
-          updateProgress((100 - _filesRemaining / (maxFile + 1) * 100).round());
+          updateProgress(
+              (100 - (_filesRemaining + _runningIsolates) / (maxFile + 1) * 100)
+                  .round());
         if (_filesRemaining > 0) iterateInIsolate();
       }
     } catch (err) {

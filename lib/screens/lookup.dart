@@ -1,11 +1,10 @@
-import 'package:dikt/models/dictionaryManager.dart';
-import 'package:dikt/models/history.dart';
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:dikt/models/masterDictionary.dart';
 import 'package:dikt/screens/settings.dart';
-import 'package:enum_to_string/enum_to_string.dart';
 import 'package:double_back_to_close_app/double_back_to_close_app.dart';
 
 import '../models/masterDictionary.dart';
@@ -14,8 +13,11 @@ import '../common/simpleSimpleDialog.dart'
 import './settings.dart';
 import './wordArticles.dart';
 import './dictionaries.dart';
+import './managerState.dart';
+import '../models/dictionaryManager.dart';
+import '../models/history.dart';
 
-const String dictionariesMetaBoxName = "_dictionaries/\$meta\\";
+final _scaffoldKey = GlobalKey<ScaffoldState>();
 
 class Lookup extends StatelessWidget {
   static const double _barHeight = 60;
@@ -27,32 +29,14 @@ class Lookup extends StatelessWidget {
     var manager = Provider.of<DictionaryManager>(context);
 
     return Scaffold(
+        key: _scaffoldKey,
         body: DoubleBackToCloseApp(
             snackBar: const SnackBar(
               content: Text('Tap back again to quit'),
             ),
             child: Stack(children: [
               !dictionary.isLoaded
-                  ? Center(
-                      child: Text('One moment please' +
-                          '\n' +
-                          EnumToString.parse(manager.currentOperation) +
-                          ': ' +
-                          manager.dictionariesBeingProcessed.length.toString() +
-                          '\n' +
-                          manager.dictionariesBeingProcessed.fold(
-                              '',
-                              (accum, value) =>
-                                  accum +
-                                  '\n' +
-                                  value.name +
-                                  ': ' +
-                                  (value.state ==
-                                              DictionaryBeingProcessedState
-                                                  .inprogress &&
-                                          value.progressPercent != null
-                                      ? value.progressPercent.toString() + '%'
-                                      : EnumToString.parse(value.state)))))
+                  ? ManagerState(manager: manager)
                   : (dictionary.isLookupWordEmpty && history.wordsCount < 1
                       ? Positioned(
                           left: 0,
@@ -68,7 +52,7 @@ class Lookup extends StatelessWidget {
                           dictionary: dictionary,
                           history: history)),
               _SearchBar(),
-              TopButtons(),
+              dictionary.isLoaded ? TopButtons() : Text('.. ..'),
             ])));
   }
 }
@@ -280,7 +264,7 @@ class _SearchBar extends StatelessWidget {
                                               '  ╳')
                                       : '0_0'))),
                         )
-                      : Text('Loading...'),
+                      : Text('...'),
                 ]))));
   }
 }

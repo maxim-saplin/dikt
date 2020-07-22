@@ -1,9 +1,19 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:reorderables/reorderables.dart';
 import 'package:provider/provider.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import '../models/dictionaryManager.dart';
 
-class Dictionaries extends StatelessWidget {
+class Dictionaries extends StatefulWidget {
+  @override
+  _DictionariesState createState() => _DictionariesState();
+}
+
+class _DictionariesState extends State<Dictionaries> {
+  static bool toastShown = false;
+  int _draggingIndex = null;
+
   @override
   Widget build(BuildContext context) {
     ScrollController _scrollController =
@@ -13,9 +23,77 @@ class Dictionaries extends StatelessWidget {
 
     void _onReorder(int oldIndex, int newIndex) {
       manager.reorder(oldIndex, newIndex);
+      setState(() {
+        _draggingIndex = null;
+      });
+    }
+
+    void _onDragging(int index) {
+      setState(() {
+        _draggingIndex = index;
+      });
+    }
+
+    void _onCancel(int index) {
+      setState(() {
+        _draggingIndex = null;
+      });
+    }
+
+    if (!toastShown) {
+      var fToast = FToast(context);
+      Timer(
+          Duration(seconds: 1),
+          () => fToast.showToast(
+              child: Text('Tap and hold to move'),
+              toastDuration: Duration(seconds: 3)));
+      toastShown = true;
     }
 
     return Stack(children: [
+      Positioned(
+          bottom: 0.0,
+          left: 0.0,
+          right: 0.0,
+          child: DragTarget(onAccept: (index) {
+            showDialog(
+                context: context,
+                child: AlertDialog(
+                  content: Text('Delete "' +
+                      manager.dictionariesReady[index].boxName +
+                      '" dictionary?'),
+                  actions: [
+                    FlatButton(
+                      child: Text('Delete'),
+                      onPressed: () {
+                        manager.deleteReadyDictionary(index);
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                    FlatButton(
+                      child: Text('Cancel'),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                    )
+                  ],
+                ));
+          }, onWillAccept: (data) {
+            return true;
+          }, builder: (context, List<int> candidateData, rejectedData) {
+            return Container(
+              color: Theme.of(context).cardColor,
+              padding: EdgeInsets.fromLTRB(12, 12, 12, 12),
+              height: 60,
+              child: Center(
+                  child: _draggingIndex == null
+                      ? OutlineButton(
+                          child: Text('+ Add Dictionary'),
+                          onPressed: () {},
+                        )
+                      : Text('DELETE')),
+            );
+          })),
       Padding(
           padding: EdgeInsets.fromLTRB(12, 50, 12, 60),
           child: CustomScrollView(
@@ -23,50 +101,77 @@ class Dictionaries extends StatelessWidget {
             shrinkWrap: true,
             slivers: <Widget>[
               ReorderableSliverList(
-                  delegate: ReorderableSliverChildListDelegate(manager
-                      .dictionariesReady
-                      .map((e) => Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                IconButton(
-                                  icon: Icon(Icons.check_box_outline_blank,
-                                      size: 20),
-                                  onPressed: () {},
-                                ),
-                                IconButton(
-                                  icon: Icon(Icons.delete_forever, size: 20),
-                                  onPressed: () {},
-                                ),
-                                Expanded(
-                                    child: Container(
-                                        height: 55,
-                                        child: Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(e.name,
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                  style: Theme.of(context)
-                                                      .textTheme
-                                                      .caption),
-                                              Text(
-                                                e.box.length.toString() +
-                                                    ' entries, ' +
-                                                    e.fileSizeMb
-                                                        .toStringAsFixed(1) +
-                                                    "MB",
-                                                overflow: TextOverflow.fade,
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .subtitle2,
-                                              )
-                                            ]))),
-                              ]))
-                      .toList()),
-                  onReorder: _onReorder)
+                delegate: ReorderableSliverChildListDelegate(manager
+                    .dictionariesReady
+                    .map((e) => Draggable(
+                        data: e.boxName,
+                        feedback: Text('Dragging'),
+                        child: Opacity(
+                            opacity: e.isEnabled ? 1 : 0.5,
+                            child: Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  Container(
+                                      width: 30,
+                                      height: 50,
+                                      child: FlatButton(
+                                        child: Text(
+                                          (e.isEnabled ? '↘' : '↓'),
+                                          style: TextStyle(fontSize: 28),
+                                        ),
+                                        padding: EdgeInsets.all(3),
+                                        onPressed: () =>
+                                            manager.switchIsEnabled(e),
+                                      )),
+                                  Expanded(
+                                      child: Container(
+                                          padding:
+                                              EdgeInsets.fromLTRB(6, 0, 0, 0),
+                                          height: 55,
+                                          child: Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(e.name,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                    style: Theme.of(context)
+                                                        .textTheme
+                                                        .caption),
+                                                FutureBuilder(
+                                                    future: e
+                                                        .openBox(), //disabled boxes are not loaded upon start
+                                                    builder:
+                                                        (context, snapshot) {
+                                                      if (snapshot.hasData) {
+                                                        return Text(
+                                                          e.box.length
+                                                                  .toString() +
+                                                              ' entries, ' +
+                                                              e.fileSizeMb
+                                                                  .toStringAsFixed(
+                                                                      1) +
+                                                              "MB",
+                                                          overflow:
+                                                              TextOverflow.fade,
+                                                          style:
+                                                              Theme.of(context)
+                                                                  .textTheme
+                                                                  .subtitle2,
+                                                        );
+                                                      } else {
+                                                        return Text('...');
+                                                      }
+                                                    })
+                                              ]))),
+                                ]))))
+                    .toList()),
+                onReorder: _onReorder,
+                onDragging: _onDragging,
+                onNoReorder: _onCancel,
+              )
             ],
           )),
       Container(
@@ -76,21 +181,6 @@ class Dictionaries extends StatelessWidget {
             "Dictionaries",
             style: Theme.of(context).textTheme.headline6,
           )),
-      Positioned(
-        bottom: 0.0,
-        left: 0.0,
-        right: 0.0,
-        child: Container(
-          color: Theme.of(context).cardColor,
-          padding: EdgeInsets.fromLTRB(12, 12, 12, 12),
-          height: 60,
-          child: Center(
-              child: OutlineButton(
-            child: Text('+ Add Dictionary'),
-            onPressed: () {},
-          )),
-        ),
-      )
     ]);
   }
 }

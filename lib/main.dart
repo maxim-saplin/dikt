@@ -36,14 +36,6 @@ class MyApp extends StatelessWidget {
             Timer(Duration.zero, () => master.init()); // run after UI is built
             return master;
           }),
-          // ChangeNotifierProxyProvider<DictionaryManager, MasterDictionary>(
-          //     create: (context) => MasterDictionary(),
-          //     update: (context, manager, master) {
-          //       master.dictionaryManager = manager;
-          //       Timer(Duration.zero,
-          //           () => master.init()); // run after UI is built
-          //       return master;
-          //     }),
         ],
         child: Consumer<Preferences>(
             builder: (context, preferences, child) => MaterialApp(
