@@ -12,7 +12,7 @@ class Dictionaries extends StatefulWidget {
 
 class _DictionariesState extends State<Dictionaries> {
   static bool toastShown = false;
-  int _draggingIndex = null;
+  int _draggingIndex;
 
   @override
   Widget build(BuildContext context) {

@@ -378,7 +378,6 @@ class PassthroughOverlayState extends State<PassthroughOverlay>
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
-    // TODO(jacobr): use IterableProperty instead as that would
     // provide a slightly more consistent string summary of the List.
     properties.add(DiagnosticsProperty<List<PassthroughOverlayEntry>>(
         'entries', _entries));
@@ -545,8 +544,6 @@ class _RenderTheatre extends RenderBox
   // definition from RenderObjectWithChildMixin inline in our version here.
   //
   // This code duplication is suboptimal.
-  // TODO(ianh): Replace this with a better solution once https://github.com/dart-lang/sdk/issues/27100 is fixed
-  //
   // For debugDescribeChildren we just roll our own because otherwise the line
   // drawings won't really work as well.
 

@@ -1,5 +1,7 @@
 # This is a generated file; do not edit or check into version control.
-fluttertoast=/Users/smax/flutter/.pub-cache/hosted/pub.dartlang.org/fluttertoast-7.0.1/
+file_picker=/Users/smax/flutter/.pub-cache/hosted/pub.dartlang.org/file_picker-1.13.0+1/
+flutter_plugin_android_lifecycle=/Users/smax/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_plugin_android_lifecycle-1.0.8/
+fluttertoast=/Users/smax/flutter/.pub-cache/hosted/pub.dartlang.org/fluttertoast-7.0.1+1/
 path_provider=/Users/smax/flutter/.pub-cache/hosted/pub.dartlang.org/path_provider-1.6.11/
 path_provider_linux=/Users/smax/flutter/.pub-cache/hosted/pub.dartlang.org/path_provider_linux-0.0.1+2/
 path_provider_macos=/Users/smax/flutter/.pub-cache/hosted/pub.dartlang.org/path_provider_macos-0.0.4+3/

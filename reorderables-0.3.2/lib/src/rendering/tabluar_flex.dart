@@ -201,7 +201,6 @@ class RenderTabluarFlex extends RenderFlex {
       // Intrinsic cross size is the max of the intrinsic cross sizes of the
       // children, after the flexible children are fit into the available space,
       // with the children sized using their max intrinsic dimensions.
-      // TODO(ianh): Support baseline alignment.
 
       // Get inflexible space using the max intrinsic dimensions of fixed children in the main direction.
       final double availableMainSpace = extent;

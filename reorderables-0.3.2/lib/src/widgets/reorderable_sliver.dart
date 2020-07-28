@@ -601,7 +601,6 @@ class _ReorderableSliverListState extends State<ReorderableSliverList>
         widget.onReorder(startIndex, endIndex);
       else if (widget.onNoReorder != null) widget.onNoReorder(startIndex);
       // Animates leftover space in the drop area closed.
-      // TODO(djshuckerow): bring the animation in line with the Material
       // specifications.
       _ghostController.reverse(from: 0.1);
       _entranceController.reverse(from: 0);

@@ -224,6 +224,7 @@ class _SearchBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var dictionary = Provider.of<MasterDictionary>(context, listen: false);
+    var history = Provider.of<History>(context, listen: false);
 
     return Positioned(
         bottom: 0.0,
@@ -241,6 +242,12 @@ class _SearchBar extends StatelessWidget {
                           autofocus: true,
                           onChanged: (text) {
                             dictionary.lookupWord = text;
+                          },
+                          onSubmitted: (value) {
+                            if (dictionary.matchesCount > 0) {
+                              showArticle(context, dictionary, history,
+                                  dictionary.getMatch(0));
+                            }
                           },
                           style: TextStyle(fontSize: 20.0),
                           decoration: InputDecoration(
