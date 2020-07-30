@@ -17,7 +17,7 @@ class MasterDictionary extends ChangeNotifier {
   Future loadJson;
   final int maxResults = 100;
   //LazyBox<Uint8List> _box;
-  GZipDecoder _gZipDecoder = GZipDecoder();
+  //GZipDecoder _gZipDecoder = GZipDecoder();
   DictionaryManager dictionaryManager;
 
   void init() {
@@ -70,7 +70,6 @@ class MasterDictionary extends ChangeNotifier {
 
     //for (var k in words.keys) {
     for (var d in dictionaryManager.dictionariesEnabled) {
-      //TODO: consider interleaving
       for (var k in d.box.keys) {
         if (k.startsWith(lookup) && !matches.contains(k)) {
           n++;
@@ -91,13 +90,6 @@ class MasterDictionary extends ChangeNotifier {
   String getMatch(int n) {
     if (n > matches.length - 1) return '';
     return matches[n];
-  }
-
-  String _unzip(Uint8List articleBytes) {
-    //var articleBytes = base64.decode(articleBase64);
-    var bytes = _gZipDecoder.decodeBytes(articleBytes);
-    var article = utf8.decode(bytes);
-    return article;
   }
 
   Future<String> _unzipIsolate(Uint8List articleBytes) async {

@@ -479,6 +479,7 @@ class _TheatreElement extends RenderObjectElement {
   }
 
   @override
+  // ignore: must_call_super
   bool forgetChild(Element child) {
     if (child == _onstage) {
       _onstage = null;

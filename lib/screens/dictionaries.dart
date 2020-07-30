@@ -3,7 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:reorderables/reorderables.dart';
 import 'package:provider/provider.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:file_picker/file_picker.dart';
 import '../models/dictionaryManager.dart';
+import '../models/masterDictionary.dart';
+import './managerState.dart';
 
 class Dictionaries extends StatefulWidget {
   @override
@@ -13,6 +16,7 @@ class Dictionaries extends StatefulWidget {
 class _DictionariesState extends State<Dictionaries> {
   static bool toastShown = false;
   int _draggingIndex;
+  bool _cancelReorder = false;
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +26,9 @@ class _DictionariesState extends State<Dictionaries> {
     var manager = Provider.of<DictionaryManager>(context);
 
     void _onReorder(int oldIndex, int newIndex) {
-      manager.reorder(oldIndex, newIndex);
+      if (!_cancelReorder)
+        manager.reorder(
+            oldIndex, newIndex); // if reorder happens due to moving to Delete
       setState(() {
         _draggingIndex = null;
       });
@@ -30,6 +36,7 @@ class _DictionariesState extends State<Dictionaries> {
 
     void _onDragging(int index) {
       setState(() {
+        _cancelReorder = false;
         _draggingIndex = index;
       });
     }
@@ -50,137 +57,205 @@ class _DictionariesState extends State<Dictionaries> {
       toastShown = true;
     }
 
-    return Stack(children: [
-      Positioned(
-          bottom: 0.0,
-          left: 0.0,
-          right: 0.0,
-          child: DragTarget(onAccept: (index) {
-            showDialog(
-                context: context,
-                child: AlertDialog(
-                  content: Text('Delete "' +
-                      manager.dictionariesReady[index].boxName +
-                      '" dictionary?'),
-                  actions: [
-                    FlatButton(
-                      child: Text('Delete'),
-                      onPressed: () {
-                        manager.deleteReadyDictionary(index);
-                        Navigator.of(context).pop();
-                      },
-                    ),
-                    FlatButton(
-                      child: Text('Cancel'),
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                    )
-                  ],
-                ));
-          }, onWillAccept: (data) {
-            return true;
-          }, builder: (context, List<int> candidateData, rejectedData) {
-            return Container(
-              color: Theme.of(context).cardColor,
-              padding: EdgeInsets.fromLTRB(12, 12, 12, 12),
-              height: 60,
-              child: Center(
-                  child: _draggingIndex == null
-                      ? OutlineButton(
-                          child: Text('+ Add Dictionary'),
-                          onPressed: () {},
+    return new WillPopScope(
+        onWillPop: () async {
+          if (manager.isRunning) {
+            manager.cancel();
+            return false;
+          }
+          return true;
+        },
+        child: Stack(children: [
+          Positioned(
+              bottom: 0.0,
+              left: 0.0,
+              right: 0.0,
+              child: DragTarget(onAccept: (index) {
+                _cancelReorder = true;
+                showDialog(
+                    context: context,
+                    child: AlertDialog(
+                      content: Text('Delete "' +
+                          manager.dictionariesReady[index].name +
+                          '" dictionary?'),
+                      actions: [
+                        FlatButton(
+                          child: Text('Delete'),
+                          onPressed: () {
+                            manager.deleteReadyDictionary(index);
+                            Provider.of<MasterDictionary>(context,
+                                    listen: false)
+                                ?.notify();
+                            Navigator.of(context).pop();
+                          },
+                        ),
+                        FlatButton(
+                          child: Text('Cancel'),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
                         )
-                      : Text('DELETE')),
-            );
-          })),
-      Padding(
-          padding: EdgeInsets.fromLTRB(12, 50, 12, 60),
-          child: CustomScrollView(
-            controller: _scrollController,
-            shrinkWrap: true,
-            slivers: <Widget>[
-              ReorderableSliverList(
-                delegate: ReorderableSliverChildListDelegate(manager
-                    .dictionariesReady
-                    .map((e) => Draggable(
-                        data: e.boxName,
-                        feedback: Text('Dragging'),
-                        child: Opacity(
-                            opacity: e.isEnabled ? 1 : 0.5,
-                            child: Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  Container(
-                                      width: 30,
-                                      height: 50,
-                                      child: FlatButton(
-                                        child: Text(
-                                          (e.isEnabled ? '↘' : '↓'),
-                                          style: TextStyle(fontSize: 28),
-                                        ),
-                                        padding: EdgeInsets.all(3),
-                                        onPressed: () =>
-                                            manager.switchIsEnabled(e),
-                                      )),
-                                  Expanded(
-                                      child: Container(
-                                          padding:
-                                              EdgeInsets.fromLTRB(6, 0, 0, 0),
-                                          height: 55,
-                                          child: Column(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Text(e.name,
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                    style: Theme.of(context)
-                                                        .textTheme
-                                                        .caption),
-                                                FutureBuilder(
-                                                    future: e
-                                                        .openBox(), //disabled boxes are not loaded upon start
-                                                    builder:
-                                                        (context, snapshot) {
-                                                      if (snapshot.hasData) {
-                                                        return Text(
-                                                          e.box.length
-                                                                  .toString() +
-                                                              ' entries, ' +
-                                                              e.fileSizeMb
-                                                                  .toStringAsFixed(
-                                                                      1) +
-                                                              "MB",
-                                                          overflow:
-                                                              TextOverflow.fade,
+                      ],
+                    ));
+              }, onWillAccept: (data) {
+                return true;
+              }, builder: (context, List<int> candidateData, rejectedData) {
+                return Container(
+                  //color: Theme.of(context).cardColor,
+                  padding: EdgeInsets.fromLTRB(12, 12, 12, 12),
+                  height: 60,
+                  child: Center(
+                      child: _draggingIndex == null
+                          ? (manager.isRunning
+                              ? OutlineButton(
+                                  child: Text('Break'),
+                                  onPressed: () {
+                                    manager.cancel();
+                                  })
+                              : OutlineButton(
+                                  child: Text('+ Import JSON'),
+                                  onPressed: () async {
+                                    var files = await FilePicker.getMultiFile(
+                                        type: FileType.custom,
+                                        allowedExtensions: ['json']);
+
+                                    if (files != null && files.length > 0) {
+                                      manager
+                                          .loadFromJsonFiles(files)
+                                          .whenComplete(() =>
+                                              Provider.of<MasterDictionary>(
+                                                      context,
+                                                      listen: false)
+                                                  ?.notify())
+                                          .catchError((err) {
+                                        showDialog(
+                                            context: context,
+                                            child: AlertDialog(
+                                              title:
+                                                  Text('There\'re issues...'),
+                                              content: IntrinsicHeight(
+                                                  child: ManagerState()),
+                                              actions: [
+                                                FlatButton(
+                                                    child: Text('OK'),
+                                                    onPressed: () {
+                                                      Navigator.of(context)
+                                                          .pop();
+                                                    }),
+                                              ],
+                                            ));
+                                      });
+                                    }
+                                  },
+                                ))
+                          : Text('DELETE')),
+                );
+              })),
+          Padding(
+              padding: EdgeInsets.fromLTRB(12, 50, 12, 60),
+              child: manager.isRunning
+                  ? IntrinsicHeight(child: ManagerState())
+                  : CustomScrollView(
+                      controller: _scrollController,
+                      shrinkWrap: true,
+                      slivers: <Widget>[
+                        ReorderableSliverList(
+                          delegate: ReorderableSliverChildListDelegate(manager
+                              .dictionariesReady
+                              .map((e) => Opacity(
+                                  opacity: e.isEnabled ? 1 : 0.5,
+                                  child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      children: [
+                                        Container(
+                                            width: 30,
+                                            height: 50,
+                                            child: FlatButton(
+                                              child: Text(
+                                                (e.isEnabled ? '↘' : '↓'),
+                                                style: TextStyle(fontSize: 28),
+                                              ),
+                                              padding: EdgeInsets.all(3),
+                                              onPressed: () {
+                                                manager.switchIsEnabled(e);
+                                                Provider.of<MasterDictionary>(
+                                                        context,
+                                                        listen: false)
+                                                    ?.notify();
+                                              },
+                                            )),
+                                        Expanded(
+                                            child: Container(
+                                                padding: EdgeInsets.fromLTRB(
+                                                    6, 0, 0, 0),
+                                                height: 55,
+                                                child: Column(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .center,
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      Text(e.name,
+                                                          overflow: TextOverflow
+                                                              .ellipsis,
                                                           style:
                                                               Theme.of(context)
                                                                   .textTheme
-                                                                  .subtitle2,
-                                                        );
-                                                      } else {
-                                                        return Text('...');
-                                                      }
-                                                    })
-                                              ]))),
-                                ]))))
-                    .toList()),
-                onReorder: _onReorder,
-                onDragging: _onDragging,
-                onNoReorder: _onCancel,
-              )
-            ],
-          )),
-      Container(
-          padding: EdgeInsets.fromLTRB(12, 12, 12, 12),
-          height: 50.0,
-          child: Text(
-            "Dictionaries",
-            style: Theme.of(context).textTheme.headline6,
-          )),
-    ]);
+                                                                  .caption),
+                                                      FutureBuilder(
+                                                          future: e
+                                                              .openBox(), //disabled boxes are not loaded upon start
+                                                          builder: (context,
+                                                              snapshot) {
+                                                            if (snapshot
+                                                                .hasData) {
+                                                              Timer.run(() {
+                                                                Provider.of<MasterDictionary>(
+                                                                        context,
+                                                                        listen:
+                                                                            false)
+                                                                    ?.notify();
+                                                              }); // let Lookup update (e.g. no history and number of entries shown) if a new dictionary is imported
+                                                              return Text(
+                                                                e.box.length
+                                                                        .toString() +
+                                                                    ' entries, ' +
+                                                                    e.fileSizeMb
+                                                                        .toStringAsFixed(
+                                                                            1) +
+                                                                    "MB",
+                                                                overflow:
+                                                                    TextOverflow
+                                                                        .fade,
+                                                                style: Theme.of(
+                                                                        context)
+                                                                    .textTheme
+                                                                    .subtitle2,
+                                                              );
+                                                            } else {
+                                                              return Text(
+                                                                  '...');
+                                                            }
+                                                          })
+                                                    ]))),
+                                      ])))
+                              .toList()),
+                          onReorder: _onReorder,
+                          onDragging: _onDragging,
+                          onNoReorder: _onCancel,
+                        )
+                      ],
+                    )),
+          Container(
+              padding: EdgeInsets.fromLTRB(12, 12, 12, 12),
+              height: 50.0,
+              child: Text(
+                "Dictionaries",
+                style: Theme.of(context).textTheme.headline6,
+              )),
+        ]));
   }
 }

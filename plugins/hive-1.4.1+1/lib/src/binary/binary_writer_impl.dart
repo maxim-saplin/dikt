@@ -221,7 +221,11 @@ class BinaryWriterImpl extends BinaryWriter {
     if (key is String) {
       writeByte(FrameKeyType.asciiStringT);
       var b = utf8.encode(key);
-      writeByte(b.length); //TODO, what if length is greater than 255
+      if (b.length > 255) {
+        // trim long keys
+        b = b.sublist(0, 255);
+      }
+      writeByte(b.length);
       _addBytes(b);
       //writeByte(key.length);
       //_addBytes(key.codeUnits);

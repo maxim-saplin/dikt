@@ -220,8 +220,7 @@ class BinaryReaderImpl extends BinaryReader {
     if (keyType == FrameKeyType.uintT) {
       return readUint32();
     } else if (keyType == FrameKeyType.asciiStringT) {
-      var keyLength =
-          readByte(); //TODO, align with binary_writer_impl.dart/writeKey
+      var keyLength = readByte();
       return utf8.decode(
           viewBytes(keyLength)); //String.fromCharCodes(viewBytes(keyLength));
     } else {

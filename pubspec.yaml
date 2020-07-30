@@ -45,9 +45,9 @@ dependency_overrides:
   flutter_svg: 0.18.0 #Flutter 1.20 and flutter_html issue
   path: 1.6.4
   hive: # custom version remove box key assertion to be ASCII string not greater than 255 chars
-    path: ./hive-1.4.1+1/
+    path: ./plugins/hive-1.4.1+1/
   reorderables:
-    path: ./reorderables-0.3.2/
+    path: ./plugins/reorderables-0.3.2/
 
 dev_dependencies:
   flutter_test:

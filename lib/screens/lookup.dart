@@ -8,13 +8,11 @@ import 'package:dikt/screens/settings.dart';
 import 'package:double_back_to_close_app/double_back_to_close_app.dart';
 
 import '../models/masterDictionary.dart';
-import '../common/simpleSimpleDialog.dart'
-    show SimpleSimpleDialog; //TODO: cleanup this file
+import '../common/simpleSimpleDialog.dart';
 import './settings.dart';
 import './wordArticles.dart';
 import './dictionaries.dart';
 import './managerState.dart';
-import '../models/dictionaryManager.dart';
 import '../models/history.dart';
 
 final _scaffoldKey = GlobalKey<ScaffoldState>();
@@ -26,7 +24,6 @@ class Lookup extends StatelessWidget {
   Widget build(BuildContext context) {
     var dictionary = Provider.of<MasterDictionary>(context);
     var history = Provider.of<History>(context, listen: false);
-    var manager = Provider.of<DictionaryManager>(context);
 
     return Scaffold(
         key: _scaffoldKey,
@@ -36,15 +33,19 @@ class Lookup extends StatelessWidget {
             ),
             child: Stack(children: [
               !dictionary.isLoaded
-                  ? ManagerState(manager: manager)
-                  : (dictionary.isLookupWordEmpty && history.wordsCount < 1
+                  ? Padding(
+                      child: ManagerState(),
+                      padding: EdgeInsets.all(12),
+                    )
+                  : ((dictionary.isLookupWordEmpty && history.wordsCount < 1) ||
+                          dictionary.totalEntries == 0
                       ? Positioned(
                           left: 0,
                           right: 0,
                           bottom: 100.0,
                           child: Text(
                             dictionary.totalEntries.toString() +
-                                ' words\n\nType-in text below\n↓ ↓ ↓',
+                                ' entries\n\nType-in text below\n↓ ↓ ↓',
                             textAlign: TextAlign.center,
                           ))
                       : LookupWords(
@@ -52,7 +53,7 @@ class Lookup extends StatelessWidget {
                           dictionary: dictionary,
                           history: history)),
               _SearchBar(),
-              dictionary.isLoaded ? TopButtons() : Text('.. ..'),
+              dictionary.isLoaded ? TopButtons() : Text(''),
             ])));
   }
 }

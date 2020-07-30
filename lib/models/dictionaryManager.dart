@@ -1,4 +1,4 @@
-import 'dart:async' show Future, Completer;
+import 'dart:async';
 import 'dart:typed_data';
 import 'dart:io';
 import 'dart:core';
@@ -12,6 +12,11 @@ import 'package:archive/archive.dart';
 import 'package:flutter/material.dart';
 import 'indexedDictionary.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import '../common/FileStream.dart';
+
+String nameToBoxName(String name) {
+  return 'dik_' + name.replaceAll(RegExp('[^A-Za-z0-9]'), '');
+}
 
 class BundledDictionary {
   final String assetFileNamePattern;
@@ -20,19 +25,19 @@ class BundledDictionary {
   const BundledDictionary(
       this.assetFileNamePattern, this.name, this.maxFileIndex);
   String get boxName {
-    return 'dik_' + name.replaceAll(RegExp('[^A-Za-z0-9]'), '');
+    return nameToBoxName(name);
   }
 }
 
 const bundledDictionaries = [
   BundledDictionary(
-      'assets/dictionaries/EnRuUniversal%02i.json', 'EN/RU Universal', 9), //9
+      'assets/dictionaries/EnRuUniversal%02i.json', 'EN_RU Universal', 9), //9
   BundledDictionary('assets/dictionaries/En-En-WordNet3-%02i.json',
       'EN/EN WordNet 3', 14), //14
   BundledDictionary(
-      'assets/dictionaries/RuEnUniversal%02i.json', 'RU/EN Universal', 8), //8
+      'assets/dictionaries/RuEnUniversal%02i.json', 'RU_EN Universal', 8), //8
   BundledDictionary('assets/dictionaries/RuByUniversal%02i.json',
-      'RU/BY НАН РБ (ред. Крапивы)', 10), //10
+      'RU_BY НАН РБ (ред. Крапивы)', 10), //10
 ];
 
 enum DictionaryBeingProcessedState { pending, inprogress, success, error }
@@ -41,13 +46,21 @@ class DictionaryBeingProcessed {
   final String name;
   final BundledDictionary bundledDictiopnary;
   final IndexedDictionary indexedDictionary;
+  final File file;
 
   DictionaryBeingProcessed.bundled(this.bundledDictiopnary)
       : this.name = bundledDictiopnary.name,
+        this.file = null,
         this.indexedDictionary = null;
 
   DictionaryBeingProcessed.indexed(this.indexedDictionary)
       : this.name = indexedDictionary.name,
+        this.file = null,
+        this.bundledDictiopnary = null;
+
+  DictionaryBeingProcessed.file(this.file)
+      : this.name = file.path.split('/').last.replaceFirst('.json', ''),
+        this.indexedDictionary = null,
         this.bundledDictiopnary = null;
 
   DictionaryBeingProcessedState _state = DictionaryBeingProcessedState.pending;
@@ -91,7 +104,7 @@ class DictionaryManager extends ChangeNotifier {
     _isRunning = true;
 
     _currentOperation = ManagerCurrentOperation.preparing;
-    await _chackAndindexBundledDictionaries();
+    await _checkAndIndexBundledDictionaries();
 
     _initDictionaryCollections();
 
@@ -161,7 +174,7 @@ class DictionaryManager extends ChangeNotifier {
     }
   }
 
-  Future _chackAndindexBundledDictionaries() async {
+  Future _checkAndIndexBundledDictionaries() async {
     _dictionariesBeingProcessed = List<DictionaryBeingProcessed>();
 
     for (var i in bundledDictionaries) {
@@ -178,46 +191,115 @@ class DictionaryManager extends ChangeNotifier {
 
   Future<void> _indexBundledDictionaries(
       List<DictionaryBeingProcessed> bds) async {
-    var completer = Completer<void>();
-
-    print('Loading JSON to Hive DB: ' + DateTime.now().toString());
-    for (var i = 0; i < bds.length; i++) {
-      var d = IndexedDictionary();
-      var bd = bds[i].bundledDictiopnary;
-      print('  /Dictionary: ' + bd.name);
-
-      bds[i].state = DictionaryBeingProcessedState.inprogress;
-      notifyListeners();
-
-      d.name = bd.name;
-      d.boxName = bd.boxName;
-      d.isEnabled = true;
-      d.isReadyToUse = false;
-      d.order = i;
-      _dictionaries.put(d.boxName, d);
-      var box = await Hive.openLazyBox<Uint8List>(d.boxName);
-      var indexer = BundledIndexer(bd.assetFileNamePattern, bd.maxFileIndex,
-          i == bds.length - 1 ? completer : null, box, (progress) {
-        bds[i].progressPercent = progress;
+    Indexer getIndexer(
+        DictionaryBeingProcessed dictionaryProcessed, LazyBox<Uint8List> box) {
+      var bd = dictionaryProcessed.bundledDictiopnary;
+      return BundledIndexer(bd.assetFileNamePattern, bd.maxFileIndex, box,
+          (progress) {
+        dictionaryProcessed.progressPercent = progress;
         notifyListeners();
       });
+    }
+
+    print('Loading JSON to Hive DB: ' + DateTime.now().toString());
+    await _runIndexer(bds, getIndexer);
+  }
+
+  Indexer _curIndexer;
+
+  Future _runIndexer(
+      List<DictionaryBeingProcessed> dictionariesProcessed,
+      Indexer getIndexer(
+          DictionaryBeingProcessed dictionaryProcessed, LazyBox<Uint8List> box),
+      {int startOrderAt = 0,
+      Completer finished}) async {
+    for (var i = 0; i < dictionariesProcessed.length; i++) {
+      if (_canceled) break;
+      var d = IndexedDictionary();
+      d.name = dictionariesProcessed[i].name;
+
+      print('  /Dictionary: ' + d.name);
+
+      dictionariesProcessed[i].state = DictionaryBeingProcessedState.inprogress;
+      notifyListeners();
+
+      d.boxName = nameToBoxName(d.name);
+      d.isEnabled = true;
+      d.isReadyToUse = false;
+      d.order = startOrderAt + i;
+      _dictionaries.put(d.boxName, d);
+      var box = await Hive.openLazyBox<Uint8List>(d.boxName);
+      _curIndexer = getIndexer(dictionariesProcessed[i], box);
       try {
-        await indexer.run();
+        await _curIndexer.run();
         d.isReadyToUse = true;
         d.save();
-
-        bds[i].state = DictionaryBeingProcessedState.success;
+        dictionariesProcessed[i].state = DictionaryBeingProcessedState.success;
         notifyListeners();
+        if (i == dictionariesProcessed.length - 1 && finished != null)
+          finished.complete();
       } catch (err) {
         d.isError = true;
         print("Error indexing box: " + d.boxName + "\n" + err.toString());
-
-        bds[i].state = DictionaryBeingProcessedState.error;
+        dictionariesProcessed[i].state = DictionaryBeingProcessedState.error;
         notifyListeners();
+        if (i == dictionariesProcessed.length - 1 && finished != null)
+          finished.completeError(err);
       }
     }
+  }
+
+  Future<void> loadFromJsonFiles(List<File> files) async {
+    _isRunning = true;
+    _canceled = false;
+    _dictionariesBeingProcessed = [];
+    var completer = Completer();
+
+    _currentOperation = ManagerCurrentOperation.preparing;
+    notifyListeners();
+
+    print('Processing JSON files: ' + DateTime.now().toString());
+
+    for (var f in files) {
+      _dictionariesBeingProcessed.add(DictionaryBeingProcessed.file(f));
+    }
+
+    _currentOperation = ManagerCurrentOperation.indexing;
+
+    Indexer getIndexer(
+        DictionaryBeingProcessed dictionaryProcessed, LazyBox<Uint8List> box) {
+      return FileIndexer(dictionaryProcessed.file, box, (progress) {
+        dictionaryProcessed.progressPercent = progress;
+        notifyListeners();
+      });
+    }
+
+    print('Indexing JSON files and loading to Hive DB: ' +
+        DateTime.now().toString());
+    await _runIndexer(_dictionariesBeingProcessed, getIndexer,
+        startOrderAt: 0 - files.length,
+        finished: completer); // put dictionaries at the top
+
+    _initDictionaryCollections();
+
+    // if (_canceled) return;
+
+    // _currentOperation = ManagerCurrentOperation.loading;
+    // await _loadEnabledDictionaries();
+
+    _isRunning = false;
+    notifyListeners();
 
     return completer.future;
+  }
+
+  bool _canceled = false;
+
+  void cancel() {
+    _curIndexer?.cancel();
+    _canceled = true;
+    _isRunning = false;
+    notifyListeners();
   }
 
   List<IndexedDictionary> _dictionariesReadyList = [];
@@ -314,16 +396,90 @@ class IsolateParams {
   final int file;
 }
 
-class BundledIndexer {
+abstract class Indexer {
+  Future<void> run() async {}
+  void cancel() {}
+}
+
+class FileIndexer extends Indexer {
+  final File file;
+  final Completer<void> runCompleter = Completer<void>();
+  final LazyBox<Uint8List> box;
+  final Function(int progressPercent) updateProgress;
+  bool _canceled = false;
+
+  FileIndexer(this.file, this.box, this.updateProgress);
+
+  void cancel() {
+    _canceled = true;
+  }
+
+  Future<void> run() async {
+    print(file.path + '\n');
+    var s = FileStream(file.path, null, null);
+    var length = await file.length();
+
+    var sw = Stopwatch();
+
+    var converterZip = JsonDecoder((k, v) {
+      if (v is String) {
+        var bytes = utf8.encode(v);
+        var gzipBytes = gzip.encode(bytes);
+        var b = Uint8List.fromList(gzipBytes);
+        return b;
+      } else {
+        return v;
+      }
+    });
+
+    var outSinkZip = ChunkedConversionSink.withCallback((chunks) {
+      try {
+        var result = chunks.single.cast<String, Uint8List>();
+        box.putAll(result);
+        sw.stop();
+        runCompleter.complete();
+        print('ELAPSED (ms): ' + sw.elapsedMilliseconds.toString());
+      } catch (err) {
+        _canceled = true;
+        runCompleter.completeError(err);
+      }
+    });
+
+    sw.start();
+    var inSinkZip = converterZip.startChunkedConversion(outSinkZip);
+
+    var progress = -1;
+    var utf = s.transform(utf8.decoder);
+    StreamSubscription<String> subscription;
+
+    subscription = utf.listen((event) {
+      try {
+        if (_canceled) subscription?.cancel();
+        inSinkZip.add(event);
+        var curr = (s.position / length * 100).round();
+        if (curr != progress) {
+          progress = curr;
+          updateProgress(progress);
+        }
+      } catch (err) {
+        runCompleter.completeError(err);
+        _canceled = true;
+      }
+    }, onDone: () => inSinkZip.close());
+
+    return runCompleter.future;
+  }
+}
+
+class BundledIndexer extends Indexer {
   final String namePattern;
-  final Completer<void> completer;
+  //final Completer<void> completer;
   final Completer<void> runCompleter = Completer<void>();
   final LazyBox<Uint8List> box;
   final int maxFile;
   final Function(int progressPercent) updateProgress;
 
-  BundledIndexer(this.namePattern, this.maxFile, this.completer, this.box,
-      this.updateProgress);
+  BundledIndexer(this.namePattern, this.maxFile, this.box, this.updateProgress);
 
   Future<void> run() async {
     iterateInIsolate();
@@ -363,7 +519,7 @@ class BundledIndexer {
       if (_runningIsolates == 0 && _filesRemaining == 0) {
         await box.putAll(computeValue);
         if (updateProgress != null) updateProgress(100);
-        completer?.complete();
+        //completer?.complete();
         runCompleter.complete();
         print('JSON loaded to Hive DB: ' + DateTime.now().toString());
       } else {
