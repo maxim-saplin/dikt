@@ -6,6 +6,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:file_picker/file_picker.dart';
 import '../models/dictionaryManager.dart';
 import '../models/masterDictionary.dart';
+import '../common/i18n.dart';
 import './managerState.dart';
 
 class Dictionaries extends StatefulWidget {
@@ -52,7 +53,7 @@ class _DictionariesState extends State<Dictionaries> {
       Timer(
           Duration(seconds: 1),
           () => fToast.showToast(
-              child: Text('Tap and hold to move'),
+              child: Text('Tap and hold to move'.i18n),
               toastDuration: Duration(seconds: 3)));
       toastShown = true;
     }
@@ -75,12 +76,12 @@ class _DictionariesState extends State<Dictionaries> {
                 showDialog(
                     context: context,
                     child: AlertDialog(
-                      content: Text('Delete "' +
-                          manager.dictionariesReady[index].name +
-                          '" dictionary?'),
+                      content: Text('delete_dic'
+                          .i18n
+                          .fill([manager.dictionariesReady[index].name])),
                       actions: [
                         FlatButton(
-                          child: Text('Delete'),
+                          child: Text('Delete'.i18n),
                           onPressed: () {
                             manager.deleteReadyDictionary(index);
                             Provider.of<MasterDictionary>(context,
@@ -90,7 +91,7 @@ class _DictionariesState extends State<Dictionaries> {
                           },
                         ),
                         FlatButton(
-                          child: Text('Cancel'),
+                          child: Text('Cancel'.i18n),
                           onPressed: () {
                             Navigator.of(context).pop();
                           },
@@ -108,12 +109,12 @@ class _DictionariesState extends State<Dictionaries> {
                       child: _draggingIndex == null
                           ? (manager.isRunning
                               ? OutlineButton(
-                                  child: Text('Break'),
+                                  child: Text('Break'.i18n),
                                   onPressed: () {
                                     manager.cancel();
                                   })
                               : OutlineButton(
-                                  child: Text('+ Import JSON'),
+                                  child: Text('+ Import JSON'.i18n),
                                   onPressed: () async {
                                     var files = await FilePicker.getMultiFile(
                                         type: FileType.custom,
@@ -131,8 +132,8 @@ class _DictionariesState extends State<Dictionaries> {
                                         showDialog(
                                             context: context,
                                             child: AlertDialog(
-                                              title:
-                                                  Text('There\'re issues...'),
+                                              title: Text(
+                                                  'There\'re issues...'.i18n),
                                               content: IntrinsicHeight(
                                                   child: ManagerState()),
                                               actions: [
@@ -148,7 +149,7 @@ class _DictionariesState extends State<Dictionaries> {
                                     }
                                   },
                                 ))
-                          : Text('DELETE')),
+                          : Text('DELETE'.i18n)),
                 );
               })),
           Padding(
@@ -220,9 +221,13 @@ class _DictionariesState extends State<Dictionaries> {
                                                                     ?.notify();
                                                               }); // let Lookup update (e.g. no history and number of entries shown) if a new dictionary is imported
                                                               return Text(
-                                                                e.box.length
+                                                                e.box
+                                                                        .length
                                                                         .toString() +
-                                                                    ' entries, ' +
+                                                                    ' ' +
+                                                                    'entries'
+                                                                        .i18n +
+                                                                    ', ' +
                                                                     e.fileSizeMb
                                                                         .toStringAsFixed(
                                                                             1) +
@@ -253,7 +258,7 @@ class _DictionariesState extends State<Dictionaries> {
               padding: EdgeInsets.fromLTRB(12, 12, 12, 12),
               height: 50.0,
               child: Text(
-                "Dictionaries",
+                'Dictionaries'.i18n,
                 style: Theme.of(context).textTheme.headline6,
               )),
         ]));

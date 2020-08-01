@@ -9,6 +9,7 @@ import 'package:double_back_to_close_app/double_back_to_close_app.dart';
 
 import '../models/masterDictionary.dart';
 import '../common/simpleSimpleDialog.dart';
+import '../common/i18n.dart';
 import './settings.dart';
 import './wordArticles.dart';
 import './dictionaries.dart';
@@ -28,8 +29,8 @@ class Lookup extends StatelessWidget {
     return Scaffold(
         key: _scaffoldKey,
         body: DoubleBackToCloseApp(
-            snackBar: const SnackBar(
-              content: Text('Tap back again to quit'),
+            snackBar: SnackBar(
+              content: Text('Tap back again to quit'.i18n),
             ),
             child: Stack(children: [
               !dictionary.isLoaded
@@ -44,8 +45,19 @@ class Lookup extends StatelessWidget {
                           right: 0,
                           bottom: 100.0,
                           child: Text(
-                            dictionary.totalEntries.toString() +
-                                ' entries\n\nType-in text below\n↓ ↓ ↓',
+                            (dictionary.totalEntries == 0
+                                    ? '↑↑↑\n' +
+                                        'Try adding dictionaries'.i18n +
+                                        '\n\n'
+                                    : '') +
+                                dictionary.totalEntries.toString() +
+                                ' ' +
+                                'entries'.i18n +
+                                (dictionary.totalEntries > 0
+                                    ? '\n\n' +
+                                        'Type-in text below'.i18n +
+                                        '\n↓ ↓ ↓'
+                                    : ''),
                             textAlign: TextAlign.center,
                           ))
                       : LookupWords(
@@ -87,7 +99,7 @@ class TopButtons extends StatelessWidget {
                       context: context,
                       builder: (BuildContext context) {
                         return AlertDialog(
-                            title: Text('Settings'), content: Settings());
+                            title: Text('Settings'.i18n), content: Settings());
                       });
                 },
               )
@@ -253,7 +265,7 @@ class _SearchBar extends StatelessWidget {
                           style: TextStyle(fontSize: 20.0),
                           decoration: InputDecoration(
                               border: InputBorder.none,
-                              hintText: 'Search',
+                              hintText: 'Search'.i18n,
                               suffix: GestureDetector(
                                   onTap: () {
                                     dictionary.lookupWord = '';

@@ -5,9 +5,14 @@ import 'package:dikt/common/preferencesSingleton.dart';
 class Preferences extends ChangeNotifier {
   ThemeMode _themeMode;
 
+  static const String _themeModeParam = 'themeMode';
+
   ThemeMode get themeMode {
     if (_themeMode == null) {
-      var v = PreferencesSingleton.sp.getInt(_themeModeParam);
+      int v;
+      try {
+        v = PreferencesSingleton.sp.getInt(_themeModeParam);
+      } catch (_) {}
       if (v == null) {
         _themeMode = ThemeMode.system;
       } else
@@ -15,8 +20,6 @@ class Preferences extends ChangeNotifier {
     }
     return _themeMode;
   }
-
-  static const String _themeModeParam = 'themeMode';
 
   set themeMode(ThemeMode value) {
     if (value != _themeMode) {
@@ -39,5 +42,40 @@ class Preferences extends ChangeNotifier {
       themeMode = ThemeMode.system;
     else
       themeMode = ThemeMode.dark;
+  }
+
+  static const String _localeParam = 'locale';
+  Locale _locale;
+
+  Locale get locale {
+    if (_locale == null) {
+      var v = PreferencesSingleton.sp.getString(_localeParam);
+      if (v == null) {
+        _locale = Locale('en', '');
+      } else
+        _locale = Locale(v, '');
+    }
+    return _locale;
+  }
+
+  bool get isLocaleInitialized {
+    return PreferencesSingleton.sp.containsKey(_localeParam);
+  }
+
+  set locale(Locale value) {
+    if (value?.languageCode != _locale?.languageCode) {
+      _locale = value;
+      PreferencesSingleton.sp.setString(_localeParam, value.languageCode);
+      notifyListeners();
+    }
+  }
+
+  void circleLocale() {
+    if (_locale.languageCode == 'en')
+      locale = Locale('be', '');
+    else if (_locale.languageCode == 'be')
+      locale = Locale('ru', '');
+    else
+      locale = Locale('en', '');
   }
 }

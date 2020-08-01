@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/dictionaryManager.dart';
+import '../common/i18n.dart';
 
 class ManagerState extends StatelessWidget {
   const ManagerState({
@@ -16,14 +17,14 @@ class ManagerState extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(manager.currentOperation == ManagerCurrentOperation.preparing
-              ? 'One moment please'
+              ? 'One moment please'.i18n
               : (manager.currentOperation == ManagerCurrentOperation.indexing
-                      ? 'Indexing [' +
-                          manager.dictionariesBeingProcessed.length.toString() +
-                          '] dictionaries'
-                      : 'Loading [' +
-                          manager.dictionariesBeingProcessed.length.toString() +
-                          '] dictionaries') +
+                      ? 'indexing_dic'.i18n.fill([
+                          manager.dictionariesBeingProcessed.length.toString()
+                        ])
+                      : 'loading_dic'.i18n.fill([
+                          manager.dictionariesBeingProcessed.length.toString()
+                        ])) +
                   '\n' +
                   manager.dictionariesBeingProcessed.fold(
                       '',
@@ -43,7 +44,7 @@ class ManagerState extends StatelessWidget {
                                   : (value.state ==
                                           DictionaryBeingProcessedState.success
                                       ? 'OK'
-                                      : 'ERROR')))))
+                                      : 'ERROR'.i18n)))))
         ]);
   }
 }

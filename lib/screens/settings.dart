@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 import 'package:dikt/models/preferences.dart';
 import 'package:dikt/models/history.dart';
 
+import '../common/i18n.dart';
+
 class Settings extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -15,25 +17,25 @@ class Settings extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('Theme'),
+            Text('Theme'.i18n),
             OutlineButton(
-              child: Text(model.theme),
+              child: Text(model.theme.i18n),
               onPressed: () => model.circleThemeMode(),
             )
           ],
         ),
         SizedBox(height: 10),
         Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-          Text('Language'),
+          Text('Language'.i18n),
           OutlineButton(
-            child: Text('EN'),
-            onPressed: () {},
+            child: Text(model.locale.languageCode.i18n),
+            onPressed: () => model.circleLocale(),
           )
         ]),
         SizedBox(height: 10),
         Row(mainAxisAlignment: MainAxisAlignment.end, children: [
           OutlineButton(
-            child: Text('Clear History'),
+            child: Text('Clear History'.i18n),
             onPressed: () {
               Provider.of<History>(context, listen: false).clear();
               // Lazy implementing propper update, using workaround

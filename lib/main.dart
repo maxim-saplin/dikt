@@ -4,6 +4,8 @@ import 'package:dikt/common/preferencesSingleton.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/services.dart';
+import 'package:i18n_extension/i18n_widget.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 import './models/masterDictionary.dart';
 import './models/preferences.dart';
@@ -38,8 +40,27 @@ class MyApp extends StatelessWidget {
           }),
         ],
         child: Consumer<Preferences>(
-            builder: (context, preferences, child) => MaterialApp(
+            builder: (context, preferences, child) => I18n(
+                    child: MaterialApp(
+                  localizationsDelegates: [
+                    GlobalMaterialLocalizations.delegate,
+                    GlobalWidgetsLocalizations.delegate,
+                    GlobalCupertinoLocalizations.delegate,
+                  ],
+                  supportedLocales: [
+                    const Locale('en', ''),
+                    const Locale('be', ''),
+                    const Locale('ru', ''),
+                  ],
                   builder: (BuildContext context, Widget child) {
+                    Timer.run(() {
+                      if (preferences.isLocaleInitialized) {
+                        I18n.of(context).locale = preferences.locale;
+                      } else {
+                        preferences.locale = Localizations.localeOf(
+                            context); // set to system default locale. Flutter picks one of supported locales is there's a match
+                      }
+                    });
                     return MediaQuery(
                       data:
                           MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
@@ -60,7 +81,7 @@ class MyApp extends StatelessWidget {
                   themeMode: preferences.themeMode,
                   theme: lightTheme,
                   darkTheme: darkTheme,
-                )));
+                ))));
   }
 
   final ThemeData lightTheme = ThemeData.light().copyWith(
