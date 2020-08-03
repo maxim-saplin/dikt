@@ -75,6 +75,7 @@ class _DictionariesState extends State<Dictionaries> {
                 _cancelReorder = true;
                 showDialog(
                     context: context,
+                    routeSettings: RouteSettings(name: '/delete_dic'),
                     child: AlertDialog(
                       content: Text('delete_dic'
                           .i18n
@@ -131,6 +132,8 @@ class _DictionariesState extends State<Dictionaries> {
                                           .catchError((err) {
                                         showDialog(
                                             context: context,
+                                            routeSettings: RouteSettings(
+                                                name: '/dic_import_error'),
                                             child: AlertDialog(
                                               title: Text(
                                                   'There\'re issues...'.i18n),

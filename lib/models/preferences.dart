@@ -3,9 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:dikt/common/preferencesSingleton.dart';
 
 class Preferences extends ChangeNotifier {
-  ThemeMode _themeMode;
-
   static const String _themeModeParam = 'themeMode';
+  ThemeMode _themeMode;
 
   ThemeMode get themeMode {
     if (_themeMode == null) {
@@ -77,5 +76,34 @@ class Preferences extends ChangeNotifier {
       locale = Locale('ru', '');
     else
       locale = Locale('en', '');
+  }
+
+  static const String _analyticsParam = 'analytics';
+  bool _isAnalyticsEnabled;
+
+  bool get isAnalyticsEnabled {
+    if (_isAnalyticsEnabled == null) {
+      bool v;
+      try {
+        v = PreferencesSingleton.sp.getBool(_analyticsParam);
+      } catch (_) {}
+      if (v == null) {
+        _isAnalyticsEnabled = true;
+      } else
+        _isAnalyticsEnabled = v;
+    }
+    return _isAnalyticsEnabled;
+  }
+
+  set isAnalyticsEnabled(bool value) {
+    if (value != _isAnalyticsEnabled) {
+      _isAnalyticsEnabled = value;
+      PreferencesSingleton.sp.setBool(_analyticsParam, value);
+      notifyListeners();
+    }
+  }
+
+  void circleAnalyticsEnabled() {
+    isAnalyticsEnabled = !isAnalyticsEnabled;
   }
 }

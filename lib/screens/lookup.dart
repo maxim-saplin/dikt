@@ -83,6 +83,7 @@ class TopButtons extends StatelessWidget {
                   onPressed: () {
                     showDialog(
                         context: context,
+                        routeSettings: RouteSettings(name: '/dictionaries'),
                         builder: (BuildContext context) {
                           return SimpleSimpleDialog(
                               title: Text('Dictionaries'),
@@ -97,6 +98,7 @@ class TopButtons extends StatelessWidget {
                 onPressed: () {
                   showDialog(
                       context: context,
+                      routeSettings: RouteSettings(name: '/settings'),
                       builder: (BuildContext context) {
                         return AlertDialog(
                             title: Text('Settings'.i18n), content: Settings());
@@ -203,6 +205,7 @@ void showArticle(BuildContext context, MasterDictionary dictionary,
     History history, String word) {
   showDialog(
       context: context,
+      routeSettings: RouteSettings(name: '/article', arguments: word),
       builder: (BuildContext context) {
         Future<List<Article>> articles;
         if (dictionary.isLookupWordEmpty) {

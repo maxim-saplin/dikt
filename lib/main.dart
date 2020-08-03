@@ -56,9 +56,11 @@ class MyApp extends StatelessWidget {
                     const Locale('be', ''),
                     const Locale('ru', ''),
                   ],
-                  navigatorObservers: [
-                    FirebaseAnalyticsObserver(analytics: analytics),
-                  ],
+                  navigatorObservers: preferences.isAnalyticsEnabled
+                      ? [
+                          FirebaseAnalyticsObserver(analytics: analytics),
+                        ]
+                      : [],
                   builder: (BuildContext context, Widget child) {
                     Timer.run(() {
                       if (preferences.isLocaleInitialized) {

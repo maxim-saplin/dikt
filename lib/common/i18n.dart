@@ -32,6 +32,9 @@ extension Localization on String {
           'ERROR': 'ERROR',
           'Cancel': 'Cancel',
           'Break': 'Break',
+          'Analytics': 'Analytics',
+          'On': 'On',
+          'Off': 'Off',
         },
         'be': {
           'Search': 'Пошук',
@@ -61,7 +64,10 @@ extension Localization on String {
           'loading_dic': 'Загрузка слоўнiкаў [%s]',
           'ERROR': 'ПАМЫЛКА',
           'Cancel': 'Адмена',
-          'Break': 'Стапэ'
+          'Break': 'Стапэ',
+          'Analytics': 'Аналiтыка',
+          'On': 'Укл',
+          'Off': 'Выкл',
         },
         'ru': {
           'Search': 'Поиск',
@@ -91,7 +97,10 @@ extension Localization on String {
           'loading_dic': 'Загрузка словарей [%s]',
           'ERROR': 'ОШИБКА',
           'Cancel': 'Отмена',
-          'Break': 'Стоп'
+          'Break': 'Стоп',
+          'Analytics': 'Аналитика',
+          'On': 'Вкл',
+          'Off': 'Выкл',
         },
       };
 

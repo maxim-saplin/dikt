@@ -30,14 +30,14 @@ class BundledDictionary {
 }
 
 const bundledDictionaries = [
-  // BundledDictionary(
-  //     'assets/dictionaries/EnRuUniversal%02i.json', 'EN_RU Universal', 9), //9
-  // BundledDictionary('assets/dictionaries/En-En-WordNet3-%02i.json',
-  //     'EN_EN WordNet 3', 14), //14
-  // BundledDictionary(
-  //     'assets/dictionaries/RuEnUniversal%02i.json', 'RU_EN Universal', 8), //8
-  // BundledDictionary('assets/dictionaries/RuByUniversal%02i.json',
-  //     'RU_BY НАН РБ (ред. Крапивы)', 10), //10
+  BundledDictionary(
+      'assets/dictionaries/EnRuUniversal%02i.json', 'EN_RU Universal', 9), //9
+  BundledDictionary('assets/dictionaries/En-En-WordNet3-%02i.json',
+      'EN_EN WordNet 3', 14), //14
+  BundledDictionary(
+      'assets/dictionaries/RuEnUniversal%02i.json', 'RU_EN Universal', 8), //8
+  BundledDictionary('assets/dictionaries/RuByUniversal%02i.json',
+      'RU_BY НАН РБ (ред. Крапивы)', 10), //10
 ];
 
 enum DictionaryBeingProcessedState { pending, inprogress, success, error }

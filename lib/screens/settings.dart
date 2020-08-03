@@ -33,6 +33,14 @@ class Settings extends StatelessWidget {
           )
         ]),
         SizedBox(height: 10),
+        Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+          Text('Analytics'.i18n),
+          OutlineButton(
+            child: Text(model.isAnalyticsEnabled ? 'On'.i18n : 'Off'.i18n),
+            onPressed: () => model.circleAnalyticsEnabled(),
+          )
+        ]),
+        SizedBox(height: 10),
         Row(mainAxisAlignment: MainAxisAlignment.end, children: [
           OutlineButton(
             child: Text('Clear History'.i18n),
