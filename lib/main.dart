@@ -6,6 +6,8 @@ import 'package:provider/provider.dart';
 import 'package:flutter/services.dart';
 import 'package:i18n_extension/i18n_widget.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_analytics/observer.dart';
 
 import './models/masterDictionary.dart';
 import './models/preferences.dart';
@@ -20,6 +22,8 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
+  static final FirebaseAnalytics analytics = FirebaseAnalytics();
+
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
@@ -51,6 +55,9 @@ class MyApp extends StatelessWidget {
                     const Locale('en', ''),
                     const Locale('be', ''),
                     const Locale('ru', ''),
+                  ],
+                  navigatorObservers: [
+                    FirebaseAnalyticsObserver(analytics: analytics),
                   ],
                   builder: (BuildContext context, Widget child) {
                     Timer.run(() {
