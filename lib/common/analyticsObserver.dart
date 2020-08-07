@@ -1,0 +1,48 @@
+import 'package:meta/meta.dart';
+import 'package:flutter/widgets.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
+
+class AnalyticsObserver extends RouteObserver {
+  int _ii;
+
+  AnalyticsObserver({@required this.analytics}) {
+    var i = 0;
+    i++;
+    _ii = i;
+  }
+
+  final FirebaseAnalytics analytics;
+
+  void _sendScreenView(Route<dynamic> route) {
+    final String screenName = route.settings.name +
+        (route.settings.arguments != null
+            ? '/' + route.settings.arguments
+            : '');
+
+    if (screenName != null) {
+      //print('Setting screen to ' + screenName);
+      // analytics
+      //     .logEvent(name: 'navigation', parameters: {'screen': screenName});
+      analytics.setCurrentScreen(
+          screenName: screenName, screenClassOverride: screenName);
+    }
+  }
+
+  @override
+  void didPush(Route<dynamic> route, Route<dynamic> previousRoute) {
+    super.didPush(route, previousRoute);
+    _sendScreenView(route);
+  }
+
+  @override
+  void didReplace({Route<dynamic> newRoute, Route<dynamic> oldRoute}) {
+    super.didReplace(newRoute: newRoute, oldRoute: oldRoute);
+    _sendScreenView(newRoute);
+  }
+
+  @override
+  void didPop(Route<dynamic> route, Route<dynamic> previousRoute) {
+    super.didPop(route, previousRoute);
+    _sendScreenView(previousRoute);
+  }
+}

@@ -5,17 +5,20 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/services.dart';
 import 'package:i18n_extension/i18n_widget.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
-import 'package:firebase_analytics/observer.dart';
 
 import './models/masterDictionary.dart';
 import './models/preferences.dart';
 import './screens/lookup.dart';
 import './models/history.dart';
 import './models/dictionaryManager.dart';
+import './common/analyticsObserver.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   await PreferencesSingleton.init();
   await DictionaryManager.init();
   runApp(MyApp());
@@ -58,7 +61,7 @@ class MyApp extends StatelessWidget {
                   ],
                   navigatorObservers: preferences.isAnalyticsEnabled
                       ? [
-                          FirebaseAnalyticsObserver(analytics: analytics),
+                          AnalyticsObserver(analytics: analytics),
                         ]
                       : [],
                   builder: (BuildContext context, Widget child) {
