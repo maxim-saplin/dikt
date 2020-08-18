@@ -2,6 +2,4 @@ https://play.google.com/store/apps/details?id=com.saplin.dikt
  
 https://github.com/maxim-saplin/dikt/releases/download/1.0.1/dikt.apk
 
-<img src="https://raw.githubusercontent.com/maxim-saplin/dikt/master/En1.jpg"  width="120">
-
-![img](https://raw.githubusercontent.com/maxim-saplin/dikt/master/En1.jpg | width=100)
+<img src="https://raw.githubusercontent.com/maxim-saplin/dikt/master/En1.jpg"  width="400">
