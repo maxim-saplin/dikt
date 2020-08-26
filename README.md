@@ -9,5 +9,5 @@ WordNet® 3 (large lexical dictionary of English) is bundled with the app. Other
  
 
 
-<img style="float:left" src="https://raw.githubusercontent.com/maxim-saplin/dikt/master/1.gif" width="400">
-<img style="float:left" src="https://raw.githubusercontent.com/maxim-saplin/dikt/master/2.gif" width="400">
+<img align="left" src="https://raw.githubusercontent.com/maxim-saplin/dikt/master/1.gif" width="400">
+<img align="left" src="https://raw.githubusercontent.com/maxim-saplin/dikt/master/2.gif" width="400">
