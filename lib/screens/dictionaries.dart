@@ -77,7 +77,7 @@ class _DictionariesState extends State<Dictionaries> {
                     context: context,
                     routeSettings: RouteSettings(name: '/delete_dic'),
                     child: AlertDialog(
-                      content: Text('delete_dic'
+                      content: Text('Delete_dic'
                           .i18n
                           .fill([manager.dictionariesReady[index].name])),
                       actions: [

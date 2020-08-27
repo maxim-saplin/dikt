@@ -1,5 +1,5 @@
 name: dikt
-description: A new Flutter project.
+description: dikt - bottom-up offline dictionary.
 
 # The following line prevents the package from being accidentally published to
 # pub.dev using `pub publish`. This is preferred for private packages.
@@ -28,7 +28,7 @@ dependencies:
     
   provider: ^4.0.2
   shared_preferences: 
-  flutter_html: ^1.0.0
+  flutter_html: ^1.0.2
   hive: ^1.4.1+1
   hive_flutter: ^0.3.0+2
   sprintf: "^4.0.0"

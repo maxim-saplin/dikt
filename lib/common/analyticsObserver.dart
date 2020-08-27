@@ -3,13 +3,7 @@ import 'package:flutter/widgets.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 
 class AnalyticsObserver extends RouteObserver {
-  int _ii;
-
-  AnalyticsObserver({@required this.analytics}) {
-    var i = 0;
-    i++;
-    _ii = i;
-  }
+  AnalyticsObserver({@required this.analytics});
 
   final FirebaseAnalytics analytics;
 

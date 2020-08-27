@@ -4,7 +4,7 @@ version: 0.3.2
 homepage: https://github.com/hanshengchiu/reorderables
 
 environment:
-  sdk: ">=2.1.0 <3.0.0"
+  sdk: ">=2.7.0 <3.0.0"
 #  flutter: ">=1.6.3"
 
 dependencies:

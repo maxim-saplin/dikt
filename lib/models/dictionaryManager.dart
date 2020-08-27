@@ -486,7 +486,7 @@ class BundledIndexer extends Indexer {
     return runCompleter.future;
   }
 
-  int _numberOfIsolates = max(2, Platform.numberOfProcessors);
+  int _numberOfIsolates = max(2, kIsWeb ? 2 : Platform.numberOfProcessors);
   int _curFile = 0;
   int _runningIsolates = 0;
   int _filesRemaining = 0;
