@@ -26,15 +26,14 @@ abstract class HiveInterface implements TypeRegistry {
   ///
   /// If the box is already open, the instance is returned and all provided
   /// parameters are being ignored.
-  Future<LazyBox<E>> openLazyBox<E>(
-    String name, {
-    HiveCipher encryptionCipher,
-    KeyComparator keyComparator = defaultKeyComparator,
-    CompactionStrategy compactionStrategy = defaultCompactionStrategy,
-    bool crashRecovery = true,
-    String path,
-    @deprecated List<int> encryptionKey,
-  });
+  Future<LazyBox<E>> openLazyBox<E>(String name,
+      {HiveCipher encryptionCipher,
+      KeyComparator keyComparator = defaultKeyComparator,
+      CompactionStrategy compactionStrategy = defaultCompactionStrategy,
+      bool crashRecovery = true,
+      String path,
+      @deprecated List<int> encryptionKey,
+      bool useIsolate = false});
 
   /// Returns a previously opened box.
   Box<E> box<E>(String name);

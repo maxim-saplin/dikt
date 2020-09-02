@@ -17,8 +17,8 @@ abstract class BoxBaseImpl<E> implements BoxBase<E> {
   final CompactionStrategy _compactionStrategy;
 
   /// Not part of public API
-  @protected
-  final StorageBackend backend;
+  //@protected
+  StorageBackend backend;
 
   /// Not part of public API
   @protected

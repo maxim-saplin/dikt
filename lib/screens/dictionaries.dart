@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:reorderables/reorderables.dart';
 import 'package:provider/provider.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -230,14 +231,14 @@ class _DictionariesState extends State<Dictionaries> {
                                                                     ' ' +
                                                                     'entries'
                                                                         .i18n +
-                                                                    ', ' +
-                                                                    e.fileSizeMb
-                                                                        .toStringAsFixed(
-                                                                            1) +
-                                                                    "MB",
+                                                                    (!kIsWeb
+                                                                        ? ', ' +
+                                                                            e.fileSizeMb.toStringAsFixed(1) +
+                                                                            "MB"
+                                                                        : ''),
                                                                 overflow:
                                                                     TextOverflow
-                                                                        .fade,
+                                                                        .ellipsis,
                                                                 style: Theme.of(
                                                                         context)
                                                                     .textTheme

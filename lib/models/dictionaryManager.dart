@@ -32,12 +32,12 @@ class BundledDictionary {
 const bundledDictionaries = [
   BundledDictionary('assets/dictionaries/En-En-WordNet3-%02i.json',
       'EN_EN WordNet 3', 14), //14
-  // BundledDictionary(
-  //     'assets/dictionaries2/EnRuUniversal%02i.json', 'EN_RU Universal', 9), //9
-  // BundledDictionary(
-  //     'assets/dictionaries2/RuEnUniversal%02i.json', 'RU_EN Universal', 8), //8
-  // BundledDictionary('assets/dictionaries/RuByUniversal%02i.json',
-  //     'RU_BY НАН РБ (ред. Крапивы)', 10), //10
+  BundledDictionary(
+      'assets/dictionaries2/EnRuUniversal%02i.json', 'EN_RU Universal', 9), //9
+  BundledDictionary(
+      'assets/dictionaries2/RuEnUniversal%02i.json', 'RU_EN Universal', 8), //8
+  BundledDictionary('assets/dictionaries2/RuByUniversal%02i.json',
+      'RU_BY НАН РБ (ред. Крапивы)', 10), //10
 ];
 
 enum DictionaryBeingProcessedState { pending, inprogress, success, error }
@@ -154,14 +154,18 @@ class DictionaryManager extends ChangeNotifier {
 
     if (_dictionariesBeingProcessed.length > 0) {
       notifyListeners();
+      List<Future<LazyBox<Uint8List>>> futures = [];
       for (var i in _dictionariesBeingProcessed) {
-        try {
-          i.state = DictionaryBeingProcessedState.inprogress;
-          notifyListeners();
-          await Hive.openLazyBox<Uint8List>(i.indexedDictionary.boxName);
+        i.state = DictionaryBeingProcessedState.inprogress;
+        notifyListeners();
+
+        var f = Hive.openLazyBox<Uint8List>(i.indexedDictionary.boxName,
+            useIsolate: kIsWeb ? false : true);
+
+        f.whenComplete(() {
           i.state = DictionaryBeingProcessedState.success;
           notifyListeners();
-        } catch (err) {
+        }).catchError((err) {
           print("Error loading box: " +
               i.indexedDictionary.boxName +
               "\n" +
@@ -169,8 +173,28 @@ class DictionaryManager extends ChangeNotifier {
 
           i.state = DictionaryBeingProcessedState.error;
           notifyListeners();
-        }
+        });
+        futures.add(f);
       }
+
+      await Future.wait(futures);
+
+      //var s = Stream.fromFutures(futures);
+      // s.listen((box) {
+      //   _dictionariesBeingProcessed
+      //       .where((element) => element.name == box.name)
+      //       .first
+      //       ?.state = DictionaryBeingProcessedState.success;
+      //   notifyListeners();
+      // }).onError((err) {
+      //   print("Error loading box: " +
+      //       i.indexedDictionary.boxName +
+      //       "\n" +
+      //       err.toString());
+
+      //   i.state = DictionaryBeingProcessedState.error;
+      //   notifyListeners();
+      // });
     }
   }
 
