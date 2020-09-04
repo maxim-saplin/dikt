@@ -224,6 +224,15 @@ class BinaryWriterImpl extends BinaryWriter {
       if (b.length > 255) {
         // trim long keys
         b = b.sublist(0, 255);
+        //JIC if triming bytes cuts 2,3,4 byte char in pieces
+        // Currently malformatted UTF strings are allowed while reading
+        // var s = utf8.decode(b,
+        //     allowMalformed:
+        //         true);
+        // if (s[s.length - 1] == '\uFFFD') {
+        //   s = s.substring(0, s.length - 2);
+        // }
+        // b = utf8.encode(key);
       }
       writeByte(b.length);
       _addBytes(b);

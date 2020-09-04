@@ -111,6 +111,8 @@ class DictionaryManager extends ChangeNotifier {
     _currentOperation = ManagerCurrentOperation.loading;
     await _loadEnabledDictionaries();
 
+    _initDictionaryCollections();
+
     _isRunning = false;
   }
 
@@ -125,7 +127,7 @@ class DictionaryManager extends ChangeNotifier {
     _dictionariesEnabledList = new List<IndexedDictionary>();
     for (var i = 0; i < _dictionariesReadyList.length; i++) {
       var d = _dictionariesReadyList[i];
-      if (d.isEnabled) _dictionariesEnabledList.add(d);
+      if (d.isEnabled && !d.isError) _dictionariesEnabledList.add(d);
     }
   }
 
@@ -160,7 +162,7 @@ class DictionaryManager extends ChangeNotifier {
         notifyListeners();
 
         var f = Hive.openLazyBox<Uint8List>(i.indexedDictionary.boxName,
-            useIsolate: kIsWeb ? false : true);
+            useIsolate: kIsWeb ? false : false);
 
         f.whenComplete(() {
           i.state = DictionaryBeingProcessedState.success;
@@ -172,12 +174,14 @@ class DictionaryManager extends ChangeNotifier {
               err.toString());
 
           i.state = DictionaryBeingProcessedState.error;
+          i.indexedDictionary.isError = true;
           notifyListeners();
         });
         futures.add(f);
       }
-
-      await Future.wait(futures);
+      try {
+        await Future.wait(futures);
+      } catch (e) {}
 
       //var s = Stream.fromFutures(futures);
       // s.listen((box) {
@@ -369,7 +373,8 @@ class DictionaryManager extends ChangeNotifier {
 
   void deleteReadyDictionary(int index) {
     var d = _dictionariesReadyList[index];
-    d.box.deleteFromDisk();
+    Hive.deleteBoxFromDisk(d.boxName);
+    //d.box.deleteFromDisk();
     if (bundledDictionaries.any((e) => e.boxName == d.boxName)) {
       d.isReadyToUse = false;
       d.save();

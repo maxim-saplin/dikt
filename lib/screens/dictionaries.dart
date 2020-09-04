@@ -62,7 +62,7 @@ class _DictionariesState extends State<Dictionaries> {
     return new WillPopScope(
         onWillPop: () async {
           if (manager.isRunning) {
-            manager.cancel();
+            //manager.cancel(); //while undexing only Break button can stop the process
             return false;
           }
           return true;
@@ -165,93 +165,95 @@ class _DictionariesState extends State<Dictionaries> {
                       shrinkWrap: true,
                       slivers: <Widget>[
                         ReorderableSliverList(
-                          delegate: ReorderableSliverChildListDelegate(manager
-                              .dictionariesReady
-                              .map((e) => Opacity(
-                                  opacity: e.isEnabled ? 1 : 0.5,
-                                  child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      children: [
-                                        Container(
-                                            width: 30,
-                                            height: 50,
-                                            child: FlatButton(
-                                              child: Text(
-                                                (e.isEnabled ? '↘' : '↓'),
-                                                style: TextStyle(fontSize: 28),
-                                              ),
-                                              padding: EdgeInsets.all(3),
-                                              onPressed: () {
-                                                manager.switchIsEnabled(e);
-                                                Provider.of<MasterDictionary>(
-                                                        context,
-                                                        listen: false)
-                                                    ?.notify();
-                                              },
-                                            )),
-                                        Expanded(
-                                            child: Container(
-                                                padding: EdgeInsets.fromLTRB(
-                                                    6, 0, 0, 0),
-                                                height: 55,
-                                                child: Column(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .center,
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    children: [
-                                                      Text(e.name,
-                                                          overflow: TextOverflow
-                                                              .ellipsis,
-                                                          style:
-                                                              Theme.of(context)
+                          delegate: ReorderableSliverChildListDelegate(
+                              manager.dictionariesReady
+                                  .map((e) => Opacity(
+                                      opacity: e.isEnabled ? 1 : 0.5,
+                                      child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.start,
+                                          children: [
+                                            Container(
+                                                width: 30,
+                                                height: 50,
+                                                child: FlatButton(
+                                                  child: Text(
+                                                    (e.isEnabled ? '↘' : '↓'),
+                                                    style:
+                                                        TextStyle(fontSize: 28),
+                                                  ),
+                                                  padding: EdgeInsets.all(3),
+                                                  onPressed: () {
+                                                    if (e.isError) return;
+                                                    manager.switchIsEnabled(e);
+                                                    Provider.of<MasterDictionary>(
+                                                            context,
+                                                            listen: false)
+                                                        ?.notify();
+                                                  },
+                                                )),
+                                            Expanded(
+                                                child: Container(
+                                                    padding:
+                                                        EdgeInsets.fromLTRB(
+                                                            6, 0, 0, 0),
+                                                    height: 55,
+                                                    child: Column(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .center,
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        children: [
+                                                          Text(e.name,
+                                                              overflow:
+                                                                  TextOverflow
+                                                                      .ellipsis,
+                                                              style: Theme.of(
+                                                                      context)
                                                                   .textTheme
                                                                   .caption),
-                                                      FutureBuilder(
-                                                          future: e
-                                                              .openBox(), //disabled boxes are not loaded upon start
-                                                          builder: (context,
-                                                              snapshot) {
-                                                            if (snapshot
-                                                                .hasData) {
-                                                              Timer.run(() {
-                                                                Provider.of<MasterDictionary>(
-                                                                        context,
-                                                                        listen:
-                                                                            false)
-                                                                    ?.notify();
-                                                              }); // let Lookup update (e.g. no history and number of entries shown) if a new dictionary is imported
-                                                              return Text(
-                                                                e.box
-                                                                        .length
-                                                                        .toString() +
-                                                                    ' ' +
-                                                                    'entries'
-                                                                        .i18n +
-                                                                    (!kIsWeb
-                                                                        ? ', ' +
-                                                                            e.fileSizeMb.toStringAsFixed(1) +
-                                                                            "MB"
-                                                                        : ''),
-                                                                overflow:
-                                                                    TextOverflow
-                                                                        .ellipsis,
-                                                                style: Theme.of(
-                                                                        context)
-                                                                    .textTheme
-                                                                    .subtitle2,
-                                                              );
-                                                            } else {
-                                                              return Text(
-                                                                  '...');
-                                                            }
-                                                          })
-                                                    ]))),
-                                      ])))
-                              .toList()),
+                                                          e.isError
+                                                              ? Text('error',
+                                                                  style: TextStyle(
+                                                                      color: Colors
+                                                                          .red))
+                                                              : FutureBuilder(
+                                                                  future: e
+                                                                      .openBox(), //disabled boxes are not loaded upon start
+                                                                  builder: (context,
+                                                                      snapshot) {
+                                                                    if (snapshot
+                                                                        .hasData) {
+                                                                      Timer.run(
+                                                                          () {
+                                                                        Provider.of<MasterDictionary>(context,
+                                                                                listen: false)
+                                                                            ?.notify();
+                                                                      }); // let Lookup update (e.g. no history and number of entries shown) if a new dictionary is imported
+                                                                      return Text(
+                                                                        e.box.length.toString() +
+                                                                            ' ' +
+                                                                            'entries'
+                                                                                .i18n +
+                                                                            (!kIsWeb
+                                                                                ? ', ' + e.fileSizeMb.toStringAsFixed(1) + "MB"
+                                                                                : ''),
+                                                                        overflow:
+                                                                            TextOverflow.ellipsis,
+                                                                        style: Theme.of(context)
+                                                                            .textTheme
+                                                                            .subtitle2,
+                                                                      );
+                                                                    } else {
+                                                                      return Text(
+                                                                          '...');
+                                                                    }
+                                                                  })
+                                                        ]))),
+                                          ])))
+                                  .toList()),
                           onReorder: _onReorder,
                           onDragging: _onDragging,
                           onNoReorder: _onCancel,

@@ -1,8 +1,8 @@
+import 'dart:async';
 import 'dart:collection';
+import 'dart:isolate';
 import 'dart:math';
 import 'dart:typed_data';
-import 'dart:async';
-import 'dart:isolate';
 
 import 'package:hive/hive.dart';
 import 'package:hive/src/adapters/big_int_adapter.dart';
@@ -13,8 +13,8 @@ import 'package:hive/src/box/box_impl.dart';
 import 'package:hive/src/box/default_compaction_strategy.dart';
 import 'package:hive/src/box/default_key_comparator.dart';
 import 'package:hive/src/box/lazy_box_impl.dart';
-import 'package:hive/src/util/extensions.dart';
 import 'package:hive/src/registry/type_registry_impl.dart';
+import 'package:hive/src/util/extensions.dart';
 import 'package:meta/meta.dart';
 
 import 'backend/storage_backend.dart';
@@ -236,35 +236,48 @@ Map<String, Isolate> _isolates = {};
 
 class _IsolateParams<E> {
   final SendPort sendPort;
+  final SendPort errorPort;
   final String path;
   final String boxName;
 
   void loadBox() async {
-    var hiveImpl = HiveImpl();
-    hiveImpl.init(path);
-    var box = await hiveImpl.openLazyBox<E>(boxName) as BoxBaseImpl<E>;
-    //backend object aggregates file descriptors
-    // which can't be moved across Isoalates
-    box.backend = null;
-    sendPort.send(box);
+    try {
+      var hiveImpl = HiveImpl();
+      hiveImpl.init(path);
+      var box = await hiveImpl.openLazyBox<E>(boxName) as BoxBaseImpl<E>;
+      //backend object aggregates file descriptors
+      // which can't be moved across Isoalates
+      box.backend = null;
+      sendPort.send(box);
+    } catch (e) {
+      errorPort.send(e);
+    }
   }
 
-  _IsolateParams(this.sendPort, this.path, this.boxName);
+  _IsolateParams(this.sendPort, this.errorPort, this.path, this.boxName);
 }
 
 Future<BoxBaseImpl<E>> _loadBoxInIsolate<E>(String path, String boxName) async {
   print('Starting _loadBox isolate for: $boxName');
   var completer = Completer<BoxBaseImpl<E>>();
   var receivePort = ReceivePort();
-  var params = _IsolateParams<E>(receivePort.sendPort, path, boxName);
+  var errorPort = ReceivePort();
+  var params = _IsolateParams<E>(
+      receivePort.sendPort, errorPort.sendPort, path, boxName);
 
   var isolate = await Isolate.spawn<_IsolateParams>(_loadBox, params);
+  isolate.setErrorsFatal(true);
   _isolates.putIfAbsent(boxName, () => isolate);
+
   receivePort.listen((data) {
     //stdout.write('RECEIVE: ' + data + ', ');
     var box = (data as BoxBaseImpl<E>);
     _killIsolate(box.name);
     completer.complete(box);
+  });
+
+  errorPort.listen((e) {
+    completer.completeError(e);
   });
 
   return completer.future;
