@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:io' show Platform;
 
 import 'package:dikt/common/preferencesSingleton.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/services.dart';
@@ -18,7 +20,8 @@ import './common/analyticsObserver.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  if (Platform.isAndroid || Platform.isIOS || kIsWeb)
+    await Firebase.initializeApp();
   await PreferencesSingleton.init();
   await DictionaryManager.init();
   runApp(MyApp());
@@ -59,7 +62,8 @@ class MyApp extends StatelessWidget {
                     const Locale('be', ''),
                     const Locale('ru', ''),
                   ],
-                  navigatorObservers: preferences.isAnalyticsEnabled
+                  navigatorObservers: preferences.isAnalyticsEnabled &&
+                          (Platform.isAndroid || Platform.isIOS || kIsWeb)
                       ? [
                           AnalyticsObserver(analytics: analytics),
                         ]

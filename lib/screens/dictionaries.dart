@@ -1,10 +1,14 @@
 import 'dart:async';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:reorderables/reorderables.dart';
 import 'package:provider/provider.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:file_chooser/file_chooser.dart';
+
 import '../models/dictionaryManager.dart';
 import '../models/masterDictionary.dart';
 import '../common/i18n.dart';
@@ -118,9 +122,28 @@ class _DictionariesState extends State<Dictionaries> {
                               : OutlineButton(
                                   child: Text('+ Import JSON'.i18n),
                                   onPressed: () async {
-                                    var files = await FilePicker.getMultiFile(
-                                        type: FileType.custom,
-                                        allowedExtensions: ['json']);
+                                    List<File> files = [];
+
+                                    if (Platform.isMacOS) {
+                                      var x = await showOpenPanel(
+                                        allowsMultipleSelection: true,
+                                        canSelectDirectories: false,
+                                        allowedFileTypes: [
+                                          FileTypeFilterGroup(
+                                              label: 'JSON',
+                                              fileExtensions: ['json']),
+                                        ],
+                                      );
+
+                                      for (var i in x.paths) {
+                                        var f = File(i);
+                                        files.add(f);
+                                      }
+                                    } else {
+                                      files = await FilePicker.getMultiFile(
+                                          type: FileType.custom,
+                                          allowedExtensions: ['json']);
+                                    }
 
                                     if (files != null && files.length > 0) {
                                       manager
