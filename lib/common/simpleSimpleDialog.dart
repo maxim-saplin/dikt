@@ -17,19 +17,21 @@ class SimpleSimpleDialog extends StatelessWidget {
   /// Typically used in conjunction with [showDialog].
   ///
   /// The [titlePadding] and [contentPadding] arguments must not be null.
-  const SimpleSimpleDialog({
-    Key key,
-    this.title,
-    this.titlePadding = const EdgeInsets.fromLTRB(24.0, 24.0, 24.0, 0.0),
-    this.titleTextStyle,
-    this.children,
-    this.contentPadding = const EdgeInsets.fromLTRB(0.0, 12.0, 0.0, 16.0),
-    this.backgroundColor,
-    this.elevation,
-    this.semanticLabel,
-    this.shape,
-    bool useMaterialBorderRadius,
-  })  : assert(titlePadding != null),
+  const SimpleSimpleDialog(
+      {Key key,
+      this.title,
+      this.titlePadding = const EdgeInsets.fromLTRB(24.0, 24.0, 24.0, 0.0),
+      this.titleTextStyle,
+      this.children,
+      this.contentPadding = const EdgeInsets.fromLTRB(0.0, 12.0, 0.0, 16.0),
+      this.backgroundColor,
+      this.elevation,
+      this.semanticLabel,
+      this.shape,
+      bool useMaterialBorderRadius,
+      this.alignment = Alignment.bottomCenter,
+      this.insetPadding = _defaultInsetPadding})
+      : assert(titlePadding != null),
         assert(contentPadding != null),
         super(key: key);
 
@@ -99,6 +101,10 @@ class SimpleSimpleDialog extends StatelessWidget {
   /// {@macro flutter.material.dialog.shape}
   final ShapeBorder shape;
 
+  final AlignmentGeometry alignment;
+
+  final EdgeInsets insetPadding;
+
   @override
   Widget build(BuildContext context) {
     assert(debugCheckHasMaterialLocalizations(context));
@@ -140,12 +146,160 @@ class SimpleSimpleDialog extends StatelessWidget {
         label: label,
         child: dialogChild,
       );
-    return Dialog(
+    return _Dialog(
       backgroundColor: backgroundColor,
+      insetPadding: insetPadding,
       elevation: elevation,
       shape: shape,
       child: dialogChild,
+      alignment: alignment,
       //useMaterialBorderRadius: useMaterialBorderRadius,
+    );
+  }
+}
+
+const EdgeInsets _defaultInsetPadding =
+    EdgeInsets.symmetric(horizontal: 40.0, vertical: 24.0);
+
+/// A material design dialog.
+///
+/// This dialog widget does not have any opinion about the contents of the
+/// dialog. Rather than using this widget directly, consider using [AlertDialog]
+/// or [SimpleDialog], which implement specific kinds of material design
+/// dialogs.
+///
+/// See also:
+///
+///  * [AlertDialog], for dialogs that have a message and some buttons.
+///  * [SimpleDialog], for dialogs that offer a variety of options.
+///  * [showDialog], which actually displays the dialog and returns its result.
+///  * <https://material.io/design/components/dialogs.html>
+class _Dialog extends StatelessWidget {
+  /// Creates a dialog.
+  ///
+  /// Typically used in conjunction with [showDialog].
+  const _Dialog(
+      {Key key,
+      this.backgroundColor,
+      this.elevation,
+      this.insetAnimationDuration = const Duration(milliseconds: 100),
+      this.insetAnimationCurve = Curves.decelerate,
+      this.insetPadding = _defaultInsetPadding,
+      this.clipBehavior = Clip.none,
+      this.shape,
+      this.child,
+      this.alignment = Alignment.bottomCenter})
+      : assert(clipBehavior != null),
+        super(key: key);
+
+  /// {@template flutter.material.dialog.backgroundColor}
+  /// The background color of the surface of this [Dialog].
+  ///
+  /// This sets the [Material.color] on this [Dialog]'s [Material].
+  ///
+  /// If `null`, [ThemeData.cardColor] is used.
+  /// {@endtemplate}
+  final Color backgroundColor;
+
+  /// {@template flutter.material.dialog.elevation}
+  /// The z-coordinate of this [Dialog].
+  ///
+  /// If null then [DialogTheme.elevation] is used, and if that's null then the
+  /// dialog's elevation is 24.0.
+  /// {@endtemplate}
+  /// {@macro flutter.material.material.elevation}
+  final double elevation;
+
+  /// {@template flutter.material.dialog.insetAnimationDuration}
+  /// The duration of the animation to show when the system keyboard intrudes
+  /// into the space that the dialog is placed in.
+  ///
+  /// Defaults to 100 milliseconds.
+  /// {@endtemplate}
+  final Duration insetAnimationDuration;
+
+  /// {@template flutter.material.dialog.insetAnimationCurve}
+  /// The curve to use for the animation shown when the system keyboard intrudes
+  /// into the space that the dialog is placed in.
+  ///
+  /// Defaults to [Curves.decelerate].
+  /// {@endtemplate}
+  final Curve insetAnimationCurve;
+
+  /// {@template flutter.material.dialog.insetPadding}
+  /// The amount of padding added to [MediaQueryData.viewInsets] on the outside
+  /// of the dialog. This defines the minimum space between the screen's edges
+  /// and the dialog.
+  ///
+  /// Defaults to `EdgeInsets.symmetric(horizontal: 40.0, vertical: 24.0)`.
+  /// {@endtemplate}
+  final EdgeInsets insetPadding;
+
+  /// {@template flutter.material.dialog.clipBehavior}
+  /// Controls how the contents of the dialog are clipped (or not) to the given
+  /// [shape].
+  ///
+  /// See the enum [Clip] for details of all possible options and their common
+  /// use cases.
+  ///
+  /// Defaults to [Clip.none], and must not be null.
+  /// {@endtemplate}
+  final Clip clipBehavior;
+
+  /// {@template flutter.material.dialog.shape}
+  /// The shape of this dialog's border.
+  ///
+  /// Defines the dialog's [Material.shape].
+  ///
+  /// The default shape is a [RoundedRectangleBorder] with a radius of 4.0
+  /// {@endtemplate}
+  final ShapeBorder shape;
+
+  /// The widget below this widget in the tree.
+  ///
+  /// {@macro flutter.widgets.child}
+  final Widget child;
+
+  final AlignmentGeometry alignment;
+
+  static const RoundedRectangleBorder _defaultDialogShape =
+      RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(4.0)));
+  static const double _defaultElevation = 24.0;
+
+  @override
+  Widget build(BuildContext context) {
+    final DialogTheme dialogTheme = DialogTheme.of(context);
+    final EdgeInsets effectivePadding = MediaQuery.of(context).viewInsets +
+        (insetPadding ?? const EdgeInsets.all(0.0));
+    return AnimatedPadding(
+      padding: effectivePadding,
+      duration: insetAnimationDuration,
+      curve: insetAnimationCurve,
+      child: MediaQuery.removeViewInsets(
+        removeLeft: true,
+        removeTop: true,
+        removeRight: true,
+        removeBottom: true,
+        context: context,
+        child: Align(
+          alignment: alignment,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minWidth: 280.0),
+            child: Material(
+              color: backgroundColor ??
+                  dialogTheme.backgroundColor ??
+                  Theme.of(context).dialogBackgroundColor,
+              elevation:
+                  elevation ?? dialogTheme.elevation ?? _defaultElevation,
+              shape: shape ?? dialogTheme.shape ?? _defaultDialogShape,
+              type: MaterialType.card,
+              clipBehavior: clipBehavior,
+              child: child,
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

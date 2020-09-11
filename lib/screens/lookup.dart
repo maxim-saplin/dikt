@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:io';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -87,6 +89,7 @@ class TopButtons extends StatelessWidget {
                         builder: (BuildContext context) {
                           return SimpleSimpleDialog(
                               title: Text('Dictionaries'),
+                              alignment: Alignment.center,
                               children: [Dictionaries()]);
                         });
                   }),
@@ -100,8 +103,9 @@ class TopButtons extends StatelessWidget {
                       context: context,
                       routeSettings: RouteSettings(name: '/settings'),
                       builder: (BuildContext context) {
-                        return AlertDialog(
-                            title: Text('Settings'.i18n), content: Settings());
+                        return SimpleSimpleDialog(
+                            alignment: Alignment.center,
+                            children: [Settings()]);
                       });
                 },
               )
@@ -205,6 +209,7 @@ void showArticle(BuildContext context, MasterDictionary dictionary,
     History history, String word) {
   showDialog(
       context: context,
+      barrierColor: Colors.transparent,
       routeSettings: RouteSettings(name: '/article', arguments: word),
       builder: (BuildContext context) {
         Future<List<Article>> articles;
@@ -220,17 +225,19 @@ void showArticle(BuildContext context, MasterDictionary dictionary,
           history.addWord(word);
         }
 
-        return SimpleSimpleDialog(
-            // title: SelectableText(word),
-            //scrollable: false,
-            children: [
-              WordArticles(
-                articles: articles,
-                word: word,
-                showAnotherWord: (word) =>
-                    showArticle(context, dictionary, history, word),
-              )
-            ]);
+        return new BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
+            child: SimpleSimpleDialog(
+                insetPadding:
+                    EdgeInsets.fromLTRB(0, Platform.isMacOS ? 28 : 0, 0, 0),
+                children: [
+                  WordArticles(
+                    articles: articles,
+                    word: word,
+                    showAnotherWord: (word) =>
+                        showArticle(context, dictionary, history, word),
+                  )
+                ]));
       });
 }
 

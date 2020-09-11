@@ -26,7 +26,7 @@ class WordArticles extends StatelessWidget {
           if (snapshot.hasData) {
             var list = snapshot.data as List<Article>;
             return Padding(
-                padding: EdgeInsets.fromLTRB(0, 25, 0, 0),
+                padding: EdgeInsets.fromLTRB(0, 25, 0, 50),
                 child: PrimaryScrollController(
                     controller: scrollController,
                     child: Scrollbar(
@@ -72,7 +72,15 @@ class WordArticles extends StatelessWidget {
                           .toList(),
                     ))));
           }
-          return Center(child: Text('...'));
+          return Padding(
+              padding: EdgeInsets.fromLTRB(0, 25, 0, 50),
+              child: Container(
+                  width: 10000,
+                  height: 40,
+                  child: Align(
+                    child: Text('...'),
+                    alignment: Alignment.center,
+                  )));
         },
       ),
       Container(
@@ -82,6 +90,18 @@ class WordArticles extends StatelessWidget {
             word,
             style: Theme.of(context).textTheme.headline6,
           )),
+      Positioned(
+        child: FlatButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+          child: Text('▽'),
+        ),
+        bottom: 0.0,
+        left: 30.0,
+        right: 30.0,
+        height: 45,
+      )
     ]);
   }
 }
