@@ -4,19 +4,24 @@ import 'dart:io' show Platform;
 import 'package:dikt/common/preferencesSingleton.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:page_transition/page_transition.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/services.dart';
 import 'package:i18n_extension/i18n_widget.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:double_back_to_close_app/double_back_to_close_app.dart';
 
 import './models/masterDictionary.dart';
 import './models/preferences.dart';
-import './screens/lookup.dart';
+import './ui/screens/lookup.dart';
+import './ui/screens/lookupAndArticle.dart';
 import './models/history.dart';
 import './models/dictionaryManager.dart';
 import './common/analyticsObserver.dart';
+import './common/i18n.dart';
+import 'ui/routes.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -27,11 +32,28 @@ void main() async {
   runApp(MyApp());
 }
 
+//final _scaffoldKey = GlobalKey<ScaffoldState>();
+
 class MyApp extends StatelessWidget {
+  final GlobalKey<NavigatorState> _navigator = GlobalKey<NavigatorState>();
   static final FirebaseAnalytics analytics = FirebaseAnalytics();
+
+  Scaffold _getScaffold(Widget child) {
+    return Scaffold(
+        //key: _scaffoldKey,
+        body: DoubleBackToCloseApp(
+            snackBar: SnackBar(
+              content: Text('Tap back again to quit'.i18n),
+            ),
+            child: child));
+  }
+
+  static bool _wide;
+  static double wideWidth = 600;
 
   @override
   Widget build(BuildContext context) {
+    var narrow = false;
     return MultiProvider(
         providers: [
           ChangeNotifierProvider<DictionaryManager>(
@@ -62,6 +84,7 @@ class MyApp extends StatelessWidget {
                     const Locale('be', ''),
                     const Locale('ru', ''),
                   ],
+                  navigatorKey: _navigator,
                   navigatorObservers: preferences.isAnalyticsEnabled &&
                           (Platform.isAndroid || Platform.isIOS || kIsWeb)
                       ? [
@@ -77,6 +100,15 @@ class MyApp extends StatelessWidget {
                             context); // set to system default locale. Flutter picks one of supported locales is there's a match
                       }
                     });
+
+                    narrow = MediaQuery.of(context).size.width < wideWidth;
+                    resetNavHistoryIfWideModeChanged(context, !narrow);
+
+                    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+                      systemNavigationBarColor: Theme.of(context)
+                          .canvasColor, //  Android navigation bar color
+                    ));
+
                     return MediaQuery(
                       data:
                           MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
@@ -84,20 +116,48 @@ class MyApp extends StatelessWidget {
                     );
                   },
                   title: 'dikt',
-                  initialRoute: '/',
-                  routes: {
-                    '/': (context) {
-                      SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-                        systemNavigationBarColor: Theme.of(context)
-                            .canvasColor, // navigation bar color
-                      ));
-                      return Lookup();
-                    },
+                  onGenerateRoute: (settings) {
+                    switch (settings.name) {
+                      case Routes.home:
+                        return PageTransition(
+                            settings: settings,
+                            child: narrow
+                                ? _getScaffold(Lookup(true))
+                                : _getScaffold(LookupAndArticle(null)),
+                            type: PageTransitionType.fade);
+                        break;
+                      case Routes.showArticleWide:
+                        return PageTransition(
+                            settings: settings,
+                            child: _getScaffold(
+                                LookupAndArticle(settings.arguments)),
+                            type: PageTransitionType.fade);
+                        break;
+                      default:
+                        return null;
+                    }
                   },
+                  initialRoute: Routes.home,
                   themeMode: preferences.themeMode,
                   theme: lightTheme,
                   darkTheme: darkTheme,
                 ))));
+  }
+
+  bool resetNavHistoryIfWideModeChanged(BuildContext context, bool wide) {
+    if (_wide == null) {
+      _wide = wide; //MediaQuery.of(context).size.width >= wideWidth;
+    } else {
+      if ((_wide && !wide) || (!_wide && wide)) {
+        _wide = !_wide;
+        Timer(Duration(microseconds: 10), () {
+          _navigator.currentState.pushNamedAndRemoveUntil(Routes.home,
+              (r) => r.settings.name == Routes.home || r.settings.name == null);
+        });
+        return true;
+      }
+    }
+    return false;
   }
 
   final ThemeData lightTheme = ThemeData.light().copyWith(

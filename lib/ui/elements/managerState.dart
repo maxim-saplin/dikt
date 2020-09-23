@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../models/dictionaryManager.dart';
-import '../common/i18n.dart';
+import '../../models/dictionaryManager.dart';
+import '../../common/i18n.dart';
 
 class ManagerState extends StatelessWidget {
   const ManagerState({

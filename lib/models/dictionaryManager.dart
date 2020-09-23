@@ -100,8 +100,16 @@ class DictionaryManager extends ChangeNotifier {
     _dictionaries = await Hive.openBox(dictionairesBoxName);
   }
 
+  Completer<void> _partiallyLoaded;
+
+  Future<void> get partiallyLoaded {
+    return _partiallyLoaded?.future;
+  }
+  //Completer<void> _fullyLoaded;
+
   Future<void> loadDictionaries() async {
     _isRunning = true;
+    _partiallyLoaded = Completer();
 
     _currentOperation = ManagerCurrentOperation.preparing;
     await _checkAndIndexBundledDictionaries();
@@ -166,6 +174,9 @@ class DictionaryManager extends ChangeNotifier {
 
         f.whenComplete(() {
           i.state = DictionaryBeingProcessedState.success;
+          i.indexedDictionary.isLoaded = true;
+          _initDictionaryCollections();
+          if (!_partiallyLoaded.isCompleted) _partiallyLoaded.complete();
           notifyListeners();
         }).catchError((err) {
           print("Error loading box: " +
@@ -182,23 +193,6 @@ class DictionaryManager extends ChangeNotifier {
       try {
         await Future.wait(futures);
       } catch (e) {}
-
-      //var s = Stream.fromFutures(futures);
-      // s.listen((box) {
-      //   _dictionariesBeingProcessed
-      //       .where((element) => element.name == box.name)
-      //       .first
-      //       ?.state = DictionaryBeingProcessedState.success;
-      //   notifyListeners();
-      // }).onError((err) {
-      //   print("Error loading box: " +
-      //       i.indexedDictionary.boxName +
-      //       "\n" +
-      //       err.toString());
-
-      //   i.state = DictionaryBeingProcessedState.error;
-      //   notifyListeners();
-      // });
     }
   }
 
@@ -263,6 +257,7 @@ class DictionaryManager extends ChangeNotifier {
         d.isReadyToUse = true;
         d.save();
         dictionariesProcessed[i].state = DictionaryBeingProcessedState.success;
+        d.isLoaded = true;
         notifyListeners();
         if (i == dictionariesProcessed.length - 1 && finished != null)
           finished.complete();
@@ -310,11 +305,6 @@ class DictionaryManager extends ChangeNotifier {
 
     _initDictionaryCollections();
 
-    // if (_canceled) return;
-
-    // _currentOperation = ManagerCurrentOperation.loading;
-    // await _loadEnabledDictionaries();
-
     _isRunning = false;
     notifyListeners();
 
@@ -340,6 +330,10 @@ class DictionaryManager extends ChangeNotifier {
 
   List<IndexedDictionary> get dictionariesEnabled {
     return _dictionariesEnabledList;
+  }
+
+  List<IndexedDictionary> get dictionariesLoaded {
+    return _dictionariesEnabledList.where((e) => e.isLoaded).toList();
   }
 
   void reorder(int oldIndex, int newIndex) {

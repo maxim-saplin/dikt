@@ -30,7 +30,8 @@ class SimpleSimpleDialog extends StatelessWidget {
       this.shape,
       bool useMaterialBorderRadius,
       this.alignment = Alignment.bottomCenter,
-      this.insetPadding = _defaultInsetPadding})
+      this.insetPadding = _defaultInsetPadding,
+      this.maxWidth = double.infinity})
       : assert(titlePadding != null),
         assert(contentPadding != null),
         super(key: key);
@@ -105,6 +106,8 @@ class SimpleSimpleDialog extends StatelessWidget {
 
   final EdgeInsets insetPadding;
 
+  final double maxWidth;
+
   @override
   Widget build(BuildContext context) {
     assert(debugCheckHasMaterialLocalizations(context));
@@ -127,7 +130,7 @@ class SimpleSimpleDialog extends StatelessWidget {
     }
 
     Widget dialogChild = ConstrainedBox(
-      constraints: const BoxConstraints(minWidth: 280.0),
+      constraints: BoxConstraints(minWidth: 280.0, maxWidth: maxWidth),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,

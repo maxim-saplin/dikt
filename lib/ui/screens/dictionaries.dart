@@ -9,10 +9,10 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:file_chooser/file_chooser.dart';
 
-import '../models/dictionaryManager.dart';
-import '../models/masterDictionary.dart';
-import '../common/i18n.dart';
-import './managerState.dart';
+import '../../models/dictionaryManager.dart';
+import '../../models/masterDictionary.dart';
+import '../../common/i18n.dart';
+import '../elements/managerState.dart';
 
 class Dictionaries extends StatefulWidget {
   @override
@@ -58,7 +58,11 @@ class _DictionariesState extends State<Dictionaries> {
       Timer(
           Duration(seconds: 1),
           () => fToast.showToast(
-              child: Text('Tap and hold to move'.i18n),
+              child: Container(
+                child: Text('Tap and hold to move'.i18n),
+                color: Colors.grey,
+                padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+              ),
               toastDuration: Duration(seconds: 3)));
       toastShown = true;
     }

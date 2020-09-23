@@ -16,11 +16,12 @@ class IndexedDictionary extends HiveObject {
   bool
       isReadyToUse; //e.g. indexing can fail in the process, created though not complete box must be deleted
   bool isError = false;
+  bool isLoaded = false;
 
   //LazyBox<Uint8List> _box = null;
 
   LazyBox<Uint8List> get box {
-    //return _box;
+    if (!Hive.isBoxOpen(boxName)) return null;
     return Hive.lazyBox<Uint8List>(boxName);
   }
 

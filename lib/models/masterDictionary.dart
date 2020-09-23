@@ -23,9 +23,10 @@ class MasterDictionary extends ChangeNotifier {
   void init() {
     print('Master dictionary init started: ' + DateTime.now().toString());
     dictionaryManager.loadDictionaries().then((value) {
-      isLoaded = true;
+      isFullyLoaded = true;
       print('Master dictionary init completed: ' + DateTime.now().toString());
     });
+    dictionaryManager.partiallyLoaded.then((value) => isPartiallyLoaded = true);
   }
 
   List<String> matches = [];
@@ -63,13 +64,28 @@ class MasterDictionary extends ChangeNotifier {
     notifyListeners();
   }
 
+  String _selectedWord;
+
+  set selectedWord(String value) {
+    if (value == '' || value == null) {
+      _selectedWord = '';
+    } else {
+      value = value?.toLowerCase();
+      _selectedWord = value;
+    }
+    notifyListeners();
+  }
+
+  String get selectedWord {
+    return _selectedWord;
+  }
+
   void _getMatchesForWord(String lookup) {
     lookup = lookup?.toLowerCase();
     int n = 0;
     matches.clear();
 
-    //for (var k in words.keys) {
-    for (var d in dictionaryManager.dictionariesEnabled) {
+    for (var d in dictionaryManager.dictionariesLoaded) {
       for (var k in d.box.keys) {
         if (k.startsWith(lookup) && !matches.contains(k)) {
           n++;
@@ -78,13 +94,8 @@ class MasterDictionary extends ChangeNotifier {
         }
       }
     }
-    // for (var k in _box.keys) {
-    //   if (k.startsWith(lookup)) {
-    //     n++;
-    //     matches.add(k);
-    //     if (n > maxResults) break;
-    //   }
-    // }
+
+    matches.sort();
   }
 
   String getMatch(int n) {
@@ -109,7 +120,7 @@ class MasterDictionary extends ChangeNotifier {
 
     List<Article> articles = [];
 
-    for (var d in dictionaryManager.dictionariesEnabled) {
+    for (var d in dictionaryManager.dictionariesLoaded) {
       var a = await d.box.get(word);
       if (a != null)
         articles.add(Article(word, await _unzipIsolate(a), d.name));
@@ -118,15 +129,30 @@ class MasterDictionary extends ChangeNotifier {
     return articles;
   }
 
-  bool _isLoaded = false;
+  bool _isFullyLoaded = false;
 
-  bool get isLoaded {
-    return _isLoaded;
+  // All dictionaries are loaded
+  bool get isFullyLoaded {
+    return _isFullyLoaded;
   }
 
-  set isLoaded(bool value) {
-    if (value != _isLoaded) {
-      _isLoaded = value;
+  set isFullyLoaded(bool value) {
+    if (value != _isFullyLoaded) {
+      _isFullyLoaded = value;
+      notifyListeners();
+    }
+  }
+
+  bool _isPartiallyLoaded = false;
+
+  // At least one enabled dictionary is loaded
+  bool get isPartiallyLoaded {
+    return _isPartiallyLoaded;
+  }
+
+  set isPartiallyLoaded(bool value) {
+    if (value != _isPartiallyLoaded) {
+      _isPartiallyLoaded = value;
       notifyListeners();
     }
   }

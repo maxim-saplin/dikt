@@ -41,6 +41,7 @@ dependencies:
   i18n_extension: ^1.4.2
   firebase_core: ^0.5.0-dev.2
   firebase_analytics: ^6.0.0-dev.1
+  page_transition: ^1.1.6
   file_chooser:
     git:
       url: git://github.com/google/flutter-desktop-embedding.git

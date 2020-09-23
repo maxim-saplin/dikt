@@ -84,8 +84,10 @@ class WordArticles extends StatelessWidget {
         },
       ),
       Container(
-          padding: EdgeInsets.fromLTRB(18, 12, 10, 10),
-          height: 44.0,
+          padding: EdgeInsets.fromLTRB(18, 10, 10, 0),
+          color: Theme.of(context).cardColor,
+          height: 34.0,
+          width: 1000,
           child: SelectableText(
             word,
             style: Theme.of(context).textTheme.headline6,
