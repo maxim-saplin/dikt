@@ -29,13 +29,7 @@ class Lookup extends StatelessWidget {
     var history = Provider.of<History>(context, listen: false);
 
     return Stack(children: [
-      narrow
-          ? Align(
-              alignment: Alignment.topCenter,
-              child: Padding(
-                  padding: EdgeInsets.fromLTRB(0, 120, 0, 0),
-                  child: DictionaryLoadingProgress()))
-          : Text(''),
+      narrow ? DictionaryIndexingOrLoading() : Text(''),
       !dictionary.isPartiallyLoaded
           ? Text('')
           : ((dictionary.isLookupWordEmpty && history.wordsCount < 1) ||
@@ -270,8 +264,8 @@ void showArticle(BuildContext context, String word, bool useDialog) {
           return new BackdropFilter(
               filter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
               child: SimpleSimpleDialog(
-                  insetPadding:
-                      EdgeInsets.fromLTRB(0, Platform.isMacOS ? 28 : 0, 0, 0),
+                  insetPadding: EdgeInsets.fromLTRB(
+                      0, !kIsWeb && Platform.isMacOS ? 28 : 0, 0, 0),
                   children: [
                     WordArticles(
                       articles: articles,

@@ -25,7 +25,7 @@ import 'ui/routes.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  if (Platform.isAndroid || Platform.isIOS || kIsWeb)
+  if (kIsWeb || Platform.isAndroid || Platform.isIOS)
     await Firebase.initializeApp();
   await PreferencesSingleton.init();
   await DictionaryManager.init();
@@ -86,7 +86,7 @@ class MyApp extends StatelessWidget {
                   ],
                   navigatorKey: _navigator,
                   navigatorObservers: preferences.isAnalyticsEnabled &&
-                          (Platform.isAndroid || Platform.isIOS || kIsWeb)
+                          (kIsWeb || Platform.isAndroid || Platform.isIOS)
                       ? [
                           AnalyticsObserver(analytics: analytics),
                         ]

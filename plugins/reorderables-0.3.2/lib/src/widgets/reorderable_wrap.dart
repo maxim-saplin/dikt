@@ -992,7 +992,7 @@ class _ReorderableWrapContentState extends State<_ReorderableWrapContent>
       Widget dragTarget = Stack(
 //        key: keyIndexGlobalKey,
 //        fit: StackFit.passthrough,
-        overflow: Overflow.clip,
+        //overflow: Overflow.clip,
         children: <Widget>[
           containedDraggable,
           Positioned(

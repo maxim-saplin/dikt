@@ -16,14 +16,13 @@ class Article {
 class MasterDictionary extends ChangeNotifier {
   Future loadJson;
   final int maxResults = 100;
-  //LazyBox<Uint8List> _box;
-  //GZipDecoder _gZipDecoder = GZipDecoder();
   DictionaryManager dictionaryManager;
 
   void init() {
     print('Master dictionary init started: ' + DateTime.now().toString());
     dictionaryManager.loadDictionaries().then((value) {
       isFullyLoaded = true;
+      isPartiallyLoaded = true;
       print('Master dictionary init completed: ' + DateTime.now().toString());
     });
     dictionaryManager.partiallyLoaded.then((value) => isPartiallyLoaded = true);

@@ -128,7 +128,8 @@ class _DictionariesState extends State<Dictionaries> {
                                   onPressed: () async {
                                     List<File> files = [];
 
-                                    if (Platform.isMacOS) {
+                                    // Platform class is not implemented in Web
+                                    if (!kIsWeb && Platform.isMacOS) {
                                       var x = await showOpenPanel(
                                         allowsMultipleSelection: true,
                                         canSelectDirectories: false,

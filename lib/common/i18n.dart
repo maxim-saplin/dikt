@@ -36,6 +36,7 @@ extension Localization on String {
           'Analytics': 'Analytics',
           'On': 'On',
           'Off': 'Off',
+          'Loading dictionaries: ': 'Loading dictionaries: '
         },
         'be': {
           'Search': 'Пошук',
@@ -70,6 +71,7 @@ extension Localization on String {
           'Analytics': 'Аналiтыка',
           'On': 'Укл',
           'Off': 'Выкл',
+          'Loading dictionaries: ': 'Загрузка слоўнiкаў: '
         },
         'ru': {
           'Search': 'Поиск',
@@ -104,6 +106,7 @@ extension Localization on String {
           'Analytics': 'Аналитика',
           'On': 'Вкл',
           'Off': 'Выкл',
+          'Loading dictionaries: ': 'Загрузка словарей: '
         },
       };
 
