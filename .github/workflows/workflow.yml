@@ -1,9 +1,10 @@
 name: dikt
+
 on: [push]
+
 jobs:
   build:
-runs-on: ubuntu-latest
-        
+    runs-on: macos-latest     
     steps:
     - uses: actions/checkout@v1
     - uses: actions/setup-java@v1
@@ -11,7 +12,7 @@ runs-on: ubuntu-latest
         java-version: '12.x'
     - uses: subosito/flutter-action@v1
       with:
-        flutter-version: '1.22.0-12.0.pre' # you can use 1.12
+        flutter-version: '1.22.0-12.0.pre'
         channel: 'dev'
     - name: Upgrades flutter
       run: flutter upgrade
