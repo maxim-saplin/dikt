@@ -54,7 +54,7 @@ class _DictionariesState extends State<Dictionaries> {
     }
 
     if (!toastShown) {
-      var fToast = FToast();
+      var fToast = FToast(context);
       Timer(
           Duration(seconds: 1),
           () => fToast.showToast(
@@ -145,9 +145,14 @@ class _DictionariesState extends State<Dictionaries> {
                                         files.add(f);
                                       }
                                     } else {
-                                      files = await FilePicker.getMultiFile(
-                                          type: FileType.custom,
-                                          allowedExtensions: ['json']);
+                                      var pFiles = (await FilePicker.platform
+                                              .pickFiles(
+                                                  type: FileType.custom,
+                                                  allowedExtensions: ['json']))
+                                          .files;
+                                      files = pFiles
+                                          .map((e) => File(e.path))
+                                          .toList();
                                     }
 
                                     if (files != null && files.length > 0) {

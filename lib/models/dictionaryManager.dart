@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:typed_data';
 import 'dart:io';
+import 'dart:html' as html;
 import 'dart:core';
 import 'dart:math';
 import 'package:flutter/services.dart' show rootBundle;
@@ -291,10 +292,14 @@ class DictionaryManager extends ChangeNotifier {
 
     Indexer getIndexer(
         DictionaryBeingProcessed dictionaryProcessed, LazyBox<Uint8List> box) {
-      return FileIndexer(dictionaryProcessed.file, box, (progress) {
+      var progress = (progress) {
         dictionaryProcessed.progressPercent = progress;
         notifyListeners();
-      });
+      };
+
+      return kIsWeb
+          ? WebIndexer(dictionaryProcessed.file, box, progress)
+          : FileIndexer(dictionaryProcessed.file, box, progress);
     }
 
     print('Indexing JSON files and loading to Hive DB: ' +
@@ -439,6 +444,81 @@ class FileIndexer extends Indexer {
 
   Future<void> run() async {
     print(file.path + '\n');
+    var s = FileStream(file.path, null, null);
+    var length = await file.length();
+
+    var sw = Stopwatch();
+
+    var converterZip = JsonDecoder((k, v) {
+      if (v is String) {
+        var bytes = utf8.encode(v);
+        var gzipBytes = gzip.encode(bytes);
+        var b = Uint8List.fromList(gzipBytes);
+        return b;
+      } else {
+        return v;
+      }
+    });
+
+    var outSinkZip = ChunkedConversionSink.withCallback((chunks) {
+      try {
+        var result = chunks.single.cast<String, Uint8List>();
+        box.putAll(result);
+        sw.stop();
+        runCompleter.complete();
+        print('ELAPSED (ms): ' + sw.elapsedMilliseconds.toString());
+      } catch (err) {
+        _canceled = true;
+        runCompleter.completeError(err);
+      }
+    });
+
+    sw.start();
+    var inSinkZip = converterZip.startChunkedConversion(outSinkZip);
+
+    var progress = -1;
+    var utf = s.transform(utf8.decoder);
+    StreamSubscription<String> subscription;
+
+    subscription = utf.listen((event) {
+      try {
+        if (_canceled) subscription?.cancel();
+        inSinkZip.add(event);
+        var curr = (s.position / length * 100).round();
+        if (curr != progress) {
+          progress = curr;
+          updateProgress(progress);
+        }
+      } catch (err) {
+        runCompleter.completeError(err);
+        _canceled = true;
+      }
+    }, onDone: () => inSinkZip.close());
+
+    return runCompleter.future;
+  }
+}
+
+class WebIndexer extends Indexer {
+  final File file;
+  final Completer<void> runCompleter = Completer<void>();
+  final LazyBox<Uint8List> box;
+  final Function(int progressPercent) updateProgress;
+  bool _canceled = false;
+
+  WebIndexer(this.file, this.box, this.updateProgress);
+
+  void cancel() {
+    _canceled = true;
+  }
+
+  Future<void> run() async {
+    print(file.path + '\n');
+
+    // var reader = html.FileReader();
+    // var htmlFile = html.File();
+    // reader.readAsText(file);
+
     var s = FileStream(file.path, null, null);
     var length = await file.length();
 
