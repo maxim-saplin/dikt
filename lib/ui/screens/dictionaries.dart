@@ -54,7 +54,7 @@ class _DictionariesState extends State<Dictionaries> {
     }
 
     if (!toastShown) {
-      var fToast = FToast();
+      var fToast = FToast(context);
       Timer(
           Duration(seconds: 1),
           () => fToast.showToast(
