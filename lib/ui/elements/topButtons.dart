@@ -26,7 +26,7 @@ class TopButtons extends StatelessWidget {
                             routeSettings: RouteSettings(name: '/dictionaries'),
                             builder: (BuildContext context) {
                               return SimpleSimpleDialog(
-                                  maxWidth: 300,
+                                  maxWidth: 500,
                                   title: Text('Dictionaries'),
                                   alignment: Alignment.center,
                                   children: [Dictionaries()]);
@@ -43,6 +43,7 @@ class TopButtons extends StatelessWidget {
                           routeSettings: RouteSettings(name: '/settings'),
                           builder: (BuildContext context) {
                             return SimpleSimpleDialog(
+                                maxWidth: 320,
                                 alignment: Alignment.center,
                                 children: [Settings()]);
                           });
