@@ -145,9 +145,14 @@ class _DictionariesState extends State<Dictionaries> {
                                         files.add(f);
                                       }
                                     } else {
-                                      files = await FilePicker.getMultiFile(
-                                          type: FileType.custom,
-                                          allowedExtensions: ['json']);
+                                      var pFiles = (await FilePicker.platform
+                                              .pickFiles(
+                                                  type: FileType.custom,
+                                                  allowedExtensions: ['json']))
+                                          .files;
+                                      files = pFiles
+                                          .map((e) => File(e.path))
+                                          .toList();
                                     }
 
                                     if (files != null && files.length > 0) {
