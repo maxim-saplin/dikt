@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:typed_data';
 import 'dart:io';
-import 'dart:html' as html;
 import 'dart:core';
 import 'dart:math';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
@@ -47,7 +47,7 @@ class DictionaryBeingProcessed {
   final String name;
   final BundledDictionary bundledDictiopnary;
   final IndexedDictionary indexedDictionary;
-  final File file;
+  final PlatformFile file;
 
   DictionaryBeingProcessed.bundled(this.bundledDictiopnary)
       : this.name = bundledDictiopnary.name,
@@ -60,7 +60,12 @@ class DictionaryBeingProcessed {
         this.bundledDictiopnary = null;
 
   DictionaryBeingProcessed.file(this.file)
-      : this.name = file.path.split('/').last.replaceFirst('.json', ''),
+      : this.name = file.path
+            .split('/')
+            .last
+            .split('\\')
+            .last
+            .replaceFirst('.json', ''),
         this.indexedDictionary = null,
         this.bundledDictiopnary = null;
 
@@ -89,7 +94,7 @@ class DictionaryBeingProcessed {
   }
 }
 
-enum ManagerCurrentOperation { preparing, indexing, loading }
+enum ManagerCurrentOperation { preparing, indexing, loading, idle }
 
 class DictionaryManager extends ChangeNotifier {
   static const dictionairesBoxName = 'dictionairesBoxName';
@@ -273,7 +278,7 @@ class DictionaryManager extends ChangeNotifier {
     }
   }
 
-  Future<void> loadFromJsonFiles(List<File> files) async {
+  Future<void> loadFromJsonFiles(List<PlatformFile> files) async {
     _isRunning = true;
     _canceled = false;
     _dictionariesBeingProcessed = [];
@@ -311,6 +316,7 @@ class DictionaryManager extends ChangeNotifier {
     _initDictionaryCollections();
 
     _isRunning = false;
+
     notifyListeners();
 
     return completer.future;
@@ -399,6 +405,7 @@ class DictionaryManager extends ChangeNotifier {
   set _isRunning(bool value) {
     if (value != __isRunning) {
       __isRunning = value;
+      if (!__isRunning) _currentOperation = ManagerCurrentOperation.idle;
       notifyListeners();
     }
   }
@@ -430,7 +437,7 @@ abstract class Indexer {
 }
 
 class FileIndexer extends Indexer {
-  final File file;
+  final PlatformFile file;
   final Completer<void> runCompleter = Completer<void>();
   final LazyBox<Uint8List> box;
   final Function(int progressPercent) updateProgress;
@@ -443,7 +450,8 @@ class FileIndexer extends Indexer {
   }
 
   Future<void> run() async {
-    print(file.path + '\n');
+    print(this.file.path + '\n');
+    var file = File(this.file.path);
     var s = FileStream(file.path, null, null);
     var length = await file.length();
 
@@ -460,10 +468,10 @@ class FileIndexer extends Indexer {
       }
     });
 
-    var outSinkZip = ChunkedConversionSink.withCallback((chunks) {
+    var outSinkZip = ChunkedConversionSink.withCallback((chunks) async {
       try {
         var result = chunks.single.cast<String, Uint8List>();
-        box.putAll(result);
+        await box.putAll(result);
         sw.stop();
         runCompleter.complete();
         print('ELAPSED (ms): ' + sw.elapsedMilliseconds.toString());
@@ -500,7 +508,7 @@ class FileIndexer extends Indexer {
 }
 
 class WebIndexer extends Indexer {
-  final File file;
+  final PlatformFile file;
   final Completer<void> runCompleter = Completer<void>();
   final LazyBox<Uint8List> box;
   final Function(int progressPercent) updateProgress;
@@ -514,61 +522,49 @@ class WebIndexer extends Indexer {
 
   Future<void> run() async {
     print(file.path + '\n');
-
-    // var reader = html.FileReader();
-    // var htmlFile = html.File();
-    // reader.readAsText(file);
-
-    var s = FileStream(file.path, null, null);
-    var length = await file.length();
+    // Chunked json decoding isn't available in web
+    // var inSink = converterJson.startChunkedConversion(outSink);
 
     var sw = Stopwatch();
+    var gzip = GZipEncoder();
+    sw.start();
 
-    var converterZip = JsonDecoder((k, v) {
-      if (v is String) {
-        var bytes = utf8.encode(v);
+    try {
+      updateProgress(0);
+      if (_canceled) return null;
+      var s = utf8.decode(file.bytes);
+      print('JSON read (ms): ' + sw.elapsedMilliseconds.toString());
+      updateProgress(1);
+      if (_canceled) return null;
+      Map mm = json.decode(s);
+      Map<String, String> m = mm.cast<String, String>();
+      print('JSON decoded (ms): ' + sw.elapsedMilliseconds.toString());
+      updateProgress(5);
+      var i = 0;
+      var curr = 0;
+      Map<String, Uint8List> m2 = {};
+      for (var e in m.entries) {
+        if (_canceled) return null;
+        var bytes = utf8.encode(e.value);
         var gzipBytes = gzip.encode(bytes);
         var b = Uint8List.fromList(gzipBytes);
-        return b;
-      } else {
-        return v;
-      }
-    });
-
-    var outSinkZip = ChunkedConversionSink.withCallback((chunks) {
-      try {
-        var result = chunks.single.cast<String, Uint8List>();
-        box.putAll(result);
-        sw.stop();
-        runCompleter.complete();
-        print('ELAPSED (ms): ' + sw.elapsedMilliseconds.toString());
-      } catch (err) {
-        _canceled = true;
-        runCompleter.completeError(err);
-      }
-    });
-
-    sw.start();
-    var inSinkZip = converterZip.startChunkedConversion(outSinkZip);
-
-    var progress = -1;
-    var utf = s.transform(utf8.decoder);
-    StreamSubscription<String> subscription;
-
-    subscription = utf.listen((event) {
-      try {
-        if (_canceled) subscription?.cancel();
-        inSinkZip.add(event);
-        var curr = (s.position / length * 100).round();
-        if (curr != progress) {
-          progress = curr;
-          updateProgress(progress);
+        m2[e.key] = b;
+        i++;
+        var p = (i / m.length * 95).round();
+        if (p != curr) {
+          curr = p;
+          await box.putAll(m2);
+          m2.clear();
+          updateProgress(5 + curr);
         }
-      } catch (err) {
-        runCompleter.completeError(err);
-        _canceled = true;
       }
-    }, onDone: () => inSinkZip.close());
+      if (m2.length > 0) await box.putAll(m2);
+      print('Indexing done(ms): ' + sw.elapsedMilliseconds.toString());
+      runCompleter.complete();
+    } catch (err) {
+      _canceled = true;
+      runCompleter.completeError(err);
+    }
 
     return runCompleter.future;
   }

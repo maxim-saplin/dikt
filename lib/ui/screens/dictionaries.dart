@@ -126,7 +126,7 @@ class _DictionariesState extends State<Dictionaries> {
                               : OutlineButton(
                                   child: Text('+ Import JSON'.i18n),
                                   onPressed: () async {
-                                    List<File> files = [];
+                                    List<PlatformFile> files = [];
 
                                     // Platform class is not implemented in Web
                                     if (!kIsWeb && Platform.isMacOS) {
@@ -141,18 +141,15 @@ class _DictionariesState extends State<Dictionaries> {
                                       );
 
                                       for (var i in x.paths) {
-                                        var f = File(i);
+                                        var f = PlatformFile(name: i);
                                         files.add(f);
                                       }
                                     } else {
-                                      var pFiles = (await FilePicker.platform
+                                      files = (await FilePicker.platform
                                               .pickFiles(
                                                   type: FileType.custom,
                                                   allowedExtensions: ['json']))
                                           .files;
-                                      files = pFiles
-                                          .map((e) => File(e.path))
-                                          .toList();
                                     }
 
                                     if (files != null && files.length > 0) {

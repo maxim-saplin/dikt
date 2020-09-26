@@ -37,7 +37,7 @@ dependencies:
   reorderables: ^0.3.2
   double_back_to_close_app: ^1.2.0
   fluttertoast: 7.0.1
-  file_picker: ^1.13.0+1
+  file_picker: ^2.0.0
   i18n_extension: ^1.4.2
   firebase_core: ^0.5.0-dev.2
   firebase_analytics: ^6.0.0-dev.1
@@ -86,9 +86,9 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-  assets:
-    - assets/dictionaries/
-    - assets/dictionaries2/
+  #assets:
+  #  - assets/dictionaries/
+  #  - assets/dictionaries2/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
