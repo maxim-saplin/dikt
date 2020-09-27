@@ -7,11 +7,11 @@ part 'indexedDictionary.g.dart';
 @HiveType(typeId: 0)
 class IndexedDictionary extends HiveObject {
   @HiveField(0)
-  String name;
+  String boxName;
   @HiveField(1)
   bool isEnabled;
   @HiveField(2)
-  String boxName;
+  String name;
   @HiveField(3)
   bool
       isReadyToUse; //e.g. indexing can fail in the process, created though not complete box must be deleted
@@ -34,12 +34,6 @@ class IndexedDictionary extends HiveObject {
     var file = File(box.path);
     return file.lengthSync() / 1024 / 1024;
   }
-
-  // set box(LazyBox<Uint8List> value) {
-  //   if (value != _box) {
-  //     _box = value;
-  //   }
-  // }
 
   @HiveField(4)
   int order;

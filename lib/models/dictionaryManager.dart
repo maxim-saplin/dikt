@@ -16,7 +16,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import '../common/fileStream.dart';
 
 String nameToBoxName(String name) {
-  return 'dik_' + name.replaceAll(RegExp('[^A-Za-z0-9]'), '');
+  return 'dik_' + name.replaceAll(RegExp('[^A-Za-z0-9]'), '').toLowerCase();
 }
 
 class BundledDictionary {
@@ -60,7 +60,7 @@ class DictionaryBeingProcessed {
         this.bundledDictiopnary = null;
 
   DictionaryBeingProcessed.file(this.file)
-      : this.name = file.path
+      : this.name = (file.path ?? file.name)
             .split('/')
             .last
             .split('\\')
@@ -450,9 +450,10 @@ class FileIndexer extends Indexer {
   }
 
   Future<void> run() async {
-    print(this.file.path + '\n');
-    var file = File(this.file.path);
-    var s = FileStream(file.path, null, null);
+    var path = this.file.path ?? this.file.name;
+    print(path + '\n');
+    var file = File(path);
+    var s = FileStream(path, null, null);
     var length = await file.length();
 
     var sw = Stopwatch();
@@ -521,7 +522,7 @@ class WebIndexer extends Indexer {
   }
 
   Future<void> run() async {
-    print(file.path + '\n');
+    print(file.path ?? file.name + '\n');
     // Chunked json decoding isn't available in web
     // var inSink = converterJson.startChunkedConversion(outSink);
 

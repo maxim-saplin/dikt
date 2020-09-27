@@ -148,6 +148,7 @@ class _DictionariesState extends State<Dictionaries> {
                                       files = (await FilePicker.platform
                                               .pickFiles(
                                                   type: FileType.custom,
+                                                  allowMultiple: true,
                                                   allowedExtensions: ['json']))
                                           .files;
                                     }

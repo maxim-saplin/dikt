@@ -93,7 +93,7 @@ extension Localization on String {
           'Delete_dic': 'Удалить словарь "%s"?',
           'Delete': 'Удалить',
           '+ Import JSON': '+ Добавить JSON',
-          'There\'re issues...': 'Есть проблемв...',
+          'There\'re issues...': 'Есть проблемы...',
           'DELETE': 'УДАЛИТЬ',
           'Dictionaries': 'Словари',
           'dictionaries': 'словарей',
