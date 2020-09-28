@@ -456,13 +456,15 @@ class FileIndexer extends Indexer {
     var s = FileStream(path, null, null);
     var length = await file.length();
 
+    var zlib = ZLibEncoder();
+
     var sw = Stopwatch();
 
     var converterZip = JsonDecoder((k, v) {
       if (v is String) {
         var bytes = utf8.encode(v);
-        var gzipBytes = gzip.encode(bytes);
-        var b = Uint8List.fromList(gzipBytes);
+        var zlibBytes = zlib.encode(bytes);
+        var b = Uint8List.fromList(zlibBytes);
         return b;
       } else {
         return v;
@@ -527,7 +529,7 @@ class WebIndexer extends Indexer {
     // var inSink = converterJson.startChunkedConversion(outSink);
 
     var sw = Stopwatch();
-    var gzip = GZipEncoder();
+    var zlib = ZLibEncoder();
     sw.start();
 
     try {
@@ -547,8 +549,8 @@ class WebIndexer extends Indexer {
       for (var e in m.entries) {
         if (_canceled) return null;
         var bytes = utf8.encode(e.value);
-        var gzipBytes = gzip.encode(bytes);
-        var b = Uint8List.fromList(gzipBytes);
+        var zlibBytes = zlib.encode(bytes);
+        var b = Uint8List.fromList(zlibBytes);
         m2[e.key] = b;
         i++;
         var p = (i / m.length * 95).round();
@@ -641,14 +643,14 @@ Map<String, Uint8List> isolateBody(IsolateParams params) {
   print('  JSON loading IN ISOLATE, file ' + params.file.toString());
   //WidgetsFlutterBinding.ensureInitialized();
   var i = 0;
-  var gzip = new GZipEncoder();
+  var zlib = new ZLibEncoder();
   var words = jsonDecode(params.assetValue, reviver: (k, v) {
     if (i % 1000 == 0) print('  JSON decoded objects: ' + i.toString());
     i++;
     if (v is String) {
       var bytes = utf8.encode(v);
-      var gzipBytes = gzip.encode(bytes);
-      var b = Uint8List.fromList(gzipBytes);
+      var zlibBytes = zlib.encode(bytes);
+      var b = Uint8List.fromList(zlibBytes);
       //if (k is String && k.length > 254) print('>254' + k);
       return b;
     } else

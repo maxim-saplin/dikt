@@ -22,6 +22,7 @@ import './models/dictionaryManager.dart';
 import './common/analyticsObserver.dart';
 import './common/i18n.dart';
 import 'ui/routes.dart';
+//import 'package:dictionary_bundler/main.dart' show test;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -29,6 +30,12 @@ void main() async {
     await Firebase.initializeApp();
   await PreferencesSingleton.init();
   await DictionaryManager.init();
+
+  // Testing archive efficiency on target platforms
+  //var s =
+  //    await rootBundle.loadString('assets/dictionaries/En-En-WordNet3-00.json');
+  //test(s);
+
   runApp(MyApp());
 }
 

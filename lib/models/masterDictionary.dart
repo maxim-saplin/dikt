@@ -171,17 +171,15 @@ Map<String, Uint8List> isolateBody(IsolateParams params) {
   print('  JSON loading IN ISOLATE, file ' + params.file.toString());
   //WidgetsFlutterBinding.ensureInitialized();
   var i = 0;
-  var gzip = GZipEncoder();
+  var zlib = ZLibEncoder();
   var words = jsonDecode(params.assetValue, reviver: (k, v) {
     if (i % 1000 == 0) print('  JSON decoded objects: ' + i.toString());
     i++;
     if (v is String) {
       var bytes = utf8.encode(v);
-      var gzipBytes = gzip.encode(bytes);
-      var b = Uint8List.fromList(gzipBytes);
+      var zlibBytes = zlib.encode(bytes);
+      var b = Uint8List.fromList(zlibBytes);
       return b;
-      //var s = base64.encode(gzipBytes);
-      //return s;
     } else
       return v;
   });
@@ -190,8 +188,8 @@ Map<String, Uint8List> isolateBody(IsolateParams params) {
 
 String _unzipIsolateBody(Uint8List articleBytes) {
   //var articleBytes = base64.decode(articleBase64);
-  var gZipDecoder = GZipDecoder();
-  var bytes = gZipDecoder.decodeBytes(articleBytes);
+  var zlib = ZLibDecoder();
+  var bytes = zlib.decodeBytes(articleBytes);
   var article = utf8.decode(bytes);
   return article;
 }
