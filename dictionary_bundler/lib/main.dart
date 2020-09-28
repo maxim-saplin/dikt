@@ -19,12 +19,12 @@ void bundleJson(String fileName, [bool verify = true]) async {
   var m = mm.cast<String, String>();
   var comp = zlib(m);
 
-  var bd = ByteData(4);
-  bd.setInt32(0, m.length);
-
   print('Writing ${m.length} entries to ${output.path}');
   await output.create();
   var raf = await output.open(mode: FileMode.write);
+
+  var bd = ByteData(4);
+  bd.setInt32(0, m.length);
   raf.writeFromSync(bd.buffer.asUint8List());
 
   for (var e in comp.entries) {
@@ -42,25 +42,73 @@ void bundleJson(String fileName, [bool verify = true]) async {
   raf.close();
   if (verify) {
     print('Veryfing ${output.path} ...');
-    readFile(output.path);
+    var m = await readFile(output.path);
+    if (comp.length != m.length) {
+      print('Wrong length. Saved ${comp.length}, read ${m.length}');
+    } else {
+      for (var k in m.keys) {
+        if (m[k].length != comp[k].length) {
+          print('Wrong values for key "${k}"');
+          break;
+        }
+      }
+    }
   }
 
   print('DONE');
 }
 
+Future<Map<String, Uint8List>> readByteData(ByteData file) async {
+  var m = Map<String, Uint8List>();
+
+  var position = 0;
+
+  var count = file.getInt32(position);
+  position += 4;
+
+  while (position < file.lengthInBytes - 1) {}
+
+  return m;
+}
+
+int _readInt32(RandomAccessFile raf) {
+  var int32 = Uint8List(4);
+  if (raf.readIntoSync(int32) <= 0) return -1;
+  var bd = ByteData.sublistView(int32);
+  var val = bd.getInt32(0);
+  return val;
+}
+
+Uint8List _readIntList(RandomAccessFile raf, int count) {
+  var bytes = Uint8List(count);
+  if (raf.readIntoSync(bytes) <= 0) return null;
+
+  return bytes;
+}
+
 Future<Map<String, Uint8List>> readFile(String fileName) async {
   var f = File(fileName);
   var raf = await f.open();
-  var st = f.statSync();
 
-  List<int> b = [];
+  var count = _readInt32(raf);
 
-  raf.readIntoSync(b, 0, 3);
-  var bd = ByteData.sublistView(b as Uint8List);
-  var length = bd.getInt32(0);
-  print('Reading ${length} entries from file ${fileName}');
+  print('Reading ${count} entries from file ${fileName}');
 
-  return null;
+  var m = Map<String, Uint8List>();
+
+  while (true) {
+    var length = _readInt32(raf);
+    if (length < 0) break;
+    var bytes = _readIntList(raf, length);
+    if (bytes == null) break;
+    var key = utf8.decode(bytes);
+    length = _readInt32(raf);
+    if (length < 0) break;
+    var value = _readIntList(raf, length);
+    m[key] = value;
+  }
+
+  return m;
 }
 
 void _test() async {
