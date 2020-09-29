@@ -19,45 +19,69 @@ String nameToBoxName(String name) {
   return 'dik_' + name.replaceAll(RegExp('[^A-Za-z0-9]'), '').toLowerCase();
 }
 
-class BundledDictionary {
+class BundledJsonDictionary {
   final String assetFileNamePattern;
   final String name;
   final int maxFileIndex;
-  const BundledDictionary(
+  const BundledJsonDictionary(
       this.assetFileNamePattern, this.name, this.maxFileIndex);
   String get boxName {
     return nameToBoxName(name);
   }
 }
 
-const bundledDictionaries = [
-  BundledDictionary('assets/dictionaries/En-En-WordNet3-%02i.json',
-      'EN_EN WordNet 3', 14), //14
-  BundledDictionary(
-      'assets/dictionaries2/EnRuUniversal%02i.json', 'EN_RU Universal', 9), //9
-  BundledDictionary(
-      'assets/dictionaries2/RuEnUniversal%02i.json', 'RU_EN Universal', 8), //8
-  BundledDictionary('assets/dictionaries2/RuByUniversal%02i.json',
-      'RU_BY НАН РБ (ред. Крапивы)', 10), //10
+const bundledJsonDictionaries = [
+  // BundledJsonDictionary('assets/dictionaries/En-En-WordNet3-%02i.json',
+  //     'EN_EN WordNet 3', 14), //14
+  // BundledJsonDictionary(
+  //     'assets/dictionaries2/EnRuUniversal%02i.json', 'EN_RU Universal', 9), //9
+  // BundledJsonDictionary(
+  //     'assets/dictionaries2/RuEnUniversal%02i.json', 'RU_EN Universal', 8), //8
+  // BundledJsonDictionary('assets/dictionaries2/RuByUniversal%02i.json',
+  //     'RU_BY НАН РБ (ред. Крапивы)', 10), //10
+];
+
+class BundledBinaryDictionary {
+  final String assetFileName;
+  final String name;
+
+  const BundledBinaryDictionary(this.assetFileName, this.name);
+  String get boxName {
+    return nameToBoxName(name);
+  }
+}
+
+const bundledBinaryDictionaries = [
+  BundledBinaryDictionary(
+      'assets/dictionaries/En_En_WordNet3.json.bundle', 'EN_EN WordNet 3')
 ];
 
 enum DictionaryBeingProcessedState { pending, inprogress, success, error }
 
 class DictionaryBeingProcessed {
   final String name;
-  final BundledDictionary bundledDictiopnary;
+  final BundledJsonDictionary bundledJsonDictionary;
+  final BundledBinaryDictionary bundledBinaryDictionary;
   final IndexedDictionary indexedDictionary;
   final PlatformFile file;
 
-  DictionaryBeingProcessed.bundled(this.bundledDictiopnary)
-      : this.name = bundledDictiopnary.name,
+  DictionaryBeingProcessed.bundledJson(this.bundledJsonDictionary)
+      : this.name = bundledJsonDictionary.name,
         this.file = null,
-        this.indexedDictionary = null;
+        this.indexedDictionary = null,
+        this.bundledBinaryDictionary = null;
+
+  DictionaryBeingProcessed.bundledBinary(this.bundledBinaryDictionary)
+      : this.name = bundledBinaryDictionary.name,
+        this.file = null,
+        this.indexedDictionary = null,
+        this.bundledJsonDictionary = null;
 
   DictionaryBeingProcessed.indexed(this.indexedDictionary)
       : this.name = indexedDictionary.name,
         this.file = null,
-        this.bundledDictiopnary = null;
+        this.bundledJsonDictionary = null,
+        this.bundledBinaryDictionary = null;
 
   DictionaryBeingProcessed.file(this.file)
       : this.name = (file.path ?? file.name)
@@ -67,7 +91,8 @@ class DictionaryBeingProcessed {
             .last
             .replaceFirst('.json', ''),
         this.indexedDictionary = null,
-        this.bundledDictiopnary = null;
+        this.bundledJsonDictionary = null,
+        this.bundledBinaryDictionary = null;
 
   DictionaryBeingProcessedState _state = DictionaryBeingProcessedState.pending;
 
@@ -205,9 +230,17 @@ class DictionaryManager extends ChangeNotifier {
   Future _checkAndIndexBundledDictionaries() async {
     _dictionariesBeingProcessed = List<DictionaryBeingProcessed>();
 
-    for (var i in bundledDictionaries) {
+    for (var i in bundledJsonDictionaries) {
       if (!_dictionaries.containsKey(i.boxName)) {
-        _dictionariesBeingProcessed.add(DictionaryBeingProcessed.bundled(i));
+        _dictionariesBeingProcessed
+            .add(DictionaryBeingProcessed.bundledJson(i));
+      }
+    }
+
+    for (var i in bundledBinaryDictionaries) {
+      if (!_dictionaries.containsKey(i.boxName)) {
+        _dictionariesBeingProcessed
+            .add(DictionaryBeingProcessed.bundledBinary(i));
       }
     }
 
@@ -221,15 +254,22 @@ class DictionaryManager extends ChangeNotifier {
       List<DictionaryBeingProcessed> bds) async {
     Indexer getIndexer(
         DictionaryBeingProcessed dictionaryProcessed, LazyBox<Uint8List> box) {
-      var bd = dictionaryProcessed.bundledDictiopnary;
-      return BundledIndexer(bd.assetFileNamePattern, bd.maxFileIndex, box,
-          (progress) {
-        dictionaryProcessed.progressPercent = progress;
-        notifyListeners();
-      });
+      var bjd = dictionaryProcessed.bundledJsonDictionary;
+      var bbd = dictionaryProcessed.bundledBinaryDictionary;
+      return bjd != null
+          ? BundledJsonIndexer(bjd.assetFileNamePattern, bjd.maxFileIndex, box,
+              (progress) {
+              dictionaryProcessed.progressPercent = progress;
+              notifyListeners();
+            })
+          : BundledBinaryIndexer(bbd.assetFileName, box, (progress) {
+              dictionaryProcessed.progressPercent = progress;
+              notifyListeners();
+            });
     }
 
-    print('Loading JSON to Hive DB: ' + DateTime.now().toString());
+    print('Loading bundled dictionaries to Hive DB: ' +
+        DateTime.now().toString());
     await _runIndexer(bds, getIndexer);
   }
 
@@ -380,7 +420,7 @@ class DictionaryManager extends ChangeNotifier {
     var d = _dictionariesReadyList[index];
     Hive.deleteBoxFromDisk(d.boxName);
     //d.box.deleteFromDisk();
-    if (bundledDictionaries.any((e) => e.boxName == d.boxName)) {
+    if (bundledJsonDictionaries.any((e) => e.boxName == d.boxName)) {
       d.isReadyToUse = false;
       d.save();
     } else {
@@ -573,7 +613,68 @@ class WebIndexer extends Indexer {
   }
 }
 
-class BundledIndexer extends Indexer {
+class BundledBinaryIndexer extends Indexer {
+  final String assetName;
+  final Completer<void> runCompleter = Completer<void>();
+  final LazyBox<Uint8List> box;
+  final Function(int progressPercent) updateProgress;
+
+  BundledBinaryIndexer(this.assetName, this.box, this.updateProgress);
+
+  Future<void> run() async {
+    print('Indexing bundled bianry dictionary: ' + this.assetName);
+    var sw = Stopwatch();
+    sw.start();
+    var file = await rootBundle.load(assetName);
+    updateProgress(3);
+
+    try {
+      var m = Map<String, Uint8List>();
+      var position = 0;
+
+      var count = file.getInt32(position);
+      position += 4;
+      print(count);
+      var counter = 0;
+      var curr = 0;
+
+      while (position < file.lengthInBytes - 1 && counter < count) {
+        counter++;
+
+        var length = file.getInt32(position);
+        position += 4;
+        var bytes = file.buffer.asUint8List(position, length);
+        var key = utf8.decode(bytes);
+        position += length;
+
+        length = file.getInt32(position);
+        position += 4;
+        bytes = file.buffer.asUint8List(position, length).sublist(0, length);
+
+        position += length;
+
+        m[key] = bytes;
+
+        var p = (counter / count * 97).round();
+        if (p != curr) {
+          curr = p;
+          await box.putAll(m);
+          m.clear();
+          updateProgress(3 + curr);
+        }
+      }
+      if (m.length > 0) await box.putAll(m);
+      print('Indexing done(ms): ' + sw.elapsedMilliseconds.toString());
+
+      runCompleter.complete();
+    } catch (err) {
+      runCompleter.completeError(err);
+    }
+    return runCompleter.future;
+  }
+}
+
+class BundledJsonIndexer extends Indexer {
   final String namePattern;
   //final Completer<void> completer;
   final Completer<void> runCompleter = Completer<void>();
@@ -581,7 +682,8 @@ class BundledIndexer extends Indexer {
   final int maxFile;
   final Function(int progressPercent) updateProgress;
 
-  BundledIndexer(this.namePattern, this.maxFile, this.box, this.updateProgress);
+  BundledJsonIndexer(
+      this.namePattern, this.maxFile, this.box, this.updateProgress);
 
   Future<void> run() async {
     iterateInIsolate();
@@ -599,18 +701,18 @@ class BundledIndexer extends Indexer {
       for (var i = 0; i < _numberOfIsolates; i++) {
         if (_curFile > maxFile) break;
         var asset = sprintf(namePattern, [_curFile]);
-        isolateProcessBundleAsset(asset, _curFile);
+        isolateProcessBundledJsonAsset(asset, _curFile);
         _curFile++;
       }
     } else {
       if (_curFile > maxFile) return;
       var asset = sprintf(namePattern, [_curFile]);
-      isolateProcessBundleAsset(asset, _curFile);
+      isolateProcessBundledJsonAsset(asset, _curFile);
       _curFile++;
     }
   }
 
-  void isolateProcessBundleAsset(String asset, int curFile) async {
+  void isolateProcessBundledJsonAsset(String asset, int curFile) async {
     _runningIsolates++;
     _filesRemaining--;
     try {

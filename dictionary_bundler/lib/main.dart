@@ -3,7 +3,7 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:archive/archive.dart';
 
-const filePath = './En-En-WordNet3-00.json';
+const filePath = './En_En WordNet3.json'; //'./En-En-WordNet3-00.json';
 const outputExtension = 'bundle';
 
 void main(List<String> arguments) async {
@@ -42,7 +42,8 @@ void bundleJson(String fileName, [bool verify = true]) async {
   raf.close();
   if (verify) {
     print('Veryfing ${output.path} ...');
-    var m = await readFile(output.path);
+    //var m = await readFile(output.path);
+    var m = await readFileViaByteData(output.path);
     if (comp.length != m.length) {
       print('Wrong length. Saved ${comp.length}, read ${m.length}');
     } else {
@@ -58,15 +59,39 @@ void bundleJson(String fileName, [bool verify = true]) async {
   print('DONE');
 }
 
-Future<Map<String, Uint8List>> readByteData(ByteData file) async {
+Future<Map<String, Uint8List>> readFileViaByteData(String fileName) async {
+  var f = File(fileName);
+  var b = f.readAsBytesSync();
+  var m = readByteData(b.buffer.asByteData());
+  return m;
+}
+
+Map<String, Uint8List> readByteData(ByteData file) {
   var m = Map<String, Uint8List>();
 
   var position = 0;
 
   var count = file.getInt32(position);
   position += 4;
+  print(count);
+  var counter = 0;
 
-  while (position < file.lengthInBytes - 1) {}
+  while (position < file.lengthInBytes - 1 && counter < count) {
+    counter++;
+
+    var length = file.getInt32(position);
+    position += 4;
+    var bytes = file.buffer.asUint8List(position, length);
+    var key = utf8.decode(bytes);
+    position += length;
+
+    length = file.getInt32(position);
+    position += 4;
+    bytes = file.buffer.asUint8List(position, length);
+    position += length;
+
+    m[key] = bytes;
+  }
 
   return m;
 }
