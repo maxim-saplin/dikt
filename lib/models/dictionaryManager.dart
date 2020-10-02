@@ -3,16 +3,19 @@ import 'dart:typed_data';
 import 'dart:io';
 import 'dart:core';
 import 'dart:math';
+import 'dart:convert';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/services.dart' show rootBundle;
-import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:sprintf/sprintf.dart';
 import 'package:archive/archive.dart';
 import 'package:flutter/material.dart';
-import 'indexedDictionary.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'indexedDictionary.dart';
+import 'bulk_insert.dart';
+
 import '../common/fileStream.dart';
 
 String nameToBoxName(String name) {
@@ -127,6 +130,7 @@ class DictionaryManager extends ChangeNotifier {
 
   static Future<void> init() async {
     await Hive.initFlutter();
+    //testArrays(['One', 'Two'], [utf8.encode('One'), utf8.encode('One')]);
     Hive.registerAdapter(IndexedDictionaryAdapter());
     _dictionaries = await Hive.openBox(dictionairesBoxName);
   }
@@ -300,10 +304,12 @@ class DictionaryManager extends ChangeNotifier {
       _curIndexer = getIndexer(dictionariesProcessed[i], box);
       try {
         await _curIndexer.run();
+
         d.isReadyToUse = true;
+        d.isLoaded = true;
+
         d.save();
         dictionariesProcessed[i].state = DictionaryBeingProcessedState.success;
-        d.isLoaded = true;
         notifyListeners();
         if (i == dictionariesProcessed.length - 1 && finished != null)
           finished.complete();
@@ -596,12 +602,22 @@ class WebIndexer extends Indexer {
         var p = (i / m.length * 95).round();
         if (p != curr) {
           curr = p;
-          await box.putAll(m2);
+          //await box.putAll(m2);
+          var keys = List<String>();
+          var values = List<Uint8List>();
+          for (var kv in m2.entries) {
+            keys.add(kv.key);
+            values.add(kv.value);
+          }
           m2.clear();
+          await toFuture(bulkInsert(box.indexedDb, keys, values));
           updateProgress(5 + curr);
         }
       }
       if (m2.length > 0) await box.putAll(m2);
+      var boxName = box.name;
+      await box.close();
+      await Hive.openLazyBox<Uint8List>(boxName);
       print('Indexing done(ms): ' + sw.elapsedMilliseconds.toString());
       runCompleter.complete();
     } catch (err) {
@@ -630,6 +646,8 @@ class BundledBinaryIndexer extends Indexer {
 
     try {
       var m = Map<String, Uint8List>();
+      var keys = List<String>();
+      var values = List<Uint8List>();
       var position = 0;
 
       var count = file.getInt32(position);
@@ -638,6 +656,7 @@ class BundledBinaryIndexer extends Indexer {
       var counter = 0;
       var curr = 0;
 
+      var db = box.indexedDb;
       while (position < file.lengthInBytes - 1 && counter < count) {
         counter++;
 
@@ -653,17 +672,34 @@ class BundledBinaryIndexer extends Indexer {
 
         position += length;
 
-        m[key] = bytes;
-
+        // indexedDB inserts via Hive are super slow.
+        // Directly inserting to indexDB via JS interop.
+        // Since Maps are broken when marshaled in dart2js, using 2 arrays instead
+        if (kIsWeb) {
+          keys.add(key);
+          values.add(bytes);
+        } else {
+          m[key] = bytes;
+        }
         var p = (counter / count * 97).round();
         if (p != curr) {
           curr = p;
-          await box.putAll(m);
-          m.clear();
+          if (kIsWeb) {
+            await toFuture(bulkInsert(db, keys, values));
+            keys.clear();
+            values.clear();
+          } else {
+            await box.putAll(m);
+            m.clear();
+          }
           updateProgress(3 + curr);
         }
       }
-      if (m.length > 0) await box.putAll(m);
+      if (kIsWeb) {
+        if (keys.length > 0) await toFuture(bulkInsert(db, keys, values));
+        box.close(); // Force reload to get keys in Box
+      } else if (m.length > 0) await box.putAll(m);
+
       print('Indexing done(ms): ' + sw.elapsedMilliseconds.toString());
 
       runCompleter.complete();

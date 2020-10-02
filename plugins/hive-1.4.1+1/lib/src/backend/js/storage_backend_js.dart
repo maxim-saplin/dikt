@@ -19,6 +19,11 @@ class StorageBackendJs extends StorageBackend {
 
   TypeRegistry _registry;
 
+  /// For workaround for slow inserts to IndexedDB
+  Database get db {
+    return _db;
+  }
+
   /// Not part of public API
   StorageBackendJs(this._db, this._cipher, [this._registry]);
 

@@ -12,4 +12,7 @@ abstract class LazyBox<E> extends BoxBase<E> {
 
   /// Returns the value associated with the n-th key.
   Future<E> getAt(int index);
+
+  /// Exposing indexed DB to JS interop for bulk insert workaround
+  dynamic get indexedDb;
 }
