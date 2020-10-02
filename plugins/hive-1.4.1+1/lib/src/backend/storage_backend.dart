@@ -11,6 +11,9 @@ abstract class StorageBackend {
   /// The path where the database is stored
   String get path;
 
+  ///IndexedDB if Web
+  dynamic get db;
+
   /// Whether the database can be compacted
   bool get supportsCompaction;
 

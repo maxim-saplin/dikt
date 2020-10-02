@@ -2,7 +2,6 @@
 // ignore_for_file: invalid_use_of_visible_for_testing_member
 
 import 'package:hive/hive.dart';
-import 'package:hive/src/backend/js/storage_backend_js.dart';
 import 'package:hive/src/backend/storage_backend.dart';
 import 'package:hive/src/binary/frame.dart';
 import 'package:hive/src/box/box_base_impl.dart';
@@ -25,10 +24,7 @@ class LazyBoxImpl<E> extends BoxBaseImpl<E> implements LazyBox<E> {
 
   @override
   dynamic get indexedDb {
-    if (backend is StorageBackendJs) {
-      return (backend as StorageBackendJs).db;
-    }
-    return null;
+    return backend.db;
   }
 
   @override

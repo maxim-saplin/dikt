@@ -3,7 +3,8 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:archive/archive.dart';
 
-const filePath = './En_En WordNet3.json'; //'./En-En-WordNet3-00.json';
+const filePath =
+    '/private/var/user/Dropbox/Projects/dikt_misc/dic/dictionaries2/1/RuEnUniversal.json'; //'./En-En-WordNet3-00.json';
 const outputExtension = 'bundle';
 
 void main(List<String> arguments) async {

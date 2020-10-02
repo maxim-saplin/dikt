@@ -21,6 +21,10 @@ class StorageBackendVm extends StorageBackend {
   final HiveCipher _cipher;
   final FrameIoHelper _frameHelper;
 
+  dynamic get db {
+    return null;
+  }
+
   final ReadWriteSync _sync;
 
   /// Not part of public API

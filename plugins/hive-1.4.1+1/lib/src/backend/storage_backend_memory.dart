@@ -10,6 +10,10 @@ import 'package:hive/src/box/keystore.dart';
 class StorageBackendMemory extends StorageBackend {
   final HiveCipher _cipher;
 
+  dynamic get db {
+    return null;
+  }
+
   final FrameHelper _frameHelper;
 
   Uint8List _bytes;

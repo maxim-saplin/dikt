@@ -20,7 +20,7 @@ class StorageBackendJs extends StorageBackend {
   TypeRegistry _registry;
 
   /// For workaround for slow inserts to IndexedDB
-  Database get db {
+  dynamic get db {
     return _db;
   }
 
