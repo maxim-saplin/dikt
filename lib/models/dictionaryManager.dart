@@ -57,12 +57,12 @@ class BundledBinaryDictionary {
 const bundledBinaryDictionaries = [
   BundledBinaryDictionary(
       'assets/dictionaries/EnEnWordNet3.json.bundle', 'EN_EN WordNet 3'),
-  BundledBinaryDictionary(
-      'assets/dictionaries2/EnRuUniversal.json.bundle', 'EN_RU Universal'),
-  BundledBinaryDictionary(
-      'assets/dictionaries2/RuEnUniversal.json.bundle', 'RU_EN Universal'),
-  BundledBinaryDictionary('assets/dictionaries2/RuByUniversal.json.bundle',
-      'RU_BY НАН РБ (ред. Крапивы)'),
+  // BundledBinaryDictionary(
+  //     'assets/dictionaries2/EnRuUniversal.json.bundle', 'EN_RU Universal'),
+  // BundledBinaryDictionary(
+  //     'assets/dictionaries2/RuEnUniversal.json.bundle', 'RU_EN Universal'),
+  // BundledBinaryDictionary('assets/dictionaries2/RuByUniversal.json.bundle',
+  //     'RU_BY НАН РБ (ред. Крапивы)'),
 ];
 
 enum DictionaryBeingProcessedState { pending, inprogress, success, error }

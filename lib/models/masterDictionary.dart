@@ -72,7 +72,7 @@ class MasterDictionary extends ChangeNotifier {
       value = value?.toLowerCase();
       _selectedWord = value;
     }
-    notifyListeners();
+    //notifyListeners();
   }
 
   String get selectedWord {

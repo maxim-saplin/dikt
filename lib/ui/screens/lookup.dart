@@ -249,6 +249,7 @@ Future<List<Article>> getArticlesUpdateHistory(
     articles = dictionary.getArticles(word);
     history.addWord(word);
   }
+
   dictionary.selectedWord = word;
 
   return articles;
@@ -263,19 +264,18 @@ void showArticle(BuildContext context, String word, bool useDialog) {
         builder: (BuildContext context) {
           var articles = getArticlesUpdateHistory(context, word);
 
-          return new BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
-              child: SimpleSimpleDialog(
-                  insetPadding: EdgeInsets.fromLTRB(
-                      0, !kIsWeb && Platform.isMacOS ? 28 : 0, 0, 0),
-                  children: [
-                    WordArticles(
-                      articles: articles,
-                      word: word,
-                      showAnotherWord: (word) =>
-                          showArticle(context, word, useDialog),
-                    )
-                  ]));
+          return SimpleSimpleDialog(
+              elevation: 0,
+              insetPadding: EdgeInsets.fromLTRB(
+                  0, !kIsWeb && Platform.isMacOS ? 28 : 0, 0, 0),
+              children: [
+                WordArticles(
+                  articles: articles,
+                  word: word,
+                  showAnotherWord: (word) =>
+                      showArticle(context, word, useDialog),
+                )
+              ]);
         });
   } else {
     Navigator.of(context).pushNamed(Routes.showArticleWide, arguments: word);

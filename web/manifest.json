@@ -1,11 +1,11 @@
 {
-    "name": "dikt",
+    "name": "dikt | bottom-up dictionary",
     "short_name": "dikt",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#787878",
+    "theme_color": "#787878",
+    "description": "Simplictic off-line dictionary",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

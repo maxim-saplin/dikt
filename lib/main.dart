@@ -206,32 +206,35 @@ class MyApp extends StatelessWidget {
   ));
 
   final ThemeData darkTheme = ThemeData.dark().copyWith(
+      cardColor: Color.fromARGB(255, 50, 50, 50),
+      scaffoldBackgroundColor: Color.fromARGB(255, 40, 40, 40),
+      dialogBackgroundColor: Color.fromARGB(255, 50, 50, 50),
       textTheme: TextTheme(
-    button: TextStyle(
-      fontSize: 18,
-      fontFamily: 'Montserrat',
-    ),
-    headline6: TextStyle(
-      fontSize: 20.0,
-      color: Colors.white,
-      fontFamily: 'Montserrat',
-      fontWeight: FontWeight.bold,
-    ),
-    subtitle1: TextStyle(
-      fontSize: 20.0,
-      fontFamily: 'Montserrat',
-      color: Colors.white,
-    ),
-    subtitle2: TextStyle(
-      fontSize: 16.0,
-      fontFamily: 'Montserrat',
-      fontStyle: FontStyle.italic,
-      color: Colors.white.withAlpha(128),
-    ),
-    bodyText2: TextStyle(
-        fontSize: 20.0, fontFamily: 'Montserrat', color: Colors.white),
-    // Dictionary card, dictionary  name
-    caption: TextStyle(
-        fontSize: 17.0, fontFamily: 'Montserrat', color: Colors.white),
-  ));
+        button: TextStyle(
+          fontSize: 18,
+          fontFamily: 'Montserrat',
+        ),
+        headline6: TextStyle(
+          fontSize: 20.0,
+          color: Colors.white,
+          fontFamily: 'Montserrat',
+          fontWeight: FontWeight.bold,
+        ),
+        subtitle1: TextStyle(
+          fontSize: 20.0,
+          fontFamily: 'Montserrat',
+          color: Colors.white,
+        ),
+        subtitle2: TextStyle(
+          fontSize: 16.0,
+          fontFamily: 'Montserrat',
+          fontStyle: FontStyle.italic,
+          color: Colors.white.withAlpha(128),
+        ),
+        bodyText2: TextStyle(
+            fontSize: 20.0, fontFamily: 'Montserrat', color: Colors.white),
+        // Dictionary card, dictionary  name
+        caption: TextStyle(
+            fontSize: 17.0, fontFamily: 'Montserrat', color: Colors.white),
+      ));
 }

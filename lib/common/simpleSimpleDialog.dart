@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:ui';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter/material.dart';
@@ -31,7 +33,8 @@ class SimpleSimpleDialog extends StatelessWidget {
       bool useMaterialBorderRadius,
       this.alignment = Alignment.bottomCenter,
       this.insetPadding = _defaultInsetPadding,
-      this.maxWidth = double.infinity})
+      this.maxWidth = double.infinity,
+      this.blurBackground = true})
       : assert(titlePadding != null),
         assert(contentPadding != null),
         super(key: key);
@@ -108,6 +111,8 @@ class SimpleSimpleDialog extends StatelessWidget {
 
   final double maxWidth;
 
+  final bool blurBackground;
+
   @override
   Widget build(BuildContext context) {
     assert(debugCheckHasMaterialLocalizations(context));
@@ -149,7 +154,7 @@ class SimpleSimpleDialog extends StatelessWidget {
         label: label,
         child: dialogChild,
       );
-    return _Dialog(
+    var dialog = _Dialog(
       backgroundColor: backgroundColor,
       insetPadding: insetPadding,
       elevation: elevation,
@@ -158,6 +163,15 @@ class SimpleSimpleDialog extends StatelessWidget {
       alignment: alignment,
       //useMaterialBorderRadius: useMaterialBorderRadius,
     );
+
+    Widget completeDialog = dialog;
+
+    if (blurBackground && !kIsWeb) {
+      completeDialog = BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10), child: dialog);
+    }
+
+    return completeDialog;
   }
 }
 

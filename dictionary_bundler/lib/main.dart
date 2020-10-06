@@ -137,11 +137,11 @@ Future<Map<String, Uint8List>> readFile(String fileName) async {
   return m;
 }
 
-void _test() async {
-  var f = File('./En-En-WordNet3-00.json');
-  var s = await f.readAsString();
-  test(s);
-}
+// void _test() async {
+//   var f = File('./En-En-WordNet3-00.json');
+//   var s = await f.readAsString();
+//   test(s);
+// }
 
 void test(String jsonString) {
   Map mm = json.decode(jsonString);
@@ -186,7 +186,7 @@ void zlibDecomp(Map<String, Uint8List> m) {
   var dec = ZLibDecoder();
   for (var e in m.entries) {
     var b = Uint8List.fromList(e.value);
-    var bytes = dec.decodeBytes(b);
+    dec.decodeBytes(b);
   }
   sw.stop();
   print(
@@ -217,7 +217,7 @@ void gzipDecomp(Map<String, Uint8List> m) {
   var dec = GZipDecoder();
   for (var e in m.entries) {
     var b = Uint8List.fromList(e.value);
-    var bytes = dec.decodeBytes(b);
+    dec.decodeBytes(b);
   }
   sw.stop();
   print(
