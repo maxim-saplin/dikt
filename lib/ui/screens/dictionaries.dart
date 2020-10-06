@@ -84,6 +84,7 @@ class _DictionariesState extends State<Dictionaries> {
                 _cancelReorder = true;
                 showDialog(
                     context: context,
+                    barrierColor: !kIsWeb ? Colors.transparent : Colors.black54,
                     routeSettings: RouteSettings(name: '/delete_dic'),
                     child: AlertDialog(
                       content: Text('Delete_dic'
@@ -164,6 +165,9 @@ class _DictionariesState extends State<Dictionaries> {
                                           .catchError((err) {
                                         showDialog(
                                             context: context,
+                                            barrierColor: !kIsWeb
+                                                ? Colors.transparent
+                                                : Colors.black54,
                                             routeSettings: RouteSettings(
                                                 name: '/dic_import_error'),
                                             child: AlertDialog(

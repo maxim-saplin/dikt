@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -23,6 +24,8 @@ class TopButtons extends StatelessWidget {
                       onPressed: () {
                         showDialog(
                             context: context,
+                            barrierColor:
+                                !kIsWeb ? Colors.transparent : Colors.black54,
                             routeSettings: RouteSettings(name: '/dictionaries'),
                             builder: (BuildContext context) {
                               return SimpleSimpleDialog(
@@ -40,6 +43,8 @@ class TopButtons extends StatelessWidget {
                     onPressed: () {
                       showDialog(
                           context: context,
+                          barrierColor:
+                              !kIsWeb ? Colors.transparent : Colors.black54,
                           routeSettings: RouteSettings(name: '/settings'),
                           builder: (BuildContext context) {
                             return SimpleSimpleDialog(

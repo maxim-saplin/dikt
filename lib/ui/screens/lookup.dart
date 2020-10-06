@@ -259,7 +259,7 @@ void showArticle(BuildContext context, String word, bool useDialog) {
   if (useDialog) {
     showDialog(
         context: context,
-        barrierColor: Colors.transparent,
+        barrierColor: !kIsWeb ? Colors.transparent : Colors.black54,
         routeSettings: RouteSettings(name: Routes.showArticle, arguments: word),
         builder: (BuildContext context) {
           var articles = getArticlesUpdateHistory(context, word);
