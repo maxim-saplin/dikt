@@ -1,6 +1,6 @@
 # dikt / bottom-up dictionary
   <a href="https://maxim-saplin.github.io/dikt/#/" style="display: inline-block;text-align: center;">
-    <div>
+    <div width="80">
       <img align="left" src="https://raw.githubusercontent.com/maxim-saplin/dikt/master/_misc/web.svg" width="64"/>
     </br>
     Web/PWA
