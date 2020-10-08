@@ -1,4 +1,4 @@
-# dikt / bottom-up dictionary
+## dikt / bottom-up dictionary
 
 One-hand adapted, off-line dictionary with simplistic UI, dark and light themes
 
