@@ -1,4 +1,7 @@
 # dikt / bottom-up dictionary
+<a href="https://maxim-saplin.github.io/dikt/#/">
+  <img align="left" src="https://raw.githubusercontent.com/maxim-saplin/dikt/master/_misc/web.svg" width="64"/>
+</a>
 
 One-hand adapted, off-line dictionary with simplistic UI, dark and light themes
 
@@ -9,5 +12,5 @@ WordNet® 3 (large lexical dictionary of English) is bundled with the app. Other
  
 
 
-<img align="left" src="https://raw.githubusercontent.com/maxim-saplin/dikt/master/_misc/1.gif" width="360">
-<img align="left" src="https://raw.githubusercontent.com/maxim-saplin/dikt/master/_misc/2.gif" width="360">
+<img align="left" src="https://raw.githubusercontent.com/maxim-saplin/dikt/master/_misc/1.gif" width="360"/>
+<img align="left" src="https://raw.githubusercontent.com/maxim-saplin/dikt/master/_misc/2.gif" width="360"/>
