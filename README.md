@@ -1,18 +1,21 @@
 # dikt / bottom-up dictionary
 <p float="left">
-  <a href="#" target="_blank">
+  <a href="https://maxim-saplin.github.io/dikt/" target="_blank">
      <img src="https://raw.githubusercontent.com/maxim-saplin/dikt/master/_misc/web.svg" width="14"/>
      <strong>Web/PWA</strong>
      &nbsp;&nbsp;
   </a>
 
-  <a href="https://maxim-saplin.github.io/dikt/" target="_blank">
-     <img src="https://raw.githubusercontent.com/maxim-saplin/dikt/master/_misc/google-play.svg" width="14"/>
-     <strong>Google Play</strong>
-  </a>
   <a href="https://play.google.com/store/apps/details?id=com.saplin.dikt" target="_blank">
      <img src="https://raw.githubusercontent.com/maxim-saplin/dikt/master/_misc/google-play.svg" width="14"/>
      <strong>Google Play</strong>
+     &nbsp;&nbsp;
+  </a>
+  
+  <a href="https://github.com/maxim-saplin/dikt/releases/download/1.1.0/dikt.apk" target="_blank">
+     <img src="https://raw.githubusercontent.com/maxim-saplin/dikt/master/_misc/apk.svg" width="14"/>
+     <strong>Google Play</strong>
+     &nbsp;&nbsp;
   </a>
 
 </p>
