@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_html/style.dart';
 import 'package:html/dom.dart' as dom;
+// ignore: implementation_imports
 import 'package:html/src/query_selector.dart';
 
 /// A [StyledElement] applies a style to all of its children.

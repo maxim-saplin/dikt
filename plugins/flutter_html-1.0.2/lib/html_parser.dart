@@ -23,6 +23,7 @@ typedef CustomRender = Widget Function(
   dom.Element element,
 );
 
+// ignore: must_be_immutable
 class HtmlParser extends StatelessWidget {
   final String htmlData;
   final OnTap onLinkTap;
