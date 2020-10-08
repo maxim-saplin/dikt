@@ -4,12 +4,10 @@
    <img align="left" src="https://raw.githubusercontent.com/maxim-saplin/dikt/master/_misc/web.svg" width="64"/>
   <figcaption>Web/PWA</figcaption>
 </figure>
-
-  <a href="https://play.google.com/store/apps/details?id=com.Saplin.CPDT" style="display: inline-block;text-align: center;">
-    <img align="left" src="https://raw.githubusercontent.com/maxim-saplin/dikt/master/_misc/google-play.svg" width="64"/>
-    </br>
-    Google Play
-  </a>
+ <figure class="image">
+   <img align="left" src="https://raw.githubusercontent.com/maxim-saplin/dikt/master/_misc/google-play.svg" width="64"/>
+  <figcaption>Google Play</figcaption>
+</figure>
 </div>
 
 One-hand adapted, off-line dictionary with simplistic UI, dark and light themes
