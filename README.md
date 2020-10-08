@@ -1,16 +1,15 @@
 # dikt / bottom-up dictionary
 <div>
   <a href="https://maxim-saplin.github.io/dikt/#/" style="display: inline-block;text-align: center;">
-    
-      <img align="left" src="https://raw.githubusercontent.com/maxim-saplin/dikt/master/_misc/web.svg" width="64"/>
+    <img align="left" src="https://raw.githubusercontent.com/maxim-saplin/dikt/master/_misc/web.svg" width="64"/>
     </br>
     Web/PWA
-
   </a> 
 </div>
 <div>
   <a href="https://play.google.com/store/apps/details?id=com.Saplin.CPDT" style="display: inline-block;text-align: center;">
     <img align="left" src="https://raw.githubusercontent.com/maxim-saplin/dikt/master/_misc/google-play.svg" width="64"/>
+    </br>
     Google Play
   </a>
 </div>
