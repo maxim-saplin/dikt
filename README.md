@@ -1,16 +1,14 @@
 # dikt / bottom-up dictionary
 <p float="left">
   <a href="#">
-  <figure class="image">
+
    <img align="left" src="https://raw.githubusercontent.com/maxim-saplin/dikt/master/_misc/web.svg" width="64"/>
-  <figcaption>Web/PWA</figcaption>
+Web/PWA
     </a>
       <a href="#">
-</figure>
- <figure class="image">
+
    <img align="left" src="https://raw.githubusercontent.com/maxim-saplin/dikt/master/_misc/google-play.svg" width="64"/>
-  <figcaption>Google Play</figcaption>
-</figure>
+Google Play
   </a>
 </p>
 
