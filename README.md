@@ -1,13 +1,13 @@
 # dikt / bottom-up dictionary
 <p float="left">
-  <div>
+  <div float="left">
   <a href="#">
      <img src="https://raw.githubusercontent.com/maxim-saplin/dikt/master/_misc/web.svg" width="64"/>
      </br>
      Web/PWA
   </a>
   </div>
-  <div>
+  <div float="left">
   <a href="#">
      <img src="https://raw.githubusercontent.com/maxim-saplin/dikt/master/_misc/google-play.svg" width="64"/>
      </br>
