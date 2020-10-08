@@ -1,17 +1,16 @@
 # dikt / bottom-up dictionary
 <p float="left">
   <a href="#">
-
-   <img align="left" src="https://raw.githubusercontent.com/maxim-saplin/dikt/master/_misc/web.svg" width="64"/>
-Web/PWA
-    </a>
-      <a href="#">
-
-   <img align="left" src="https://raw.githubusercontent.com/maxim-saplin/dikt/master/_misc/google-play.svg" width="64"/>
-Google Play
+     <img src="https://raw.githubusercontent.com/maxim-saplin/dikt/master/_misc/web.svg" width="64"/>
+     </br>
+     Web/PWA
+  </a>
+  <a href="#">
+     <img src="https://raw.githubusercontent.com/maxim-saplin/dikt/master/_misc/google-play.svg" width="64"/>
+     </br>
+     Google Play
   </a>
 </p>
-
 
 One-hand adapted, off-line dictionary with simplistic UI, dark and light themes
 
