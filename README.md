@@ -12,7 +12,7 @@ WordNet® 3 (large lexical dictionary of English) is bundled with the app. Other
      <strong>Web/PWA</strong>
      &nbsp;&nbsp;
   </a>
-
+<br/>
   <a href="https://play.google.com/store/apps/details?id=com.saplin.dikt" target="_blank">
      <img src="https://raw.githubusercontent.com/maxim-saplin/dikt/master/_misc/google-play.svg" width="14"/>
      <strong>Google Play</strong>
