@@ -3,13 +3,11 @@
 
   <a href="#" target="_blank">
      <img src="https://raw.githubusercontent.com/maxim-saplin/dikt/master/_misc/web.svg" width="64"/>
-
      Web/PWA
   </a>
 
   <a href="#" target="_blank">
      <img src="https://raw.githubusercontent.com/maxim-saplin/dikt/master/_misc/google-play.svg" width="64"/>
-
      Google Play
   </a>
 
