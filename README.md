@@ -1,5 +1,5 @@
 # dikt / bottom-up dictionary
-<div>
+
   <figure class="image">
    <img align="left" src="https://raw.githubusercontent.com/maxim-saplin/dikt/master/_misc/web.svg" width="64"/>
   <figcaption>Web/PWA</figcaption>
@@ -8,7 +8,7 @@
    <img align="left" src="https://raw.githubusercontent.com/maxim-saplin/dikt/master/_misc/google-play.svg" width="64"/>
   <figcaption>Google Play</figcaption>
 </figure>
-</div>
+
 
 One-hand adapted, off-line dictionary with simplistic UI, dark and light themes
 
