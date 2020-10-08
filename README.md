@@ -9,7 +9,7 @@ WordNet® 3 (large lexical dictionary of English) is bundled with the app. Other
 <p float="left">
   <a href="https://maxim-saplin.github.io/dikt/" target="_blank">
      <img src="https://raw.githubusercontent.com/maxim-saplin/dikt/master/_misc/web.svg" width="14"/>
-     <font size="+1"><strong>Web/PWA</strong></font>
+     <font size="+5"><strong>Web/PWA</strong></font>
      &nbsp;&nbsp;
   </a>
   <br/>
