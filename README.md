@@ -2,14 +2,14 @@
 <p float="left">
 
   <a href="#" target="_blank">
-     <img src="https://raw.githubusercontent.com/maxim-saplin/dikt/master/_misc/web.svg" width="32"/>
+     <img src="https://raw.githubusercontent.com/maxim-saplin/dikt/master/_misc/web.svg" width="16"/>
      <strong>Web/PWA</strong>
      &nbsp;&nbsp;
   </a>
 
   <a href="#" target="_blank">
-     <img src="https://raw.githubusercontent.com/maxim-saplin/dikt/master/_misc/google-play.svg" width="32"/>
-     Google Play
+     <img src="https://raw.githubusercontent.com/maxim-saplin/dikt/master/_misc/google-play.svg" width="16"/>
+     <strong>Google Play</strong>
   </a>
 
 </p>
