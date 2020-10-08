@@ -3,12 +3,14 @@
   <a href="#">
   <figure class="image">
    <img align="left" src="https://raw.githubusercontent.com/maxim-saplin/dikt/master/_misc/web.svg" width="64"/>
+    </br>
   <figcaption>Web/PWA</figcaption>
     </a>
       <a href="#">
 </figure>
  <figure class="image">
    <img align="left" src="https://raw.githubusercontent.com/maxim-saplin/dikt/master/_misc/google-play.svg" width="64"/>
+   </br>
   <figcaption>Google Play</figcaption>
 </figure>
   </a>
