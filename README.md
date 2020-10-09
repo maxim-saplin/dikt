@@ -7,36 +7,37 @@ WordNet® 3 (large lexical dictionary of English) is bundled with the app. Other
 ## Try/Download
 
 <p float="left">
-  <a href="https://maxim-saplin.github.io/dikt/" target="_blank">
-     <img src="https://raw.githubusercontent.com/maxim-saplin/dikt/master/_misc/web.svg" width="14"/>
-     <font size="+5"><strong>Web/PWA</strong></font>
-     &nbsp;&nbsp;
-  </a>
-  <br/>
-  <a href="https://play.google.com/store/apps/details?id=com.saplin.dikt" target="_blank">
-     <img src="https://raw.githubusercontent.com/maxim-saplin/dikt/master/_misc/google-play.svg" width="14"/>
-     <strong>Google Play</strong>
-     &nbsp;&nbsp;
-  </a>
-  <br/>
-  <a href="https://github.com/maxim-saplin/dikt/releases/download/1.1.0/dikt.apk" target="_blank">
-     <img src="https://raw.githubusercontent.com/maxim-saplin/dikt/master/_misc/apk.svg" width="14"/>
-     <strong>APK</strong>
-     &nbsp;&nbsp;
-  </a>
-  <br/>
-  <a href="https://github.com/maxim-saplin/dikt/releases/download/1.1.0/dikt.app.zip" target="_blank">
-     <img src="https://raw.githubusercontent.com/maxim-saplin/dikt/master/_misc/macos.svg" width="14"/>
-     <strong>macOS</strong>
-     &nbsp;&nbsp;
-  </a>
-  <br/>
-  <a href="https://github.com/maxim-saplin/dikt/releases/download/1.1.0/dikt-win-x64.zip" target="_blank">
-     <img src="https://raw.githubusercontent.com/maxim-saplin/dikt/master/_misc/windows.svg" width="14"/>
-     <strong>Windows</strong>
-     &nbsp;&nbsp;
-  </a>
-</p>
+   <a href="https://maxim-saplin.github.io/dikt/" target="_blank">
+      <img src="https://raw.githubusercontent.com/maxim-saplin/dikt/master/_misc/web.svg" width="14"/>
+      <font size="+5"><strong>Web/PWA</strong></font>
+      &nbsp;&nbsp;
+   </a>
+   <br/>
+   <a href="https://play.google.com/store/apps/details?id=com.saplin.dikt" target="_blank">
+      <img src="https://raw.githubusercontent.com/maxim-saplin/dikt/master/_misc/google-play.svg" width="14"/>
+      <strong>Google Play</strong>
+      &nbsp;&nbsp;
+   </a>
+   <br/>
+   <a href="https://github.com/maxim-saplin/dikt/releases/download/1.1.0/dikt.apk" target="_blank">
+      <img src="https://raw.githubusercontent.com/maxim-saplin/dikt/master/_misc/apk.svg" width="14"/>
+      <strong>APK</strong>
+      &nbsp;&nbsp;
+   </a>
+   <br/>
+   <a href="https://github.com/maxim-saplin/dikt/releases/download/1.1.0/dikt.app.zip" target="_blank">
+      <img src="https://raw.githubusercontent.com/maxim-saplin/dikt/master/_misc/macos.svg" width="14"/>
+      <strong>macOS</strong>
+      &nbsp;&nbsp;
+   </a>
+   <br/>
+   <a href="https://github.com/maxim-saplin/dikt/releases/download/1.1.0/dikt-win-x64.zip" target="_blank">
+      <img src="https://raw.githubusercontent.com/maxim-saplin/dikt/master/_misc/windows.svg" width="14"/>
+      <strong>Windows</strong>
+      &nbsp;&nbsp;
+   </a>
+ </p>
+
 <br/>
 
 <img align="left" src="https://raw.githubusercontent.com/maxim-saplin/dikt/master/_misc/1.gif" width="360"/>
