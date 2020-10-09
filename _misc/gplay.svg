@@ -1,0 +1,48 @@
+<svg width="1000" height="720" xmlns="http://www.w3.org/2000/svg">
+
+ <g>
+  <title>background</title>
+  <rect fill="none" id="canvas_background" height="722" width="1002" y="-1" x="-1"/>
+ </g>
+ <g>
+  <title>Layer 1</title>
+  <g id="svg_13"/>
+  <g id="svg_14"/>
+  <g id="svg_15"/>
+  <g id="svg_16"/>
+  <g id="svg_17"/>
+  <g id="svg_18"/>
+  <g id="svg_19"/>
+  <g id="svg_20"/>
+  <g id="svg_21"/>
+  <g id="svg_22"/>
+  <g id="svg_23"/>
+  <g id="svg_24"/>
+  <g id="svg_25"/>
+  <g id="svg_26"/>
+  <g id="svg_27"/>
+  <g stroke="null" id="svg_28">
+   <g stroke="null" id="svg_1">
+    <g stroke="null" id="svg_2">
+     <path stroke="null" id="svg_3" fill="#0000ff" d="m368.03577,7.51731c-18.38885,-10.1638 -39.97955,-9.9288 -58.25089,0.14688l214.14487,197.54787l71.93976,-71.93974l-227.83374,-125.755z"/>
+    </g>
+   </g>
+   <g stroke="null" id="svg_4">
+    <g stroke="null" id="svg_5">
+     <path stroke="null" id="svg_6" fill="#0000ff" d="m288.37036,27.87428c-5.22876,8.54817 -8.22504,18.3301 -8.22504,28.69952l0,356.79057c0,10.0463 2.73187,19.62259 7.6669,27.99451l215.34927,-215.34921l-214.79114,-198.13539z"/>
+    </g>
+   </g>
+   <g stroke="null" id="svg_7">
+    <g stroke="null" id="svg_8">
+     <path stroke="null" id="svg_9" fill="#0000ff" d="m690.33252,185.91258l-68.6203,-37.86456l-77.10968,77.08038l94.49969,87.15608l51.25977,-28.28827c18.44757,-10.22256 29.49268,-28.55263 29.49268,-49.0565c-0.02942,-20.50385 -11.0451,-38.83395 -29.52216,-49.02713z"/>
+    </g>
+   </g>
+   <g stroke="null" id="svg_10">
+    <g stroke="null" id="svg_11">
+     <path stroke="null" id="svg_12" fill="#0000ff" d="m524.7522,245.92601l-215.93671,215.93675c9.37064,5.34625 19.65198,8.16626 29.992,8.16626c9.98755,0 20.03387,-2.52628 29.22827,-7.60815l244.90063,-135.15506l-88.1842,-81.3398z"/>
+    </g>
+   </g>
+  </g>
+  <text font-weight="bold" xml:space="preserve" text-anchor="start" font-family="Oswald, sans-serif" font-size="220" id="svg_29" y="669.39063" x="188.14844" stroke-width="0" fill="#000000">GPlay</text>
+ </g>
+</svg>

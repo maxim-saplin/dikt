@@ -107,9 +107,8 @@ class MyApp extends StatelessWidget {
                   ],
                   navigatorKey: _navigator,
                   navigatorObservers: preferences.isAnalyticsEnabled &&
-                          (!_firebaseError && kIsWeb ||
-                              Platform.isAndroid ||
-                              Platform.isIOS)
+                          !_firebaseError &&
+                          (kIsWeb || Platform.isAndroid || Platform.isIOS)
                       ? [
                           AnalyticsObserver(analytics: analytics),
                         ]

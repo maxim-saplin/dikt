@@ -46,7 +46,7 @@
   };
   // Initialize Firebase, apply Ad Block workaround
   if (typeof firebase.analytics !== "function") {
-    firebase.analytics = () => console.log("Adblocker detected, no Firebase analytics");
+    firebase.analytics = () => console.log("No Firebase analytics APIs avaialble, probably Ad Blocker");
   }
   else {
     firebase.initializeApp(firebaseConfig);
