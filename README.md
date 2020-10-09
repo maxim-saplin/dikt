@@ -6,7 +6,14 @@ WordNet® 3 (large lexical dictionary of English) is bundled with the app. Other
 
 ## Try/Download
 
-<img src="https://raw.githubusercontent.com/maxim-saplin/dikt/master/_misc/links.svg"/>
+<div align="center">
+	<br>
+	<a href="https://raw.githubusercontent.com/maxim-saplin/dikt/master/_misc/links.svg">
+		<img src="https://raw.githubusercontent.com/maxim-saplin/dikt/master/_misc/links.svg" width="800" height="400">
+	</a>
+	<br>
+</div>
+
 <br/>
 
 <img align="left" src="https://raw.githubusercontent.com/maxim-saplin/dikt/master/_misc/1.gif" width="360"/>
