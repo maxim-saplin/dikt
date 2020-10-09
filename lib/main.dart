@@ -24,10 +24,17 @@ import './common/i18n.dart';
 import 'ui/routes.dart';
 //import 'package:dictionary_bundler/main.dart' show test;
 
+// Ad Blockers can break app due to exception in Firebase
+bool _firebaseError = false;
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  if (kIsWeb || Platform.isAndroid || Platform.isIOS)
-    await Firebase.initializeApp();
+  try {
+    if (kIsWeb || Platform.isAndroid || Platform.isIOS)
+      await Firebase.initializeApp();
+  } catch (_) {
+    _firebaseError = true;
+  }
   await PreferencesSingleton.init();
   await DictionaryManager.init();
 
@@ -39,15 +46,22 @@ void main() async {
   runApp(MyApp());
 }
 
-//final _scaffoldKey = GlobalKey<ScaffoldState>();
-
 class MyApp extends StatelessWidget {
   final GlobalKey<NavigatorState> _navigator = GlobalKey<NavigatorState>();
-  static final FirebaseAnalytics analytics = FirebaseAnalytics();
+  static FirebaseAnalytics analytics;
+
+  MyApp() {
+    if (!_firebaseError && analytics == null) {
+      try {
+        analytics = FirebaseAnalytics();
+      } catch (_) {
+        _firebaseError = true;
+      }
+    }
+  }
 
   Scaffold _getScaffold(Widget child) {
     return Scaffold(
-        //key: _scaffoldKey,
         body: DoubleBackToCloseApp(
             snackBar: SnackBar(
               content: Text('Tap back again to quit'.i18n),
@@ -93,7 +107,9 @@ class MyApp extends StatelessWidget {
                   ],
                   navigatorKey: _navigator,
                   navigatorObservers: preferences.isAnalyticsEnabled &&
-                          (kIsWeb || Platform.isAndroid || Platform.isIOS)
+                          (!_firebaseError && kIsWeb ||
+                              Platform.isAndroid ||
+                              Platform.isIOS)
                       ? [
                           AnalyticsObserver(analytics: analytics),
                         ]

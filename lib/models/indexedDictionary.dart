@@ -26,7 +26,10 @@ class IndexedDictionary extends HiveObject {
   }
 
   Future<LazyBox<Uint8List>> openBox() async {
-    if (!Hive.isBoxOpen(boxName)) return await Hive.openLazyBox(boxName);
+    if (!Hive.isBoxOpen(boxName)) {
+      isLoaded = true;
+      return await Hive.openLazyBox(boxName);
+    }
     return box;
   }
 

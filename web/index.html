@@ -44,9 +44,14 @@
     appId: "1:836172780916:web:39d8e47bd5c012e8ec4821",
     measurementId: "G-41JM08X897"
   };
-  // Initialize Firebase
-  firebase.initializeApp(firebaseConfig);
-  firebase.analytics();
+  // Initialize Firebase, apply Ad Block workaround
+  if (typeof firebase.analytics !== "function") {
+    firebase.analytics = () => console.log("Adblocker detected, no Firebase analytics");
+  }
+  else {
+    firebase.initializeApp(firebaseConfig);
+    firebase.analytics();
+  }
 </script>
   <script src="main.dart.js" type="application/javascript"></script>
 </body>

@@ -1,9 +1,9 @@
 # This is a generated file; do not edit or check into version control.
 file_chooser=/private/var/user/flutter/.pub-cache/git/flutter-desktop-embedding-5b3b930da18244ecf2a7140a0e33a9892273797c/plugins/file_chooser/
-file_picker=/private/var/user/flutter/.pub-cache/hosted/pub.dartlang.org/file_picker-2.0.6/
-firebase_analytics=/private/var/user/flutter/.pub-cache/hosted/pub.dartlang.org/firebase_analytics-6.0.1/
+file_picker=/private/var/user/flutter/.pub-cache/hosted/pub.dartlang.org/file_picker-2.0.7/
+firebase_analytics=/private/var/user/flutter/.pub-cache/hosted/pub.dartlang.org/firebase_analytics-6.0.2/
 firebase_analytics_web=/private/var/user/flutter/.pub-cache/hosted/pub.dartlang.org/firebase_analytics_web-0.1.1/
-firebase_core=/private/var/user/flutter/.pub-cache/hosted/pub.dartlang.org/firebase_core-0.5.0/
+firebase_core=/private/var/user/flutter/.pub-cache/hosted/pub.dartlang.org/firebase_core-0.5.0+1/
 firebase_core_web=/private/var/user/flutter/.pub-cache/hosted/pub.dartlang.org/firebase_core_web-0.2.0/
 flutter_plugin_android_lifecycle=/private/var/user/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_plugin_android_lifecycle-1.0.11/
 fluttertoast=/private/var/user/flutter/.pub-cache/hosted/pub.dartlang.org/fluttertoast-7.0.1/
