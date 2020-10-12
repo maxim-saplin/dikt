@@ -136,7 +136,6 @@ class DictionaryManager extends ChangeNotifier {
 
   static Future<void> init() async {
     await Hive.initFlutter();
-    //testArrays(['One', 'Two'], [utf8.encode('One'), utf8.encode('One')]);
     Hive.registerAdapter(IndexedDictionaryAdapter());
     _dictionaries = await Hive.openBox(dictionairesBoxName);
   }
@@ -146,10 +145,10 @@ class DictionaryManager extends ChangeNotifier {
   Future<void> get partiallyLoaded {
     return _partiallyLoaded?.future;
   }
-  //Completer<void> _fullyLoaded;
 
-  Future<void> loadDictionaries() async {
+  Future<void> indexAndLoadDictionaries() async {
     _isRunning = true;
+    _canceled = false;
     _partiallyLoaded = Completer();
 
     _currentOperation = ManagerCurrentOperation.preparing;
@@ -166,12 +165,19 @@ class DictionaryManager extends ChangeNotifier {
   }
 
   void _initDictionaryCollections() {
-    _dictionariesReadyList = new List<IndexedDictionary>();
+    _dictionariesAllList = List<IndexedDictionary>();
+
     for (var i = 0; i < _dictionaries.length; i++) {
       var d = _dictionaries.getAt(i);
+      _dictionariesAllList.add(d);
+    }
+
+    _sortAllDictionariesByOrder();
+
+    _dictionariesReadyList = List<IndexedDictionary>();
+    for (var d in _dictionariesAllList) {
       if (d.isReadyToUse) _dictionariesReadyList.add(d);
     }
-    _sortReadyDictionaries();
 
     _dictionariesEnabledList = new List<IndexedDictionary>();
     for (var i = 0; i < _dictionariesReadyList.length; i++) {
@@ -180,13 +186,13 @@ class DictionaryManager extends ChangeNotifier {
     }
   }
 
-  void _sortReadyDictionaries() {
-    _dictionariesReadyList.sort((a, b) {
+  void _sortAllDictionariesByOrder() {
+    _dictionariesAllList.sort((a, b) {
       if (a.order == null || b.order == null) return 0;
       return a.order - b.order;
     });
     var i = 0;
-    for (var d in _dictionariesReadyList) {
+    for (var d in _dictionariesAllList) {
       d.order = i;
       i++;
       d.save();
@@ -237,6 +243,11 @@ class DictionaryManager extends ChangeNotifier {
     }
   }
 
+  Future reindexBundledDictionaries(String boxName) async {
+    _dictionaries.delete(boxName);
+    indexAndLoadDictionaries();
+  }
+
   Future _checkAndIndexBundledDictionaries() async {
     _dictionariesBeingProcessed = List<DictionaryBeingProcessed>();
 
@@ -244,6 +255,8 @@ class DictionaryManager extends ChangeNotifier {
       if (!_dictionaries.containsKey(i.boxName)) {
         _dictionariesBeingProcessed
             .add(DictionaryBeingProcessed.bundledJson(i));
+      } else {
+        _dictionaries.get(i.boxName).isBundled = true;
       }
     }
 
@@ -251,6 +264,8 @@ class DictionaryManager extends ChangeNotifier {
       if (!_dictionaries.containsKey(i.boxName)) {
         _dictionariesBeingProcessed
             .add(DictionaryBeingProcessed.bundledBinary(i));
+      } else {
+        _dictionaries.get(i.boxName).isBundled = true;
       }
     }
 
@@ -294,6 +309,8 @@ class DictionaryManager extends ChangeNotifier {
     for (var i = 0; i < dictionariesProcessed.length; i++) {
       if (_canceled) break;
       var d = IndexedDictionary();
+      d.isBundled = dictionariesProcessed[i].bundledBinaryDictionary != null ||
+          dictionariesProcessed[i].bundledJsonDictionary != null;
       d.name = dictionariesProcessed[i].name;
 
       print('  /Dictionary: ' + d.name);
@@ -311,16 +328,27 @@ class DictionaryManager extends ChangeNotifier {
       try {
         await _curIndexer.run();
 
-        d.isReadyToUse = true;
-        d.isLoaded = true;
+        if (!_curIndexer.canceled) {
+          d.isReadyToUse = true;
+          d.isLoaded = true;
 
-        d.save();
+          d.save();
+        } else if (!d.isBundled) {
+          _dictionaries.delete(d.boxName);
+          d.delete();
+        }
         dictionariesProcessed[i].state = DictionaryBeingProcessedState.success;
         notifyListeners();
         if (i == dictionariesProcessed.length - 1 && finished != null)
           finished.complete();
       } catch (err) {
         d.isError = true;
+
+        if (!d.isBundled) {
+          _dictionaries.delete(d.boxName);
+          d.delete();
+        }
+
         print("Error indexing box: " + d.boxName + "\n" + err.toString());
         dictionariesProcessed[i].state = DictionaryBeingProcessedState.error;
         notifyListeners();
@@ -381,6 +409,12 @@ class DictionaryManager extends ChangeNotifier {
     _canceled = true;
     _isRunning = false;
     notifyListeners();
+  }
+
+  List<IndexedDictionary> _dictionariesAllList = [];
+
+  List<IndexedDictionary> get dictionariesAll {
+    return _dictionariesAllList;
   }
 
   List<IndexedDictionary> _dictionariesReadyList = [];
@@ -485,7 +519,16 @@ class IsolateParams {
 
 abstract class Indexer {
   Future<void> run() async {}
-  void cancel() {}
+
+  bool _canceled = false;
+
+  bool get canceled {
+    return _canceled;
+  }
+
+  void cancel() {
+    _canceled = true;
+  }
 }
 
 class FileIndexer extends Indexer {
@@ -493,13 +536,8 @@ class FileIndexer extends Indexer {
   final Completer<void> runCompleter = Completer<void>();
   final LazyBox<Uint8List> box;
   final Function(int progressPercent) updateProgress;
-  bool _canceled = false;
 
   FileIndexer(this.file, this.box, this.updateProgress);
-
-  void cancel() {
-    _canceled = true;
-  }
 
   Future<void> run() async {
     var path = this.file.path ?? this.file.name;
@@ -567,13 +605,8 @@ class WebIndexer extends Indexer {
   final Completer<void> runCompleter = Completer<void>();
   final LazyBox<Uint8List> box;
   final Function(int progressPercent) updateProgress;
-  bool _canceled = false;
 
   WebIndexer(this.file, this.box, this.updateProgress);
-
-  void cancel() {
-    _canceled = true;
-  }
 
   Future<void> run() async {
     print(file.path ?? file.name + '\n');
@@ -649,6 +682,7 @@ class BundledBinaryIndexer extends Indexer {
     sw.start();
     var file = await rootBundle.load(assetName);
     updateProgress(3);
+    if (_canceled) return null;
 
     try {
       var m = Map<String, Uint8List>();
@@ -689,6 +723,7 @@ class BundledBinaryIndexer extends Indexer {
         }
         var p = (counter / count * 97).round();
         if (p != curr) {
+          if (_canceled) return null;
           curr = p;
           if (kIsWeb) {
             await toFuture(bulkInsert(db, keys, values));
@@ -718,7 +753,6 @@ class BundledBinaryIndexer extends Indexer {
 
 class BundledJsonIndexer extends Indexer {
   final String namePattern;
-  //final Completer<void> completer;
   final Completer<void> runCompleter = Completer<void>();
   final LazyBox<Uint8List> box;
   final int maxFile;

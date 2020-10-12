@@ -20,7 +20,7 @@ class MasterDictionary extends ChangeNotifier {
 
   void init() {
     print('Master dictionary init started: ' + DateTime.now().toString());
-    dictionaryManager.loadDictionaries().then((value) {
+    dictionaryManager.indexAndLoadDictionaries().then((value) {
       isFullyLoaded = true;
       isPartiallyLoaded = true;
       print('Master dictionary init completed: ' + DateTime.now().toString());

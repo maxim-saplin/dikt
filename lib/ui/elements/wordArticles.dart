@@ -31,6 +31,7 @@ class WordArticles extends StatelessWidget {
                     controller: scrollController,
                     child: Scrollbar(
                         child: CustomScrollView(
+                      physics: BouncingScrollPhysics(),
                       semanticChildCount: list.length,
                       scrollDirection: Axis.vertical,
                       shrinkWrap: true,

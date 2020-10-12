@@ -86,8 +86,8 @@ class LookupWords extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Widget sv = CustomScrollView(
+      physics: BouncingScrollPhysics(),
       slivers: [
-        //SliverToBoxAdapter(child: SizedBox(height: 12)),
         SliverList(
           delegate: SliverChildBuilderDelegate((context, index) {
             return _Entry(index, dictionary, history, narrow);

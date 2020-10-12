@@ -14,9 +14,11 @@ class IndexedDictionary extends HiveObject {
   String name;
   @HiveField(3)
   bool
-      isReadyToUse; //e.g. indexing can fail in the process, created though not complete box must be deleted
+      isReadyToUse; //set to false before starting indexing and to true when done. E.g. if you reload page or close app while indexing it won't be ready
+  // error while indexing
   bool isError = false;
   bool isLoaded = false;
+  bool isBundled = false;
 
   //LazyBox<Uint8List> _box = null;
 
