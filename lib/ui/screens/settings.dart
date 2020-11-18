@@ -29,7 +29,7 @@ class Settings extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text('Theme'.i18n),
-                OutlineButton(
+                OutlinedButton(
                   child: Text(model.theme.i18n),
                   onPressed: () => model.circleThemeMode(),
                 )
@@ -38,7 +38,7 @@ class Settings extends StatelessWidget {
             SizedBox(height: 10),
             Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
               Text('Language'.i18n),
-              OutlineButton(
+              OutlinedButton(
                 child: Text(model.locale.languageCode.i18n),
                 onPressed: () => model.circleLocale(),
               )
@@ -46,7 +46,7 @@ class Settings extends StatelessWidget {
             SizedBox(height: 10),
             Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
               Text('Analytics'.i18n),
-              OutlineButton(
+              OutlinedButton(
                 child: Text(model.isAnalyticsEnabled ? 'On'.i18n : 'Off'.i18n),
                 onPressed: () => model.circleAnalyticsEnabled(),
               )
@@ -56,7 +56,7 @@ class Settings extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.end,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  OutlineButton(
+                  OutlinedButton(
                     child: Text('Clear History'.i18n),
                     onPressed: () {
                       Provider.of<History>(context, listen: false).clear();

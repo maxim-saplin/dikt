@@ -256,7 +256,6 @@ class Keystore<E> {
 
     for (var frame in frameList) {
       if (frame.value is HiveObject) {
-        // ignore: invalid_use_of_protected_member
         (frame.value as HiveObject).dispose();
       }
       _notifier.notify(Frame.deleted(frame.key));

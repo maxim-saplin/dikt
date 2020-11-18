@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../routes.dart';
 import '../screens/settings.dart';
 import '../../common/simpleSimpleDialog.dart';
 import '../screens/dictionaries.dart';
@@ -26,13 +27,13 @@ class TopButtons extends StatelessWidget {
                             context: context,
                             barrierColor:
                                 !kIsWeb ? Colors.transparent : Colors.black54,
-                            routeSettings: RouteSettings(name: '/dictionaries'),
+                            routeSettings:
+                                RouteSettings(name: Routes.dictionariesOffline),
                             builder: (BuildContext context) {
                               return SimpleSimpleDialog(
-                                  maxWidth: 500,
-                                  title: Text('Dictionaries'),
+                                  maxWidth: 800,
                                   alignment: Alignment.center,
-                                  children: [Dictionaries()]);
+                                  children: [Dictionaries(true)]);
                             });
                       }),
                   IconButton(

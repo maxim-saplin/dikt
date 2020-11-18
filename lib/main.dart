@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io' show Platform;
 
 import 'package:dikt/common/preferencesSingleton.dart';
+import 'package:double_back_to_close/double_back_to_close.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
@@ -11,7 +12,6 @@ import 'package:i18n_extension/i18n_widget.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
-import 'package:double_back_to_close_app/double_back_to_close_app.dart';
 
 import './models/masterDictionary.dart';
 import './models/preferences.dart';
@@ -62,11 +62,7 @@ class MyApp extends StatelessWidget {
 
   Scaffold _getScaffold(Widget child) {
     return Scaffold(
-        body: DoubleBackToCloseApp(
-            snackBar: SnackBar(
-              content: Text('Tap back again to quit'.i18n),
-            ),
-            child: child));
+        body: DoubleBack(message: 'Tap back again to quit'.i18n, child: child));
   }
 
   static bool _wide;
@@ -183,52 +179,58 @@ class MyApp extends StatelessWidget {
   }
 
   final ThemeData lightTheme = ThemeData.light().copyWith(
+      outlinedButtonTheme: OutlinedButtonThemeData(
+          style: ButtonStyle(
+              foregroundColor: MaterialStateProperty.all<Color>(Colors.black))),
+      inputDecorationTheme: InputDecorationTheme(
+          focusedBorder: InputBorder.none,
+          border: InputBorder.none,
+          labelStyle: TextStyle(
+              fontSize: 18, fontFamily: 'Montserrat', color: Colors.red)),
       textTheme: TextTheme(
-    button: TextStyle(
-      fontSize: 18,
-      fontFamily: 'Montserrat',
-    ),
-    headline6: TextStyle(
-      fontSize: 20.0,
-      color: Colors.black,
-      fontFamily: 'Montserrat',
-      fontWeight: FontWeight.bold,
-    ),
-    // standard TextField()
-    subtitle1: TextStyle(
-      fontSize: 20.0,
-      fontFamily: 'Montserrat',
-      color: Colors.black,
-    ),
-    subtitle2: TextStyle(
-      fontSize: 16.0,
-      fontFamily: 'Montserrat',
-      fontStyle: FontStyle.italic,
-      color: Colors.black.withAlpha(128),
-    ),
-    // standard Text()
-    bodyText2: TextStyle(
-        fontSize: 20.0, fontFamily: 'Montserrat', color: Colors.black),
-    // italic Text()
-    bodyText1: TextStyle(
-        fontSize: 20.0,
-        fontFamily: 'Montserrat',
-        fontStyle: FontStyle.italic,
-        color: Colors.black),
-    // Dictionary card, dictionary  name
-    caption: TextStyle(
-        fontSize: 17.0, fontFamily: 'Montserrat', color: Colors.black),
-  ));
+        button: TextStyle(
+            fontSize: 18, fontFamily: 'Montserrat', color: Colors.black),
+        headline6: TextStyle(
+          fontSize: 20.0,
+          color: Colors.black,
+          fontFamily: 'Montserrat',
+          fontWeight: FontWeight.bold,
+        ),
+        // standard TextField()
+        subtitle1: TextStyle(
+          fontSize: 20.0,
+          fontFamily: 'Montserrat',
+          color: Colors.black,
+        ),
+        subtitle2: TextStyle(
+          fontSize: 16.0,
+          fontFamily: 'Montserrat',
+          fontStyle: FontStyle.italic,
+          color: Colors.black.withAlpha(128),
+        ),
+        // standard Text()
+        bodyText2: TextStyle(
+            fontSize: 20.0, fontFamily: 'Montserrat', color: Colors.black),
+        // italic Text()
+        bodyText1: TextStyle(
+            fontSize: 20.0,
+            fontFamily: 'Montserrat',
+            fontStyle: FontStyle.italic,
+            color: Colors.black),
+        // Dictionary card, dictionary  name
+        caption: TextStyle(
+            fontSize: 17.0, fontFamily: 'Montserrat', color: Colors.black),
+      ));
 
   final ThemeData darkTheme = ThemeData.dark().copyWith(
       cardColor: Color.fromARGB(255, 50, 50, 50),
       scaffoldBackgroundColor: Color.fromARGB(255, 40, 40, 40),
       dialogBackgroundColor: Color.fromARGB(255, 50, 50, 50),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+          style: ButtonStyle(
+              foregroundColor: MaterialStateProperty.all<Color>(Colors.white))),
       textTheme: TextTheme(
-        button: TextStyle(
-          fontSize: 18,
-          fontFamily: 'Montserrat',
-        ),
+        button: TextStyle(fontSize: 18, fontFamily: 'Montserrat'),
         headline6: TextStyle(
           fontSize: 20.0,
           color: Colors.white,
