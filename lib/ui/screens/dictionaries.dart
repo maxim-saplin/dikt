@@ -55,7 +55,8 @@ class Dictionaries extends StatelessWidget {
               )),
           Padding(
               padding: EdgeInsets.fromLTRB(12, 50, 12, 12),
-              child: _offline ? OfflineDictionaries() : OnlineDictionaries())
+              child: //Text('TEST')
+                  _offline ? OfflineDictionaries() : OnlineDictionaries())
         ]));
   }
 }
@@ -64,7 +65,7 @@ class OnlineDictionaries extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return IntrinsicHeight(
-        child: Column(children: [
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
       Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
         Text('IFPS Repo'),
         SizedBox(width: 10),
@@ -78,7 +79,7 @@ class OnlineDictionaries extends StatelessWidget {
                         .color
                         .withAlpha(155)),
                 initialValue:
-                    'https://ipfs.io/ipfs/QmWByPsvVmTH7fMoSWFxECTWgnYJRcCZmdFzhLNhejqHzm?filename=Vanquish.exe'))
+                    'https://ipfs.io/ipfs/QmWByPsvVmTH7fMoSWFxECTWgnYJRcCZmdFzhLNhejqHzm'))
       ]),
       Container(
           padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
@@ -173,58 +174,58 @@ class _OfflineDictionariesState extends State<OfflineDictionaries> {
               context: context,
               barrierColor: !kIsWeb ? Colors.transparent : Colors.black54,
               routeSettings: RouteSettings(name: '/dic_import_error'),
-              child: AlertDialog(
-                title: Text('There\'re issues...'.i18n),
-                content: IntrinsicHeight(child: ManagerState()),
-                actions: [
-                  FlatButton(
-                      child: Text('OK'),
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      }),
-                ],
-              ));
+              builder: (context) => AlertDialog(
+                    title: Text('There\'re issues...'.i18n),
+                    content: IntrinsicHeight(child: ManagerState()),
+                    actions: [
+                      FlatButton(
+                          child: Text('OK'),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          }),
+                    ],
+                  ));
         });
       }
     }
 
-    return Stack(children: [
-      Positioned(
-          bottom: 0,
-          left: 0,
-          right: 0,
-          child: DragTarget(onAccept: (index) {
+    return Container(
+        width: 400,
+        child: Stack(alignment: AlignmentDirectional.bottomCenter, children: [
+          DragTarget(onAccept: (index) {
             _cancelReorder = true;
             showDialog(
                 context: context,
                 barrierColor: !kIsWeb ? Colors.transparent : Colors.black54,
                 routeSettings: RouteSettings(name: '/delete_dic'),
-                child: AlertDialog(
-                  content: Text('Delete_dic'
-                      .i18n
-                      .fill([manager.dictionariesReady[index].name])),
-                  actions: [
-                    FlatButton(
-                      child: Text('Delete'.i18n),
-                      onPressed: () {
-                        manager.deleteReadyDictionary(index);
-                        Provider.of<MasterDictionary>(context, listen: false)
-                            ?.notify();
-                        Navigator.of(context).pop();
-                      },
-                    ),
-                    FlatButton(
-                      child: Text('Cancel'.i18n),
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                    )
-                  ],
-                ));
+                builder: (context) => AlertDialog(
+                      content: Text('Delete_dic'
+                          .i18n
+                          .fill([manager.dictionariesReady[index].name])),
+                      actions: [
+                        FlatButton(
+                          child: Text('Delete'.i18n),
+                          onPressed: () {
+                            manager.deleteReadyDictionary(index);
+                            Provider.of<MasterDictionary>(context,
+                                    listen: false)
+                                ?.notify();
+                            Navigator.of(context).pop();
+                          },
+                        ),
+                        FlatButton(
+                          child: Text('Cancel'.i18n),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                        )
+                      ],
+                    ));
           }, onWillAccept: (data) {
             return true;
           }, builder: (context, List<int> candidateData, rejectedData) {
             return Container(
+              width: 280,
               padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
               height: 40,
               child: Center(
@@ -263,56 +264,59 @@ class _OfflineDictionariesState extends State<OfflineDictionaries> {
                                 ]))
                       : Center(child: Text('DELETE'.i18n))),
             );
-          })),
-      manager.isRunning
-          ? IntrinsicHeight(child: ManagerState())
-          : Padding(
-              padding: EdgeInsets.fromLTRB(0, 0, 0, 40),
-              child: CustomScrollView(
-                controller: _scrollController,
-                shrinkWrap: true,
-                slivers: <Widget>[
-                  ReorderableSliverList(
-                    delegate: ReorderableSliverChildListDelegate(manager
-                        .dictionariesAll
-                        .map((e) => Opacity(
-                            opacity:
-                                !e.isEnabled || !e.isReadyToUse ? 0.5 : 1.0,
-                            child: Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  Container(
-                                      width: 30,
-                                      height: 50,
-                                      child: FlatButton(
-                                        child: Text(
-                                          !e.isReadyToUse && e.isBundled
-                                              ? '↻'
-                                              : (e.isEnabled ? '↘' : '↓'),
-                                          style: TextStyle(fontSize: 28),
-                                        ),
-                                        padding: EdgeInsets.all(3),
-                                        onPressed: () {
-                                          if (e.isError) return;
-
-                                          if (!e.isReadyToUse && e.isBundled) {
-                                            manager.reindexBundledDictionaries(
-                                                e.boxName);
-                                          } else {
-                                            manager.switchIsEnabled(e);
-                                            Provider.of<MasterDictionary>(
-                                                    context,
-                                                    listen: false)
-                                                ?.notify();
-                                          }
-                                        },
-                                      )),
-                                  Expanded(
-                                      child: Container(
+          }),
+          manager.isRunning
+              ? Padding(
+                  padding: EdgeInsets.fromLTRB(0, 0, 0, 48),
+                  child: IntrinsicHeight(child: ManagerState()))
+              : Padding(
+                  padding: EdgeInsets.fromLTRB(0, 0, 0, 40),
+                  child: CustomScrollView(
+                    controller: _scrollController,
+                    shrinkWrap: true,
+                    slivers: <Widget>[
+                      ReorderableSliverList(
+                        delegate: ReorderableSliverChildListDelegate(manager
+                            .dictionariesAll
+                            .map((e) => Opacity(
+                                opacity:
+                                    !e.isEnabled || !e.isReadyToUse ? 0.5 : 1.0,
+                                child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: [
+                                      Container(
+                                          width: 30,
+                                          height: 50,
+                                          child: FlatButton(
+                                            child: Text(
+                                              !e.isReadyToUse && e.isBundled
+                                                  ? '↻'
+                                                  : (e.isEnabled ? '↘' : '↓'),
+                                              style: TextStyle(fontSize: 28),
+                                            ),
+                                            padding: EdgeInsets.all(3),
+                                            onPressed: () {
+                                              if (e.isError) return;
+                                              if (!e.isReadyToUse &&
+                                                  e.isBundled) {
+                                                manager
+                                                    .reindexBundledDictionaries(
+                                                        e.boxName);
+                                              } else {
+                                                manager.switchIsEnabled(e);
+                                                Provider.of<MasterDictionary>(
+                                                        context,
+                                                        listen: false)
+                                                    ?.notify();
+                                              }
+                                            },
+                                          )),
+                                      Container(
                                           padding:
                                               EdgeInsets.fromLTRB(6, 0, 0, 0),
                                           height: 55,
                                           child: Column(
+                                              mainAxisSize: MainAxisSize.min,
                                               mainAxisAlignment:
                                                   MainAxisAlignment.center,
                                               crossAxisAlignment:
@@ -366,15 +370,15 @@ class _OfflineDictionariesState extends State<OfflineDictionaries> {
                                                             return Text('...');
                                                           }
                                                         })
-                                              ]))),
-                                ])))
-                        .toList()),
-                    onReorder: _onReorder,
-                    onDragging: _onDragging,
-                    onNoReorder: _onCancel,
-                  )
-                ],
-              ))
-    ]);
+                                              ])),
+                                    ])))
+                            .toList()),
+                        onReorder: _onReorder,
+                        onDragging: _onDragging,
+                        onNoReorder: _onCancel,
+                      )
+                    ],
+                  ))
+        ]));
   }
 }

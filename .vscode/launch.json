@@ -15,7 +15,8 @@
       "name": "Flutter Debug",
       "request": "launch",
       "type": "dart",
-      "flutterMode" : "debug"
+      "flutterMode" : "debug",
+      "program" : "lib/main.dart"
     },
     {
       "name": "Flutter Release",

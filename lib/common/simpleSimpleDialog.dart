@@ -138,7 +138,7 @@ class SimpleSimpleDialog extends StatelessWidget {
       constraints: BoxConstraints(minWidth: 280.0, maxWidth: maxWidth),
       child: Column(
         mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           if (children != null)
             Flexible(
