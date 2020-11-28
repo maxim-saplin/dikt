@@ -14,6 +14,7 @@ import '../../models/masterDictionary.dart';
 import '../../common/i18n.dart';
 import '../elements/managerState.dart';
 import '../routes.dart';
+import '../../models/onlineDictionaries.dart';
 
 class Dictionaries extends StatelessWidget {
   static bool toastShown = false;
@@ -64,6 +65,8 @@ class Dictionaries extends StatelessWidget {
 class OnlineDictionaries extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    var od = Provider.of<OnlineDictionaryManager>(context);
+
     return IntrinsicHeight(
         child: Column(mainAxisSize: MainAxisSize.min, children: [
       Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
@@ -71,6 +74,9 @@ class OnlineDictionaries extends StatelessWidget {
         SizedBox(width: 10),
         Expanded(
             child: TextFormField(
+                onChanged: (value) {
+                  od.repoUrl = value;
+                },
                 style: TextStyle(
                     fontStyle: FontStyle.italic,
                     color: Theme.of(context)
@@ -78,11 +84,32 @@ class OnlineDictionaries extends StatelessWidget {
                         .bodyText1
                         .color
                         .withAlpha(155)),
-                initialValue:
-                    'https://ipfs.io/ipfs/QmWByPsvVmTH7fMoSWFxECTWgnYJRcCZmdFzhLNhejqHzm'))
+                initialValue: OnlineDictionaryManager.defaultUrl)),
       ]),
+      od.loading
+          ? Padding(
+              padding: EdgeInsets.fromLTRB(0, 0, 0, 6),
+              child: LinearProgressIndicator(
+                minHeight: 4,
+              ))
+          : SizedBox(
+              height: 10,
+            ),
+      od.loading
+          ? Text('Loading...')
+          : (od.repoError != null
+              ? Text(od.repoError)
+              : (od.dictionaries == null || od.dictionaries.length == 0
+                  ? Text('No dictonaries in the repository')
+                  : Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: od.dictionaries
+                          .map((e) => Container(
+                              padding: EdgeInsets.all(5),
+                              child: Text(e.name + '\n' + e.url)))
+                          .toList()))),
       Container(
-          padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
+          padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
           height: 40,
           child: Align(
               alignment: Alignment.center,

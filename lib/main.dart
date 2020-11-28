@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io' show Platform;
 
 import 'package:dikt/common/preferencesSingleton.dart';
+import 'package:dikt/models/onlineDictionaries.dart';
 import 'package:double_back_to_close/double_back_to_close.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -75,6 +76,9 @@ class MyApp extends StatelessWidget {
         providers: [
           ChangeNotifierProvider<DictionaryManager>(
             create: (context) => DictionaryManager(),
+          ),
+          ChangeNotifierProvider<OnlineDictionaryManager>(
+            create: (context) => OnlineDictionaryManager(FakeOnlineRepo()),
           ),
           ChangeNotifierProvider<Preferences>(
             create: (context) => Preferences(),

@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 
 import '../common/preferencesSingleton.dart';
+import '../common/debounceMixin.dart';
 
-class OnlineDictionaries extends ChangeNotifier {
+class OnlineDictionaryManager extends ChangeNotifier with Debounce {
   static const String defaultUrl =
       'https://ipfs.io/ipfs/QmWByPsvVmTH7fMoSWFxECTWgnYJRcCZmdFzhLNhejqHzm';
 
@@ -10,7 +13,7 @@ class OnlineDictionaries extends ChangeNotifier {
 
   static const String repoUrlParam = 'repoUrl';
 
-  OnlineDictionaries(this._repo);
+  OnlineDictionaryManager(this._repo);
 
   String _repoUrl;
 
@@ -23,28 +26,66 @@ class OnlineDictionaries extends ChangeNotifier {
 
   set repoUrl(String value) {
     if (value != _repoUrl) {
-      try {
-        _repo.setAndVerifyUrl(value);
-        _repoOk = true;
-      } catch (_) {
-        _repoOk = false;
+      var err = _repo.verifyUrl(value);
+
+      if (err != null)
+        _repoError = err;
+      else {
+        _repoUrl = value;
+        debounce(_loadDictionaries, 400);
       }
+    }
+  }
 
-      _repoUrl = value;
-      PreferencesSingleton.sp.setString(repoUrlParam, value);
+  void _loadDictionaries() {
+    _loading = true;
+    _repo.getDictionariesList(repoUrl).then((value) {
+      _loading = false;
+      _repoError = null;
+      _dictionaries = value;
+      PreferencesSingleton.sp.setString(repoUrlParam, repoUrl);
+    }).catchError((err) {
+      _loading = false;
+      _repoError = err.toString();
+    });
+  }
 
+  bool _dictionariesRequested = false;
+
+  List<OnlineDictionary> _dictionaries;
+
+  List<OnlineDictionary> get dictionaries {
+    if (!_dictionariesRequested) {
+      _dictionariesRequested = true;
+      Timer.run(() => _loadDictionaries());
+    }
+    return _dictionaries;
+  }
+
+  String __repoError;
+
+  String get repoError {
+    return __repoError;
+  }
+
+  set _repoError(String value) {
+    if (value != __repoError) {
+      __repoError = value;
       notifyListeners();
     }
   }
 
-  List<OnlineDictionary> get dictionaries {
-    return null;
+  bool __loading = false;
+
+  bool get loading {
+    return __loading;
   }
 
-  bool _repoOk = false;
-
-  bool get repoOk {
-    return _repoOk;
+  set _loading(bool value) {
+    if (value != __loading) {
+      __loading = value;
+      notifyListeners();
+    }
   }
 }
 
@@ -58,17 +99,13 @@ class OnlineDictionary {
 }
 
 abstract class OnlineRepo {
-  String _url;
+  String verifyUrl(String url) {
+    if (url == null || url == '') return 'URL can\'t be empty';
 
-  String get url {
-    return _url;
+    return null;
   }
 
-  void setAndVerifyUrl(value) {
-    _url = value;
-  }
-
-  List<OnlineDictionary> getDictionariesList();
+  Future<List<OnlineDictionary>> getDictionariesList(String url);
 }
 
 class FakeOnlineRepo extends OnlineRepo {
@@ -98,11 +135,16 @@ class FakeOnlineRepo extends OnlineRepo {
   static const String defaultUrl =
       'https://ipfs.io/ipfs/QmWByPsvVmTH7fMoSWFxECTWgnYJRcCZmdFzhLNhejqHzm';
 
-  @override
-  List<OnlineDictionary> getDictionariesList() {
-    if (url == null) throw 'URL not set';
-    if (url == defaultUrl) return dictionaries.toList();
+  static const Duration _timeoutMs = Duration(milliseconds: 2430);
 
-    throw 'Repository not available';
+  @override
+  Future<List<OnlineDictionary>> getDictionariesList(String url) {
+    if (url == null) throw 'URL not set';
+    if (url == defaultUrl)
+      return Future<List<OnlineDictionary>>.delayed(
+          _timeoutMs, () => dictionaries.toList());
+
+    return Future<List<OnlineDictionary>>.delayed(
+        _timeoutMs, () => throw 'Repository not available');
   }
 }
