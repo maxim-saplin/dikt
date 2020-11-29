@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/rendering.dart';
 import 'package:reorderables/reorderables.dart';
 import 'package:provider/provider.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -101,13 +102,21 @@ class OnlineDictionaries extends StatelessWidget {
               ? Text(od.repoError)
               : (od.dictionaries == null || od.dictionaries.length == 0
                   ? Text('No dictonaries in the repository')
-                  : Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: od.dictionaries
-                          .map((e) => Container(
-                              padding: EdgeInsets.all(5),
-                              child: Text(e.name + '\n' + e.url)))
-                          .toList()))),
+                  : Expanded(
+                      child: Container(
+                          height: 600,
+                          child: ListView(
+                              children: od.dictionaries
+                                  .map((e) => Container(
+                                      padding: EdgeInsets.fromLTRB(0, 5, 0, 5),
+                                      child: Text(e.name +
+                                          '\n' +
+                                          e.url +
+                                          '\n' +
+                                          e.sizeBytes.toString())))
+                                  .toList(),
+                              shrinkWrap: true,
+                              scrollDirection: Axis.vertical))))),
       Container(
           padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
           height: 40,
