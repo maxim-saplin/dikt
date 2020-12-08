@@ -111,29 +111,32 @@ abstract class OnlineRepo {
 class FakeOnlineRepo extends OnlineRepo {
   List<OnlineDictionary> dictionaries = [
     OnlineDictionary(
-        'https://repo.by/1', 'Dictionary 1', 100100, 101 * 1024 * 1024),
+        'https://repo.by/1', 'EN_RU Universal Lngv', 100100, 101 * 1024 * 1024),
     OnlineDictionary(
-        'https://repo.by/2', 'Dictionary 2', 100200, 102 * 1024 * 1024),
+        'https://repo.by/2', 'RU_EN Universal Lngv', 100200, 102 * 1024 * 1024),
+    OnlineDictionary('https://repo.by/3', 'RU_RU Толковый словарь Даля', 100300,
+        103 * 1024 * 1024),
     OnlineDictionary(
-        'https://repo.by/3', 'Dictionary 3', 100300, 103 * 1024 * 1024),
+        'https://repo.by/4', 'EN_EN WordNet 3.0', 100400, 104 * 1024 * 1024),
+    OnlineDictionary('https://repo.by/5', 'RU_BY Словарь НАН РБ (ред. Крапивы)',
+        100500, 105 * 1024 * 1024),
+    OnlineDictionary('https://repo.by/6', 'BY_RU Cлоўнік (А. Варвуль)', 100600,
+        106 * 1024 * 1024),
+    OnlineDictionary('https://repo.by/7', 'BY_BY Тлумачальны слоўнік', 100700,
+        107 * 1024 * 1024),
+    OnlineDictionary('https://repo.by/8', 'BY_EN Cлоўнік Якуба Коласа', 100800,
+        108 * 1024 * 1024),
+    OnlineDictionary('https://repo.by/9', 'EN_BY Universal Kolas', 100900,
+        109 * 1024 * 1024),
     OnlineDictionary(
-        'https://repo.by/4', 'Dictionary 4', 100400, 104 * 1024 * 1024),
-    OnlineDictionary(
-        'https://repo.by/5', 'Dictionary 5', 100500, 105 * 1024 * 1024),
-    OnlineDictionary(
-        'https://repo.by/6', 'Dictionary 6', 100600, 106 * 1024 * 1024),
-    OnlineDictionary(
-        'https://repo.by/7', 'Dictionary 7', 100700, 107 * 1024 * 1024),
-    OnlineDictionary(
-        'https://repo.by/8', 'Dictionary 8', 100800, 108 * 1024 * 1024),
-    OnlineDictionary(
-        'https://repo.by/9', 'Dictionary 9', 100900, 109 * 1024 * 1024),
-    OnlineDictionary(
-        'https://repo.by/10', 'Dictionary 10', 101000, 110 * 1024 * 1024),
+        'https://repo.by/10', 'BY_UA Cлоўнік', 101000, 110 * 1024 * 1024),
   ];
 
   static const String defaultUrl =
       'https://ipfs.io/ipfs/QmWByPsvVmTH7fMoSWFxECTWgnYJRcCZmdFzhLNhejqHzm';
+
+  static const String secondUrl =
+      'https://ipfs.io/ipfs/QmWByPsvVmTH7fMoSWFxECTWgnYJRcCZmdFzhLNhejqHz2';
 
   static const Duration _timeoutMs = Duration(milliseconds: 2430);
 
@@ -143,6 +146,10 @@ class FakeOnlineRepo extends OnlineRepo {
     if (url == defaultUrl)
       return Future<List<OnlineDictionary>>.delayed(
           _timeoutMs, () => dictionaries.toList());
+
+    if (url == secondUrl)
+      return Future<List<OnlineDictionary>>.delayed(
+          _timeoutMs, () => dictionaries.reversed.take(5).toList());
 
     return Future<List<OnlineDictionary>>.delayed(
         _timeoutMs, () => throw 'Repository not available');

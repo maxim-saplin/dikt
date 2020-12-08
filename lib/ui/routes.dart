@@ -36,7 +36,7 @@ class Routes {
         routeSettings: RouteSettings(name: Routes.dictionariesOnline),
         builder: (BuildContext context) {
           return SimpleSimpleDialog(
-              maxWidth: 500,
+              maxWidth: 700,
               alignment: Alignment.center,
               children: [Dictionaries(false)]);
         });

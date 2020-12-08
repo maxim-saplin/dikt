@@ -67,9 +67,9 @@ class OnlineDictionaries extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var od = Provider.of<OnlineDictionaryManager>(context);
+    const dicHeight = 50.0;
 
-    return IntrinsicHeight(
-        child: Column(mainAxisSize: MainAxisSize.min, children: [
+    return Column(mainAxisSize: MainAxisSize.min, children: [
       Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
         Text('IFPS Repo'),
         SizedBox(width: 10),
@@ -82,7 +82,7 @@ class OnlineDictionaries extends StatelessWidget {
                     fontStyle: FontStyle.italic,
                     color: Theme.of(context)
                         .textTheme
-                        .bodyText1
+                        .bodyText2
                         .color
                         .withAlpha(155)),
                 initialValue: OnlineDictionaryManager.defaultUrl)),
@@ -96,27 +96,34 @@ class OnlineDictionaries extends StatelessWidget {
           : SizedBox(
               height: 10,
             ),
-      od.loading
-          ? Text('Loading...')
-          : (od.repoError != null
-              ? Text(od.repoError)
-              : (od.dictionaries == null || od.dictionaries.length == 0
-                  ? Text('No dictonaries in the repository')
-                  : Expanded(
-                      child: Container(
-                          height: 600,
-                          child: ListView(
-                              children: od.dictionaries
-                                  .map((e) => Container(
-                                      padding: EdgeInsets.fromLTRB(0, 5, 0, 5),
-                                      child: Text(e.name +
-                                          '\n' +
-                                          e.url +
-                                          '\n' +
-                                          e.sizeBytes.toString())))
-                                  .toList(),
-                              shrinkWrap: true,
-                              scrollDirection: Axis.vertical))))),
+      Flexible(
+          child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Opacity(
+              opacity: od.loading ? 0.1 : 1,
+              child: SingleChildScrollView(
+                  child: Column(children: [
+                (od.repoError != null
+                    ? Text(od.repoError)
+                    : (od.dictionaries == null || od.dictionaries.length == 0
+                        ? Text('No dictonaries in the repository')
+                        : LayoutBuilder(
+                            builder: (context, constraints) => Wrap(
+                                  spacing: 5,
+                                  children: od.dictionaries
+                                      .map((e) => OnlineDictionaryTile(
+                                          e,
+                                          dicHeight,
+                                          constraints.maxWidth < 440
+                                              ? 440
+                                              : constraints.maxWidth / 2 - 5))
+                                      .toList(),
+                                ))))
+              ]))),
+          !od.loading ? SizedBox() : Text('Loading...'),
+        ],
+      )),
       Container(
           padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
           height: 40,
@@ -133,7 +140,53 @@ class OnlineDictionaries extends StatelessWidget {
                   onPressed: () async {
                     Routes.showOfflineDictionaries(context);
                   })))
-    ]));
+    ]);
+  }
+}
+
+class OnlineDictionaryTile extends StatelessWidget {
+  const OnlineDictionaryTile(this.dictionary, this.dicHeight, this.dicWidth,
+      {Key key = null})
+      : super(key: key);
+
+  final double dicHeight;
+  final double dicWidth;
+  final OnlineDictionary dictionary;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+        height: dicHeight,
+        width: dicWidth,
+        //color: Colors.yellow,
+        child: Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Flexible(
+                  child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                    Tooltip(
+                        message: dictionary.name,
+                        waitDuration: Duration(seconds: 1),
+                        child: Text(dictionary.name,
+                            softWrap: false,
+                            maxLines: 1,
+                            style: TextStyle(fontSize: 18))),
+                    Text(
+                        dictionary.words.toString() +
+                            ' words, ' +
+                            (dictionary.sizeBytes / 1024 / 1024)
+                                .toStringAsFixed(1) +
+                            'Mb',
+                        softWrap: false,
+                        maxLines: 1,
+                        style: Theme.of(context).textTheme.subtitle2)
+                  ])),
+              IconButton(icon: Icon(Icons.download_sharp), onPressed: () {})
+            ]));
   }
 }
 
@@ -325,11 +378,12 @@ class _OfflineDictionariesState extends State<OfflineDictionaries> {
                                           height: 50,
                                           child: FlatButton(
                                             child: Text(
-                                              !e.isReadyToUse && e.isBundled
-                                                  ? '↻'
-                                                  : (e.isEnabled ? '↘' : '↓'),
-                                              style: TextStyle(fontSize: 28),
-                                            ),
+                                                !e.isReadyToUse && e.isBundled
+                                                    ? '↻'
+                                                    : (e.isEnabled ? '↘' : '↓'),
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .caption),
                                             padding: EdgeInsets.all(3),
                                             onPressed: () {
                                               if (e.isError) return;
