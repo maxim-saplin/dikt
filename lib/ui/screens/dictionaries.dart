@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:reorderables/reorderables.dart';
 import 'package:provider/provider.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -17,7 +18,11 @@ import '../elements/managerState.dart';
 import '../routes.dart';
 import '../../models/onlineDictionaries.dart';
 
-class Dictionaries extends StatelessWidget {
+class _SwitchedToOnline {
+  bool yes = false;
+}
+
+class Dictionaries extends HookWidget {
   static bool toastShown = false;
   final bool _offline;
 
@@ -37,6 +42,17 @@ class Dictionaries extends StatelessWidget {
               ),
               toastDuration: Duration(seconds: 3)));
       toastShown = true;
+    }
+
+    final switchedToOnline = useMemoized(() => _SwitchedToOnline());
+
+    if (!_offline)
+      switchedToOnline.yes = false;
+    else {
+      if (!switchedToOnline.yes) {
+        Provider.of<OnlineDictionaryManager>(context)?.cleanUp();
+        switchedToOnline.yes = true;
+      }
     }
 
     return new WillPopScope(
@@ -113,7 +129,7 @@ class OnlineDictionaries extends StatelessWidget {
                                   spacing: 5,
                                   children: od.dictionaries
                                       .map((e) => OnlineDictionaryTile(
-                                          e,
+                                          e.repoDictionary,
                                           dicHeight,
                                           constraints.maxWidth < 440
                                               ? 440
@@ -147,11 +163,13 @@ class OnlineDictionaries extends StatelessWidget {
 class OnlineDictionaryTile extends StatelessWidget {
   const OnlineDictionaryTile(this.dictionary, this.dicHeight, this.dicWidth,
       {Key key = null})
-      : super(key: key);
+      : super(
+          key: key,
+        );
 
   final double dicHeight;
   final double dicWidth;
-  final OnlineDictionary dictionary;
+  final RepoDictionary dictionary;
 
   @override
   Widget build(BuildContext context) {
@@ -367,101 +385,110 @@ class _OfflineDictionariesState extends State<OfflineDictionaries> {
                       ReorderableSliverList(
                         delegate: ReorderableSliverChildListDelegate(manager
                             .dictionariesAll
-                            .map((e) => Opacity(
-                                opacity:
-                                    !e.isEnabled || !e.isReadyToUse ? 0.5 : 1.0,
-                                child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    children: [
-                                      Container(
-                                          width: 30,
-                                          height: 50,
-                                          child: FlatButton(
-                                            child: Text(
-                                                !e.isReadyToUse && e.isBundled
-                                                    ? '↻'
-                                                    : (e.isEnabled ? '↘' : '↓'),
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .caption),
-                                            padding: EdgeInsets.all(3),
-                                            onPressed: () {
-                                              if (e.isError) return;
-                                              if (!e.isReadyToUse &&
-                                                  e.isBundled) {
-                                                manager
-                                                    .reindexBundledDictionaries(
-                                                        e.boxName);
-                                              } else {
-                                                manager.switchIsEnabled(e);
-                                                Provider.of<MasterDictionary>(
-                                                        context,
-                                                        listen: false)
-                                                    ?.notify();
-                                              }
-                                            },
-                                          )),
-                                      Container(
-                                          padding:
-                                              EdgeInsets.fromLTRB(6, 0, 0, 0),
-                                          height: 55,
-                                          child: Column(
-                                              mainAxisSize: MainAxisSize.min,
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Text(e.name,
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
+                            .map((e) => Semantics(
+                                label: 'dictionary',
+                                child: Opacity(
+                                    opacity: !e.isEnabled || !e.isReadyToUse
+                                        ? 0.5
+                                        : 1.0,
+                                    child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        children: [
+                                          Container(
+                                              width: 30,
+                                              height: 50,
+                                              child: FlatButton(
+                                                child: Text(
+                                                    !e.isReadyToUse &&
+                                                            e.isBundled
+                                                        ? '↻'
+                                                        : (e.isEnabled
+                                                            ? '↘'
+                                                            : '↓'),
                                                     style: Theme.of(context)
                                                         .textTheme
                                                         .caption),
-                                                e.isError
-                                                    ? Text('error',
-                                                        style: TextStyle(
-                                                            color: Colors.red))
-                                                    : FutureBuilder(
-                                                        future: e
-                                                            .openBox(), //disabled boxes are not loaded upon start
-                                                        builder: (context,
-                                                            snapshot) {
-                                                          if (snapshot
-                                                              .hasData) {
-                                                            Timer.run(() {
-                                                              Provider.of<MasterDictionary>(
-                                                                      context,
-                                                                      listen:
-                                                                          false)
-                                                                  ?.notify();
-                                                            }); // let Lookup update (e.g. no history and number of entries shown) if a new dictionary is imported
-                                                            return Text(
-                                                              e.box.length
-                                                                      .toString() +
-                                                                  ' ' +
-                                                                  'entries'
-                                                                      .i18n +
-                                                                  (!kIsWeb
-                                                                      ? ', ' +
-                                                                          e.fileSizeMb
-                                                                              .toStringAsFixed(1) +
-                                                                          "MB"
-                                                                      : ''),
-                                                              overflow:
-                                                                  TextOverflow
-                                                                      .ellipsis,
-                                                              style: Theme.of(
-                                                                      context)
-                                                                  .textTheme
-                                                                  .subtitle2,
-                                                            );
-                                                          } else {
-                                                            return Text('...');
-                                                          }
-                                                        })
-                                              ])),
-                                    ])))
+                                                padding: EdgeInsets.all(3),
+                                                onPressed: () {
+                                                  if (e.isError) return;
+                                                  if (!e.isReadyToUse &&
+                                                      e.isBundled) {
+                                                    manager
+                                                        .reindexBundledDictionaries(
+                                                            e.boxName);
+                                                  } else {
+                                                    manager.switchIsEnabled(e);
+                                                    Provider.of<MasterDictionary>(
+                                                            context,
+                                                            listen: false)
+                                                        ?.notify();
+                                                  }
+                                                },
+                                              )),
+                                          Container(
+                                              padding: EdgeInsets.fromLTRB(
+                                                  6, 0, 0, 0),
+                                              height: 55,
+                                              child: Column(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(e.name,
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
+                                                        style: Theme.of(context)
+                                                            .textTheme
+                                                            .caption),
+                                                    e.isError
+                                                        ? Text('error',
+                                                            style: TextStyle(
+                                                                color:
+                                                                    Colors.red))
+                                                        : FutureBuilder(
+                                                            future: e
+                                                                .openBox(), //disabled boxes are not loaded upon start
+                                                            builder: (context,
+                                                                snapshot) {
+                                                              if (snapshot
+                                                                  .hasData) {
+                                                                Timer.run(() {
+                                                                  Provider.of<MasterDictionary>(
+                                                                          context,
+                                                                          listen:
+                                                                              false)
+                                                                      ?.notify();
+                                                                }); // let Lookup update (e.g. no history and number of entries shown) if a new dictionary is imported
+                                                                return Text(
+                                                                  e.box.length
+                                                                          .toString() +
+                                                                      ' ' +
+                                                                      'entries'
+                                                                          .i18n +
+                                                                      (!kIsWeb
+                                                                          ? ', ' +
+                                                                              e.fileSizeMb.toStringAsFixed(1) +
+                                                                              "MB"
+                                                                          : ''),
+                                                                  overflow:
+                                                                      TextOverflow
+                                                                          .ellipsis,
+                                                                  style: Theme.of(
+                                                                          context)
+                                                                      .textTheme
+                                                                      .subtitle2,
+                                                                );
+                                                              } else {
+                                                                return Text(
+                                                                    '...');
+                                                              }
+                                                            })
+                                                  ])),
+                                        ]))))
                             .toList()),
                         onReorder: _onReorder,
                         onDragging: _onDragging,

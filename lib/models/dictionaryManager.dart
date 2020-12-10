@@ -134,8 +134,11 @@ class DictionaryManager extends ChangeNotifier {
   static const dictionairesBoxName = 'dictionairesBoxName';
   static Box<IndexedDictionary> _dictionaries;
 
-  static Future<void> init() async {
-    await Hive.initFlutter();
+  static Future<void> init([String testPath]) async {
+    if (testPath == null)
+      await Hive.initFlutter();
+    else
+      Hive.init(testPath); // autotests
     Hive.registerAdapter(IndexedDictionaryAdapter());
     _dictionaries = await Hive.openBox(dictionairesBoxName);
   }
@@ -482,7 +485,7 @@ class DictionaryManager extends ChangeNotifier {
     return _dictionariesBeingProcessed;
   }
 
-  bool __isRunning;
+  bool __isRunning = false;
 
   bool get isRunning {
     return __isRunning;

@@ -42,4 +42,8 @@ class IndexedDictionary extends HiveObject {
 
   @HiveField(4)
   int order;
+
+  IndexedDictionary();
+
+  IndexedDictionary.init(this.boxName, this.name, this.isEnabled);
 }
