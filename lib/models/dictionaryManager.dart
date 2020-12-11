@@ -149,15 +149,17 @@ class DictionaryManager extends ChangeNotifier {
     return _partiallyLoaded?.future;
   }
 
-  Future<void> indexAndLoadDictionaries() async {
+  Future<void> indexAndLoadDictionaries([bool skipBundled = false]) async {
     _isRunning = true;
     _canceled = false;
     _partiallyLoaded = Completer();
 
-    _currentOperation = ManagerCurrentOperation.preparing;
-    await _checkAndIndexBundledDictionaries();
+    if (!skipBundled) {
+      _currentOperation = ManagerCurrentOperation.preparing;
+      await _checkAndIndexBundledDictionaries();
 
-    _initDictionaryCollections();
+      _initDictionaryCollections();
+    }
 
     _currentOperation = ManagerCurrentOperation.loading;
     await _loadEnabledDictionaries();

@@ -45,5 +45,6 @@ class IndexedDictionary extends HiveObject {
 
   IndexedDictionary();
 
-  IndexedDictionary.init(this.boxName, this.name, this.isEnabled);
+  IndexedDictionary.init(
+      this.boxName, this.name, this.isEnabled, this.isReadyToUse);
 }

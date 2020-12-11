@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:dikt/models/indexedDictionary.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
@@ -299,7 +300,7 @@ class _OfflineDictionariesState extends State<OfflineDictionaries> {
     return Container(
         width: 400,
         child: Stack(alignment: AlignmentDirectional.bottomCenter, children: [
-          DragTarget(onAccept: (index) {
+          DragTarget<int>(onAccept: (index) {
             _cancelReorder = true;
             showDialog(
                 context: context,
@@ -385,110 +386,8 @@ class _OfflineDictionariesState extends State<OfflineDictionaries> {
                       ReorderableSliverList(
                         delegate: ReorderableSliverChildListDelegate(manager
                             .dictionariesAll
-                            .map((e) => Semantics(
-                                label: 'dictionary',
-                                child: Opacity(
-                                    opacity: !e.isEnabled || !e.isReadyToUse
-                                        ? 0.5
-                                        : 1.0,
-                                    child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        children: [
-                                          Container(
-                                              width: 30,
-                                              height: 50,
-                                              child: FlatButton(
-                                                child: Text(
-                                                    !e.isReadyToUse &&
-                                                            e.isBundled
-                                                        ? '↻'
-                                                        : (e.isEnabled
-                                                            ? '↘'
-                                                            : '↓'),
-                                                    style: Theme.of(context)
-                                                        .textTheme
-                                                        .caption),
-                                                padding: EdgeInsets.all(3),
-                                                onPressed: () {
-                                                  if (e.isError) return;
-                                                  if (!e.isReadyToUse &&
-                                                      e.isBundled) {
-                                                    manager
-                                                        .reindexBundledDictionaries(
-                                                            e.boxName);
-                                                  } else {
-                                                    manager.switchIsEnabled(e);
-                                                    Provider.of<MasterDictionary>(
-                                                            context,
-                                                            listen: false)
-                                                        ?.notify();
-                                                  }
-                                                },
-                                              )),
-                                          Container(
-                                              padding: EdgeInsets.fromLTRB(
-                                                  6, 0, 0, 0),
-                                              height: 55,
-                                              child: Column(
-                                                  mainAxisSize:
-                                                      MainAxisSize.min,
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.center,
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    Text(e.name,
-                                                        overflow: TextOverflow
-                                                            .ellipsis,
-                                                        style: Theme.of(context)
-                                                            .textTheme
-                                                            .caption),
-                                                    e.isError
-                                                        ? Text('error',
-                                                            style: TextStyle(
-                                                                color:
-                                                                    Colors.red))
-                                                        : FutureBuilder(
-                                                            future: e
-                                                                .openBox(), //disabled boxes are not loaded upon start
-                                                            builder: (context,
-                                                                snapshot) {
-                                                              if (snapshot
-                                                                  .hasData) {
-                                                                Timer.run(() {
-                                                                  Provider.of<MasterDictionary>(
-                                                                          context,
-                                                                          listen:
-                                                                              false)
-                                                                      ?.notify();
-                                                                }); // let Lookup update (e.g. no history and number of entries shown) if a new dictionary is imported
-                                                                return Text(
-                                                                  e.box.length
-                                                                          .toString() +
-                                                                      ' ' +
-                                                                      'entries'
-                                                                          .i18n +
-                                                                      (!kIsWeb
-                                                                          ? ', ' +
-                                                                              e.fileSizeMb.toStringAsFixed(1) +
-                                                                              "MB"
-                                                                          : ''),
-                                                                  overflow:
-                                                                      TextOverflow
-                                                                          .ellipsis,
-                                                                  style: Theme.of(
-                                                                          context)
-                                                                      .textTheme
-                                                                      .subtitle2,
-                                                                );
-                                                              } else {
-                                                                return Text(
-                                                                    '...');
-                                                              }
-                                                            })
-                                                  ])),
-                                        ]))))
+                            .map((e) => OfflineDictionaryTile(
+                                manager: manager, dictionary: e))
                             .toList()),
                         onReorder: _onReorder,
                         onDragging: _onDragging,
@@ -496,6 +395,85 @@ class _OfflineDictionariesState extends State<OfflineDictionaries> {
                       )
                     ],
                   ))
+        ]));
+  }
+}
+
+class OfflineDictionaryTile extends StatelessWidget {
+  const OfflineDictionaryTile(
+      {Key key, @required this.manager, @required this.dictionary})
+      : super(key: key);
+
+  final DictionaryManager manager;
+  final IndexedDictionary dictionary;
+
+  @override
+  Widget build(BuildContext context) {
+    return Opacity(
+        opacity: !dictionary.isEnabled || !dictionary.isReadyToUse ? 0.5 : 1.0,
+        child: Row(mainAxisAlignment: MainAxisAlignment.start, children: [
+          Container(
+              width: 30,
+              height: 50,
+              child: FlatButton(
+                child: Text(
+                    !dictionary.isReadyToUse && dictionary.isBundled
+                        ? '↻'
+                        : (dictionary.isEnabled ? '↘' : '↓'),
+                    style: Theme.of(context).textTheme.caption),
+                padding: EdgeInsets.all(3),
+                onPressed: () {
+                  if (dictionary.isError) return;
+                  if (!dictionary.isReadyToUse && dictionary.isBundled) {
+                    manager.reindexBundledDictionaries(dictionary.boxName);
+                  } else {
+                    manager.switchIsEnabled(dictionary);
+                    Provider.of<MasterDictionary>(context, listen: false)
+                        ?.notify();
+                  }
+                },
+              )),
+          Container(
+              padding: EdgeInsets.fromLTRB(6, 0, 0, 0),
+              height: 55,
+              child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(dictionary.name,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.caption),
+                    dictionary.isError
+                        ? Text('error', style: TextStyle(color: Colors.red))
+                        : FutureBuilder(
+                            future: dictionary
+                                .openBox(), //disabled boxes are not loaded upon start
+                            builder: (context, snapshot) {
+                              if (snapshot.hasData) {
+                                Timer.run(() {
+                                  Provider.of<MasterDictionary>(context,
+                                          listen: false)
+                                      ?.notify();
+                                }); // let Lookup update (e.g. no history and number of entries shown) if a new dictionary is imported
+                                return Text(
+                                  dictionary.box.length.toString() +
+                                      ' ' +
+                                      'entries'.i18n +
+                                      (!kIsWeb
+                                          ? ', ' +
+                                              dictionary.fileSizeMb
+                                                  .toStringAsFixed(1) +
+                                              "MB"
+                                          : ''),
+                                  overflow: TextOverflow.ellipsis,
+                                  style: Theme.of(context).textTheme.subtitle2,
+                                );
+                              } else {
+                                return Text('...');
+                              }
+                            })
+                  ])),
         ]));
   }
 }
