@@ -46,8 +46,32 @@ class WidgetChildTextFinder extends ChainedFinder {
   }
 }
 
+class WidgetChildIconFinder extends ChainedFinder {
+  WidgetChildIconFinder(Finder parent, this.iconData) : super(parent);
+
+  final IconData iconData;
+
+  @override
+  String get description =>
+      '${parent.description} (considering only types of children)';
+
+  @override
+  Iterable<Element> filter(Iterable<Element> parentCandidates) sync* {
+    for (final Element candidate in parentCandidates) {
+      var elements = collectAllElementsFrom(candidate, skipOffstage: false);
+      for (var e in elements) {
+        if (e.widget is Icon && (e.widget as Icon).icon == iconData) {
+          yield e;
+        }
+      }
+    }
+  }
+}
+
 extension ExtraFinders on Finder {
   Finder byChildType(Type childType) => WidgetChildTypeFinder(this, childType);
   Finder byChildText(String childTextIncludes) =>
       WidgetChildTextFinder(this, childTextIncludes);
+  Finder byChildIcon(IconData iconData) =>
+      WidgetChildIconFinder(this, iconData);
 }

@@ -80,6 +80,24 @@ void main() {
       expect(find.byType(OnlineDictionaryTile), findsNWidgets(5));
     });
 
+    testWidgets('Dictionary data is displayed', (WidgetTester tester) async {
+      await _openOnlineDictionariesAndWaitToLoad(tester);
+
+      var d = find.byType(OnlineDictionaryTile).first;
+
+      expect(d, findsOneWidget);
+      expect(
+          d.byChildText(FakeOnlineRepo.dictionaries[0].name), findsOneWidget);
+      expect(d.byChildText(FakeOnlineRepo.dictionaries[0].words.toString()),
+          findsOneWidget);
+      expect(
+          d.byChildText((FakeOnlineRepo.dictionaries[0].sizeBytes / 1024 / 1024)
+              .toStringAsFixed(1)
+              .toString()),
+          findsOneWidget);
+      expect(d.byChildIcon(Icons.download_sharp), findsOneWidget);
+    });
+
     testWidgets('Invalid URL shows error', (WidgetTester tester) async {
       await _openOnlineDictionariesAndWaitToLoad(tester);
 

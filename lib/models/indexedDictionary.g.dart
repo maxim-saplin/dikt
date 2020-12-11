@@ -21,7 +21,8 @@ class IndexedDictionaryAdapter extends TypeAdapter<IndexedDictionary> {
       ..isEnabled = fields[1] as bool
       ..name = fields[2] as String
       ..isReadyToUse = fields[3] as bool
-      ..order = fields[4] as int;
+      ..order = fields[4] as int
+      ..hash = fields[5] as String;
   }
 
   @override

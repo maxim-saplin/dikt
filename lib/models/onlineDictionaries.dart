@@ -152,7 +152,7 @@ abstract class OnlineRepo {
 }
 
 class FakeOnlineRepo extends OnlineRepo {
-  List<RepoDictionary> dictionaries = [
+  static List<RepoDictionary> dictionaries = [
     RepoDictionary('https://repo.by/1', 'EN_RU Universal Lngv', 100100,
         101 * 1024 * 1024, '1'),
     RepoDictionary('https://repo.by/2', 'RU_EN Universal Lngv', 100200,

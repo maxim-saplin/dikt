@@ -2,9 +2,6 @@
 // Generated file. Do not edit.
 //
 
-// ignore: unused_import
-import 'dart:ui';
-
 import 'package:file_picker/src/file_picker_web.dart';
 import 'package:firebase_analytics_web/firebase_analytics_web.dart';
 import 'package:firebase_core_web/firebase_core_web.dart';
@@ -15,12 +12,12 @@ import 'package:video_player_web/video_player_web.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 
 // ignore: public_member_api_docs
-void registerPlugins(PluginRegistry registry) {
-  FilePickerWeb.registerWith(registry.registrarFor(FilePickerWeb));
-  FirebaseAnalyticsWeb.registerWith(registry.registrarFor(FirebaseAnalyticsWeb));
-  FirebaseCoreWeb.registerWith(registry.registrarFor(FirebaseCoreWeb));
-  FluttertoastWebPlugin.registerWith(registry.registrarFor(FluttertoastWebPlugin));
-  SharedPreferencesPlugin.registerWith(registry.registrarFor(SharedPreferencesPlugin));
-  VideoPlayerPlugin.registerWith(registry.registrarFor(VideoPlayerPlugin));
-  registry.registerMessageHandler();
+void registerPlugins(Registrar registrar) {
+  FilePickerWeb.registerWith(registrar);
+  FirebaseAnalyticsWeb.registerWith(registrar);
+  FirebaseCoreWeb.registerWith(registrar);
+  FluttertoastWebPlugin.registerWith(registrar);
+  SharedPreferencesPlugin.registerWith(registrar);
+  VideoPlayerPlugin.registerWith(registrar);
+  registrar.registerMessageHandler();
 }

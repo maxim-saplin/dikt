@@ -16,6 +16,11 @@ class IndexedDictionary extends HiveObject {
   bool
       isReadyToUse; //set to false before starting indexing and to true when done. E.g. if you reload page or close app while indexing it won't be ready
   // error while indexing
+  @HiveField(4)
+  int order;
+  @HiveField(5)
+  String hash;
+
   bool isError = false;
   bool isLoaded = false;
   bool isBundled = false;
@@ -39,9 +44,6 @@ class IndexedDictionary extends HiveObject {
     var file = File(box.path);
     return file.lengthSync() / 1024 / 1024;
   }
-
-  @HiveField(4)
-  int order;
 
   IndexedDictionary();
 
