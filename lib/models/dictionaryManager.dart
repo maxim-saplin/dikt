@@ -170,7 +170,7 @@ class DictionaryManager extends ChangeNotifier {
   }
 
   void _initDictionaryCollections() {
-    _dictionariesAllList = List<IndexedDictionary>();
+    _dictionariesAllList = <IndexedDictionary>[];
 
     for (var i = 0; i < _dictionaries.length; i++) {
       var d = _dictionaries.getAt(i);
@@ -179,12 +179,12 @@ class DictionaryManager extends ChangeNotifier {
 
     _sortAllDictionariesByOrder();
 
-    _dictionariesReadyList = List<IndexedDictionary>();
+    _dictionariesReadyList = <IndexedDictionary>[];
     for (var d in _dictionariesAllList) {
       if (d.isReadyToUse) _dictionariesReadyList.add(d);
     }
 
-    _dictionariesEnabledList = new List<IndexedDictionary>();
+    _dictionariesEnabledList = <IndexedDictionary>[];
     for (var i = 0; i < _dictionariesReadyList.length; i++) {
       var d = _dictionariesReadyList[i];
       if (d.isEnabled && !d.isError) _dictionariesEnabledList.add(d);
@@ -254,7 +254,7 @@ class DictionaryManager extends ChangeNotifier {
   }
 
   Future _checkAndIndexBundledDictionaries() async {
-    _dictionariesBeingProcessed = List<DictionaryBeingProcessed>();
+    _dictionariesBeingProcessed = <DictionaryBeingProcessed>[];
 
     for (var i in bundledJsonDictionaries) {
       if (!_dictionaries.containsKey(i.boxName)) {
@@ -647,8 +647,8 @@ class WebIndexer extends Indexer {
         if (p != curr) {
           curr = p;
           //await box.putAll(m2);
-          var keys = List<String>();
-          var values = List<Uint8List>();
+          var keys = <String>[];
+          var values = <Uint8List>[];
           for (var kv in m2.entries) {
             keys.add(kv.key);
             values.add(kv.value);
@@ -691,8 +691,8 @@ class BundledBinaryIndexer extends Indexer {
 
     try {
       var m = Map<String, Uint8List>();
-      var keys = List<String>();
-      var values = List<Uint8List>();
+      var keys = <String>[];
+      var values = <Uint8List>[];
       var position = 0;
 
       var count = file.getInt32(position);

@@ -233,7 +233,7 @@ class BinaryReaderImpl extends BinaryReader {
     length ??= readUint32();
     var boxNameLength = readByte();
     var boxName = String.fromCharCodes(viewBytes(boxNameLength));
-    var keys = List<dynamic>(length);
+    var keys = <dynamic>[length];
     for (var i = 0; i < length; i++) {
       keys[i] = readKey();
     }

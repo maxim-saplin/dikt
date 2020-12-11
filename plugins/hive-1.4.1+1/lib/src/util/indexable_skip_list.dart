@@ -8,7 +8,7 @@ class IndexableSkipList<K, V> {
   final _Node<K, V> _head = _Node(
     null,
     null,
-    List(_maxHeight),
+    <_Node<K, V>>[]..length = _maxHeight,
     List.filled(_maxHeight, 0),
   );
 
@@ -54,7 +54,7 @@ class IndexableSkipList<K, V> {
     var newNode = _Node<K, V>(
       key,
       value,
-      List(newLevel + 1),
+      <_Node<K, V>>[]..length = newLevel + 1,
       List.filled(newLevel + 1, 0),
     );
 

@@ -308,7 +308,7 @@ class RubyElement extends ReplacedElement {
   @override
   Widget toWidget(RenderContext context) {
     dom.Node textNode;
-    List<Widget> widgets = List<Widget>();
+    List<Widget> widgets = <Widget>[];
     final rubySize = max(9.0, context.style.fontSize.size / 2);
     final rubyYPos = rubySize + rubySize / 2;
     element.nodes.forEach((c) {

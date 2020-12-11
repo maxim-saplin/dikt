@@ -493,7 +493,7 @@ class _TheatreElement extends RenderObjectElement {
   void mount(Element parent, dynamic newSlot) {
     super.mount(parent, newSlot);
     _onstage = updateChild(_onstage, widget.onstage, _onstageSlot);
-    _offstage = List<Element>(widget.offstage.length);
+    _offstage = <Element>[]..length = (widget.offstage.length);
     Element previousChild;
     for (int i = 0; i < _offstage.length; i += 1) {
       final Element newChild = inflateWidget(widget.offstage[i], previousChild);
