@@ -34,7 +34,7 @@ class BinaryReaderImpl extends BinaryReader {
   int get usedBytes => _offset;
 
   void _limitAvailableBytes(int bytes) {
-    _requireBytes(bytes);
+    //_requireBytes(bytes);
     _bufferLimit = _offset + bytes;
   }
 
@@ -70,7 +70,7 @@ class BinaryReaderImpl extends BinaryReader {
   @pragma('dart2js:tryInline')
   @override
   Uint8List viewBytes(int bytes) {
-    _requireBytes(bytes);
+    //_requireBytes(bytes);
     _offset += bytes;
     return _buffer.view(_offset - bytes, bytes);
   }
@@ -214,6 +214,8 @@ class BinaryReaderImpl extends BinaryReader {
     return map;
   }
 
+  static Utf8Decoder _utfDecoder = Utf8Decoder(allowMalformed: true);
+
   /// Not part of public API
   dynamic readKey() {
     var keyType = readByte();
@@ -221,8 +223,8 @@ class BinaryReaderImpl extends BinaryReader {
       return readUint32();
     } else if (keyType == FrameKeyType.asciiStringT) {
       var keyLength = readByte();
-      return utf8.decode(viewBytes(keyLength),
-          allowMalformed: true); //String.fromCharCodes(viewBytes(keyLength));
+      return _utfDecoder.convert(
+          viewBytes(keyLength)); //String.fromCharCodes(viewBytes(keyLength));
     } else {
       throw HiveError('Unsupported key type. Frame might be corrupted.');
     }
@@ -252,15 +254,15 @@ class BinaryReaderImpl extends BinaryReader {
     }
     if (availableBytes < frameLength - 4) return null;
 
-    var crc = _buffer.readUint32(_offset + frameLength - 8);
-    var computedCrc = Crc32.compute(
-      _buffer,
-      offset: _offset - 4,
-      length: frameLength - 4,
-      crc: cipher?.calculateKeyCrc() ?? 0,
-    );
+    // var crc = _buffer.readUint32(_offset + frameLength - 8);
+    // var computedCrc = Crc32.compute(
+    //   _buffer,
+    //   offset: _offset - 4,
+    //   length: frameLength - 4,
+    //   crc: cipher?.calculateKeyCrc() ?? 0,
+    // );
 
-    if (computedCrc != crc) return null;
+    // if (computedCrc != crc) return null;
 
     _limitAvailableBytes(frameLength - 8);
     Frame frame;

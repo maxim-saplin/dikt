@@ -5,7 +5,7 @@ import 'package:hive/hive.dart';
 import 'package:hive_not_tuned/hive_not_tuned.dart' as HNT;
 
 void main() {
-  test('Tuned HiveDB is faster', () async {
+  test('Tuned HiveDB loads faster', () async {
     var ms = await measureAvgMs(() async {
       Hive.init('./test/data');
       var b = await Hive.openLazyBox<Uint8List>('dik_enenwordnet3');
@@ -25,7 +25,8 @@ void main() {
     });
 
     print('Not tuned: ' + ms2.toString());
-    expect(true, true);
+    print('Time decrease: ${((ms - ms2) / ms * 100).toStringAsFixed(1)}%');
+    expect(ms < ms2, true);
   });
 }
 
