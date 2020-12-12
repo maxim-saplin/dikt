@@ -66,6 +66,8 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   mockito:
+  hive_not_tuned: # used for benchamrking against performance tuned hive above
+    path: ./plugins/hive-not-tuned-1.4.1+1/
   hive_generator: ^0.7.0+2
   build_runner: ^1.10.0
   flutter_launcher_icons: ^0.7.3

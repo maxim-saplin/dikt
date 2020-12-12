@@ -221,63 +221,6 @@ void main() {
 
       expect(find.byType(AlertDialog), findsOneWidget);
     });
-
-    // testWidgets('Drag and drop - long press draggable, short press',
-    //     (WidgetTester tester) async {
-    //   final List<String> events = <String>[];
-    //   Offset firstLocation, secondLocation;
-
-    //   await tester.pumpWidget(MaterialApp(
-    //     home: Column(
-    //       children: <Widget>[
-    //         const LongPressDraggable<int>(
-    //           data: 1,
-    //           child: Text('Source'),
-    //           feedback: Text('Dragging'),
-    //         ),
-    //         DragTarget<int>(
-    //           builder: (BuildContext context, List<int> data,
-    //               List<dynamic> rejects) {
-    //             return const Text('Target');
-    //           },
-    //           onAccept: (int data) {
-    //             events.add('drop');
-    //           },
-    //           onAcceptWithDetails: (DragTargetDetails<int> _) {
-    //             events.add('details');
-    //           },
-    //         ),
-    //       ],
-    //     ),
-    //   ));
-
-    //   expect(events, isEmpty);
-    //   expect(find.text('Source'), findsOneWidget);
-    //   expect(find.text('Target'), findsOneWidget);
-
-    //   expect(events, isEmpty);
-
-    //   //var dd = find.text('Source');
-
-    //   var dd = find.byType(typeOf<LongPressDraggable<int>>());
-
-    //   await tester.tap(dd);
-    //   expect(events, isEmpty);
-
-    //   firstLocation = tester.getCenter(dd);
-    //   final TestGesture gesture =
-    //       await tester.startGesture(firstLocation, pointer: 7);
-    //   await tester.pump();
-
-    //   secondLocation = tester.getCenter(find.text('Target'));
-    //   await gesture.moveTo(secondLocation);
-    //   await tester.pump();
-
-    //   expect(events, isEmpty);
-    //   await gesture.up();
-    //   await tester.pump();
-    //   expect(events, isEmpty);
-    // });
   });
 }
 
