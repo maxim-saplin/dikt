@@ -1,9 +1,46 @@
 import 'dart:collection';
 import 'dart:math';
 
+class AppendOnlyList<K, V> extends IndexableSkipList<K, V> {
+  AppendOnlyList(comparator) : super(comparator);
+
+  Map<K, V> _list = {};
+
+  /// Not part of public API
+  int get length => _list.length;
+
+  /// Not part of public API
+  Iterable<K> get keys => _list.keys;
+
+  /// Not part of public API
+  Iterable<V> get values => _list.values;
+
+  V insert(K key, V value, [bool checkExisting = true]) {
+    _list[key] = value;
+    return null;
+  }
+
+  V delete(K key) => null;
+
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  V get(K key) => _list[key];
+
+  @pragma('vm:prefer-inline')
+  @pragma('dart2js:tryInline')
+  Iterable<V> valuesFromKey(K key) => null;
+
+  void clear() {
+    _list = {};
+  }
+}
+
 /// Not part of public API
 class IndexableSkipList<K, V> {
-  static const _maxHeight = 12;
+  static const _maxHeight = 14;
+  // Was 12. Not sure what the param is about, should also check mem usage.
+  //Changing to 16 imporoved test time from 400 to 340ms,
+  //no impprovement of load time on device
 
   final _Node<K, V> _head = _Node(
     null,
@@ -34,12 +71,14 @@ class IndexableSkipList<K, V> {
   Iterable<V> get values => _ValueIterable(_head);
 
   /// Not part of public API
-  V insert(K key, V value) {
-    var existingNode = _getNode(key);
-    if (existingNode != null) {
-      var oldValue = existingNode.value;
-      existingNode.value = value;
-      return oldValue;
+  V insert(K key, V value, [bool checkExisting = true]) {
+    if (checkExisting) {
+      var existingNode = _getNode(key);
+      if (existingNode != null) {
+        var oldValue = existingNode.value;
+        existingNode.value = value;
+        return oldValue;
+      }
     }
 
     // calculate this new node's level

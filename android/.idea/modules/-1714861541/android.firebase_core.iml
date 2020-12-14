@@ -32,7 +32,9 @@
     <exclude-output />
     <content url="file://$MODULE_DIR$/../../../../build/firebase_core/generated/aidl_source_output_dir/debug/out" />
     <content url="file://$MODULE_DIR$/../../../../build/firebase_core/generated/aidl_source_output_dir/debugAndroidTest/out" />
-    <content url="file://$MODULE_DIR$/../../../../build/firebase_core/generated/ap_generated_sources/debug/out" />
+    <content url="file://$MODULE_DIR$/../../../../build/firebase_core/generated/ap_generated_sources/debug/out">
+      <sourceFolder url="file://$MODULE_DIR$/../../../../build/firebase_core/generated/ap_generated_sources/debug/out" isTestSource="false" generated="true" />
+    </content>
     <content url="file://$MODULE_DIR$/../../../../build/firebase_core/generated/ap_generated_sources/debugAndroidTest/out" />
     <content url="file://$MODULE_DIR$/../../../../build/firebase_core/generated/ap_generated_sources/debugUnitTest/out" />
     <content url="file://$MODULE_DIR$/../../../../build/firebase_core/generated/renderscript_source_output_dir/debug/out" />
@@ -44,7 +46,9 @@
     <content url="file://$MODULE_DIR$/../../../../build/firebase_core/generated/res/rs/androidTest/debug" />
     <content url="file://$MODULE_DIR$/../../../../build/firebase_core/generated/res/rs/debug" />
     <content url="file://$MODULE_DIR$/../../../../build/firebase_core/generated/source/buildConfig/androidTest/debug" />
-    <content url="file://$MODULE_DIR$/../../../../build/firebase_core/generated/source/buildConfig/debug" />
+    <content url="file://$MODULE_DIR$/../../../../build/firebase_core/generated/source/buildConfig/debug">
+      <sourceFolder url="file://$MODULE_DIR$/../../../../build/firebase_core/generated/source/buildConfig/debug" isTestSource="false" generated="true" />
+    </content>
     <content url="file://$MODULE_DIR$/../../../../../../../flutter/.pub-cache/hosted/pub.dartlang.org/firebase_core-0.5.2">
       <sourceFolder url="file://$MODULE_DIR$/../../../../../../../flutter/.pub-cache/hosted/pub.dartlang.org/firebase_core-0.5.2/android/src/main/java" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/../../../../../../../flutter/.pub-cache/hosted/pub.dartlang.org/firebase_core-0.5.2/android/.gradle" />

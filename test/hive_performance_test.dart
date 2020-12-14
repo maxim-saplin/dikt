@@ -25,7 +25,7 @@ void main() {
     });
 
     print('Not tuned: ' + ms2.toString());
-    print('Time decrease: ${((ms - ms2) / ms * 100).toStringAsFixed(1)}%');
+    print('Time decrease: ${((ms2 - ms) / ms2 * 100).toStringAsFixed(1)}%');
     expect(ms < ms2, true);
   });
 }

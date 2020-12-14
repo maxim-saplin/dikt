@@ -76,7 +76,9 @@ class _KeyReader {
       );
       if (frame == null) return frameOffset;
 
-      keystore.insert(frame, notify: false);
+      keystore.insert(frame,
+          notify: false,
+          checkEixsting: false); // speedup load with bypassing checks
 
       fileReader.skip(frameLength);
     }

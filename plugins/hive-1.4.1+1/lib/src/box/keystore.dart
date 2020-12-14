@@ -144,9 +144,24 @@ class Keystore<E> {
   }
 
   /// Not part of public API
-  Frame insert(Frame frame, {bool notify = true}) {
+  Frame insert(Frame frame, {bool notify = true, bool checkEixsting = true}) {
     var value = frame.value;
     Frame deletedFrame;
+
+    // cutting out unnecessary steps
+    if (checkEixsting == false) {
+      var key = frame.key;
+      if (key is int && key > _autoIncrement) {
+        _autoIncrement = key;
+      }
+
+      if (value is HiveObject) {
+        value.init(key, _box);
+      }
+
+      _store.insert(key, frame, checkEixsting);
+      return null;
+    }
 
     if (!frame.deleted) {
       var key = frame.key;
@@ -158,7 +173,7 @@ class Keystore<E> {
         value.init(key, _box);
       }
 
-      deletedFrame = _store.insert(key, frame);
+      deletedFrame = _store.insert(key, frame, checkEixsting);
     } else {
       deletedFrame = _store.delete(frame.key);
     }

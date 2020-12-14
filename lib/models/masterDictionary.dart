@@ -20,10 +20,15 @@ class MasterDictionary extends ChangeNotifier {
 
   void init() {
     print('Master dictionary init started: ' + DateTime.now().toString());
+    var sw = Stopwatch()..start();
     dictionaryManager.indexAndLoadDictionaries().then((value) {
       isFullyLoaded = true;
       isPartiallyLoaded = true;
-      print('Master dictionary init completed: ' + DateTime.now().toString());
+      sw.stop();
+      print('Master dictionary init completed: ' +
+          DateTime.now().toString() +
+          ' DURATION(MS): ' +
+          sw.elapsedMilliseconds.toString());
     });
     dictionaryManager.partiallyLoaded.then((value) => isPartiallyLoaded = true);
   }
