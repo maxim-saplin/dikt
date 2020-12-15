@@ -223,6 +223,7 @@ class DictionaryManager extends ChangeNotifier {
         notifyListeners();
 
         var f = Hive.openLazyBox<Uint8List>(i.indexedDictionary.boxName,
+            readOnly: true,
             useIsolate: kIsWeb || _dictionariesBeingProcessed.length == 1
                 ? false // 1 dictionary, master dictionary inint with isolate 1900ms, without - 1300ms
                 : true);

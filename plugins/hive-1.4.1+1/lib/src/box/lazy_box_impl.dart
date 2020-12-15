@@ -11,13 +11,10 @@ import 'package:hive/src/hive_impl.dart';
 /// Not part of public API
 class LazyBoxImpl<E> extends BoxBaseImpl<E> implements LazyBox<E> {
   /// Not part of public API
-  LazyBoxImpl(
-    HiveImpl hive,
-    String name,
-    KeyComparator keyComparator,
-    CompactionStrategy compactionStrategy,
-    StorageBackend backend,
-  ) : super(hive, name, keyComparator, compactionStrategy, backend);
+  LazyBoxImpl(HiveImpl hive, String name, KeyComparator keyComparator,
+      CompactionStrategy compactionStrategy, StorageBackend backend,
+      [bool readOnly = false])
+      : super(hive, name, keyComparator, compactionStrategy, backend, readOnly);
 
   @override
   final bool lazy = true;

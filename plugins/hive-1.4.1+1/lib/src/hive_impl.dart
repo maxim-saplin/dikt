@@ -61,7 +61,8 @@ class HiveImpl extends TypeRegistryImpl implements HiveInterface {
       bool recovery,
       String path,
       Uint8List bytes,
-      bool useIsolate) async {
+      bool useIsolate,
+      [bool readOnly = false]) async {
     assert(comparator != null);
     assert(compaction != null);
     assert(path == null || bytes == null);
@@ -86,7 +87,8 @@ class HiveImpl extends TypeRegistryImpl implements HiveInterface {
 
         BoxBaseImpl<E> box;
         if (lazy) {
-          box = LazyBoxImpl<E>(this, name, comparator, compaction, backend);
+          box = LazyBoxImpl<E>(
+              this, name, comparator, compaction, backend, readOnly);
         } else {
           box = BoxImpl<E>(this, name, comparator, compaction, backend);
         }
@@ -140,7 +142,8 @@ class HiveImpl extends TypeRegistryImpl implements HiveInterface {
       bool crashRecovery = true,
       String path,
       @deprecated List<int> encryptionKey,
-      bool useIsolate = false}) async {
+      bool useIsolate = false,
+      bool readOnly = false}) async {
     if (encryptionKey != null) {
       encryptionCipher = HiveAesCipher(encryptionKey);
     }
@@ -153,7 +156,8 @@ class HiveImpl extends TypeRegistryImpl implements HiveInterface {
         crashRecovery,
         path,
         null,
-        useIsolate) as LazyBox<E>;
+        useIsolate,
+        readOnly) as LazyBox<E>;
   }
 
   BoxBase<E> _getBoxInternal<E>(String name, [bool lazy]) {
@@ -244,7 +248,8 @@ class _IsolateParams<E> {
     try {
       var hiveImpl = HiveImpl();
       hiveImpl.init(path);
-      var box = await hiveImpl.openLazyBox<E>(boxName) as BoxBaseImpl<E>;
+      var box = await hiveImpl.openLazyBox<E>(boxName, readOnly: true)
+          as BoxBaseImpl<E>;
       //backend object aggregates file descriptors
       // which can't be moved across Isoalates
       box.backend = null;

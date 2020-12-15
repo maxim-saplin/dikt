@@ -22,7 +22,8 @@
       "name": "Flutter Release",
       "request": "launch",
       "type": "dart",
-      "flutterMode" : "release"
+      "flutterMode" : "release",
+      "program" : "lib/main.dart"
     }
   ]
 }

@@ -40,31 +40,50 @@ class DictionaryLoading extends StatelessWidget {
   }
 }
 
+String hashSpinner(int x) {
+  if (x % 4 == 0) return '/';
+  if (x % 4 == 1) return '|';
+  if (x % 4 == 2) return '\\';
+  return '-';
+}
+
 class DictionaryLoadingNoAlign extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var manager = Provider.of<DictionaryManager>(context);
 
+    var count = manager.dictionariesBeingProcessed.fold(
+        0,
+        (previousValue, element) =>
+            previousValue +
+            (element.state == DictionaryBeingProcessedState.success ? 1 : 0));
+
     return manager.currentOperation == ManagerCurrentOperation.loading &&
             manager.isRunning
-        ? Container(
-            width: 280,
-            height: 40,
-            color: Colors.grey.withAlpha(128),
-            child: Center(
-                child: Text('Loading dictionaries: '.i18n +
-                    manager.dictionariesBeingProcessed
-                        .fold(
-                            0,
-                            (previousValue, element) =>
-                                previousValue +
-                                (element.state ==
-                                        DictionaryBeingProcessedState.success
-                                    ? 1
-                                    : 0))
-                        .toString() +
-                    ' / ' +
-                    manager.dictionariesBeingProcessed.length.toString())))
+        ? Opacity(
+            opacity: 0.3,
+            child: Stack(alignment: Alignment.bottomCenter, children: [
+              Container(
+                  width: 256,
+                  height: 36,
+                  color: Colors.transparent,
+                  child: Center(
+                      child: Text(
+                    'Loading dictionaries: '.i18n +
+                        count.toString() +
+                        ' ' +
+                        hashSpinner(count) +
+                        ' ' +
+                        manager.dictionariesBeingProcessed.length.toString(),
+                    style: TextStyle(fontSize: 18),
+                  ))),
+              Container(
+                child: SizedBox(),
+                color: Colors.grey,
+                width: 256,
+                height: 3,
+              ),
+            ]))
         : Text('');
   }
 }

@@ -1,10 +1,14 @@
 import 'dart:collection';
 import 'dart:math';
 
+/// Simple Hash map for dictionary boxes which are readonly after indexing
 class AppendOnlyList<K, V> extends IndexableSkipList<K, V> {
-  AppendOnlyList(comparator) : super(comparator);
+  ///
+  AppendOnlyList(Comparator<K> comparator) : super(comparator) {
+    //print('AppendOnlyList created');
+  }
 
-  Map<K, V> _list = {};
+  HashMap<K, V> _list = HashMap();
 
   /// Not part of public API
   int get length => _list.length;
@@ -31,7 +35,7 @@ class AppendOnlyList<K, V> extends IndexableSkipList<K, V> {
   Iterable<V> valuesFromKey(K key) => null;
 
   void clear() {
-    _list = {};
+    _list = HashMap();
   }
 }
 

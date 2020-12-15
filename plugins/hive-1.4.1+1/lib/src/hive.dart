@@ -33,6 +33,7 @@ abstract class HiveInterface implements TypeRegistry {
       bool crashRecovery = true,
       String path,
       @deprecated List<int> encryptionKey,
+      bool readOnly = false,
       bool useIsolate = false});
 
   /// Returns a previously opened box.

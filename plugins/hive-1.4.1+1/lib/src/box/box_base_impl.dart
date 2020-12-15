@@ -28,14 +28,10 @@ abstract class BoxBaseImpl<E> implements BoxBase<E> {
   bool _open = true;
 
   /// Not part of public API
-  BoxBaseImpl(
-    this.hive,
-    this.name,
-    KeyComparator keyComparator,
-    this._compactionStrategy,
-    this.backend,
-  ) {
-    keystore = Keystore(this, ChangeNotifier(), keyComparator);
+  BoxBaseImpl(this.hive, this.name, KeyComparator keyComparator,
+      this._compactionStrategy, this.backend,
+      [bool readOnly = false]) {
+    keystore = Keystore(this, ChangeNotifier(), keyComparator, readOnly);
   }
 
   /// Not part of public API

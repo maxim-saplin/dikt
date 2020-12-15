@@ -8,7 +8,8 @@ void main() {
   test('Tuned HiveDB loads faster', () async {
     var ms = await measureAvgMs(() async {
       Hive.init('./test/data');
-      var b = await Hive.openLazyBox<Uint8List>('dik_enenwordnet3');
+      var b =
+          await Hive.openLazyBox<Uint8List>('dik_enenwordnet3', readOnly: true);
       return b.keys.length;
     }, teardown: () async {
       await Hive.close();

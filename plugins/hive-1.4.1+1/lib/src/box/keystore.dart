@@ -30,7 +30,7 @@ class Keystore<E> {
 
   final ChangeNotifier _notifier;
 
-  final IndexableSkipList<dynamic, Frame> _store;
+  IndexableSkipList<dynamic, Frame> _store;
 
   /// Not part of public API
   @visibleForTesting
@@ -40,8 +40,12 @@ class Keystore<E> {
   var _autoIncrement = -1;
 
   /// Not part of public API
-  Keystore(this._box, this._notifier, KeyComparator keyComparator)
-      : _store = IndexableSkipList(keyComparator ?? defaultKeyComparator);
+  Keystore(this._box, this._notifier, KeyComparator keyComparator,
+      [bool appendOnly]) {
+    _store = !appendOnly
+        ? IndexableSkipList(keyComparator ?? defaultKeyComparator)
+        : AppendOnlyList(keyComparator ?? defaultKeyComparator);
+  }
 
   /// Not part of public API
   factory Keystore.debug({

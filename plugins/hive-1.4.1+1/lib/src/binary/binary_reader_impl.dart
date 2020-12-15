@@ -3,7 +3,7 @@ import 'dart:typed_data';
 
 import 'package:hive/hive.dart';
 import 'package:hive/src/binary/frame.dart';
-import 'package:hive/src/crypto/crc32.dart';
+//import 'package:hive/src/crypto/crc32.dart';
 import 'package:hive/src/object/hive_list_impl.dart';
 import 'package:hive/src/registry/type_registry_impl.dart';
 import 'package:hive/src/util/extensions.dart';
