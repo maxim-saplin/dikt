@@ -4,7 +4,7 @@ analyzer:
     - "**/*.g.dart"
     - "example/*"
   strong-mode:
-    implicit-casts: false
+    implicit-casts: true
   errors:
     invalid_use_of_protected_member: error
     always_declare_return_types: error 

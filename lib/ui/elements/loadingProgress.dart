@@ -1,5 +1,6 @@
 import 'package:dikt/ui/elements/managerState.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:provider/provider.dart';
 import '../../models/dictionaryManager.dart';
 import '../../common/i18n.dart';
@@ -40,14 +41,7 @@ class DictionaryLoading extends StatelessWidget {
   }
 }
 
-String hashSpinner(int x) {
-  if (x % 4 == 0) return '/';
-  if (x % 4 == 1) return '|';
-  if (x % 4 == 2) return '\\';
-  return '-';
-}
-
-class DictionaryLoadingNoAlign extends StatelessWidget {
+class DictionaryLoadingNoAlign extends HookWidget {
   @override
   Widget build(BuildContext context) {
     var manager = Provider.of<DictionaryManager>(context);
@@ -58,32 +52,33 @@ class DictionaryLoadingNoAlign extends StatelessWidget {
             previousValue +
             (element.state == DictionaryBeingProcessedState.success ? 1 : 0));
 
+    var ui = Stack(alignment: Alignment.bottomCenter, children: [
+      Container(
+          width: 256,
+          height: 36,
+          color: Colors.transparent,
+          child: Center(
+              child: Text(
+            'Loading dictionaries: '.i18n +
+                count.toString() +
+                ' / ' +
+                manager.dictionariesBeingProcessed.length.toString(),
+            style: TextStyle(fontSize: 18),
+          ))),
+      Container(
+        child: SizedBox(),
+        color: Colors.grey,
+        width: 256,
+        height: 3,
+      ),
+    ]);
+
     return manager.currentOperation == ManagerCurrentOperation.loading &&
             manager.isRunning
-        ? Opacity(
-            opacity: 0.3,
-            child: Stack(alignment: Alignment.bottomCenter, children: [
-              Container(
-                  width: 256,
-                  height: 36,
-                  color: Colors.transparent,
-                  child: Center(
-                      child: Text(
-                    'Loading dictionaries: '.i18n +
-                        count.toString() +
-                        ' ' +
-                        hashSpinner(count) +
-                        ' ' +
-                        manager.dictionariesBeingProcessed.length.toString(),
-                    style: TextStyle(fontSize: 18),
-                  ))),
-              Container(
-                child: SizedBox(),
-                color: Colors.grey,
-                width: 256,
-                height: 3,
-              ),
-            ]))
-        : Text('');
+        ? Opacity(opacity: 0.3, child: ui)
+        : FadeTransition(
+            child: ui,
+            opacity: useAnimationController(duration: Duration(seconds: 2))
+              ..reverse(from: 0.6));
   }
 }

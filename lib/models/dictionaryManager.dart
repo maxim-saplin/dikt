@@ -47,8 +47,9 @@ const bundledJsonDictionaries = [
 class BundledBinaryDictionary {
   final String assetFileName;
   final String name;
+  final String hash;
 
-  const BundledBinaryDictionary(this.assetFileName, this.name);
+  const BundledBinaryDictionary(this.assetFileName, this.name, this.hash);
   String get boxName {
     return nameToBoxName(name);
   }
@@ -56,7 +57,7 @@ class BundledBinaryDictionary {
 
 const bundledBinaryDictionaries = [
   BundledBinaryDictionary(
-      'assets/dictionaries/EnEnWordNet3.json.bundle', 'EN_EN WordNet 3'),
+      'assets/dictionaries/EnEnWordNet3.json.bundle', 'EN_EN WordNet 3', '4'),
   // BundledBinaryDictionary(
   //     'assets/dictionaries2/EnRuUniversal.json.bundle', 'EN_RU Universal'),
   // BundledBinaryDictionary(
@@ -320,6 +321,9 @@ class DictionaryManager extends ChangeNotifier {
       var d = IndexedDictionary();
       d.isBundled = dictionariesProcessed[i].bundledBinaryDictionary != null ||
           dictionariesProcessed[i].bundledJsonDictionary != null;
+      if (dictionariesProcessed[i].bundledBinaryDictionary != null) {
+        d.hash = dictionariesProcessed[i].bundledBinaryDictionary.hash;
+      }
       d.name = dictionariesProcessed[i].name;
 
       print('  /Dictionary: ' + d.name);
@@ -331,6 +335,7 @@ class DictionaryManager extends ChangeNotifier {
       d.isEnabled = true;
       d.isReadyToUse = false;
       d.order = startOrderAt + i;
+
       _dictionaries.put(d.boxName, d);
       var box = await Hive.openLazyBox<Uint8List>(d.boxName);
       _curIndexer = getIndexer(dictionariesProcessed[i], box);
@@ -489,6 +494,17 @@ class DictionaryManager extends ChangeNotifier {
 
   List<DictionaryBeingProcessed> get dictionariesBeingProcessed {
     return _dictionariesBeingProcessed;
+  }
+
+  IndexedDictionary getByHash(String hash) {
+    var d = _dictionariesReadyList.where((e) => e.hash == hash);
+    if (d.isNotEmpty) return d.first;
+    return null;
+  }
+
+  bool exisitsByHash(String hash) {
+    var d = _dictionariesReadyList.where((e) => e.hash == hash);
+    return d.isNotEmpty;
   }
 
   bool __isRunning = false;

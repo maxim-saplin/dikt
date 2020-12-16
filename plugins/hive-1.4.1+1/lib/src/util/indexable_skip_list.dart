@@ -10,11 +10,21 @@ class AppendOnlyList<K, V> extends IndexableSkipList<K, V> {
 
   HashMap<K, V> _list = HashMap();
 
+  List<K> _sortedKeys = null;
+
+  void sortKeys() {
+    _sortedKeys = _list.keys.toList()..sort();
+    print('AppendOnlyList keys sorted');
+  }
+
   /// Not part of public API
   int get length => _list.length;
 
   /// Not part of public API
-  Iterable<K> get keys => _list.keys;
+  Iterable<K> get keys {
+    if (_sortedKeys == null) sortKeys();
+    return _sortedKeys;
+  }
 
   /// Not part of public API
   Iterable<V> get values => _list.values;

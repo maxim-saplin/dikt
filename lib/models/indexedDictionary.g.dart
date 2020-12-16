@@ -28,7 +28,7 @@ class IndexedDictionaryAdapter extends TypeAdapter<IndexedDictionary> {
   @override
   void write(BinaryWriter writer, IndexedDictionary obj) {
     writer
-      ..writeByte(5)
+      ..writeByte(6)
       ..writeByte(0)
       ..write(obj.boxName)
       ..writeByte(1)
@@ -38,6 +38,8 @@ class IndexedDictionaryAdapter extends TypeAdapter<IndexedDictionary> {
       ..writeByte(3)
       ..write(obj.isReadyToUse)
       ..writeByte(4)
-      ..write(obj.order);
+      ..write(obj.order)
+      ..writeByte(5)
+      ..write(obj.hash);
   }
 }

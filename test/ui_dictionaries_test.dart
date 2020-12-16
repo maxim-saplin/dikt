@@ -18,7 +18,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'finders.dart';
 
 void main() {
-  const hivePath = './hive_test';
+  const hivePath = './test/tmp';
 
   setUpAll(() async {
     print('Setting up tests');
@@ -190,8 +190,7 @@ void main() {
       expect(b.byChildText('↘'), findsOneWidget);
     });
 
-    testWidgets('Dictionary can be dragged to DELETE area',
-        (WidgetTester tester) async {
+    dragToDelete(WidgetTester tester) async {
       // double pumps to convrt fo cases like below:
       //  if (snapshot.hasData) {
       //    Timer.run(() {
@@ -202,6 +201,11 @@ void main() {
 
       var d = find.byType(typeOf<LongPressDraggable<int>>()).last;
       expect(d, findsOneWidget);
+
+      var name = tester
+          .widgetList(d.byChildType(Column).first.byChildType(Text).first)
+          .first as Text;
+      //print(name.data);
 
       var firstLocation = tester.getCenter(d);
       var gesture = await tester.startGesture(firstLocation, pointer: 7);
@@ -220,6 +224,30 @@ void main() {
       await tester.pumpAndSettle(Duration(milliseconds: 1000));
 
       expect(find.byType(AlertDialog), findsOneWidget);
+
+      return name?.data;
+    }
+
+    ;
+    testWidgets('Dictionary can be dragged to DELETE area', dragToDelete);
+
+    testWidgets('Dictionary can be DELETED', (WidgetTester tester) async {
+      var dicName = await dragToDelete(tester);
+
+      expect(find.byType(OfflineDictionaryTile), findsNWidgets(3));
+      expect(find.byType(OfflineDictionaryTile).byChildText(dicName),
+          findsOneWidget);
+
+      var delete = find.text('Delete');
+      expect(delete, findsOneWidget);
+      await tester.tap(delete);
+      await tester.pumpAndSettle(Duration(milliseconds: 1000));
+      await tester.pumpAndSettle(Duration(milliseconds: 1000));
+      expect(find.byType(AlertDialog), findsNothing);
+
+      expect(find.byType(OfflineDictionaryTile), findsNWidgets(2));
+      expect(find.byType(OfflineDictionaryTile).byChildText(dicName),
+          findsNothing);
     });
   });
 }
@@ -244,9 +272,6 @@ Future _createWidget(WidgetTester tester, Widget widget) async {
   await tester.pumpWidget(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider<OnlineDictionaryManager>(
-          create: (context) => OnlineDictionaryManager(FakeOnlineRepo()),
-        ),
         ChangeNotifierProvider<DictionaryManager>(
           create: (context) {
             var dicManager = DictionaryManager();
@@ -254,6 +279,10 @@ Future _createWidget(WidgetTester tester, Widget widget) async {
             dicManager.indexAndLoadDictionaries(true);
             return dicManager;
           },
+        ),
+        ChangeNotifierProvider<OnlineDictionaryManager>(
+          create: (context) => OnlineDictionaryManager(FakeOnlineRepo(),
+              Provider.of<DictionaryManager>(context, listen: false)),
         ),
         ChangeNotifierProvider<MasterDictionary>(create: (context) {
           var master = MasterDictionary();

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:typed_data';
+import 'package:dikt/models/dictionaryManager.dart';
 import 'package:flutter/foundation.dart';
 
 import '../common/preferencesSingleton.dart';
@@ -10,10 +11,11 @@ class OnlineDictionaryManager extends ChangeNotifier with Debounce {
       'https://ipfs.io/ipfs/QmWByPsvVmTH7fMoSWFxECTWgnYJRcCZmdFzhLNhejqHzm';
 
   final OnlineRepo _repo;
+  final DictionaryManager _offlineManager;
 
   static const String repoUrlParam = 'repoUrl';
 
-  OnlineDictionaryManager(this._repo);
+  OnlineDictionaryManager(this._repo, this._offlineManager);
 
   String _repoUrl;
 
@@ -53,7 +55,13 @@ class OnlineDictionaryManager extends ChangeNotifier with Debounce {
     _repo.getDictionariesList(repoUrl).then((value) {
       _loading = false;
       _repoError = null;
-      _dictionaries = value.map((e) => OnlineDictionary(e)).toList();
+      _dictionaries = value
+          .map((e) => OnlineDictionary(
+              e,
+              _offlineManager.exisitsByHash(e.hash)
+                  ? OnlineDictionaryState.downloaded
+                  : OnlineDictionaryState.notDownloaded))
+          .toList();
       PreferencesSingleton.sp.setString(repoUrlParam, repoUrl);
     }).catchError((err) {
       _loading = false;
@@ -109,10 +117,13 @@ enum OnlineDictionaryState {
 }
 
 class OnlineDictionary {
-  OnlineDictionaryState _state = OnlineDictionaryState.notDownloaded;
+  OnlineDictionaryState _state;
   final RepoDictionary repoDictionary;
 
-  OnlineDictionary(this.repoDictionary);
+  OnlineDictionary(this.repoDictionary,
+      [this._state = OnlineDictionaryState.notDownloaded]);
+
+  OnlineDictionaryState get state => _state;
 }
 
 class RepoDictionary {

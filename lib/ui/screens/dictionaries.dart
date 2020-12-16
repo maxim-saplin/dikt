@@ -83,7 +83,7 @@ class Dictionaries extends HookWidget {
 class OnlineDictionaries extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    var od = Provider.of<OnlineDictionaryManager>(context);
+    var odm = Provider.of<OnlineDictionaryManager>(context);
     const dicHeight = 50.0;
 
     return Column(mainAxisSize: MainAxisSize.min, children: [
@@ -93,7 +93,7 @@ class OnlineDictionaries extends StatelessWidget {
         Expanded(
             child: TextFormField(
                 onChanged: (value) {
-                  od.repoUrl = value;
+                  odm.repoUrl = value;
                 },
                 style: TextStyle(
                     fontStyle: FontStyle.italic,
@@ -102,9 +102,9 @@ class OnlineDictionaries extends StatelessWidget {
                         .bodyText2
                         .color
                         .withAlpha(155)),
-                initialValue: OnlineDictionaryManager.defaultUrl)),
+                initialValue: odm.repoUrl)),
       ]),
-      od.loading
+      odm.loading
           ? Padding(
               padding: EdgeInsets.fromLTRB(0, 0, 0, 6),
               child: LinearProgressIndicator(
@@ -118,19 +118,19 @@ class OnlineDictionaries extends StatelessWidget {
         alignment: Alignment.center,
         children: [
           Opacity(
-              opacity: od.loading ? 0.1 : 1,
+              opacity: odm.loading ? 0.1 : 1,
               child: SingleChildScrollView(
                   child: Column(children: [
-                (od.repoError != null
-                    ? Text(od.repoError)
-                    : (od.dictionaries == null || od.dictionaries.length == 0
+                (odm.repoError != null
+                    ? Text(odm.repoError)
+                    : (odm.dictionaries == null || odm.dictionaries.length == 0
                         ? Text('No dictonaries in the repository')
                         : LayoutBuilder(
                             builder: (context, constraints) => Wrap(
                                   spacing: 5,
-                                  children: od.dictionaries
+                                  children: odm.dictionaries
                                       .map((e) => OnlineDictionaryTile(
-                                          e.repoDictionary,
+                                          e,
                                           dicHeight,
                                           constraints.maxWidth < 440
                                               ? 440
@@ -138,7 +138,7 @@ class OnlineDictionaries extends StatelessWidget {
                                       .toList(),
                                 ))))
               ]))),
-          !od.loading ? SizedBox() : Text('Loading...'),
+          !odm.loading ? SizedBox() : Text('Loading...'),
         ],
       )),
       Container(
@@ -170,7 +170,7 @@ class OnlineDictionaryTile extends StatelessWidget {
 
   final double dicHeight;
   final double dicWidth;
-  final RepoDictionary dictionary;
+  final OnlineDictionary dictionary;
 
   @override
   Widget build(BuildContext context) {
@@ -188,23 +188,28 @@ class OnlineDictionaryTile extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                     Tooltip(
-                        message: dictionary.name,
+                        message: dictionary.repoDictionary.name,
                         waitDuration: Duration(seconds: 1),
-                        child: Text(dictionary.name,
+                        child: Text(dictionary.repoDictionary.name,
                             softWrap: false,
                             maxLines: 1,
                             style: TextStyle(fontSize: 18))),
                     Text(
-                        dictionary.words.toString() +
+                        dictionary.repoDictionary.words.toString() +
                             ' words, ' +
-                            (dictionary.sizeBytes / 1024 / 1024)
+                            (dictionary.repoDictionary.sizeBytes / 1024 / 1024)
                                 .toStringAsFixed(1) +
                             'Mb',
                         softWrap: false,
                         maxLines: 1,
                         style: Theme.of(context).textTheme.subtitle2)
                   ])),
-              IconButton(icon: Icon(Icons.download_sharp), onPressed: () {})
+              IconButton(
+                  icon: Icon(
+                      dictionary.state == OnlineDictionaryState.notDownloaded
+                          ? Icons.download_sharp
+                          : Icons.delete),
+                  onPressed: () {})
             ]));
   }
 }

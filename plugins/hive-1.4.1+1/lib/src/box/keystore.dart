@@ -26,6 +26,10 @@ class KeyTransaction<E> {
 
 /// Not part of public API
 class Keystore<E> {
+  void doneInsertingKeys() {
+    if (appendOnly) (_store as AppendOnlyList).sortKeys();
+  }
+
   final BoxBase<E> _box;
 
   final ChangeNotifier _notifier;
@@ -38,10 +42,11 @@ class Keystore<E> {
 
   var _deletedEntries = 0;
   var _autoIncrement = -1;
+  final bool appendOnly;
 
   /// Not part of public API
   Keystore(this._box, this._notifier, KeyComparator keyComparator,
-      [bool appendOnly]) {
+      [this.appendOnly = false]) {
     _store = !appendOnly
         ? IndexableSkipList(keyComparator ?? defaultKeyComparator)
         : AppendOnlyList(keyComparator ?? defaultKeyComparator);

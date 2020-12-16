@@ -78,7 +78,8 @@ class MyApp extends StatelessWidget {
             create: (context) => DictionaryManager(),
           ),
           ChangeNotifierProvider<OnlineDictionaryManager>(
-            create: (context) => OnlineDictionaryManager(FakeOnlineRepo()),
+            create: (context) => OnlineDictionaryManager(FakeOnlineRepo(),
+                Provider.of<DictionaryManager>(context, listen: false)),
           ),
           ChangeNotifierProvider<Preferences>(
             create: (context) => Preferences(),
