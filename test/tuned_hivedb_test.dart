@@ -105,6 +105,7 @@ void main() {
     var ms = await measureAvgMs(() {
       for (var m in matches) {
         for (var w in m) {
+          // ignore: unused_local_variable
           var value = b.get(w);
         }
       }
@@ -116,6 +117,7 @@ void main() {
     var ms2 = await measureAvgMs(() async {
       for (var m in matches) {
         for (var w in m) {
+          // ignore: unused_local_variable
           var value = b2.get(w);
         }
       }

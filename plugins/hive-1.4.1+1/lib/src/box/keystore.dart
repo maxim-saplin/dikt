@@ -26,10 +26,6 @@ class KeyTransaction<E> {
 
 /// Not part of public API
 class Keystore<E> {
-  void doneInsertingKeys() {
-    if (appendOnly) (_store as AppendOnlyList).sortKeys();
-  }
-
   final BoxBase<E> _box;
 
   final ChangeNotifier _notifier;
@@ -42,6 +38,8 @@ class Keystore<E> {
 
   var _deletedEntries = 0;
   var _autoIncrement = -1;
+
+  ///Whether the keyStore uses AppendOnlyList
   final bool appendOnly;
 
   /// Not part of public API

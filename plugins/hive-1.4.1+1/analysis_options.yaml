@@ -3,6 +3,7 @@ analyzer:
   exclude:
     - "**/*.g.dart"
     - "example/*"
+    - "**/util/collection2/*"
   strong-mode:
     implicit-casts: true
   errors:

@@ -42,6 +42,8 @@ class DictionaryLoading extends StatelessWidget {
 }
 
 class DictionaryLoadingNoAlign extends HookWidget {
+  static bool fadeShown = false;
+
   @override
   Widget build(BuildContext context) {
     var manager = Provider.of<DictionaryManager>(context);
@@ -56,7 +58,7 @@ class DictionaryLoadingNoAlign extends HookWidget {
       Container(
           width: 256,
           height: 36,
-          color: Colors.transparent,
+          color: Theme.of(context).canvasColor,
           child: Center(
               child: Text(
             'Loading dictionaries: '.i18n +
@@ -73,12 +75,21 @@ class DictionaryLoadingNoAlign extends HookWidget {
       ),
     ]);
 
+    Widget fade = SizedBox();
+
+    if (!manager.isRunning &&
+        manager.currentOperation == ManagerCurrentOperation.idle &&
+        !fadeShown) {
+      fadeShown = true;
+      fade = FadeTransition(
+          child: ui,
+          opacity: useAnimationController(duration: Duration(seconds: 2))
+            ..reverse(from: 0.6));
+    }
+
     return manager.currentOperation == ManagerCurrentOperation.loading &&
             manager.isRunning
         ? Opacity(opacity: 0.3, child: ui)
-        : FadeTransition(
-            child: ui,
-            opacity: useAnimationController(duration: Duration(seconds: 2))
-              ..reverse(from: 0.6));
+        : fade;
   }
 }

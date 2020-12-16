@@ -50,44 +50,40 @@ class _KeyReader {
   _KeyReader(this.fileReader);
 
   Future<int> readKeys(Keystore keystore, HiveCipher cipher) async {
-    try {
-      await _load(4);
-      while (true) {
-        var frameOffset = fileReader.offset;
+    await _load(4);
+    while (true) {
+      var frameOffset = fileReader.offset;
 
-        if (_reader.availableBytes < 4) {
-          var available = await _load(4);
-          if (available == 0) {
-            break;
-          } else if (available < 4) {
-            return frameOffset;
-          }
+      if (_reader.availableBytes < 4) {
+        var available = await _load(4);
+        if (available == 0) {
+          break;
+        } else if (available < 4) {
+          return frameOffset;
         }
-
-        var frameLength = _reader.peekUint32();
-        if (_reader.availableBytes < frameLength) {
-          var available = await _load(frameLength);
-          if (available < frameLength) return frameOffset;
-        }
-
-        var frame = _reader.readFrame(
-          cipher: cipher,
-          lazy: true,
-          frameOffset: frameOffset,
-        );
-        if (frame == null) return frameOffset;
-
-        keystore.insert(frame,
-            notify: false,
-            checkEixsting: false); // speedup load with bypassing checks
-
-        fileReader.skip(frameLength);
       }
 
-      return -1;
-    } finally {
-      keystore.doneInsertingKeys();
+      var frameLength = _reader.peekUint32();
+      if (_reader.availableBytes < frameLength) {
+        var available = await _load(frameLength);
+        if (available < frameLength) return frameOffset;
+      }
+
+      var frame = _reader.readFrame(
+        cipher: cipher,
+        lazy: true,
+        frameOffset: frameOffset,
+      );
+      if (frame == null) return frameOffset;
+
+      keystore.insert(frame,
+          notify: false,
+          checkEixsting: false); // speedup load with bypassing checks
+
+      fileReader.skip(frameLength);
     }
+
+    return -1;
   }
 
   Future<int> _load(int bytes) async {
