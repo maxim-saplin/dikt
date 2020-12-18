@@ -152,7 +152,7 @@ void main() {
     print('Not tuned: ' + ms2.toString());
     print('Time decrease: ${((ms2 - ms) / ms2 * 100).toStringAsFixed(1)}%');
     expect(ms < ms2, true);
-  }, skip: false); // test can be slow, better skip in regular use
+  }, skip: true); // test can be slow, better skip in regular use
 }
 
 Future<HNT.LazyBox<Uint8List>> initHNT() async {

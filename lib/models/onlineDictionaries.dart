@@ -119,9 +119,27 @@ enum OnlineDictionaryState {
 class OnlineDictionary {
   OnlineDictionaryState _state;
   final RepoDictionary repoDictionary;
+  String _nameNotHighlighted = '';
+  String _nameHighlighted = '';
+
+  String get nameNotHighlighted => _nameNotHighlighted;
+  String get nameHighlighted => _nameHighlighted;
 
   OnlineDictionary(this.repoDictionary,
-      [this._state = OnlineDictionaryState.notDownloaded]);
+      [this._state = OnlineDictionaryState.notDownloaded]) {
+    // EN_EN WordNet 3
+    if (repoDictionary.name.length > 4 &&
+        repoDictionary.name[5] == ' ' &&
+        repoDictionary.name[2] == '_') {
+      _nameHighlighted = repoDictionary.name.substring(0, 5);
+      if (repoDictionary.name.length > 7) {
+        _nameNotHighlighted =
+            repoDictionary.name.substring(6, repoDictionary.name.length);
+      }
+    } else {
+      _nameNotHighlighted = repoDictionary.name;
+    }
+  }
 
   OnlineDictionaryState get state => _state;
 }

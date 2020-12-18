@@ -49,6 +49,7 @@ dependencies:
       ref: 5b3b930da18244ecf2a7140a0e33a9892273797c
   dictionary_bundler:
   flutter_hooks: ^0.14.1-nullsafety
+  superellipse_shape: ^0.1.5
 
 dependency_overrides:
   flutter_svg: 0.18.0 #Flutter 1.20 and flutter_html issue

@@ -20,90 +20,97 @@ class WordArticles extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Stack(children: [
-      FutureBuilder(
-        future: articles,
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            var list = snapshot.data as List<Article>;
+      Center(
+          child: Stack(children: [
+        FutureBuilder(
+          future: articles,
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              var list = snapshot.data as List<Article>;
+              return Padding(
+                  padding: EdgeInsets.fromLTRB(0, 25, 0, 50),
+                  child: PrimaryScrollController(
+                      controller: scrollController,
+                      child: Scrollbar(
+                          child: CustomScrollView(
+                        physics: BouncingScrollPhysics(),
+                        semanticChildCount: list.length,
+                        scrollDirection: Axis.vertical,
+                        shrinkWrap: true,
+                        slivers: list
+                            .map((article) => SliverStickyHeader(
+                                  header: Align(
+                                      child: Container(
+                                    padding: EdgeInsets.fromLTRB(18, 0, 18, 0),
+                                    height: 30.0,
+                                    color: Theme.of(context).cardColor,
+                                    child: Text(article.dictionaryName,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .subtitle2),
+                                    alignment: Alignment.bottomRight,
+                                  )),
+                                  sliver: SliverList(
+                                    delegate: SliverChildBuilderDelegate(
+                                        (context, i) {
+                                      return Padding(
+                                          padding: EdgeInsets.fromLTRB(
+                                              10, 0, 10, 10),
+                                          child: Html(
+                                            data: article.article,
+                                            onLinkTap: (url) {
+                                              if (showAnotherWord != null)
+                                                showAnotherWord(url);
+                                            },
+                                            style: {
+                                              "div": Style(
+                                                  fontFamily:
+                                                      'sans-serif-light',
+                                                  padding: EdgeInsets.all(0),
+                                                  fontSize: FontSize(19)),
+                                            },
+                                          ));
+                                    }, childCount: 1),
+                                  ),
+                                ))
+                            .toList(),
+                      ))));
+            }
             return Padding(
                 padding: EdgeInsets.fromLTRB(0, 25, 0, 50),
-                child: PrimaryScrollController(
-                    controller: scrollController,
-                    child: Scrollbar(
-                        child: CustomScrollView(
-                      physics: BouncingScrollPhysics(),
-                      semanticChildCount: list.length,
-                      scrollDirection: Axis.vertical,
-                      shrinkWrap: true,
-                      slivers: list
-                          .map((article) => SliverStickyHeader(
-                                header: Align(
-                                    child: Container(
-                                  padding: EdgeInsets.fromLTRB(18, 0, 18, 0),
-                                  height: 30.0,
-                                  color: Theme.of(context).cardColor,
-                                  child: Text(article.dictionaryName,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .subtitle2),
-                                  alignment: Alignment.bottomRight,
-                                )),
-                                sliver: SliverList(
-                                  delegate:
-                                      SliverChildBuilderDelegate((context, i) {
-                                    return Padding(
-                                        padding:
-                                            EdgeInsets.fromLTRB(10, 0, 10, 10),
-                                        child: Html(
-                                          data: article.article,
-                                          onLinkTap: (url) {
-                                            if (showAnotherWord != null)
-                                              showAnotherWord(url);
-                                          },
-                                          style: {
-                                            "div": Style(
-                                                fontFamily: 'sans-serif-light',
-                                                padding: EdgeInsets.all(0),
-                                                fontSize: FontSize(19)),
-                                          },
-                                        ));
-                                  }, childCount: 1),
-                                ),
-                              ))
-                          .toList(),
-                    ))));
-          }
-          return Padding(
-              padding: EdgeInsets.fromLTRB(0, 25, 0, 50),
-              child: Container(
-                  width: 10000,
-                  height: 40,
-                  child: Align(
-                    child: Text('...'),
-                    alignment: Alignment.center,
-                  )));
-        },
-      ),
-      Container(
-          padding: EdgeInsets.fromLTRB(10, 10, 10, 0),
-          color: Theme.of(context).cardColor,
-          height: 34.0,
-          width: 1000,
-          child: SelectableText(
-            word,
-            style: Theme.of(context).textTheme.headline6,
-          )),
-      Positioned(
-        child: FlatButton(
-          onPressed: () {
-            Navigator.of(context).pop();
+                child: Container(
+                    width: 10000,
+                    height: 40,
+                    child: Align(
+                      child: Text('...'),
+                      alignment: Alignment.center,
+                    )));
           },
-          child: Text('▽'),
         ),
+        Container(
+            padding: EdgeInsets.fromLTRB(10, 10, 10, 0),
+            color: Theme.of(context).cardColor,
+            height: 34.0,
+            width: 1000,
+            child: SelectableText(
+              word,
+              style: Theme.of(context).textTheme.headline6,
+            )),
+      ])),
+      Positioned(
+        child: Container(
+            padding: EdgeInsets.only(left: 30, right: 30),
+            color: Theme.of(context).scaffoldBackgroundColor.withAlpha(105),
+            child: FlatButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('▽'),
+            )),
         bottom: 0.0,
-        left: 30.0,
-        right: 30.0,
-        height: 45,
+        left: 0.0,
+        right: 00.0,
+        height: 50,
       )
     ]);
   }

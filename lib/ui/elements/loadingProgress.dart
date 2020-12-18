@@ -54,7 +54,7 @@ class DictionaryLoadingNoAlign extends HookWidget {
             previousValue +
             (element.state == DictionaryBeingProcessedState.success ? 1 : 0));
 
-    var ui = Stack(alignment: Alignment.bottomCenter, children: [
+    var ui = Stack(alignment: Alignment.centerLeft, children: [
       Container(
           width: 256,
           height: 36,
@@ -70,8 +70,8 @@ class DictionaryLoadingNoAlign extends HookWidget {
       Container(
         child: SizedBox(),
         color: Colors.grey,
-        width: 256,
-        height: 3,
+        width: 4,
+        height: 36,
       ),
     ]);
 

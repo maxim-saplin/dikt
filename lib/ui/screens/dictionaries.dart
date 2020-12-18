@@ -11,6 +11,7 @@ import 'package:provider/provider.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:file_chooser/file_chooser.dart';
+import 'package:superellipse_shape/superellipse_shape.dart';
 
 import '../../models/dictionaryManager.dart';
 import '../../models/masterDictionary.dart';
@@ -127,6 +128,7 @@ class OnlineDictionaries extends StatelessWidget {
                         ? Text('No dictonaries in the repository')
                         : LayoutBuilder(
                             builder: (context, constraints) => Wrap(
+                                  clipBehavior: Clip.hardEdge,
                                   spacing: 5,
                                   children: odm.dictionaries
                                       .map((e) => OnlineDictionaryTile(
@@ -180,8 +182,22 @@ class OnlineDictionaryTile extends StatelessWidget {
         //color: Colors.yellow,
         child: Row(
             mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
+              Padding(
+                  padding: EdgeInsets.only(right: 8),
+                  child: Container(
+                      decoration: BoxDecoration(
+                          color: Colors.grey.withAlpha(24),
+                          border: Border(
+                              right: BorderSide(
+                                  color: Colors.grey.withAlpha(64), width: 3))),
+                      child: IconButton(
+                          icon: Icon(dictionary.state ==
+                                  OnlineDictionaryState.notDownloaded
+                              ? Icons.download_sharp
+                              : Icons.delete),
+                          onPressed: () {}))),
               Flexible(
                   child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -190,10 +206,33 @@ class OnlineDictionaryTile extends StatelessWidget {
                     Tooltip(
                         message: dictionary.repoDictionary.name,
                         waitDuration: Duration(seconds: 1),
-                        child: Text(dictionary.repoDictionary.name,
-                            softWrap: false,
-                            maxLines: 1,
-                            style: TextStyle(fontSize: 18))),
+                        child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              dictionary.nameHighlighted != ''
+                                  ? Material(
+                                      color: Colors.red.withAlpha(64),
+                                      shape: SuperellipseShape(
+                                        borderRadius: BorderRadius.circular(28),
+                                      ),
+                                      child: Padding(
+                                          padding: EdgeInsets.only(
+                                              left: 4, right: 4),
+                                          child: Text(
+                                              dictionary.nameHighlighted,
+                                              style: TextStyle(fontSize: 16))))
+                                  : SizedBox(),
+                              // Clip large text
+                              Flexible(
+                                  child: Padding(
+                                      padding: EdgeInsets.only(left: 3),
+                                      child: Text(dictionary.nameNotHighlighted,
+                                          softWrap: false,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.clip,
+                                          style: TextStyle(fontSize: 16))))
+                            ])),
                     Text(
                         dictionary.repoDictionary.words.toString() +
                             ' words, ' +
@@ -204,12 +243,6 @@ class OnlineDictionaryTile extends StatelessWidget {
                         maxLines: 1,
                         style: Theme.of(context).textTheme.subtitle2)
                   ])),
-              IconButton(
-                  icon: Icon(
-                      dictionary.state == OnlineDictionaryState.notDownloaded
-                          ? Icons.download_sharp
-                          : Icons.delete),
-                  onPressed: () {})
             ]));
   }
 }
@@ -438,47 +471,49 @@ class OfflineDictionaryTile extends StatelessWidget {
                   }
                 },
               )),
-          Container(
-              padding: EdgeInsets.fromLTRB(6, 0, 0, 0),
-              height: 55,
-              child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(dictionary.name,
-                        overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context).textTheme.caption),
-                    dictionary.isError
-                        ? Text('error', style: TextStyle(color: Colors.red))
-                        : FutureBuilder(
-                            future: dictionary
-                                .openBox(), //disabled boxes are not loaded upon start
-                            builder: (context, snapshot) {
-                              if (snapshot.hasData) {
-                                Timer.run(() {
-                                  Provider.of<MasterDictionary>(context,
-                                          listen: false)
-                                      ?.notify();
-                                }); // let Lookup update (e.g. no history and number of entries shown) if a new dictionary is imported
-                                return Text(
-                                  dictionary.box.length.toString() +
-                                      ' ' +
-                                      'entries'.i18n +
-                                      (!kIsWeb
-                                          ? ', ' +
-                                              dictionary.fileSizeMb
-                                                  .toStringAsFixed(1) +
-                                              "MB"
-                                          : ''),
-                                  overflow: TextOverflow.ellipsis,
-                                  style: Theme.of(context).textTheme.subtitle2,
-                                );
-                              } else {
-                                return Text('...');
-                              }
-                            })
-                  ])),
+          Flexible(
+              child: Container(
+                  padding: EdgeInsets.fromLTRB(6, 0, 0, 0),
+                  height: 55,
+                  child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(dictionary.name,
+                            overflow: TextOverflow.ellipsis,
+                            style: Theme.of(context).textTheme.caption),
+                        dictionary.isError
+                            ? Text('error', style: TextStyle(color: Colors.red))
+                            : FutureBuilder(
+                                future: dictionary
+                                    .openBox(), //disabled boxes are not loaded upon start
+                                builder: (context, snapshot) {
+                                  if (snapshot.hasData) {
+                                    Timer.run(() {
+                                      Provider.of<MasterDictionary>(context,
+                                              listen: false)
+                                          ?.notify();
+                                    }); // let Lookup update (e.g. no history and number of entries shown) if a new dictionary is imported
+                                    return Text(
+                                      dictionary.box.length.toString() +
+                                          ' ' +
+                                          'entries'.i18n +
+                                          (!kIsWeb
+                                              ? ', ' +
+                                                  dictionary.fileSizeMb
+                                                      .toStringAsFixed(1) +
+                                                  "MB"
+                                              : ''),
+                                      overflow: TextOverflow.ellipsis,
+                                      style:
+                                          Theme.of(context).textTheme.subtitle2,
+                                    );
+                                  } else {
+                                    return Text('...');
+                                  }
+                                })
+                      ]))),
         ]));
   }
 }
