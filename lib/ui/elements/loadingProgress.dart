@@ -8,25 +8,33 @@ import '../../common/i18n.dart';
 class DictionaryIndexingOrLoading extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    var manager = Provider.of<DictionaryManager>(context);
-    switch (manager.currentOperation) {
-      case ManagerCurrentOperation.loading:
-        return DictionaryLoading();
-      case ManagerCurrentOperation.indexing:
-        return Padding(padding: EdgeInsets.all(12), child: ManagerState());
-      default:
-        return Text('');
+    if (!fadeShown) {
+      var manager = Provider.of<DictionaryManager>(context);
+      switch (manager.currentOperation) {
+        // case ManagerCurrentOperation.loading:
+        //   return DictionaryLoading();
+        case ManagerCurrentOperation.indexing:
+          return Padding(padding: EdgeInsets.all(12), child: ManagerState());
+        default:
+          return DictionaryLoading();
+      }
     }
+
+    return SizedBox();
   }
 }
 
 class DictionaryIndexing extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    var manager = Provider.of<DictionaryManager>(context);
-    return manager.currentOperation == ManagerCurrentOperation.indexing
-        ? Padding(padding: EdgeInsets.all(12), child: ManagerState())
-        : Text('');
+    if (!fadeShown) {
+      var manager = Provider.of<DictionaryManager>(context);
+      return manager.currentOperation == ManagerCurrentOperation.indexing
+          ? Padding(padding: EdgeInsets.all(12), child: ManagerState())
+          : Text('');
+    }
+
+    return SizedBox();
   }
 }
 
@@ -41,9 +49,9 @@ class DictionaryLoading extends StatelessWidget {
   }
 }
 
-class DictionaryLoadingNoAlign extends HookWidget {
-  static bool fadeShown = false;
+bool fadeShown = false;
 
+class DictionaryLoadingNoAlign extends HookWidget {
   @override
   Widget build(BuildContext context) {
     var manager = Provider.of<DictionaryManager>(context);

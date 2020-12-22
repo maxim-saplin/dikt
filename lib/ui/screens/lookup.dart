@@ -29,9 +29,7 @@ class Lookup extends StatelessWidget {
     var history = Provider.of<History>(context, listen: false);
 
     return Stack(children: [
-      narrow && !dictionary.isFullyLoaded
-          ? DictionaryIndexingOrLoading()
-          : Text(''),
+      narrow ? DictionaryIndexingOrLoading() : Text(''),
       !dictionary.isPartiallyLoaded
           ? Text('')
           : ((dictionary.isLookupWordEmpty && history.wordsCount < 1) ||

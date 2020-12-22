@@ -6,6 +6,7 @@ import 'package:dikt/models/dictionaryManager.dart';
 import 'package:dikt/models/indexedDictionary.dart';
 import 'package:dikt/models/masterDictionary.dart';
 import 'package:dikt/models/onlineDictionaries.dart';
+import 'package:dikt/models/onlineDictionariesFakes.dart';
 import 'package:dikt/ui/screens/dictionaries.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -80,14 +81,17 @@ void main() {
       expect(find.byType(OnlineDictionaryTile), findsNWidgets(5));
     });
 
-    testWidgets('Dictionary data is displayed', (WidgetTester tester) async {
+    testWidgets('Dictionary data is properly displayed',
+        (WidgetTester tester) async {
       await _openOnlineDictionariesAndWaitToLoad(tester);
 
       var d = find.byType(OnlineDictionaryTile).first;
 
       expect(d, findsOneWidget);
-      expect(
-          d.byChildText(FakeOnlineRepo.dictionaries[0].name), findsOneWidget);
+
+      expect(d.byChildText('EN_RU'), findsOneWidget);
+      expect(d.byChildText('Universal Lngv'), findsOneWidget);
+
       expect(d.byChildText(FakeOnlineRepo.dictionaries[0].words.toString()),
           findsOneWidget);
       expect(
@@ -95,7 +99,75 @@ void main() {
               .toStringAsFixed(1)
               .toString()),
           findsOneWidget);
-      expect(d.byChildIcon(Icons.download_sharp), findsOneWidget);
+      expect(d.byChildText('+'), findsOneWidget);
+      //expect(d.byChildIcon(Icons.download_sharp), findsOneWidget);
+    });
+
+    testWidgets('Clicking on a not-downloaded dictionary starts downloading',
+        (WidgetTester tester) async {
+      await _openOnlineDictionariesAndWaitToLoad(tester);
+
+      var d = find.byType(OnlineDictionaryTile).first;
+      var t = d.byChildText('+').hitTestable();
+      expect(t, findsOneWidget);
+      await tester.tap(t);
+      await tester.pump();
+      expect(d.byChildType(LinearProgressIndicator), findsOneWidget);
+
+      expect(d.byChildText('■'), findsOneWidget);
+      await tester
+          .pumpAndSettle(); // finish timers that mimic fake stream download
+    });
+
+    Future<Finder> tapDictionaryWithError(WidgetTester tester) async {
+      await _openOnlineDictionariesAndWaitToLoad(tester);
+
+      var d = find
+          .byType(OnlineDictionaryTile)
+          .at(4); // 5th dictionary throws in repo.download()
+      var t = d.byChildText('+').hitTestable();
+
+      // peek into what text is visible
+      // var w = tester.widgetList(d.byChildType(Text)).toList();
+
+      expect(t, findsOneWidget);
+      await tester.tap(t);
+      await tester.pump();
+
+      expect(d.byChildText('↻'), findsOneWidget);
+      expect(d.byChildText('error'), findsOneWidget);
+
+      return d;
+    }
+
+    testWidgets('Error while initiating download is properly handled',
+        (WidgetTester tester) => tapDictionaryWithError(tester));
+
+    testWidgets('Error during download is properly handled',
+        (WidgetTester tester) async {
+      await _openOnlineDictionariesAndWaitToLoad(tester);
+
+      var d = find
+          .byType(OnlineDictionaryTile)
+          .at(2); // 3rd dictionary throws error in Stream
+      var t = d.byChildText('+').hitTestable();
+
+      expect(t, findsOneWidget);
+      await tester.tap(t);
+      await tester.pumpAndSettle();
+
+      expect(d.byChildText('↻'), findsOneWidget);
+      expect(d.byChildText('Error downloading dictionary'), findsOneWidget);
+    });
+
+    testWidgets('Errorored dictionary can be retried and download',
+        (WidgetTester tester) async {
+      var d = await tapDictionaryWithError(tester);
+      // Fake allows second tap to finish without error
+      var t = d.byChildText('↻');
+      await tester.tap(t);
+      await tester.pumpAndSettle();
+      expect(d.byChildText('×'), findsOneWidget);
     });
 
     testWidgets('Invalid URL shows error', (WidgetTester tester) async {

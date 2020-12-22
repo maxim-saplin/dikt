@@ -58,6 +58,7 @@ class OnlineDictionaryManager extends ChangeNotifier with Debounce {
       _dictionaries = value
           .map((e) => OnlineDictionary(
               e,
+              _repo,
               _offlineManager.exisitsByHash(e.hash)
                   ? OnlineDictionaryState.downloaded
                   : OnlineDictionaryState.notDownloaded))
@@ -116,17 +117,20 @@ enum OnlineDictionaryState {
   error
 }
 
-class OnlineDictionary {
+class OnlineDictionary extends ChangeNotifier {
   OnlineDictionaryState _state;
   final RepoDictionary repoDictionary;
+  final OnlineRepo _repo;
   String _nameNotHighlighted = '';
   String _nameHighlighted = '';
+  int _bytesDownloaded = 0;
+  int _downloadProgress = 0;
 
   String get nameNotHighlighted => _nameNotHighlighted;
   String get nameHighlighted => _nameHighlighted;
+  int get downloadProgress => _downloadProgress;
 
-  OnlineDictionary(this.repoDictionary,
-      [this._state = OnlineDictionaryState.notDownloaded]) {
+  OnlineDictionary(this.repoDictionary, this._repo, this._state) {
     // EN_EN WordNet 3
     if (repoDictionary.name.length > 4 &&
         repoDictionary.name[5] == ' ' &&
@@ -138,6 +142,73 @@ class OnlineDictionary {
       }
     } else {
       _nameNotHighlighted = repoDictionary.name;
+    }
+  }
+
+  RepoDownloader _downloader;
+
+  String _error;
+
+  String get error => _error;
+
+  void download() {
+    if (_state == OnlineDictionaryState.notDownloaded ||
+        _state == OnlineDictionaryState.error) {
+      _state = OnlineDictionaryState.downloading;
+      notifyListeners();
+
+      void onError(e) {
+        _state = OnlineDictionaryState.error;
+        _error = e.toString();
+        notifyListeners();
+      }
+
+      try {
+        _downloader = _repo.downloadDictionary(repoDictionary.url);
+
+        _bytesDownloaded = 0;
+
+        // -1 - unknown length, wait until stream is done
+        _downloadProgress = _downloader.length == -1 ? -1 : 0;
+
+        _downloader.bytes.listen(
+            (e) {
+              _bytesDownloaded += e.length;
+              if (_downloadProgress > -1) {
+                var p = (_bytesDownloaded / _downloader.length * 100).round();
+                if (p != _downloadProgress) {
+                  _downloadProgress = p;
+                  notifyListeners();
+                }
+              }
+            },
+            cancelOnError: true,
+            onError: onError,
+            onDone: () {
+              _state = OnlineDictionaryState.downloaded;
+              _downloadProgress = 100;
+              notifyListeners();
+            });
+      } catch (e) {
+        onError(e);
+      }
+    }
+  }
+
+  void cancelDownload() {
+    if (_state == OnlineDictionaryState.downloading) {
+      _state = OnlineDictionaryState.notDownloaded;
+
+      notifyListeners();
+    }
+  }
+
+  void deleteOffline() {
+    if (_state == OnlineDictionaryState.downloaded ||
+        _state == OnlineDictionaryState.indexing) {
+      _state = OnlineDictionaryState.notDownloaded;
+
+      notifyListeners();
     }
   }
 
@@ -154,11 +225,19 @@ class RepoDictionary {
   RepoDictionary(this.url, this.name, this.words, this.sizeBytes, this.hash);
 }
 
-class RepoDownloader {
-  final Stream<Uint8List> bytes;
+abstract class RepoDownloader {
   final int length;
+  Stream<Uint8List> _bytes;
+  Stream<Uint8List> get bytes => _bytes;
 
-  RepoDownloader(this.bytes, this.length);
+  @protected
+  set bytes(Stream<Uint8List> value) {
+    _bytes = value;
+  }
+
+  RepoDownloader(this.length);
+
+  void cancel() {}
 }
 
 abstract class OnlineRepo {
@@ -178,80 +257,4 @@ abstract class OnlineRepo {
   Future<List<RepoDictionary>> getDictionariesList(String url);
 
   RepoDownloader downloadDictionary(String url);
-}
-
-class FakeOnlineRepo extends OnlineRepo {
-  static List<RepoDictionary> dictionaries = [
-    RepoDictionary('https://repo.by/1', 'EN_RU Universal Lngv', 100100,
-        101 * 1024 * 1024, '1'),
-    RepoDictionary('https://repo.by/2', 'RU_EN Universal Lngv', 100200,
-        102 * 1024 * 1024, '2'),
-    RepoDictionary('https://repo.by/3', 'RU_RU Толковый словарь Даля', 100300,
-        103 * 1024 * 1024, '3'),
-    RepoDictionary('https://repo.by/4', 'EN_EN WordNet 3.0', 100400,
-        104 * 1024 * 1024, '4'),
-    RepoDictionary('https://repo.by/5', 'RU_BY Словарь НАН РБ (ред. Крапивы)',
-        100500, 105 * 1024 * 1024, '5'),
-    RepoDictionary('https://repo.by/6', 'BY_RU Cлоўнік (А. Варвуль)', 100600,
-        106 * 1024 * 1024, '6'),
-    RepoDictionary('https://repo.by/7', 'BY_BY Тлумачальны слоўнік', 100700,
-        107 * 1024 * 1024, '7'),
-    RepoDictionary('https://repo.by/8', 'BY_EN Cлоўнік Якуба Коласа', 100800,
-        108 * 1024 * 1024, '8'),
-    RepoDictionary('https://repo.by/9', 'EN_BY Universal Kolas', 100900,
-        109 * 1024 * 1024, '9'),
-    RepoDictionary(
-        'https://repo.by/10', 'BY_UA Cлоўнік', 101000, 110 * 1024 * 1024, '10'),
-  ];
-
-  static const String defaultUrl =
-      'https://ipfs.io/ipfs/QmWByPsvVmTH7fMoSWFxECTWgnYJRcCZmdFzhLNhejqHzm';
-
-  static const String secondUrl =
-      'https://ipfs.io/ipfs/QmWByPsvVmTH7fMoSWFxECTWgnYJRcCZmdFzhLNhejqHz2';
-
-  static const Duration _timeoutMs = Duration(milliseconds: 2430);
-
-  @override
-  Future<List<RepoDictionary>> getDictionariesList(String url) {
-    if (url == null) throw 'URL not set';
-    if (url == defaultUrl)
-      return Future<List<RepoDictionary>>.delayed(
-          _timeoutMs, () => dictionaries.toList());
-
-    if (url == secondUrl)
-      return Future<List<RepoDictionary>>.delayed(
-          _timeoutMs, () => dictionaries.reversed.take(5).toList());
-
-    return Future<List<RepoDictionary>>.delayed(
-        _timeoutMs, () => throw 'Repository not available');
-  }
-
-  Stream<Uint8List> getBytes(int lengthBytes) async* {
-    var chunkSize = (lengthBytes / 100).round();
-    var totalSize = 0;
-
-    for (int i = 0; i < 100; i++) {
-      totalSize += chunkSize;
-      var n = chunkSize;
-      if (totalSize > lengthBytes) n = lengthBytes + chunkSize - totalSize;
-      await Future.delayed(const Duration(milliseconds: 10));
-      yield Uint8List(n);
-    }
-  }
-
-  @override
-  RepoDownloader downloadDictionary(String url) {
-    RepoDictionary dic;
-
-    try {
-      dic = dictionaries.where((e) => e.url == url).first;
-    } catch (_) {
-      throw 'Dictionary not found';
-    }
-
-    var bytes = getBytes(dic.sizeBytes);
-
-    return RepoDownloader(bytes, dic.sizeBytes);
-  }
 }

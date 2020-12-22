@@ -1,8 +1,6 @@
 import 'dart:async';
 import 'dart:io' show Platform;
 
-import 'package:dikt/common/preferencesSingleton.dart';
-import 'package:dikt/models/onlineDictionaries.dart';
 import 'package:double_back_to_close/double_back_to_close.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -14,6 +12,10 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 
+import 'package:dikt/common/preferencesSingleton.dart';
+import 'package:dikt/models/onlineDictionaries.dart';
+import 'package:dikt/ui/themes.dart';
+
 import './models/masterDictionary.dart';
 import './models/preferences.dart';
 import './ui/screens/lookup.dart';
@@ -22,6 +24,7 @@ import './models/history.dart';
 import './models/dictionaryManager.dart';
 import './common/analyticsObserver.dart';
 import './common/i18n.dart';
+import 'models/onlineDictionariesFakes.dart';
 import 'ui/routes.dart';
 //import 'package:dictionary_bundler/main.dart' show test;
 
@@ -72,6 +75,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var narrow = false;
+
     return MultiProvider(
         providers: [
           ChangeNotifierProvider<DictionaryManager>(
@@ -182,81 +186,4 @@ class MyApp extends StatelessWidget {
     }
     return false;
   }
-
-  final ThemeData lightTheme = ThemeData.light().copyWith(
-      outlinedButtonTheme: OutlinedButtonThemeData(
-          style: ButtonStyle(
-              foregroundColor: MaterialStateProperty.all<Color>(Colors.black))),
-      inputDecorationTheme: InputDecorationTheme(
-          focusedBorder: InputBorder.none,
-          border: InputBorder.none,
-          labelStyle: TextStyle(
-              fontSize: 18, fontFamily: 'Montserrat', color: Colors.red)),
-      textTheme: TextTheme(
-        button: TextStyle(
-            fontSize: 18, fontFamily: 'Montserrat', color: Colors.black),
-        headline6: TextStyle(
-          fontSize: 20.0,
-          color: Colors.black,
-          fontFamily: 'Montserrat',
-          fontWeight: FontWeight.bold,
-        ),
-        // standard TextField()
-        subtitle1: TextStyle(
-          fontSize: 20.0,
-          fontFamily: 'Montserrat',
-          color: Colors.black,
-        ),
-        subtitle2: TextStyle(
-          fontSize: 16.0,
-          fontFamily: 'Montserrat',
-          fontStyle: FontStyle.italic,
-          color: Colors.black.withAlpha(128),
-        ),
-        // standard Text()
-        bodyText2: TextStyle(
-            fontSize: 20.0, fontFamily: 'Montserrat', color: Colors.black),
-        // italic Text()
-        bodyText1: TextStyle(
-            fontSize: 20.0,
-            fontFamily: 'Montserrat',
-            fontStyle: FontStyle.italic,
-            color: Colors.black),
-        // Dictionary card, dictionary  name
-        caption: TextStyle(
-            fontSize: 17.0, fontFamily: 'Montserrat', color: Colors.black),
-      ));
-
-  final ThemeData darkTheme = ThemeData.dark().copyWith(
-      cardColor: Color.fromARGB(255, 50, 50, 50),
-      scaffoldBackgroundColor: Color.fromARGB(255, 40, 40, 40),
-      dialogBackgroundColor: Color.fromARGB(255, 50, 50, 50),
-      outlinedButtonTheme: OutlinedButtonThemeData(
-          style: ButtonStyle(
-              foregroundColor: MaterialStateProperty.all<Color>(Colors.white))),
-      textTheme: TextTheme(
-        button: TextStyle(fontSize: 18, fontFamily: 'Montserrat'),
-        headline6: TextStyle(
-          fontSize: 20.0,
-          color: Colors.white,
-          fontFamily: 'Montserrat',
-          fontWeight: FontWeight.bold,
-        ),
-        subtitle1: TextStyle(
-          fontSize: 20.0,
-          fontFamily: 'Montserrat',
-          color: Colors.white,
-        ),
-        subtitle2: TextStyle(
-          fontSize: 16.0,
-          fontFamily: 'Montserrat',
-          fontStyle: FontStyle.italic,
-          color: Colors.white.withAlpha(128),
-        ),
-        bodyText2: TextStyle(
-            fontSize: 20.0, fontFamily: 'Montserrat', color: Colors.white),
-        // Dictionary card, dictionary  name
-        caption: TextStyle(
-            fontSize: 17.0, fontFamily: 'Montserrat', color: Colors.white),
-      ));
 }
