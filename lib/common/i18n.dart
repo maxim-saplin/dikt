@@ -36,7 +36,10 @@ extension Localization on String {
           'Analytics': 'Analytics',
           'On': 'On',
           'Off': 'Off',
-          'Loading dictionaries: ': 'Loading dictionaries: '
+          'Loading dictionaries: ': 'Loading dictionaries: ',
+          '← Offline': '← Offline',
+          'Downloading...': 'Downloading...',
+          'Indexing...': 'Indexing...'
         },
         'be': {
           'Search': 'Пошук',

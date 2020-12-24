@@ -7,7 +7,8 @@ import 'package:dikt/models/indexedDictionary.dart';
 import 'package:dikt/models/masterDictionary.dart';
 import 'package:dikt/models/onlineDictionaries.dart';
 import 'package:dikt/models/onlineDictionariesFakes.dart';
-import 'package:dikt/ui/screens/dictionaries.dart';
+import 'package:dikt/ui/screens/offlineDictionaries.dart';
+import 'package:dikt/ui/screens/onlineDictionaries.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -127,9 +128,6 @@ void main() {
           .at(4); // 5th dictionary throws in repo.download()
       var t = d.byChildText('+').hitTestable();
 
-      // peek into what text is visible
-      // var w = tester.widgetList(d.byChildType(Text)).toList();
-
       expect(t, findsOneWidget);
       await tester.tap(t);
       await tester.pump();
@@ -158,6 +156,72 @@ void main() {
 
       expect(d.byChildText('↻'), findsOneWidget);
       expect(d.byChildText('Error downloading dictionary'), findsOneWidget);
+    });
+
+    testWidgets('Error during indexing is properly handled',
+        (WidgetTester tester) async {
+      await _openOnlineDictionariesAndWaitToLoad(tester);
+
+      var d = find
+          .byType(OnlineDictionaryTile)
+          .at(1); // 2nd dictionary throws error in Stream
+      var t = d.byChildText('+').hitTestable();
+
+      expect(t, findsOneWidget);
+      await tester.tap(t);
+      await tester.pump(); // Downloading...
+      expect(d.byChildText('Downloading'), findsOneWidget);
+      await tester.pump(Duration(seconds: 3)); // Indexing...
+
+      expect(d.byChildText('Indexing'), findsOneWidget);
+      await tester.pumpAndSettle();
+
+      expect(d.byChildText('↻'), findsOneWidget);
+      expect(d.byChildText('Error indexing dictionary'), findsOneWidget);
+    });
+
+    testWidgets('Download can be canceled', (WidgetTester tester) async {
+      await _openOnlineDictionariesAndWaitToLoad(tester);
+
+      var d = find.byType(OnlineDictionaryTile).at(5);
+      var t = d.byChildText('+').hitTestable();
+
+      expect(t, findsOneWidget);
+      await tester.tap(t);
+      await tester.pump(Duration(milliseconds: 100)); // Downloading...
+      // peek into what text is visible
+      //var w = tester.widgetList(d.byChildType(Text)).toList();
+
+      expect(d.byChildText('Downloading'), findsOneWidget);
+
+      t = d.byChildText('■').hitTestable();
+      expect(t, findsOneWidget);
+      await tester.tap(t);
+      await tester.pumpAndSettle();
+      t = d.byChildText('+').hitTestable();
+      expect(t, findsOneWidget);
+    });
+
+    testWidgets('Indexing can be canceled', (WidgetTester tester) async {
+      await _openOnlineDictionariesAndWaitToLoad(tester);
+
+      var d = find.byType(OnlineDictionaryTile).at(5);
+      var t = d.byChildText('+').hitTestable();
+
+      expect(t, findsOneWidget);
+      await tester.tap(t);
+      await tester.pump(Duration(milliseconds: 100)); // Downloading...
+
+      expect(d.byChildText('Downloading'), findsOneWidget);
+      await tester.pump(Duration(seconds: 3)); // Indexing...
+      expect(d.byChildText('Indexing'), findsOneWidget);
+
+      t = d.byChildText('■').hitTestable();
+      expect(t, findsOneWidget);
+      await tester.tap(t);
+      await tester.pumpAndSettle();
+      t = d.byChildText('+').hitTestable();
+      expect(t, findsOneWidget);
     });
 
     testWidgets('Errorored dictionary can be retried and download',
@@ -353,8 +417,8 @@ Future _createWidget(WidgetTester tester, Widget widget) async {
           },
         ),
         ChangeNotifierProvider<OnlineDictionaryManager>(
-          create: (context) => OnlineDictionaryManager(FakeOnlineRepo(),
-              Provider.of<DictionaryManager>(context, listen: false)),
+          create: (context) =>
+              OnlineDictionaryManager(FakeOnlineRepo(), OnlineToOfflineFake()),
         ),
         ChangeNotifierProvider<MasterDictionary>(create: (context) {
           var master = MasterDictionary();

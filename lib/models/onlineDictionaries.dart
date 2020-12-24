@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:typed_data';
-import 'package:dikt/models/dictionaryManager.dart';
 import 'package:flutter/foundation.dart';
 
 import '../common/preferencesSingleton.dart';
@@ -11,11 +10,11 @@ class OnlineDictionaryManager extends ChangeNotifier with Debounce {
       'https://ipfs.io/ipfs/QmWByPsvVmTH7fMoSWFxECTWgnYJRcCZmdFzhLNhejqHzm';
 
   final OnlineRepo _repo;
-  final DictionaryManager _offlineManager;
+  final OnlineToOffline _onlineToOffline;
 
   static const String repoUrlParam = 'repoUrl';
 
-  OnlineDictionaryManager(this._repo, this._offlineManager);
+  OnlineDictionaryManager(this._repo, this._onlineToOffline);
 
   String _repoUrl;
 
@@ -59,7 +58,8 @@ class OnlineDictionaryManager extends ChangeNotifier with Debounce {
           .map((e) => OnlineDictionary(
               e,
               _repo,
-              _offlineManager.exisitsByHash(e.hash)
+              _onlineToOffline,
+              _onlineToOffline.isDictionaryDownloaded(e.hash)
                   ? OnlineDictionaryState.downloaded
                   : OnlineDictionaryState.notDownloaded))
           .toList();
@@ -121,16 +121,18 @@ class OnlineDictionary extends ChangeNotifier {
   OnlineDictionaryState _state;
   final RepoDictionary repoDictionary;
   final OnlineRepo _repo;
+  final OnlineToOffline _onToOff;
   String _nameNotHighlighted = '';
   String _nameHighlighted = '';
   int _bytesDownloaded = 0;
-  int _downloadProgress = 0;
+  int _progressPrecent = 0;
 
   String get nameNotHighlighted => _nameNotHighlighted;
   String get nameHighlighted => _nameHighlighted;
-  int get downloadProgress => _downloadProgress;
+  int get progressPercent => _progressPrecent;
 
-  OnlineDictionary(this.repoDictionary, this._repo, this._state) {
+  OnlineDictionary(
+      this.repoDictionary, this._repo, this._onToOff, this._state) {
     // EN_EN WordNet 3
     if (repoDictionary.name.length > 4 &&
         repoDictionary.name[5] == ' ' &&
@@ -151,9 +153,13 @@ class OnlineDictionary extends ChangeNotifier {
 
   String get error => _error;
 
+  bool _downloadOrIndexingCanceled = false;
+
   void download() {
     if (_state == OnlineDictionaryState.notDownloaded ||
         _state == OnlineDictionaryState.error) {
+      _downloadOrIndexingCanceled = false;
+
       _state = OnlineDictionaryState.downloading;
       notifyListeners();
 
@@ -169,15 +175,17 @@ class OnlineDictionary extends ChangeNotifier {
         _bytesDownloaded = 0;
 
         // -1 - unknown length, wait until stream is done
-        _downloadProgress = _downloader.length == -1 ? -1 : 0;
+        _progressPrecent = _downloader.length == -1 ? -1 : 0;
+        var bytes = BytesBuilder();
 
         _downloader.bytes.listen(
-            (e) {
+            (Uint8List e) {
               _bytesDownloaded += e.length;
-              if (_downloadProgress > -1) {
+              bytes.add(e);
+              if (_progressPrecent > -1) {
                 var p = (_bytesDownloaded / _downloader.length * 100).round();
-                if (p != _downloadProgress) {
-                  _downloadProgress = p;
+                if (p != _progressPrecent) {
+                  _progressPrecent = p;
                   notifyListeners();
                 }
               }
@@ -185,9 +193,29 @@ class OnlineDictionary extends ChangeNotifier {
             cancelOnError: true,
             onError: onError,
             onDone: () {
-              _state = OnlineDictionaryState.downloaded;
-              _downloadProgress = 100;
-              notifyListeners();
+              if (!_downloadOrIndexingCanceled) {
+                _state = OnlineDictionaryState.indexing;
+                _progressPrecent = 0;
+                notifyListeners();
+
+                _onToOff
+                    .indexDictionary(repoDictionary.name, repoDictionary.hash,
+                        bytes.takeBytes())
+                    .listen(
+                        (int p) {
+                          _progressPrecent = p;
+                          notifyListeners();
+                        },
+                        cancelOnError: true,
+                        onDone: () {
+                          if (!_downloadOrIndexingCanceled) {
+                            _state = OnlineDictionaryState.downloaded;
+                            _progressPrecent = 100;
+                            notifyListeners();
+                          }
+                        },
+                        onError: onError);
+              }
             });
       } catch (e) {
         onError(e);
@@ -196,19 +224,19 @@ class OnlineDictionary extends ChangeNotifier {
   }
 
   void cancelDownload() {
-    if (_state == OnlineDictionaryState.downloading) {
-      _state = OnlineDictionaryState.notDownloaded;
-
-      notifyListeners();
-    }
+    if (_state == OnlineDictionaryState.downloading) _downloader.cancel();
+    deleteOffline();
   }
 
   void deleteOffline() {
     if (_state == OnlineDictionaryState.downloaded ||
+        _state == OnlineDictionaryState.downloading ||
         _state == OnlineDictionaryState.indexing) {
       _state = OnlineDictionaryState.notDownloaded;
 
+      _downloadOrIndexingCanceled = true;
       notifyListeners();
+      _onToOff.cancelIndexingOrDelete(repoDictionary.hash);
     }
   }
 
@@ -237,7 +265,13 @@ abstract class RepoDownloader {
 
   RepoDownloader(this.length);
 
-  void cancel() {}
+  bool _canceled = false;
+
+  bool get canceled => _canceled;
+
+  void cancel() {
+    _canceled = true;
+  }
 }
 
 abstract class OnlineRepo {
@@ -257,4 +291,10 @@ abstract class OnlineRepo {
   Future<List<RepoDictionary>> getDictionariesList(String url);
 
   RepoDownloader downloadDictionary(String url);
+}
+
+abstract class OnlineToOffline {
+  bool isDictionaryDownloaded(String hash);
+  Stream<int> indexDictionary(String name, String hash, Uint8List bytes);
+  void cancelIndexingOrDelete(String hash);
 }

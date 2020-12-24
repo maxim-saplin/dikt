@@ -1,5 +1,78 @@
+import 'dart:async';
 import 'dart:typed_data';
 import './onlineDictionaries.dart';
+
+class OnlineToOfflineFake extends OnlineToOffline {
+  final String throwErrorHash = '2';
+  List<String> downloadedHashes = ['4'];
+  Map<String, StreamController<int>> scs = {};
+
+  @override
+  void cancelIndexingOrDelete(String hash) {
+    if (scs.containsKey(hash)) {
+      scs[hash].close();
+      scs.remove(hash);
+    } else
+      downloadedHashes.remove(hash);
+  }
+
+  bool _throw = false;
+
+  void _index(StreamSink<int> sink) {
+    var i = 0;
+    Function callback;
+    bool sinkClosed = false;
+
+    sink.done.whenComplete(() => sinkClosed = true);
+    void f() {
+      Future.delayed(Duration(milliseconds: 50)).whenComplete(() {
+        if (sinkClosed) return;
+
+        if (i == 50 && _throw) {
+          sink.addError('Error indexing dictionary');
+          sink.close();
+          return;
+        }
+
+        sink.add(i++);
+        if (i < 100) {
+          callback();
+        } else
+          sink.close();
+      });
+    }
+
+    callback = f;
+    f();
+  }
+
+  @override
+  Stream<int> indexDictionary(String name, String hash, Uint8List bytes) {
+    var sc = StreamController<int>();
+    scs[hash] = sc;
+    var canceled = false;
+    sc.done.then((v) {
+      if (!canceled) {
+        downloadedHashes.add(hash);
+        scs.remove(hash);
+      }
+    });
+    sc.onCancel = () {
+      scs.remove(hash);
+      canceled = true;
+    };
+
+    _throw = hash == throwErrorHash;
+    _index(sc.sink);
+
+    return sc.stream;
+  }
+
+  @override
+  bool isDictionaryDownloaded(String hash) {
+    return downloadedHashes.contains(hash);
+  }
+}
 
 class FakeRepoDownloader extends RepoDownloader {
   final bool throwError;
@@ -18,6 +91,9 @@ class FakeRepoDownloader extends RepoDownloader {
     var totalSize = 0;
 
     for (int i = 0; i < 100; i++) {
+      if (canceled) {
+        return;
+      }
       if (i == 50 && throwError) throw 'Error downloading dictionary';
       totalSize += chunkSize;
       var n = chunkSize;
@@ -32,12 +108,16 @@ class FakeOnlineRepo extends OnlineRepo {
   static List<RepoDictionary> dictionaries = [
     RepoDictionary('https://repo.by/1', 'EN_RU Universal Lngv', 100100,
         101 * 1024 * 1024, '1'),
+    // Throws error while indexing
     RepoDictionary('https://repo.by/2', 'RU_EN Universal Lngv', 100200,
         102 * 1024 * 1024, '2'),
+    // Throws error while downloaing
     RepoDictionary('https://repo.by/3', 'RU_RU Толковый словарь Даля', 100300,
         103 * 1024 * 1024, '3'),
+    // Shows as downloaded by default
     RepoDictionary('https://repo.by/4', 'EN_EN WordNet 3.0', 100400,
         104 * 1024 * 1024, '4'),
+    // Throws error while initating download
     RepoDictionary('https://repo.by/5', 'RU_BY Словарь НАН РБ (ред. Крапивы)',
         100500, 105 * 1024 * 1024, '5'),
     RepoDictionary('https://repo.by/6', 'BY_RU Cлоўнік (А. Варвуль)', 100600,
@@ -101,7 +181,9 @@ class FakeOnlineRepo extends OnlineRepo {
       fifthError = !fifthError;
     }
 
-    if (i == 2 && thirdError) {
+    if (i != 2)
+      thirdError = false;
+    else if (i == 2 && thirdError) {
       thirdError = !thirdError;
     } else if (i == 2 && !thirdError) {
       thirdError = !thirdError;

@@ -163,7 +163,6 @@ class DictionaryManager extends ChangeNotifier {
     }
 
     _currentOperation = ManagerCurrentOperation.loading;
-    //await Future.delayed(Duration(seconds: 15));
     await _loadEnabledDictionaries();
 
     _initDictionaryCollections();
