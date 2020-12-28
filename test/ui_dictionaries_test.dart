@@ -48,6 +48,10 @@ void main() {
   });
 
   group('Online Dictionaries', () {
+    // setUp(() async {
+    //   print('Online Dictionaries Set-up before test');
+    // });
+
     testWidgets('Empty URL shows error', (WidgetTester tester) async {
       await _openOnlineDictionariesAndWaitToLoad(tester);
 
@@ -118,6 +122,32 @@ void main() {
       expect(d.byChildText('■'), findsOneWidget);
       await tester
           .pumpAndSettle(); // finish timers that mimic fake stream download
+    });
+
+    testWidgets('Simultaneous download is possible',
+        (WidgetTester tester) async {
+      await _openOnlineDictionariesAndWaitToLoad(tester);
+
+      var d = find.byType(OnlineDictionaryTile).first;
+      var t = d.byChildText('+').hitTestable();
+      expect(t, findsOneWidget);
+      await tester.tap(t);
+      await tester.pump(Duration(milliseconds: 10));
+
+      var d7 = find.byType(OnlineDictionaryTile).at(6);
+      var t7 = d7.byChildText('+').hitTestable();
+      expect(t7, findsOneWidget);
+      await tester.tap(t7);
+      await tester.pump(Duration(milliseconds: 10));
+
+      expect(d.byChildType(LinearProgressIndicator), findsOneWidget);
+      expect(d.byChildText('■'), findsOneWidget);
+      expect(d7.byChildType(LinearProgressIndicator), findsOneWidget);
+      expect(d7.byChildText('■'), findsOneWidget);
+
+      await tester.pumpAndSettle();
+      expect(d.byChildText('×'), findsOneWidget);
+      expect(d7.byChildText('×'), findsOneWidget);
     });
 
     Future<Finder> tapDictionaryWithError(WidgetTester tester) async {
@@ -198,6 +228,29 @@ void main() {
       expect(t, findsOneWidget);
       await tester.tap(t);
       await tester.pumpAndSettle();
+      t = d.byChildText('+').hitTestable();
+      expect(t, findsOneWidget);
+    });
+
+    testWidgets('Downloaded dictionary can be deleted',
+        (WidgetTester tester) async {
+      await _openOnlineDictionariesAndWaitToLoad(tester);
+
+      var d = find.byType(OnlineDictionaryTile).at(3);
+      expect(d, findsOneWidget);
+      var t = d.byChildText('×').hitTestable();
+      expect(t, findsOneWidget);
+
+      await tester.tap(t);
+      await tester.pumpAndSettle();
+
+      expect(find.byType(AlertDialog), findsOneWidget);
+
+      var delete = find.text('Delete');
+      expect(delete, findsOneWidget);
+      await tester.tap(delete);
+      await tester.pumpAndSettle();
+
       t = d.byChildText('+').hitTestable();
       expect(t, findsOneWidget);
     });
@@ -393,14 +446,14 @@ Type typeOf<T>() => T;
 class MockSharedPrefferences extends Mock implements SharedPreferences {}
 
 Future _createOnlineDictionaries(WidgetTester tester) async {
-  await _createWidget(tester, OnlineDictionaries());
+  await _createAndWrapWidget(tester, OnlineDictionaries());
 }
 
 Future _createOfflineDictionaries(WidgetTester tester) async {
-  await _createWidget(tester, OfflineDictionaries());
+  await _createAndWrapWidget(tester, OfflineDictionaries());
 }
 
-Future _createWidget(WidgetTester tester, Widget widget) async {
+Future _createAndWrapWidget(WidgetTester tester, Widget widget) async {
   var sp = MockSharedPrefferences();
   await PreferencesSingleton.init(sp);
   when(sp.getString('')).thenAnswer((_) => null);

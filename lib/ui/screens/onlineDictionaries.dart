@@ -1,4 +1,3 @@
-import 'package:dikt/models/onlineDictionaries.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -8,6 +7,8 @@ import 'package:superellipse_shape/superellipse_shape.dart';
 import '../routes.dart';
 import '../themes.dart';
 import '../../common/i18n.dart';
+import '../../models/onlineDictionaries.dart';
+import '../../ui/elements/deleteConfirmation.dart';
 
 class OnlineDictionaries extends StatelessWidget {
   @override
@@ -124,7 +125,9 @@ class OnlineDictionaryTile extends HookWidget {
             style: TextStyle(
                 fontSize: 24, fontWeight: FontWeight.bold)); //Icons.delete;
         onPressed = () {
-          data.deleteOffline();
+          confirmAndDelete(context, data.repoDictionary.name, () {
+            data.deleteOffline();
+          });
         };
         break;
       case OnlineDictionaryState.error:

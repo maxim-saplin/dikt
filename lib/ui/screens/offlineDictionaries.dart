@@ -15,6 +15,7 @@ import '../../common/i18n.dart';
 import '../elements/managerState.dart';
 import '../routes.dart';
 import '../../models/indexedDictionary.dart';
+import '../../ui/elements/deleteConfirmation.dart';
 
 class OfflineDictionaries extends StatefulWidget {
   @override
@@ -109,33 +110,38 @@ class _OfflineDictionariesState extends State<OfflineDictionaries> {
         child: Stack(alignment: AlignmentDirectional.bottomCenter, children: [
           DragTarget<int>(onAccept: (index) {
             _cancelReorder = true;
-            showDialog(
-                context: context,
-                barrierColor: !kIsWeb ? Colors.transparent : Colors.black54,
-                routeSettings: RouteSettings(name: '/delete_dic'),
-                builder: (context) => AlertDialog(
-                      content: Text('Delete_dic'
-                          .i18n
-                          .fill([manager.dictionariesReady[index].name])),
-                      actions: [
-                        FlatButton(
-                          child: Text('Delete'.i18n),
-                          onPressed: () {
-                            manager.deleteReadyDictionary(index);
-                            Provider.of<MasterDictionary>(context,
-                                    listen: false)
-                                ?.notify();
-                            Navigator.of(context).pop();
-                          },
-                        ),
-                        FlatButton(
-                          child: Text('Cancel'.i18n),
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
-                        )
-                      ],
-                    ));
+            confirmAndDelete(context, manager.dictionariesReady[index].name,
+                () {
+              manager.deleteReadyDictionary(index);
+              Provider.of<MasterDictionary>(context, listen: false)?.notify();
+            });
+            // showDialog(
+            //     context: context,
+            //     barrierColor: !kIsWeb ? Colors.transparent : Colors.black54,
+            //     routeSettings: RouteSettings(name: '/delete_dic'),
+            //     builder: (context) => AlertDialog(
+            //           content: Text('Delete_dic'
+            //               .i18n
+            //               .fill([manager.dictionariesReady[index].name])),
+            //           actions: [
+            //             FlatButton(
+            //               child: Text('Delete'.i18n),
+            //               onPressed: () {
+            //                 manager.deleteReadyDictionary(index);
+            //                 Provider.of<MasterDictionary>(context,
+            //                         listen: false)
+            //                     ?.notify();
+            //                 Navigator.of(context).pop();
+            //               },
+            //             ),
+            //             FlatButton(
+            //               child: Text('Cancel'.i18n),
+            //               onPressed: () {
+            //                 Navigator.of(context).pop();
+            //               },
+            //             )
+            //           ],
+            //         ));
           }, onWillAccept: (data) {
             return true;
           }, builder: (context, List<int> candidateData, rejectedData) {
