@@ -13,13 +13,18 @@ import 'package:sprintf/sprintf.dart';
 import 'package:archive/archive.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+
 import 'indexedDictionary.dart';
 import 'bulk_insert/bulk_insert.dart';
-
 import '../common/fileStream.dart';
 
 String nameToBoxName(String name) {
-  return 'dik_' + name.replaceAll(RegExp('[^A-Za-z0-9]'), '').toLowerCase();
+  var boxName = 'dik_' + name.replaceAll(' ', '_').toLowerCase();
+
+  if (boxName.length > 127)
+    boxName = boxName.substring(0, min(127, boxName.length));
+
+  return boxName;
 }
 
 class BundledJsonDictionary {
@@ -99,7 +104,8 @@ class DictionaryBeingProcessed {
             .last
             .split('\\')
             .last
-            .replaceFirst('.json', ''),
+            .replaceFirst('.json', '')
+            .replaceFirst('.dikt', ''),
         this.indexedDictionary = null,
         this.bundledJsonDictionary = null,
         this.bundledBinaryDictionary = null;
@@ -191,6 +197,8 @@ class DictionaryManager extends ChangeNotifier {
       if (d.isEnabled && !d.isError) _dictionariesEnabledList.add(d);
     }
   }
+
+  int get totalDictionaries => _dictionariesAllList.length;
 
   void _sortAllDictionariesByOrder() {
     _dictionariesAllList.sort((a, b) {
@@ -347,8 +355,9 @@ class DictionaryManager extends ChangeNotifier {
 
           d.save();
         } else if (!d.isBundled) {
-          _dictionaries.delete(d.boxName);
+          print("Canceling box indexing: " + d.boxName);
           d.delete();
+          _dictionaries.delete(d.boxName);
         }
         dictionariesProcessed[i].state = DictionaryBeingProcessedState.success;
         notifyListeners();
@@ -358,8 +367,9 @@ class DictionaryManager extends ChangeNotifier {
         d.isError = true;
 
         if (!d.isBundled) {
-          _dictionaries.delete(d.boxName);
+          var boxName = d.boxName;
           d.delete();
+          _dictionaries.delete(boxName);
         }
 
         print("Error indexing box: " + d.boxName + "\n" + err.toString());
@@ -371,7 +381,7 @@ class DictionaryManager extends ChangeNotifier {
     }
   }
 
-  Future<void> loadFromJsonFiles(List<PlatformFile> files) async {
+  Future<void> loadFromJsonOrDiktFiles(List<PlatformFile> files) async {
     _isRunning = true;
     _canceled = false;
     _dictionariesBeingProcessed = [];
@@ -380,7 +390,7 @@ class DictionaryManager extends ChangeNotifier {
     _currentOperation = ManagerCurrentOperation.preparing;
     notifyListeners();
 
-    print('Processing JSON files: ' + DateTime.now().toString());
+    print('Processing JSON/DIKT files: ' + DateTime.now().toString());
 
     for (var f in files) {
       _dictionariesBeingProcessed.add(DictionaryBeingProcessed.file(f));
@@ -395,12 +405,15 @@ class DictionaryManager extends ChangeNotifier {
         notifyListeners();
       };
 
+//TODO: add WebSupport for binary dictionary format
       return kIsWeb
           ? WebIndexer(dictionaryProcessed.file, box, progress)
-          : FileIndexer(dictionaryProcessed.file, box, progress);
+          : dictionaryProcessed.file.name.endsWith('.dikt')
+              ? DiktFileIndexer(dictionaryProcessed.file, box, progress)
+              : JsonFileIndexer(dictionaryProcessed.file, box, progress);
     }
 
-    print('Indexing JSON files and loading to Hive DB: ' +
+    print('Indexing JSON/DIKT files and loading to Hive DB: ' +
         DateTime.now().toString());
     await _runIndexer(_dictionariesBeingProcessed, getIndexer,
         startOrderAt: 0 - files.length,
@@ -555,13 +568,48 @@ abstract class Indexer {
   }
 }
 
-class FileIndexer extends Indexer {
+class DiktFileIndexer extends Indexer {
   final PlatformFile file;
   final Completer<void> runCompleter = Completer<void>();
   final LazyBox<Uint8List> box;
   final Function(int progressPercent) updateProgress;
 
-  FileIndexer(this.file, this.box, this.updateProgress);
+  DiktFileIndexer(this.file, this.box, this.updateProgress);
+
+  Future<void> run() async {
+    var path = this.file.path ?? this.file.name;
+    print(path + '\n');
+    var file = ByteData.sublistView(File(path).readAsBytesSync());
+
+    var sw = Stopwatch();
+
+    print('Indexing DIKT bianry dictionary: ' + path);
+    sw.start();
+    updateProgress(3);
+    if (_canceled) {
+      runCompleter.complete();
+      return runCompleter.future;
+    }
+
+    try {
+      await _runBinaryIndexer(
+          file, box, () => _canceled, runCompleter, updateProgress);
+      print('Indexing done(ms): ' + sw.elapsedMilliseconds.toString());
+    } catch (err) {
+      runCompleter.completeError(err);
+    }
+
+    return runCompleter.future;
+  }
+}
+
+class JsonFileIndexer extends Indexer {
+  final PlatformFile file;
+  final Completer<void> runCompleter = Completer<void>();
+  final LazyBox<Uint8List> box;
+  final Function(int progressPercent) updateProgress;
+
+  JsonFileIndexer(this.file, this.box, this.updateProgress);
 
   Future<void> run() async {
     var path = this.file.path ?? this.file.name;
@@ -574,7 +622,7 @@ class FileIndexer extends Indexer {
 
     var sw = Stopwatch();
 
-    var converterZip = JsonDecoder((k, v) {
+    var converterJson = JsonDecoder((k, v) {
       if (v is String) {
         var bytes = utf8.encode(v);
         var zlibBytes = zlib.encode(bytes);
@@ -585,7 +633,9 @@ class FileIndexer extends Indexer {
       }
     });
 
-    var outSinkZip = ChunkedConversionSink.withCallback((chunks) async {
+    // Dart doesn't support chunked JSON decoding, entire map of decoded values
+    // comes in in a single chunk
+    var outSinkJson = ChunkedConversionSink.withCallback((chunks) async {
       try {
         var result = chunks.single.cast<String, Uint8List>();
         await box.putAll(result);
@@ -599,7 +649,7 @@ class FileIndexer extends Indexer {
     });
 
     sw.start();
-    var inSinkZip = converterZip.startChunkedConversion(outSinkZip);
+    var inSinkZip = converterJson.startChunkedConversion(outSinkJson);
 
     var progress = -1;
     var utf = s.transform(utf8.decoder);
@@ -607,7 +657,10 @@ class FileIndexer extends Indexer {
 
     subscription = utf.listen((event) {
       try {
-        if (_canceled) subscription?.cancel();
+        if (_canceled) {
+          subscription?.cancel();
+          runCompleter.complete();
+        }
         inSinkZip.add(event);
         var curr = (s.position / length * 100).round();
         if (curr != progress) {
@@ -643,11 +696,17 @@ class WebIndexer extends Indexer {
 
     try {
       updateProgress(0);
-      if (_canceled) return null;
+      if (_canceled) {
+        runCompleter.complete();
+        return runCompleter.future;
+      }
       var s = utf8.decode(file.bytes);
       print('JSON read (ms): ' + sw.elapsedMilliseconds.toString());
       updateProgress(1);
-      if (_canceled) return null;
+      if (_canceled) {
+        runCompleter.complete();
+        return runCompleter.future;
+      }
       Map mm = json.decode(s);
       Map<String, String> m = mm.cast<String, String>();
       print('JSON decoded (ms): ' + sw.elapsedMilliseconds.toString());
@@ -656,7 +715,10 @@ class WebIndexer extends Indexer {
       var curr = 0;
       Map<String, Uint8List> m2 = {};
       for (var e in m.entries) {
-        if (_canceled) return null;
+        if (_canceled) {
+          runCompleter.complete();
+          return runCompleter.future;
+        }
         var bytes = utf8.encode(e.value);
         var zlibBytes = zlib.encode(bytes);
         var b = Uint8List.fromList(zlibBytes);
@@ -692,6 +754,74 @@ class WebIndexer extends Indexer {
   }
 }
 
+void _runBinaryIndexer(
+    ByteData file,
+    LazyBox<Uint8List> box,
+    Function checkCanceled,
+    Completer<void> runCompleter,
+    Function(int progressPercent) updateProgress) async {
+  var m = Map<String, Uint8List>();
+  var keys = <String>[];
+  var values = <Uint8List>[];
+  var position = 0;
+
+  var count = file.getInt32(position);
+  position += 4;
+  print(count);
+  var counter = 0;
+  var curr = 0;
+
+  var db = box.indexedDb;
+  while (position < file.lengthInBytes - 1 && counter < count) {
+    counter++;
+
+    var length = file.getInt32(position);
+    position += 4;
+    var bytes = file.buffer.asUint8List(position, length);
+    var key = utf8.decode(bytes);
+    position += length;
+
+    length = file.getInt32(position);
+    position += 4;
+    bytes = file.buffer.asUint8List(position, length).sublist(0, length);
+
+    position += length;
+
+    // indexedDB inserts via Hive are super slow.
+    // Directly inserting to indexDB via JS interop.
+    // Since Maps are broken when marshaled in dart2js, using 2 arrays instead
+    if (kIsWeb) {
+      keys.add(key);
+      values.add(bytes);
+    } else {
+      m[key] = bytes;
+    }
+    var p = (counter / count * 97).round();
+    if (p != curr) {
+      if (checkCanceled()) {
+        runCompleter.complete();
+        return runCompleter.future;
+      }
+      curr = p;
+      if (kIsWeb) {
+        await toFuture(bulkInsert(db, keys, values));
+        keys.clear();
+        values.clear();
+      } else {
+        await box.putAll(m);
+        m.clear();
+      }
+      updateProgress(3 + curr);
+    }
+  }
+  if (kIsWeb) {
+    if (keys.length > 0) await toFuture(bulkInsert(db, keys, values));
+    box.close(); // Force reload to get keys in Box
+  } else if (m.length > 0) await box.putAll(m);
+
+  runCompleter.complete();
+}
+
 class BundledBinaryIndexer extends Indexer {
   final String assetName;
   final Completer<void> runCompleter = Completer<void>();
@@ -706,68 +836,15 @@ class BundledBinaryIndexer extends Indexer {
     sw.start();
     var file = await rootBundle.load(assetName);
     updateProgress(3);
-    if (_canceled) return null;
+    if (_canceled) {
+      runCompleter.complete();
+      return runCompleter.future;
+    }
 
     try {
-      var m = Map<String, Uint8List>();
-      var keys = <String>[];
-      var values = <Uint8List>[];
-      var position = 0;
-
-      var count = file.getInt32(position);
-      position += 4;
-      print(count);
-      var counter = 0;
-      var curr = 0;
-
-      var db = box.indexedDb;
-      while (position < file.lengthInBytes - 1 && counter < count) {
-        counter++;
-
-        var length = file.getInt32(position);
-        position += 4;
-        var bytes = file.buffer.asUint8List(position, length);
-        var key = utf8.decode(bytes);
-        position += length;
-
-        length = file.getInt32(position);
-        position += 4;
-        bytes = file.buffer.asUint8List(position, length).sublist(0, length);
-
-        position += length;
-
-        // indexedDB inserts via Hive are super slow.
-        // Directly inserting to indexDB via JS interop.
-        // Since Maps are broken when marshaled in dart2js, using 2 arrays instead
-        if (kIsWeb) {
-          keys.add(key);
-          values.add(bytes);
-        } else {
-          m[key] = bytes;
-        }
-        var p = (counter / count * 97).round();
-        if (p != curr) {
-          if (_canceled) return null;
-          curr = p;
-          if (kIsWeb) {
-            await toFuture(bulkInsert(db, keys, values));
-            keys.clear();
-            values.clear();
-          } else {
-            await box.putAll(m);
-            m.clear();
-          }
-          updateProgress(3 + curr);
-        }
-      }
-      if (kIsWeb) {
-        if (keys.length > 0) await toFuture(bulkInsert(db, keys, values));
-        box.close(); // Force reload to get keys in Box
-      } else if (m.length > 0) await box.putAll(m);
-
+      await _runBinaryIndexer(
+          file, box, () => _canceled, runCompleter, updateProgress);
       print('Indexing done(ms): ' + sw.elapsedMilliseconds.toString());
-
-      runCompleter.complete();
     } catch (err) {
       runCompleter.completeError(err);
     }

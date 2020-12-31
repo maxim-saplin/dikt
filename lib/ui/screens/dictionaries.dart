@@ -58,17 +58,33 @@ class Dictionaries extends HookWidget {
           return true;
         },
         child: Stack(children: [
-          Container(
-              padding: EdgeInsets.fromLTRB(12, 12, 12, 12),
-              height: 50.0,
-              child: Text(
-                'Dictionaries'.i18n,
-                style: Theme.of(context).textTheme.headline6,
-              )),
+          Title(),
           Padding(
               padding: EdgeInsets.fromLTRB(12, 50, 12, 12),
               child: //Text('TEST')
                   _offline ? OfflineDictionaries() : OnlineDictionaries())
+        ]));
+  }
+}
+
+class Title extends StatelessWidget {
+  const Title({
+    Key key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    var manager = Provider.of<DictionaryManager>(context, listen: true);
+    return Container(
+        padding: EdgeInsets.fromLTRB(12, 12, 12, 12),
+        height: 50.0,
+        child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text(
+            'Dictionaries'.i18n,
+            style: Theme.of(context).textTheme.headline6,
+          ),
+          Text(' ' + manager.totalDictionaries.toString(),
+              style: Theme.of(context).textTheme.overline)
         ]));
   }
 }

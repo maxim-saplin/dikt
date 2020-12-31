@@ -190,7 +190,7 @@ class _SearchBar extends StatelessWidget {
             child: Padding(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: Stack(children: [
+                child: Stack(alignment: Alignment.bottomRight, children: [
                   dictionary.isPartiallyLoaded
                       ? TextField(
                           controller: _controller,
@@ -227,6 +227,12 @@ class _SearchBar extends StatelessWidget {
                                       : '0_0'))),
                         )
                       : Text('...'),
+                  Opacity(
+                      opacity: 0.2,
+                      child: Text(
+                          (dictionary.lookupSw.elapsedMicroseconds / 1000)
+                              .toStringAsFixed(1),
+                          style: Theme.of(context).textTheme.overline))
                 ]))));
   }
 }

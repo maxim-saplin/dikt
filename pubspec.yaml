@@ -37,7 +37,7 @@ dependencies:
   reorderables: ^0.3.2
   double_back_to_close: ^1.0.2+mit
   fluttertoast: 7.0.1
-  file_picker: ^2.0.0
+  file_picker: ^3.0.0-nullsafety.0
   i18n_extension: ^1.4.2
   firebase_core: ^0.5.0
   firebase_analytics: ^6.0.0
@@ -47,12 +47,11 @@ dependencies:
       url: git://github.com/google/flutter-desktop-embedding.git
       path: plugins/file_chooser
       ref: 5b3b930da18244ecf2a7140a0e33a9892273797c
-  dictionary_bundler:
   flutter_hooks: ^0.14.1-nullsafety
   superellipse_shape: ^0.1.5
 
 dependency_overrides:
-  flutter_svg: 0.18.0 #Flutter 1.20 and flutter_html issue
+  # flutter_svg: 0.18.0 #Flutter 1.20 and flutter_html issue
   path: 1.6.4
   hive: # custom version remove box key assertion to be ASCII string not greater than 255 chars
     path: ./plugins/hive-1.4.1+1/
@@ -60,8 +59,6 @@ dependency_overrides:
     path: ./plugins/reorderables-0.3.2/
   flutter_html:
     path: ./plugins/flutter_html-1.0.2
-  dictionary_bundler:
-    path: ./dictionary_bundler/
 
 dev_dependencies:
   flutter_test:

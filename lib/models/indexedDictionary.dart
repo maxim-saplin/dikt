@@ -12,9 +12,9 @@ class IndexedDictionary extends HiveObject {
   bool isEnabled;
   @HiveField(2)
   String name;
+  //set to false before starting indexing and to true when done. E.g. if you reload page or close app while indexing it won't be ready and thus won't show up anywhere
   @HiveField(3)
-  bool
-      isReadyToUse; //set to false before starting indexing and to true when done. E.g. if you reload page or close app while indexing it won't be ready
+  bool isReadyToUse;
   // error while indexing
   @HiveField(4)
   int order;

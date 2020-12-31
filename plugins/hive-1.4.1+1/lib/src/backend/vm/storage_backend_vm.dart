@@ -210,7 +210,7 @@ class StorageBackendVm extends StorageBackend {
     await readRaf.close();
     await writeRaf.close();
 
-    await lockRaf.close();
+    await lockRaf?.close();
     await _lockFile.delete();
   }
 

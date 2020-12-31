@@ -1,11 +1,11 @@
 # This is a generated file; do not edit or check into version control.
 file_chooser=/private/var/user/flutter/.pub-cache/git/flutter-desktop-embedding-5b3b930da18244ecf2a7140a0e33a9892273797c/plugins/file_chooser/
-file_picker=/private/var/user/flutter/.pub-cache/hosted/pub.dartlang.org/file_picker-2.1.1/
+file_picker=/private/var/user/flutter/.pub-cache/hosted/pub.dartlang.org/file_picker-3.0.0-nullsafety.0/
 firebase_analytics=/private/var/user/flutter/.pub-cache/hosted/pub.dartlang.org/firebase_analytics-6.3.0/
 firebase_analytics_web=/private/var/user/flutter/.pub-cache/hosted/pub.dartlang.org/firebase_analytics_web-0.1.1/
 firebase_core=/private/var/user/flutter/.pub-cache/hosted/pub.dartlang.org/firebase_core-0.5.3/
 firebase_core_web=/private/var/user/flutter/.pub-cache/hosted/pub.dartlang.org/firebase_core_web-0.2.1+1/
-flutter_plugin_android_lifecycle=/private/var/user/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_plugin_android_lifecycle-1.0.11/
+flutter_plugin_android_lifecycle=/private/var/user/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_plugin_android_lifecycle-2.0.0-nullsafety/
 fluttertoast=/private/var/user/flutter/.pub-cache/hosted/pub.dartlang.org/fluttertoast-7.0.1/
 path_provider=/private/var/user/flutter/.pub-cache/hosted/pub.dartlang.org/path_provider-1.6.9/
 path_provider_linux=/private/var/user/flutter/.pub-cache/hosted/pub.dartlang.org/path_provider_linux-0.0.1+2/

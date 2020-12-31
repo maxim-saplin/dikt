@@ -26,6 +26,8 @@ import './common/analyticsObserver.dart';
 import './common/i18n.dart';
 import 'models/onlineDictionariesFakes.dart';
 import 'ui/routes.dart';
+
+// used package to run algoryth efficiency on actual platforms/devices rather than in Console app in DartVM on Mac
 //import 'package:dictionary_bundler/main.dart' show test;
 
 // Ad Blockers can break app due to exception in Firebase

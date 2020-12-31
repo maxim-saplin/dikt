@@ -55,7 +55,7 @@ class _OfflineDictionariesState extends State<OfflineDictionaries> {
       });
     }
 
-    void _importJson() async {
+    void _importJsonOrDikt() async {
       List<PlatformFile> files = [];
 
       // Platform class is not implemented in Web
@@ -64,7 +64,8 @@ class _OfflineDictionariesState extends State<OfflineDictionaries> {
           allowsMultipleSelection: true,
           canSelectDirectories: false,
           allowedFileTypes: [
-            FileTypeFilterGroup(label: 'JSON', fileExtensions: ['json']),
+            FileTypeFilterGroup(
+                label: 'JSON, DIKT', fileExtensions: ['json', 'dikt']),
           ],
         );
 
@@ -73,16 +74,19 @@ class _OfflineDictionariesState extends State<OfflineDictionaries> {
           files.add(f);
         }
       } else {
-        files = (await FilePicker.platform.pickFiles(
-                type: FileType.custom,
-                allowMultiple: true,
-                allowedExtensions: ['json']))
-            .files;
+        files = (await FilePicker.platform
+                .pickFiles(type: FileType.any, allowMultiple: true
+                    //Android greys out .dikt, some issue with MIME
+                    // type: FileType.custom,
+                    // allowMultiple: true,
+                    // allowedExtensions: ['json', 'dikt'])
+                    ))
+            ?.files;
       }
 
       if (files != null && files.length > 0) {
         manager
-            .loadFromJsonFiles(files)
+            .loadFromJsonOrDiktFiles(files)
             .whenComplete(() =>
                 Provider.of<MasterDictionary>(context, listen: false)?.notify())
             .catchError((err) {
@@ -92,7 +96,7 @@ class _OfflineDictionariesState extends State<OfflineDictionaries> {
               routeSettings: RouteSettings(name: '/dic_import_error'),
               builder: (context) => AlertDialog(
                     title: Text('There\'re issues...'.i18n),
-                    content: IntrinsicHeight(child: ManagerState()),
+                    content: SingleChildScrollView(child: ManagerState(true)),
                     actions: [
                       FlatButton(
                           child: Text('OK'),
@@ -115,33 +119,6 @@ class _OfflineDictionariesState extends State<OfflineDictionaries> {
               manager.deleteReadyDictionary(index);
               Provider.of<MasterDictionary>(context, listen: false)?.notify();
             });
-            // showDialog(
-            //     context: context,
-            //     barrierColor: !kIsWeb ? Colors.transparent : Colors.black54,
-            //     routeSettings: RouteSettings(name: '/delete_dic'),
-            //     builder: (context) => AlertDialog(
-            //           content: Text('Delete_dic'
-            //               .i18n
-            //               .fill([manager.dictionariesReady[index].name])),
-            //           actions: [
-            //             FlatButton(
-            //               child: Text('Delete'.i18n),
-            //               onPressed: () {
-            //                 manager.deleteReadyDictionary(index);
-            //                 Provider.of<MasterDictionary>(context,
-            //                         listen: false)
-            //                     ?.notify();
-            //                 Navigator.of(context).pop();
-            //               },
-            //             ),
-            //             FlatButton(
-            //               child: Text('Cancel'.i18n),
-            //               onPressed: () {
-            //                 Navigator.of(context).pop();
-            //               },
-            //             )
-            //           ],
-            //         ));
           }, onWillAccept: (data) {
             return true;
           }, builder: (context, List<int> candidateData, rejectedData) {
@@ -165,7 +142,7 @@ class _OfflineDictionariesState extends State<OfflineDictionaries> {
                                       child: Text('+ JSON'.i18n),
                                       width: 85,
                                     ),
-                                    onPressed: _importJson,
+                                    onPressed: _importJsonOrDikt,
                                   ),
                                   SizedBox(
                                     width: 10,
@@ -189,7 +166,7 @@ class _OfflineDictionariesState extends State<OfflineDictionaries> {
           manager.isRunning
               ? Padding(
                   padding: EdgeInsets.fromLTRB(0, 0, 0, 48),
-                  child: IntrinsicHeight(child: ManagerState()))
+                  child: SingleChildScrollView(child: ManagerState()))
               : Padding(
                   padding: EdgeInsets.fromLTRB(0, 0, 0, 40),
                   child: CustomScrollView(
@@ -198,7 +175,8 @@ class _OfflineDictionariesState extends State<OfflineDictionaries> {
                     slivers: <Widget>[
                       ReorderableSliverList(
                         delegate: ReorderableSliverChildListDelegate(manager
-                            .dictionariesAll
+                            //.dictionariesAll
+                            .dictionariesReady
                             .map((e) => OfflineDictionaryTile(
                                 manager: manager, dictionary: e))
                             .toList()),

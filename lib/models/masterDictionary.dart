@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:archive/archive.dart';
 import 'package:flutter/material.dart';
+
 import './dictionaryManager.dart';
 
 class Article {
@@ -84,7 +85,11 @@ class MasterDictionary extends ChangeNotifier {
     return _selectedWord;
   }
 
+  final Stopwatch lookupSw = Stopwatch();
+
   void _getMatchesForWord(String lookup) {
+    lookupSw.reset();
+    lookupSw.start();
     lookup = lookup?.toLowerCase();
     int n = 0;
     matches.clear();
@@ -100,7 +105,21 @@ class MasterDictionary extends ChangeNotifier {
     }
 
     matches.sort();
+
+    lookupSw.stop();
   }
+
+  // MBP 15 2018, 82 dicts, 3+mln keys, ~180ms
+  // void _iterateAllKeys() {
+  //   var sw = Stopwatch();
+  //   sw.start();
+
+  //   for (var d in dictionaryManager.dictionariesLoaded) {
+  //     for (var k in d.box.keys) {}
+  //   }
+  //   sw.stop();
+  //   print(sw.elapsedMilliseconds);
+  // }
 
   String getMatch(int n) {
     if (n > matches.length - 1) return '';
