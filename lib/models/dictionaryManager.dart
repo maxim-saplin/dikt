@@ -174,6 +174,7 @@ class DictionaryManager extends ChangeNotifier {
     _initDictionaryCollections();
 
     _isRunning = false;
+    //_getKeyStats();
   }
 
   void _initDictionaryCollections() {
@@ -232,9 +233,10 @@ class DictionaryManager extends ChangeNotifier {
 
         var f = Hive.openLazyBox<Uint8List>(i.indexedDictionary.boxName,
             readOnly: true,
-            useIsolate: kIsWeb || _dictionariesBeingProcessed.length == 1
-                ? false // 1 dictionary, master dictionary inint with isolate 1900ms, without - 1300ms
-                : true);
+            useIsolate:
+                kIsWeb // || _dictionariesBeingProcessed.length == 1 // 1 dictionary, master dictionary inint with isolate 1900ms, without - 1300ms, though UI is blocked...
+                    ? false
+                    : true);
 
         f.whenComplete(() {
           i.state = DictionaryBeingProcessedState.success;
@@ -546,6 +548,94 @@ class DictionaryManager extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  // void _getKeyStats() {
+  //   _iterateAllKeys();
+
+  //   var sw = Stopwatch();
+
+  //   sw.start();
+
+  //   var keysCount = 0;
+
+  //   for (var d in dictionariesLoaded) {
+  //     keysCount += d.box.length;
+  //   }
+  //   sw.stop();
+  //   print('Non-Unique keys ${keysCount} [${sw.elapsedMilliseconds}ms]');
+
+  //   List<String> keys = [];
+
+  //   sw.reset();
+  //   sw.start();
+
+  //   var bytes = 0;
+  //   var totalLength = 0;
+
+  //   for (var d in dictionariesLoaded) {
+  //     for (var k in d.box.keys) {
+  //       for (var c in k.codeUnits) {
+  //         bytes += ((c.bitLength + 1) / 8).ceil();
+  //       }
+  //       totalLength += k.length;
+  //     }
+  //   }
+  //   sw.stop();
+
+  //   print(
+  //       'Size in bytes of non-unique keys ${bytes}, total characters ${totalLength}, bytes/char ${(bytes / totalLength).toStringAsFixed(2)} [${sw.elapsedMilliseconds}ms]');
+
+  //   sw.start();
+  //   sw.reset();
+
+  //   for (var d in dictionariesLoaded) {
+  //     for (var k in d.box.keys) {
+  //       keys.add(k);
+  //     }
+  //   }
+  //   keys.sort();
+  //   var key = keys[0];
+  //   for (var i = 1; i < keys.length; i++)
+  //     if (keys[i] == key) {
+  //       keys[i] = null;
+  //     } else {
+  //       key = keys[i];
+  //     }
+
+  //   keys = keys.where((k) => k != null).toList();
+
+  //   sw.stop();
+  //   print('Unique keys ${keys.length} [${sw.elapsedMilliseconds}ms]');
+
+  //   sw.reset();
+  //   sw.start();
+
+  //   bytes = 0;
+  //   totalLength = 0;
+
+  //   for (var k in keys) {
+  //     for (var c in k.codeUnits) {
+  //       bytes += ((c.bitLength + 1) / 8).ceil();
+  //     }
+  //     totalLength += k.length;
+  //   }
+  //   sw.stop();
+
+  //   print(
+  //       'Size in bytes of unique keys ${bytes}, total characters ${totalLength}, bytes/char ${(bytes / totalLength).toStringAsFixed(2)} [${sw.elapsedMilliseconds}ms]');
+  // }
+
+  // // MBP 15 2018, 82 dicts, 3+mln keys, ~180ms
+  // void _iterateAllKeys() {
+  //   var sw = Stopwatch();
+  //   sw.start();
+
+  //   for (var d in dictionariesLoaded) {
+  //     for (var k in d.box.keys) {}
+  //   }
+  //   sw.stop();
+  //   print('Iterated through keys [${sw.elapsedMilliseconds}ms]');
+  // }
 }
 
 class IsolateParams {

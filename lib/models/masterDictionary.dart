@@ -109,18 +109,6 @@ class MasterDictionary extends ChangeNotifier {
     lookupSw.stop();
   }
 
-  // MBP 15 2018, 82 dicts, 3+mln keys, ~180ms
-  // void _iterateAllKeys() {
-  //   var sw = Stopwatch();
-  //   sw.start();
-
-  //   for (var d in dictionaryManager.dictionariesLoaded) {
-  //     for (var k in d.box.keys) {}
-  //   }
-  //   sw.stop();
-  //   print(sw.elapsedMilliseconds);
-  // }
-
   String getMatch(int n) {
     if (n > matches.length - 1) return '';
     return matches[n];
