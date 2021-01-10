@@ -9,7 +9,6 @@ import 'package:flutter/services.dart' show rootBundle;
 
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
-import 'package:sprintf/sprintf.dart';
 import 'package:archive/archive.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -26,28 +25,6 @@ String nameToBoxName(String name) {
 
   return boxName;
 }
-
-class BundledJsonDictionary {
-  final String assetFileNamePattern;
-  final String name;
-  final int maxFileIndex;
-  const BundledJsonDictionary(
-      this.assetFileNamePattern, this.name, this.maxFileIndex);
-  String get boxName {
-    return nameToBoxName(name);
-  }
-}
-
-const bundledJsonDictionaries = [
-  // BundledJsonDictionary('assets/dictionaries/En-En-WordNet3-%02i.json',
-  //     'EN_EN WordNet 3', 14), //14
-  // BundledJsonDictionary(
-  //     'assets/dictionaries2/EnRuUniversal%02i.json', 'EN_RU Universal', 9), //9
-  // BundledJsonDictionary(
-  //     'assets/dictionaries2/RuEnUniversal%02i.json', 'RU_EN Universal', 8), //8
-  // BundledJsonDictionary('assets/dictionaries2/RuByUniversal%02i.json',
-  //     'RU_BY НАН РБ (ред. Крапивы)', 10), //10
-];
 
 class BundledBinaryDictionary {
   final String assetFileName;
@@ -75,27 +52,18 @@ enum DictionaryBeingProcessedState { pending, inprogress, success, error }
 
 class DictionaryBeingProcessed {
   final String name;
-  final BundledJsonDictionary bundledJsonDictionary;
   final BundledBinaryDictionary bundledBinaryDictionary;
   final IndexedDictionary indexedDictionary;
   final PlatformFile file;
 
-  DictionaryBeingProcessed.bundledJson(this.bundledJsonDictionary)
-      : this.name = bundledJsonDictionary.name,
-        this.file = null,
-        this.indexedDictionary = null,
-        this.bundledBinaryDictionary = null;
-
   DictionaryBeingProcessed.bundledBinary(this.bundledBinaryDictionary)
       : this.name = bundledBinaryDictionary.name,
         this.file = null,
-        this.indexedDictionary = null,
-        this.bundledJsonDictionary = null;
+        this.indexedDictionary = null;
 
   DictionaryBeingProcessed.indexed(this.indexedDictionary)
       : this.name = indexedDictionary.name,
         this.file = null,
-        this.bundledJsonDictionary = null,
         this.bundledBinaryDictionary = null;
 
   DictionaryBeingProcessed.file(this.file)
@@ -107,7 +75,6 @@ class DictionaryBeingProcessed {
             .replaceFirst('.json', '')
             .replaceFirst('.dikt', ''),
         this.indexedDictionary = null,
-        this.bundledJsonDictionary = null,
         this.bundledBinaryDictionary = null;
 
   DictionaryBeingProcessedState _state = DictionaryBeingProcessedState.pending;
@@ -270,15 +237,6 @@ class DictionaryManager extends ChangeNotifier {
   Future _checkAndIndexBundledDictionaries() async {
     _dictionariesBeingProcessed = <DictionaryBeingProcessed>[];
 
-    for (var i in bundledJsonDictionaries) {
-      if (!_dictionaries.containsKey(i.boxName)) {
-        _dictionariesBeingProcessed
-            .add(DictionaryBeingProcessed.bundledJson(i));
-      } else {
-        _dictionaries.get(i.boxName).isBundled = true;
-      }
-    }
-
     for (var i in bundledBinaryDictionaries) {
       if (!_dictionaries.containsKey(i.boxName)) {
         _dictionariesBeingProcessed
@@ -298,18 +256,11 @@ class DictionaryManager extends ChangeNotifier {
       List<DictionaryBeingProcessed> bds) async {
     Indexer getIndexer(
         DictionaryBeingProcessed dictionaryProcessed, LazyBox<Uint8List> box) {
-      var bjd = dictionaryProcessed.bundledJsonDictionary;
       var bbd = dictionaryProcessed.bundledBinaryDictionary;
-      return bjd != null
-          ? BundledJsonIndexer(bjd.assetFileNamePattern, bjd.maxFileIndex, box,
-              (progress) {
-              dictionaryProcessed.progressPercent = progress;
-              notifyListeners();
-            })
-          : BundledBinaryIndexer(bbd.assetFileName, box, (progress) {
-              dictionaryProcessed.progressPercent = progress;
-              notifyListeners();
-            });
+      return BundledBinaryIndexer(bbd.assetFileName, box, (progress) {
+        dictionaryProcessed.progressPercent = progress;
+        notifyListeners();
+      });
     }
 
     print('Loading bundled dictionaries to Hive DB: ' +
@@ -328,8 +279,7 @@ class DictionaryManager extends ChangeNotifier {
     for (var i = 0; i < dictionariesProcessed.length; i++) {
       if (_canceled) break;
       var d = IndexedDictionary();
-      d.isBundled = dictionariesProcessed[i].bundledBinaryDictionary != null ||
-          dictionariesProcessed[i].bundledJsonDictionary != null;
+      d.isBundled = dictionariesProcessed[i].bundledBinaryDictionary != null;
       if (dictionariesProcessed[i].bundledBinaryDictionary != null) {
         d.hash = dictionariesProcessed[i].bundledBinaryDictionary.hash;
       }
@@ -494,7 +444,7 @@ class DictionaryManager extends ChangeNotifier {
     var d = _dictionariesReadyList[index];
     Hive.deleteBoxFromDisk(d.boxName);
     //d.box.deleteFromDisk();
-    if (bundledJsonDictionaries.any((e) => e.boxName == d.boxName)) {
+    if (bundledBinaryDictionaries.any((e) => e.boxName == d.boxName)) {
       d.isReadyToUse = false;
       d.save();
     } else {
@@ -549,93 +499,81 @@ class DictionaryManager extends ChangeNotifier {
     }
   }
 
-  // void _getKeyStats() {
-  //   _iterateAllKeys();
+  // used in debug manually to get sense of dictionary stats
+  // ignore: unused_element
+  void _getKeyStats() {
+    var sw = Stopwatch();
 
-  //   var sw = Stopwatch();
+    sw.start();
 
-  //   sw.start();
+    var keysCount = 0;
 
-  //   var keysCount = 0;
+    for (var d in dictionariesLoaded) {
+      keysCount += d.box.length;
+    }
+    sw.stop();
+    print('Non-Unique keys ${keysCount} [${sw.elapsedMilliseconds}ms]');
 
-  //   for (var d in dictionariesLoaded) {
-  //     keysCount += d.box.length;
-  //   }
-  //   sw.stop();
-  //   print('Non-Unique keys ${keysCount} [${sw.elapsedMilliseconds}ms]');
+    List<String> keys = [];
 
-  //   List<String> keys = [];
+    sw.reset();
+    sw.start();
 
-  //   sw.reset();
-  //   sw.start();
+    var bytes = 0;
+    var totalLength = 0;
 
-  //   var bytes = 0;
-  //   var totalLength = 0;
+    for (var d in dictionariesLoaded) {
+      for (var k in d.box.keys) {
+        for (var c in k.codeUnits) {
+          bytes += ((c.bitLength + 1) / 8).ceil();
+        }
+        totalLength += k.length;
+      }
+    }
+    sw.stop();
 
-  //   for (var d in dictionariesLoaded) {
-  //     for (var k in d.box.keys) {
-  //       for (var c in k.codeUnits) {
-  //         bytes += ((c.bitLength + 1) / 8).ceil();
-  //       }
-  //       totalLength += k.length;
-  //     }
-  //   }
-  //   sw.stop();
+    print(
+        'Size in bytes of non-unique keys ${bytes}, total characters ${totalLength}, bytes/char ${(bytes / totalLength).toStringAsFixed(2)} [${sw.elapsedMilliseconds}ms]');
 
-  //   print(
-  //       'Size in bytes of non-unique keys ${bytes}, total characters ${totalLength}, bytes/char ${(bytes / totalLength).toStringAsFixed(2)} [${sw.elapsedMilliseconds}ms]');
+    sw.start();
+    sw.reset();
 
-  //   sw.start();
-  //   sw.reset();
+    for (var d in dictionariesLoaded) {
+      for (var k in d.box.keys) {
+        keys.add(k);
+      }
+    }
+    keys.sort();
+    var key = keys[0];
+    for (var i = 1; i < keys.length; i++)
+      if (keys[i] == key) {
+        keys[i] = null;
+      } else {
+        key = keys[i];
+      }
 
-  //   for (var d in dictionariesLoaded) {
-  //     for (var k in d.box.keys) {
-  //       keys.add(k);
-  //     }
-  //   }
-  //   keys.sort();
-  //   var key = keys[0];
-  //   for (var i = 1; i < keys.length; i++)
-  //     if (keys[i] == key) {
-  //       keys[i] = null;
-  //     } else {
-  //       key = keys[i];
-  //     }
+    keys = keys.where((k) => k != null).toList();
 
-  //   keys = keys.where((k) => k != null).toList();
+    sw.stop();
+    print('Unique keys ${keys.length} [${sw.elapsedMilliseconds}ms]');
 
-  //   sw.stop();
-  //   print('Unique keys ${keys.length} [${sw.elapsedMilliseconds}ms]');
+    sw.reset();
+    sw.start();
 
-  //   sw.reset();
-  //   sw.start();
+    bytes = 0;
+    totalLength = 0;
 
-  //   bytes = 0;
-  //   totalLength = 0;
+    for (var k in keys) {
+      for (var c in k.codeUnits) {
+        bytes += ((c.bitLength + 1) / 8).ceil();
+      }
+      totalLength += k.length;
+    }
+    sw.stop();
 
-  //   for (var k in keys) {
-  //     for (var c in k.codeUnits) {
-  //       bytes += ((c.bitLength + 1) / 8).ceil();
-  //     }
-  //     totalLength += k.length;
-  //   }
-  //   sw.stop();
-
-  //   print(
-  //       'Size in bytes of unique keys ${bytes}, total characters ${totalLength}, bytes/char ${(bytes / totalLength).toStringAsFixed(2)} [${sw.elapsedMilliseconds}ms]');
-  // }
-
-  // // MBP 15 2018, 82 dicts, 3+mln keys, ~180ms
-  // void _iterateAllKeys() {
-  //   var sw = Stopwatch();
-  //   sw.start();
-
-  //   for (var d in dictionariesLoaded) {
-  //     for (var k in d.box.keys) {}
-  //   }
-  //   sw.stop();
-  //   print('Iterated through keys [${sw.elapsedMilliseconds}ms]');
-  // }
+    print(
+        'Size in bytes of unique keys ${bytes}, total characters ${totalLength}, bytes/char ${(bytes / totalLength).toStringAsFixed(2)} [${sw.elapsedMilliseconds}ms]');
+  }
 }
 
 class IsolateParams {
@@ -940,90 +878,4 @@ class BundledBinaryIndexer extends Indexer {
     }
     return runCompleter.future;
   }
-}
-
-class BundledJsonIndexer extends Indexer {
-  final String namePattern;
-  final Completer<void> runCompleter = Completer<void>();
-  final LazyBox<Uint8List> box;
-  final int maxFile;
-  final Function(int progressPercent) updateProgress;
-
-  BundledJsonIndexer(
-      this.namePattern, this.maxFile, this.box, this.updateProgress);
-
-  Future<void> run() async {
-    iterateInIsolate();
-    return runCompleter.future;
-  }
-
-  int _numberOfIsolates = max(2, kIsWeb ? 2 : Platform.numberOfProcessors);
-  int _curFile = 0;
-  int _runningIsolates = 0;
-  int _filesRemaining = 0;
-
-  void iterateInIsolate() {
-    if (_curFile == 0) {
-      _filesRemaining = maxFile + 1;
-      for (var i = 0; i < _numberOfIsolates; i++) {
-        if (_curFile > maxFile) break;
-        var asset = sprintf(namePattern, [_curFile]);
-        isolateProcessBundledJsonAsset(asset, _curFile);
-        _curFile++;
-      }
-    } else {
-      if (_curFile > maxFile) return;
-      var asset = sprintf(namePattern, [_curFile]);
-      isolateProcessBundledJsonAsset(asset, _curFile);
-      _curFile++;
-    }
-  }
-
-  void isolateProcessBundledJsonAsset(String asset, int curFile) async {
-    _runningIsolates++;
-    _filesRemaining--;
-    try {
-      var assetValue = await rootBundle.loadString(asset);
-      var computeValue =
-          await compute(isolateBody, IsolateParams(assetValue, curFile));
-      _runningIsolates--;
-      if (_runningIsolates == 0 && _filesRemaining == 0) {
-        await box.putAll(computeValue);
-        if (updateProgress != null) updateProgress(100);
-        //completer?.complete();
-        runCompleter.complete();
-        print('JSON loaded to Hive DB: ' + DateTime.now().toString());
-      } else {
-        box.putAll(computeValue);
-        if (updateProgress != null)
-          updateProgress(
-              (100 - (_filesRemaining + _runningIsolates) / (maxFile + 1) * 100)
-                  .round());
-        if (_filesRemaining > 0) iterateInIsolate();
-      }
-    } catch (err) {
-      if (!runCompleter.isCompleted) runCompleter.completeError(err);
-      _filesRemaining = 0;
-    }
-  }
-}
-
-Map<String, Uint8List> isolateBody(IsolateParams params) {
-  print('  JSON loading IN ISOLATE, file ' + params.file.toString());
-  //WidgetsFlutterBinding.ensureInitialized();
-  var i = 0;
-  var zlib = new ZLibEncoder();
-  var words = jsonDecode(params.assetValue, reviver: (k, v) {
-    if (i % 1000 == 0) print('  JSON decoded objects: ' + i.toString());
-    i++;
-    if (v is String) {
-      var bytes = utf8.encode(v);
-      var zlibBytes = zlib.encode(bytes);
-      var b = Uint8List.fromList(zlibBytes);
-      //if (k is String && k.length > 254) print('>254' + k);
-      return b;
-    } else
-      return v;
-  });
-  return words.cast<String, Uint8List>();
 }
