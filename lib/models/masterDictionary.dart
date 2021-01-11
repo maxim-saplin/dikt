@@ -122,9 +122,9 @@ class MasterDictionary extends ChangeNotifier {
     return matches[n];
   }
 
-  Future<String> _unzipIsolate(Uint8List articleBytes) async {
-    return await compute(_unzipIsolateBody, articleBytes);
-  }
+  // Future<String> _unzipIsolate(Uint8List articleBytes) async {
+  //   return await compute(_unzipIsolateBody, articleBytes);
+  // }
 
   Future<List<Article>> getArticleFromMatches(int n) async {
     if (n > matches.length - 1) return null;
@@ -206,12 +206,4 @@ Map<String, Uint8List> isolateBody(IsolateParams params) {
       return v;
   });
   return words.cast<String, Uint8List>();
-}
-
-String _unzipIsolateBody(Uint8List articleBytes) {
-  //var articleBytes = base64.decode(articleBase64);
-  var zlib = ZLibDecoder();
-  var bytes = zlib.decodeBytes(articleBytes);
-  var article = utf8.decode(bytes);
-  return article;
 }

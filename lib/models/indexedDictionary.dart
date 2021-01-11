@@ -32,10 +32,17 @@ class IndexedDictionary extends HiveObject {
     return _ikv;
   }
 
-  Future<IkvPack> openIkv() async {
+  set ikv(IkvPack value) {
+    _ikv = value;
+    isLoaded = true;
+  }
+
+  Future<IkvPack> openIkv([IsolatePool pool]) async {
     var completer = Completer<IkvPack>();
     if (!isLoaded) {
-      var f = IkvPack.loadInIsolate(ikvPath);
+      var f = pool == null
+          ? IkvPack.loadInIsolate(ikvPath)
+          : IkvPack.loadInIsolatePool(pool, ikvPath);
       f.then((value) {
         _ikv = value;
         isLoaded = true;

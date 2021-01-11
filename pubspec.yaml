@@ -32,7 +32,6 @@ dependencies:
   hive: ^1.4.1+1
   hive_flutter: ^0.3.0+2
   sprintf: ^4.0.0
-  archive:
   flutter_sticky_header: ^0.4.2
   reorderables: ^0.3.2
   double_back_to_close: ^1.0.2+mit
@@ -61,14 +60,6 @@ dependency_overrides:
     path: ./plugins/reorderables-0.3.2/
   flutter_html:
     path: ./plugins/flutter_html-1.0.2
-  archive:
-    git:
-      url: https://github.com/brendan-duncan/archive.git
-  crypto:
-    git:
-      url: git://github.com/dart-lang/crypto.git
-      ref: a5ec902dda5a635a35c6b363ec64458cf84c5872
-  convert: ^3.0.0-nullsafety
 
 dev_dependencies:
   flutter_test:

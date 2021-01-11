@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:dikt/common/preferencesSingleton.dart';
 import 'package:dikt/models/dictionaryManager.dart';
@@ -13,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hive/hive.dart';
+import 'package:ikvpack/ikvpack.dart';
 import 'package:mockito/mockito.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -20,30 +20,42 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'finders.dart';
 
 void main() {
-  const hivePath = './test/tmp';
+  const tmpPath = './test/tmp';
 
   setUpAll(() async {
     print('Setting up tests');
 
-    await DictionaryManager.init(hivePath);
+    await DictionaryManager.init(tmpPath);
 
+    // Add few blank dictionaries to let offline dictionaries widget display contents
     var dictionaries = await Hive.openBox<IndexedDictionary>(
         DictionaryManager.dictionairesBoxName);
     dictionaries.add(IndexedDictionary.init(
-        nameToBoxName('EN_EN WordNet 3'), 'EN_EN WordNet 3', true, true));
+        nameToIkvPath('EN_EN WordNet 3'), 'EN_EN WordNet 3', true, true));
     dictionaries.add(IndexedDictionary.init(
-        nameToBoxName('EN_RU WordNet 3'), 'EN_RU WordNet 3', false, true));
+        nameToIkvPath('EN_RU WordNet 3'), 'EN_RU WordNet 3', false, true));
     dictionaries.add(IndexedDictionary.init(
-        nameToBoxName('RU_EN WordNet 3'), 'RU_EN WordNet 3', true, true));
+        nameToIkvPath('RU_EN WordNet 3'), 'RU_EN WordNet 3', true, true));
 
-    await Hive.openLazyBox<Uint8List>(nameToBoxName('EN_EN WordNet 3'));
-    await Hive.openLazyBox<Uint8List>(nameToBoxName('EN_RU WordNet 3'));
-    await Hive.openLazyBox<Uint8List>(nameToBoxName('RU_EN WordNet 3'));
+    var m = <String, String>{'a': 'aaa', 'b': 'bbb', 'c': 'ccc'};
+    var ikv = IkvPack.fromMap(m);
+
+    ikv.saveTo(nameToIkvPath('EN_EN WordNet 3'));
+    ikv.saveTo(nameToIkvPath('EN_RU WordNet 3'));
+    ikv.saveTo(nameToIkvPath('RU_EN WordNet 3'));
+
+    // await dictionaries.getAt(0).openIkv();
+    // await dictionaries.getAt(1).openIkv();
+    // await dictionaries.getAt(2).openIkv();
+
+    // await Hive.openLazyBox<Uint8List>(nameToBoxName('EN_EN WordNet 3'));
+    // await Hive.openLazyBox<Uint8List>(nameToBoxName('EN_RU WordNet 3'));
+    // await Hive.openLazyBox<Uint8List>(nameToBoxName('RU_EN WordNet 3'));
   });
 
   tearDownAll(() {
     try {
-      Directory(hivePath).delete(recursive: true);
+      Directory(tmpPath).delete(recursive: true);
     } catch (_) {}
   });
 
@@ -458,14 +470,15 @@ Future _createAndWrapWidget(WidgetTester tester, Widget widget) async {
   await PreferencesSingleton.init(sp);
   when(sp.getString('')).thenAnswer((_) => null);
 
+  var dicManager = DictionaryManager();
+
+  await dicManager.indexAndLoadDictionaries(true);
+
   await tester.pumpWidget(
     MultiProvider(
       providers: [
         ChangeNotifierProvider<DictionaryManager>(
           create: (context) {
-            var dicManager = DictionaryManager();
-
-            dicManager.indexAndLoadDictionaries(true);
             return dicManager;
           },
         ),

@@ -104,12 +104,14 @@ class DictionaryManager extends ChangeNotifier {
   static String homePath;
 
   static Future<void> init([String testPath]) async {
-    if (testPath == null)
+    if (testPath == null) {
       await Hive.initFlutter();
-    else
+      homePath = (await getApplicationDocumentsDirectory()).path;
+    } else {
       Hive.init(testPath); // autotests
+      homePath = testPath;
+    }
     Hive.registerAdapter(IndexedDictionaryAdapter());
-    homePath = (await getApplicationDocumentsDirectory()).path;
     _dictionaries = await Hive.openBox(dictionairesBoxName);
   }
 
@@ -191,19 +193,18 @@ class DictionaryManager extends ChangeNotifier {
       notifyListeners();
       List<Future<IkvPack>> futures = [];
 
-      List<Future<IkvPack>> futuresFour = [];
-      int counter = 0;
+      var pool =
+          IsolatePool(kIsWeb ? 1 : max(Platform.numberOfProcessors - 1, 1));
+      await pool.start();
 
       for (var i in _dictionariesBeingProcessed) {
         i.state = DictionaryBeingProcessedState.inprogress;
         notifyListeners();
 
-        var f = i.indexedDictionary
-            .openIkv(); //IkvPack.loadInIsolate(i.indexedDictionary.ikvPath);
+        var f = i.indexedDictionary.openIkv(pool);
 
         f.then((value) {
           i.state = DictionaryBeingProcessedState.success;
-          //i.indexedDictionary.isLoaded = true;
           _initDictionaryCollections();
           if (!_partiallyLoaded.isCompleted) _partiallyLoaded.complete();
           notifyListeners();
@@ -218,17 +219,13 @@ class DictionaryManager extends ChangeNotifier {
           notifyListeners();
         });
         futures.add(f);
-        counter++;
-        if (counter > 7) futuresFour.add(f);
-        if (futuresFour.length > 4) {
-          await Future.wait(futuresFour);
-          counter = 6;
-          futuresFour.clear();
-        }
       }
       try {
         await Future.wait(futures);
-      } catch (e) {}
+        pool.stop();
+      } catch (e) {
+        pool.stop();
+      }
     }
   }
 
@@ -266,8 +263,7 @@ class DictionaryManager extends ChangeNotifier {
       });
     }
 
-    print('Loading bundled dictionaries to Hive DB: ' +
-        DateTime.now().toString());
+    print('Extracing bundled dictionaries: ' + DateTime.now().toString());
     await _runIndexer(bds, getIndexer);
   }
 
@@ -301,11 +297,11 @@ class DictionaryManager extends ChangeNotifier {
       _dictionaries.put(d.ikvPath, d);
       _curIndexer = getIndexer(dictionariesProcessed[i], d.ikvPath);
       try {
-        await _curIndexer.run();
+        var ikv = await _curIndexer.run();
 
         if (!_curIndexer.canceled) {
           d.isReadyToUse = true;
-          //d.isLoaded = true;
+          if (ikv != null) d.ikv = ikv;
 
           d.save();
         } else if (!d.isBundled) {
@@ -367,7 +363,7 @@ class DictionaryManager extends ChangeNotifier {
               : JsonFileIndexer(dictionaryProcessed.file, ikvPath, progress);
     }
 
-    print('Indexing JSON/DIKT files and loading to Hive DB: ' +
+    print('Indexing JSON/DIKT files and packing to IkvPack: ' +
         DateTime.now().toString());
     await _runIndexer(_dictionariesBeingProcessed, getIndexer,
         startOrderAt: 0 - files.length,
@@ -584,7 +580,7 @@ class IsolateParams {
 }
 
 abstract class Indexer {
-  Future<void> run() async {}
+  Future<IkvPack> run();
 
   bool _canceled = false;
 
@@ -599,20 +595,20 @@ abstract class Indexer {
 
 class DiktFileIndexer extends Indexer {
   final PlatformFile file;
-  final Completer<void> runCompleter = Completer<void>();
+  final Completer<IkvPack> runCompleter = Completer<IkvPack>();
   final String ikvPath;
   final Function(int progressPercent) updateProgress;
 
   DiktFileIndexer(this.file, this.ikvPath, this.updateProgress);
 
-  Future<void> run() async {
+  Future<IkvPack> run() async {
     var path = this.file.path ?? this.file.name;
     print(path + '\n');
     var sourceData = ByteData.sublistView(File(path).readAsBytesSync());
 
     var sw = Stopwatch();
 
-    print('Indexing DIKT bianry dictionary: ' + path);
+    print('Saving DIKT binary dictionary: ' + path);
     sw.start();
     updateProgress(3);
     if (_canceled) {
@@ -622,11 +618,13 @@ class DiktFileIndexer extends Indexer {
 
     try {
       if (!kIsWeb) {
-        File(ikvPath).writeAsBytesSync(sourceData.buffer.asInt8List());
-        var ikv = IkvPack(ikvPath); //try loadinb file
-        ikv.dispose();
+        updateProgress(5);
+        await File(ikvPath).writeAsBytes(sourceData.buffer.asInt8List());
+        updateProgress(20);
+        var ikv = await IkvPack.loadInIsolate(ikvPath);
+        updateProgress(100);
 
-        runCompleter.complete();
+        runCompleter.complete(ikv);
       } else {
         //TODO
       }
@@ -642,13 +640,13 @@ class DiktFileIndexer extends Indexer {
 
 class JsonFileIndexer extends Indexer {
   final PlatformFile file;
-  final Completer<void> runCompleter = Completer<void>();
+  final Completer<IkvPack> runCompleter = Completer<IkvPack>();
   final String ikvPath;
   final Function(int progressPercent) updateProgress;
 
   JsonFileIndexer(this.file, this.ikvPath, this.updateProgress);
 
-  Future<void> run() async {
+  Future<IkvPack> run() async {
     var path = this.file.path ?? this.file.name;
     print(path + '\n');
     var file = File(path);
@@ -661,13 +659,18 @@ class JsonFileIndexer extends Indexer {
 
     // Dart doesn't support chunked JSON decoding, entire map of decoded values
     // comes in in a single chunk
-    var outSinkJson = ChunkedConversionSink.withCallback((chunks) {
+    var outSinkJson = ChunkedConversionSink.withCallback((chunks) async {
       try {
         var result = chunks.single.cast<String, String>();
-        var ikv = IkvPack.fromMap(result);
+        var ikv = await IkvPack.buildFromMapInIsolate(result, true, (progress) {
+          updateProgress(20 + (progress * 0.70).round());
+        });
         ikv.saveTo(ikvPath);
+        updateProgress(98);
+        ikv = IkvPack(ikvPath);
+        updateProgress(100);
         sw.stop();
-        runCompleter.complete();
+        runCompleter.complete(ikv);
         print('ELAPSED (ms): ' + sw.elapsedMilliseconds.toString());
       } catch (err) {
         _canceled = true;
@@ -689,7 +692,7 @@ class JsonFileIndexer extends Indexer {
           runCompleter.complete();
         }
         inSinkZip.add(event);
-        var curr = (s.position / length * 100).round();
+        var curr = (s.position / length * 20).round();
         if (curr != progress) {
           progress = curr;
           updateProgress(progress);
@@ -706,13 +709,13 @@ class JsonFileIndexer extends Indexer {
 
 class WebIndexer extends Indexer {
   final PlatformFile file;
-  final Completer<void> runCompleter = Completer<void>();
+  final Completer<IkvPack> runCompleter = Completer<IkvPack>();
   final String ikvPath;
   final Function(int progressPercent) updateProgress;
 
   WebIndexer(this.file, this.ikvPath, this.updateProgress);
 
-  Future<void> run() async {
+  Future<IkvPack> run() async {
     print(file.path ?? file.name + '\n');
     //   // Chunked json decoding isn't available in web
     //   // var inSink = converterJson.startChunkedConversion(outSink);
@@ -783,13 +786,13 @@ class WebIndexer extends Indexer {
 
 class BundledBinaryIndexer extends Indexer {
   final String assetName;
-  final Completer<void> runCompleter = Completer<void>();
+  final Completer<IkvPack> runCompleter = Completer<IkvPack>();
   final String fileName;
   final Function(int progressPercent) updateProgress;
 
   BundledBinaryIndexer(this.assetName, this.fileName, this.updateProgress);
 
-  Future<void> run() async {
+  Future<IkvPack> run() async {
     print('Indexing bundled bianry dictionary: ' + this.assetName);
     var sw = Stopwatch();
     sw.start();
