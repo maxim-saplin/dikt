@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
+import 'package:ikvpack/ikvpack.dart';
 import 'package:reorderables/reorderables.dart';
 import 'package:provider/provider.dart';
 import 'package:file_picker/file_picker.dart';
@@ -216,7 +217,7 @@ class OfflineDictionaryTile extends StatelessWidget {
                 onPressed: () {
                   if (dictionary.isError) return;
                   if (!dictionary.isReadyToUse && dictionary.isBundled) {
-                    manager.reindexBundledDictionaries(dictionary.boxName);
+                    manager.reindexBundledDictionaries(dictionary.ikvPath);
                   } else {
                     manager.switchIsEnabled(dictionary);
                     Provider.of<MasterDictionary>(context, listen: false)
@@ -240,21 +241,23 @@ class OfflineDictionaryTile extends StatelessWidget {
                             ? Text('error', style: TextStyle(color: Colors.red))
                             : FutureBuilder(
                                 future: dictionary
-                                    .openBox(), //disabled boxes are not loaded upon start
+                                    .openIkv(), //disabled boxes are not loaded upon start
                                 builder: (context, snapshot) {
-                                  if (snapshot.hasData) {
+                                  if (snapshot.hasData &&
+                                      snapshot.data != null) {
                                     Timer.run(() {
                                       Provider.of<MasterDictionary>(context,
                                               listen: false)
                                           ?.notify();
                                     }); // let Lookup update (e.g. no history and number of entries shown) if a new dictionary is imported
+                                    var ikv = snapshot.data as IkvPack;
                                     return Text(
-                                      dictionary.box.length.toString() +
+                                      ikv.length.toString() +
                                           ' ' +
                                           'entries'.i18n +
                                           (!kIsWeb
                                               ? ', ' +
-                                                  dictionary.fileSizeMb
+                                                  (ikv.sizeBytes / 1024 / 1204)
                                                       .toStringAsFixed(1) +
                                                   "MB"
                                               : ''),

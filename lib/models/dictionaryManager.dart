@@ -6,24 +6,24 @@ import 'dart:math';
 import 'dart:convert';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:ikvpack/ikvpack.dart';
+import 'package:path_provider/path_provider.dart';
 
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
-import 'package:archive/archive.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 import 'indexedDictionary.dart';
-import 'bulk_insert/bulk_insert.dart';
 import '../common/fileStream.dart';
 
-String nameToBoxName(String name) {
-  var boxName = 'dik_' + name.replaceAll(' ', '_').toLowerCase();
+String nameToIkvPath(String name) {
+  var fileName = 'dik_' + name.replaceAll(' ', '_').toLowerCase();
 
-  if (boxName.length > 127)
-    boxName = boxName.substring(0, min(127, boxName.length));
+  if (fileName.length > 127)
+    fileName = fileName.substring(0, min(127, fileName.length));
 
-  return boxName;
+  return DictionaryManager.homePath + '/' + fileName + 'ikv.dikt';
 }
 
 class BundledBinaryDictionary {
@@ -32,20 +32,14 @@ class BundledBinaryDictionary {
   final String hash;
 
   const BundledBinaryDictionary(this.assetFileName, this.name, this.hash);
-  String get boxName {
-    return nameToBoxName(name);
+  String get ikvPath {
+    return nameToIkvPath(name);
   }
 }
 
 const bundledBinaryDictionaries = [
   BundledBinaryDictionary(
-      'assets/dictionaries/EnEnWordNet3.json.bundle', 'EN_EN WordNet 3', '4'),
-  // BundledBinaryDictionary(
-  //     'assets/dictionaries2/EnRuUniversal.json.bundle', 'EN_RU Universal'),
-  // BundledBinaryDictionary(
-  //     'assets/dictionaries2/RuEnUniversal.json.bundle', 'RU_EN Universal'),
-  // BundledBinaryDictionary('assets/dictionaries2/RuByUniversal.json.bundle',
-  //     'RU_BY НАН РБ (ред. Крапивы)'),
+      'assets/dictionaries/dik_enenwordnet3.ikv.dikt', 'EN_EN WordNet 3', '4')
 ];
 
 enum DictionaryBeingProcessedState { pending, inprogress, success, error }
@@ -107,6 +101,7 @@ enum ManagerCurrentOperation { preparing, indexing, loading, idle }
 class DictionaryManager extends ChangeNotifier {
   static const dictionairesBoxName = 'dictionairesBoxName';
   static Box<IndexedDictionary> _dictionaries;
+  static String homePath;
 
   static Future<void> init([String testPath]) async {
     if (testPath == null)
@@ -114,6 +109,7 @@ class DictionaryManager extends ChangeNotifier {
     else
       Hive.init(testPath); // autotests
     Hive.registerAdapter(IndexedDictionaryAdapter());
+    homePath = (await getApplicationDocumentsDirectory()).path;
     _dictionaries = await Hive.openBox(dictionairesBoxName);
   }
 
@@ -193,27 +189,27 @@ class DictionaryManager extends ChangeNotifier {
 
     if (_dictionariesBeingProcessed.length > 0) {
       notifyListeners();
-      List<Future<LazyBox<Uint8List>>> futures = [];
+      List<Future<IkvPack>> futures = [];
+
+      List<Future<IkvPack>> futuresFour = [];
+      int counter = 0;
+
       for (var i in _dictionariesBeingProcessed) {
         i.state = DictionaryBeingProcessedState.inprogress;
         notifyListeners();
 
-        var f = Hive.openLazyBox<Uint8List>(i.indexedDictionary.boxName,
-            readOnly: true,
-            useIsolate:
-                kIsWeb // || _dictionariesBeingProcessed.length == 1 // 1 dictionary, master dictionary inint with isolate 1900ms, without - 1300ms, though UI is blocked...
-                    ? false
-                    : true);
+        var f = i.indexedDictionary
+            .openIkv(); //IkvPack.loadInIsolate(i.indexedDictionary.ikvPath);
 
-        f.whenComplete(() {
+        f.then((value) {
           i.state = DictionaryBeingProcessedState.success;
-          i.indexedDictionary.isLoaded = true;
+          //i.indexedDictionary.isLoaded = true;
           _initDictionaryCollections();
           if (!_partiallyLoaded.isCompleted) _partiallyLoaded.complete();
           notifyListeners();
         }).catchError((err) {
           print("Error loading box: " +
-              i.indexedDictionary.boxName +
+              i.indexedDictionary.ikvPath +
               "\n" +
               err.toString());
 
@@ -222,6 +218,13 @@ class DictionaryManager extends ChangeNotifier {
           notifyListeners();
         });
         futures.add(f);
+        counter++;
+        if (counter > 5) futuresFour.add(f);
+        if (futuresFour.length > 4) {
+          await Future.wait(futuresFour);
+          counter = 5;
+          futuresFour.clear();
+        }
       }
       try {
         await Future.wait(futures);
@@ -238,11 +241,11 @@ class DictionaryManager extends ChangeNotifier {
     _dictionariesBeingProcessed = <DictionaryBeingProcessed>[];
 
     for (var i in bundledBinaryDictionaries) {
-      if (!_dictionaries.containsKey(i.boxName)) {
+      if (!_dictionaries.containsKey(i.ikvPath)) {
         _dictionariesBeingProcessed
             .add(DictionaryBeingProcessed.bundledBinary(i));
       } else {
-        _dictionaries.get(i.boxName).isBundled = true;
+        _dictionaries.get(i.ikvPath).isBundled = true;
       }
     }
 
@@ -255,9 +258,9 @@ class DictionaryManager extends ChangeNotifier {
   Future<void> _indexBundledDictionaries(
       List<DictionaryBeingProcessed> bds) async {
     Indexer getIndexer(
-        DictionaryBeingProcessed dictionaryProcessed, LazyBox<Uint8List> box) {
+        DictionaryBeingProcessed dictionaryProcessed, String ikvPath) {
       var bbd = dictionaryProcessed.bundledBinaryDictionary;
-      return BundledBinaryIndexer(bbd.assetFileName, box, (progress) {
+      return BundledBinaryIndexer(bbd.assetFileName, ikvPath, (progress) {
         dictionaryProcessed.progressPercent = progress;
         notifyListeners();
       });
@@ -273,7 +276,7 @@ class DictionaryManager extends ChangeNotifier {
   Future _runIndexer(
       List<DictionaryBeingProcessed> dictionariesProcessed,
       Indexer getIndexer(
-          DictionaryBeingProcessed dictionaryProcessed, LazyBox<Uint8List> box),
+          DictionaryBeingProcessed dictionaryProcessed, String ikvPath),
       {int startOrderAt = 0,
       Completer finished}) async {
     for (var i = 0; i < dictionariesProcessed.length; i++) {
@@ -290,26 +293,25 @@ class DictionaryManager extends ChangeNotifier {
       dictionariesProcessed[i].state = DictionaryBeingProcessedState.inprogress;
       notifyListeners();
 
-      d.boxName = nameToBoxName(d.name);
+      d.ikvPath = nameToIkvPath(d.name);
       d.isEnabled = true;
       d.isReadyToUse = false;
       d.order = startOrderAt + i;
 
-      _dictionaries.put(d.boxName, d);
-      var box = await Hive.openLazyBox<Uint8List>(d.boxName);
-      _curIndexer = getIndexer(dictionariesProcessed[i], box);
+      _dictionaries.put(d.ikvPath, d);
+      _curIndexer = getIndexer(dictionariesProcessed[i], d.ikvPath);
       try {
         await _curIndexer.run();
 
         if (!_curIndexer.canceled) {
           d.isReadyToUse = true;
-          d.isLoaded = true;
+          //d.isLoaded = true;
 
           d.save();
         } else if (!d.isBundled) {
-          print("Canceling box indexing: " + d.boxName);
+          print("Canceling box indexing: " + d.ikvPath);
           d.delete();
-          _dictionaries.delete(d.boxName);
+          IkvPack.delete(d.ikvPath);
         }
         dictionariesProcessed[i].state = DictionaryBeingProcessedState.success;
         notifyListeners();
@@ -319,12 +321,12 @@ class DictionaryManager extends ChangeNotifier {
         d.isError = true;
 
         if (!d.isBundled) {
-          var boxName = d.boxName;
+          var ikvPath = d.ikvPath;
           d.delete();
-          _dictionaries.delete(boxName);
+          _dictionaries.delete(ikvPath);
         }
 
-        print("Error indexing box: " + d.boxName + "\n" + err.toString());
+        print("Error indexing box: " + d.ikvPath + "\n" + err.toString());
         dictionariesProcessed[i].state = DictionaryBeingProcessedState.error;
         notifyListeners();
         if (i == dictionariesProcessed.length - 1 && finished != null)
@@ -351,7 +353,7 @@ class DictionaryManager extends ChangeNotifier {
     _currentOperation = ManagerCurrentOperation.indexing;
 
     Indexer getIndexer(
-        DictionaryBeingProcessed dictionaryProcessed, LazyBox<Uint8List> box) {
+        DictionaryBeingProcessed dictionaryProcessed, String ikvPath) {
       var progress = (progress) {
         dictionaryProcessed.progressPercent = progress;
         notifyListeners();
@@ -359,10 +361,10 @@ class DictionaryManager extends ChangeNotifier {
 
 //TODO: add WebSupport for binary dictionary format
       return kIsWeb
-          ? WebIndexer(dictionaryProcessed.file, box, progress)
+          ? WebIndexer(dictionaryProcessed.file, ikvPath, progress)
           : dictionaryProcessed.file.name.endsWith('.dikt')
-              ? DiktFileIndexer(dictionaryProcessed.file, box, progress)
-              : JsonFileIndexer(dictionaryProcessed.file, box, progress);
+              ? DiktFileIndexer(dictionaryProcessed.file, ikvPath, progress)
+              : JsonFileIndexer(dictionaryProcessed.file, ikvPath, progress);
     }
 
     print('Indexing JSON/DIKT files and loading to Hive DB: ' +
@@ -442,9 +444,8 @@ class DictionaryManager extends ChangeNotifier {
 
   void deleteReadyDictionary(int index) {
     var d = _dictionariesReadyList[index];
-    Hive.deleteBoxFromDisk(d.boxName);
-    //d.box.deleteFromDisk();
-    if (bundledBinaryDictionaries.any((e) => e.boxName == d.boxName)) {
+    IkvPack.delete(d.ikvPath);
+    if (bundledBinaryDictionaries.any((e) => e.ikvPath == d.ikvPath)) {
       d.isReadyToUse = false;
       d.save();
     } else {
@@ -599,15 +600,15 @@ abstract class Indexer {
 class DiktFileIndexer extends Indexer {
   final PlatformFile file;
   final Completer<void> runCompleter = Completer<void>();
-  final LazyBox<Uint8List> box;
+  final String ikvPath;
   final Function(int progressPercent) updateProgress;
 
-  DiktFileIndexer(this.file, this.box, this.updateProgress);
+  DiktFileIndexer(this.file, this.ikvPath, this.updateProgress);
 
   Future<void> run() async {
     var path = this.file.path ?? this.file.name;
     print(path + '\n');
-    var file = ByteData.sublistView(File(path).readAsBytesSync());
+    var sourceData = ByteData.sublistView(File(path).readAsBytesSync());
 
     var sw = Stopwatch();
 
@@ -620,8 +621,16 @@ class DiktFileIndexer extends Indexer {
     }
 
     try {
-      await _runBinaryIndexer(
-          file, box, () => _canceled, runCompleter, updateProgress);
+      if (!kIsWeb) {
+        File(ikvPath).writeAsBytesSync(sourceData.buffer.asInt8List());
+        var ikv = IkvPack(ikvPath); //try loadinb file
+        ikv.dispose();
+
+        runCompleter.complete();
+      } else {
+        //TODO
+      }
+
       print('Indexing done(ms): ' + sw.elapsedMilliseconds.toString());
     } catch (err) {
       runCompleter.completeError(err);
@@ -634,10 +643,10 @@ class DiktFileIndexer extends Indexer {
 class JsonFileIndexer extends Indexer {
   final PlatformFile file;
   final Completer<void> runCompleter = Completer<void>();
-  final LazyBox<Uint8List> box;
+  final String ikvPath;
   final Function(int progressPercent) updateProgress;
 
-  JsonFileIndexer(this.file, this.box, this.updateProgress);
+  JsonFileIndexer(this.file, this.ikvPath, this.updateProgress);
 
   Future<void> run() async {
     var path = this.file.path ?? this.file.name;
@@ -646,27 +655,17 @@ class JsonFileIndexer extends Indexer {
     var s = FileStream(path, null, null);
     var length = await file.length();
 
-    var zlib = ZLibEncoder();
-
     var sw = Stopwatch();
 
-    var converterJson = JsonDecoder((k, v) {
-      if (v is String) {
-        var bytes = utf8.encode(v);
-        var zlibBytes = zlib.encode(bytes);
-        var b = Uint8List.fromList(zlibBytes);
-        return b;
-      } else {
-        return v;
-      }
-    });
+    var converterJson = JsonDecoder();
 
     // Dart doesn't support chunked JSON decoding, entire map of decoded values
     // comes in in a single chunk
-    var outSinkJson = ChunkedConversionSink.withCallback((chunks) async {
+    var outSinkJson = ChunkedConversionSink.withCallback((chunks) {
       try {
-        var result = chunks.single.cast<String, Uint8List>();
-        await box.putAll(result);
+        var result = chunks.single.cast<String, String>();
+        var ikv = IkvPack.fromMap(result);
+        ikv.saveTo(ikvPath);
         sw.stop();
         runCompleter.complete();
         print('ELAPSED (ms): ' + sw.elapsedMilliseconds.toString());
@@ -708,161 +707,93 @@ class JsonFileIndexer extends Indexer {
 class WebIndexer extends Indexer {
   final PlatformFile file;
   final Completer<void> runCompleter = Completer<void>();
-  final LazyBox<Uint8List> box;
+  final String ikvPath;
   final Function(int progressPercent) updateProgress;
 
-  WebIndexer(this.file, this.box, this.updateProgress);
+  WebIndexer(this.file, this.ikvPath, this.updateProgress);
 
   Future<void> run() async {
     print(file.path ?? file.name + '\n');
-    // Chunked json decoding isn't available in web
-    // var inSink = converterJson.startChunkedConversion(outSink);
+    //   // Chunked json decoding isn't available in web
+    //   // var inSink = converterJson.startChunkedConversion(outSink);
 
-    var sw = Stopwatch();
-    var zlib = ZLibEncoder();
-    sw.start();
+    //   var sw = Stopwatch();
+    //   var zlib = ZLibEncoder();
+    //   sw.start();
 
-    try {
-      updateProgress(0);
-      if (_canceled) {
-        runCompleter.complete();
-        return runCompleter.future;
-      }
-      var s = utf8.decode(file.bytes);
-      print('JSON read (ms): ' + sw.elapsedMilliseconds.toString());
-      updateProgress(1);
-      if (_canceled) {
-        runCompleter.complete();
-        return runCompleter.future;
-      }
-      Map mm = json.decode(s);
-      Map<String, String> m = mm.cast<String, String>();
-      print('JSON decoded (ms): ' + sw.elapsedMilliseconds.toString());
-      updateProgress(5);
-      var i = 0;
-      var curr = 0;
-      Map<String, Uint8List> m2 = {};
-      for (var e in m.entries) {
-        if (_canceled) {
-          runCompleter.complete();
-          return runCompleter.future;
-        }
-        var bytes = utf8.encode(e.value);
-        var zlibBytes = zlib.encode(bytes);
-        var b = Uint8List.fromList(zlibBytes);
-        m2[e.key] = b;
-        i++;
-        var p = (i / m.length * 95).round();
-        if (p != curr) {
-          curr = p;
-          //await box.putAll(m2);
-          var keys = <String>[];
-          var values = <Uint8List>[];
-          for (var kv in m2.entries) {
-            keys.add(kv.key);
-            values.add(kv.value);
-          }
-          m2.clear();
-          await toFuture(bulkInsert(box.indexedDb, keys, values));
-          updateProgress(5 + curr);
-        }
-      }
-      if (m2.length > 0) await box.putAll(m2);
-      var boxName = box.name;
-      await box.close();
-      await Hive.openLazyBox<Uint8List>(boxName);
-      print('Indexing done(ms): ' + sw.elapsedMilliseconds.toString());
-      runCompleter.complete();
-    } catch (err) {
-      _canceled = true;
-      runCompleter.completeError(err);
-    }
+    //   try {
+    //     updateProgress(0);
+    //     if (_canceled) {
+    //       runCompleter.complete();
+    //       return runCompleter.future;
+    //     }
+    //     var s = utf8.decode(file.bytes);
+    //     print('JSON read (ms): ' + sw.elapsedMilliseconds.toString());
+    //     updateProgress(1);
+    //     if (_canceled) {
+    //       runCompleter.complete();
+    //       return runCompleter.future;
+    //     }
+    //     Map mm = json.decode(s);
+    //     Map<String, String> m = mm.cast<String, String>();
+    //     print('JSON decoded (ms): ' + sw.elapsedMilliseconds.toString());
+    //     updateProgress(5);
+    //     var i = 0;
+    //     var curr = 0;
+    //     Map<String, Uint8List> m2 = {};
+    //     for (var e in m.entries) {
+    //       if (_canceled) {
+    //         runCompleter.complete();
+    //         return runCompleter.future;
+    //       }
+    //       var bytes = utf8.encode(e.value);
+    //       var zlibBytes = zlib.encode(bytes);
+    //       var b = Uint8List.fromList(zlibBytes);
+    //       m2[e.key] = b;
+    //       i++;
+    //       var p = (i / m.length * 95).round();
+    //       if (p != curr) {
+    //         curr = p;
+    //         //await box.putAll(m2);
+    //         var keys = <String>[];
+    //         var values = <Uint8List>[];
+    //         for (var kv in m2.entries) {
+    //           keys.add(kv.key);
+    //           values.add(kv.value);
+    //         }
+    //         m2.clear();
+    //         await toFuture(bulkInsert(box.indexedDb, keys, values));
+    //         updateProgress(5 + curr);
+    //       }
+    //     }
+    //     if (m2.length > 0) await box.putAll(m2);
+    //     var boxName = box.name;
+    //     await box.close();
+    //     await Hive.openLazyBox<Uint8List>(boxName);
+    //     print('Indexing done(ms): ' + sw.elapsedMilliseconds.toString());
+    //     runCompleter.complete();
+    //   } catch (err) {
+    //     _canceled = true;
+    //     runCompleter.completeError(err);
+    //   }
 
     return runCompleter.future;
   }
 }
 
-void _runBinaryIndexer(
-    ByteData file,
-    LazyBox<Uint8List> box,
-    Function checkCanceled,
-    Completer<void> runCompleter,
-    Function(int progressPercent) updateProgress) async {
-  var m = Map<String, Uint8List>();
-  var keys = <String>[];
-  var values = <Uint8List>[];
-  var position = 0;
-
-  var count = file.getInt32(position);
-  position += 4;
-  print(count);
-  var counter = 0;
-  var curr = 0;
-
-  var db = box.indexedDb;
-  while (position < file.lengthInBytes - 1 && counter < count) {
-    counter++;
-
-    var length = file.getInt32(position);
-    position += 4;
-    var bytes = file.buffer.asUint8List(position, length);
-    var key = utf8.decode(bytes);
-    position += length;
-
-    length = file.getInt32(position);
-    position += 4;
-    bytes = file.buffer.asUint8List(position, length).sublist(0, length);
-
-    position += length;
-
-    // indexedDB inserts via Hive are super slow.
-    // Directly inserting to indexDB via JS interop.
-    // Since Maps are broken when marshaled in dart2js, using 2 arrays instead
-    if (kIsWeb) {
-      keys.add(key);
-      values.add(bytes);
-    } else {
-      m[key] = bytes;
-    }
-    var p = (counter / count * 97).round();
-    if (p != curr) {
-      if (checkCanceled()) {
-        runCompleter.complete();
-        return runCompleter.future;
-      }
-      curr = p;
-      if (kIsWeb) {
-        await toFuture(bulkInsert(db, keys, values));
-        keys.clear();
-        values.clear();
-      } else {
-        await box.putAll(m);
-        m.clear();
-      }
-      updateProgress(3 + curr);
-    }
-  }
-  if (kIsWeb) {
-    if (keys.length > 0) await toFuture(bulkInsert(db, keys, values));
-    box.close(); // Force reload to get keys in Box
-  } else if (m.length > 0) await box.putAll(m);
-
-  runCompleter.complete();
-}
-
 class BundledBinaryIndexer extends Indexer {
   final String assetName;
   final Completer<void> runCompleter = Completer<void>();
-  final LazyBox<Uint8List> box;
+  final String fileName;
   final Function(int progressPercent) updateProgress;
 
-  BundledBinaryIndexer(this.assetName, this.box, this.updateProgress);
+  BundledBinaryIndexer(this.assetName, this.fileName, this.updateProgress);
 
   Future<void> run() async {
     print('Indexing bundled bianry dictionary: ' + this.assetName);
     var sw = Stopwatch();
     sw.start();
-    var file = await rootBundle.load(assetName);
+    var asset = await rootBundle.load(assetName);
     updateProgress(3);
     if (_canceled) {
       runCompleter.complete();
@@ -870,8 +801,13 @@ class BundledBinaryIndexer extends Indexer {
     }
 
     try {
-      await _runBinaryIndexer(
-          file, box, () => _canceled, runCompleter, updateProgress);
+      if (!kIsWeb) {
+        File(fileName).writeAsBytesSync(asset.buffer.asInt8List());
+        runCompleter.complete();
+      } else {
+        //TODO
+      }
+
       print('Indexing done(ms): ' + sw.elapsedMilliseconds.toString());
     } catch (err) {
       runCompleter.completeError(err);

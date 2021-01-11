@@ -1,4 +1,5 @@
 import 'dart:async' show Future;
+import 'dart:math';
 import 'dart:typed_data';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
@@ -43,7 +44,7 @@ class MasterDictionary extends ChangeNotifier {
   int get totalEntries {
     var c = 0;
     for (var i in dictionaryManager.dictionariesEnabled)
-      if (i.box != null) c += i.box.length;
+      if (i.ikv != null) c += i.ikv.length;
     return c;
   }
 
@@ -90,21 +91,28 @@ class MasterDictionary extends ChangeNotifier {
   void _getMatchesForWord(String lookup) {
     lookupSw.reset();
     lookupSw.start();
-    lookup = lookup?.toLowerCase();
-    int n = 0;
     matches.clear();
 
     for (var d in dictionaryManager.dictionariesLoaded) {
-      for (var k in d.box.keys) {
-        if (k.startsWith(lookup) && !matches.contains(k)) {
-          n++;
-          matches.add(k);
-          if (n > maxResults) break;
-        }
-      }
+      matches.addAll(d.ikv.keysStartingWith(lookup));
     }
 
-    matches.sort();
+    if (matches.length > 1) {
+      matches.sort();
+      var unique = <String>[];
+      unique.add(matches[0]);
+
+      for (var i = 0; i < matches.length; i++) {
+        if (matches[i] != unique.last) {
+          unique.add(matches[i]);
+        }
+      }
+
+      matches = unique;
+
+      if (matches.length > maxResults)
+        matches = matches.sublist(0, min(maxResults, matches.length));
+    }
 
     lookupSw.stop();
   }
@@ -132,9 +140,11 @@ class MasterDictionary extends ChangeNotifier {
     List<Article> articles = [];
 
     for (var d in dictionaryManager.dictionariesLoaded) {
-      var a = await d.box.get(word);
-      if (a != null)
-        articles.add(Article(word, await _unzipIsolate(a), d.name));
+      //var a = d.ikv.valueRawCompressed(word);
+      var s = d.ikv.value(word);
+      if (s != null && !s.isEmpty)
+        //articles.add(Article(word, await _unzipIsolate(a), d.name));
+        articles.add(Article(word, s, d.name));
     }
 
     return articles;

@@ -1,13 +1,13 @@
-import 'dart:typed_data';
-import 'dart:io';
-import 'package:hive/hive.dart';
+import 'dart:async';
 
+import 'package:hive/hive.dart';
+import 'package:ikvpack/ikvpack.dart';
 part 'indexedDictionary.g.dart';
 
 @HiveType(typeId: 0)
 class IndexedDictionary extends HiveObject {
   @HiveField(0)
-  String boxName;
+  String ikvPath;
   @HiveField(1)
   bool isEnabled;
   @HiveField(2)
@@ -25,28 +25,37 @@ class IndexedDictionary extends HiveObject {
   bool isLoaded = false;
   bool isBundled = false;
 
-  //LazyBox<Uint8List> _box = null;
+  IkvPack _ikv;
 
-  LazyBox<Uint8List> get box {
-    if (!Hive.isBoxOpen(boxName)) return null;
-    return Hive.lazyBox<Uint8List>(boxName);
+  IkvPack get ikv {
+    if (!isLoaded) return null;
+    return _ikv;
   }
 
-  Future<LazyBox<Uint8List>> openBox() async {
-    if (!Hive.isBoxOpen(boxName)) {
-      isLoaded = true;
-      return await Hive.openLazyBox(boxName);
+  Future<IkvPack> openIkv() async {
+    var completer = Completer<IkvPack>();
+    if (!isLoaded) {
+      var f = IkvPack.loadInIsolate(ikvPath);
+      f.then((value) {
+        _ikv = value;
+        isLoaded = true;
+        completer.complete(_ikv);
+      }).catchError((e) {
+        print('Error loaidinf IkvPack.\n' + e);
+        completer.completeError(e);
+      });
+      return completer.future;
     }
-    return box;
+    completer.complete(_ikv);
+    return completer.future;
   }
 
   double get fileSizeMb {
-    var file = File(box.path);
-    return file.lengthSync() / 1024 / 1024;
+    return ikv.sizeBytes / 1024 / 1024;
   }
 
   IndexedDictionary();
 
   IndexedDictionary.init(
-      this.boxName, this.name, this.isEnabled, this.isReadyToUse);
+      this.ikvPath, this.name, this.isEnabled, this.isReadyToUse);
 }

@@ -220,7 +220,7 @@ void main() {
     print('Tuned: ' + ms.toString());
 
     var ms2 = await measureAvgMs(() async {
-      var ikv = IkvPack(ikvPath);
+      var ikv = IkvPack(ikvPath, false);
       return ikv.length;
     }, teardown: () async {});
     print('IkvPack: ' + ms2.toString());

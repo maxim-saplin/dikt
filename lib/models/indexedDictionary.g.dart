@@ -17,7 +17,7 @@ class IndexedDictionaryAdapter extends TypeAdapter<IndexedDictionary> {
       for (var i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return IndexedDictionary()
-      ..boxName = fields[0] as String
+      ..ikvPath = fields[0] as String
       ..isEnabled = fields[1] as bool
       ..name = fields[2] as String
       ..isReadyToUse = fields[3] as bool
@@ -30,7 +30,7 @@ class IndexedDictionaryAdapter extends TypeAdapter<IndexedDictionary> {
     writer
       ..writeByte(6)
       ..writeByte(0)
-      ..write(obj.boxName)
+      ..write(obj.ikvPath)
       ..writeByte(1)
       ..write(obj.isEnabled)
       ..writeByte(2)
