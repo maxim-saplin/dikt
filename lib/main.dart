@@ -4,6 +4,7 @@ import 'dart:io' show Platform;
 import 'package:double_back_to_close/double_back_to_close.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:ikvpack/ikvpack.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/services.dart';
@@ -48,6 +49,9 @@ void main() async {
   //var s =
   //    await rootBundle.loadString('assets/dictionaries/En-En-WordNet3-00.json');
   //test(s);
+
+  // var p = PooledIsolateExecutor(8);
+  // await p.start();
 
   runApp(MyApp());
 }

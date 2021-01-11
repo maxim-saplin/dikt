@@ -219,10 +219,10 @@ class DictionaryManager extends ChangeNotifier {
         });
         futures.add(f);
         counter++;
-        if (counter > 5) futuresFour.add(f);
+        if (counter > 7) futuresFour.add(f);
         if (futuresFour.length > 4) {
           await Future.wait(futuresFour);
-          counter = 5;
+          counter = 6;
           futuresFour.clear();
         }
       }
