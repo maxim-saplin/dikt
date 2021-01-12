@@ -64,12 +64,13 @@ class DictionaryLoadingNoAlign extends HookWidget {
 
     var ui = Stack(alignment: Alignment.centerLeft, children: [
       Container(
-          width: 256,
-          height: 36,
+          width: 264,
+          height: 48,
           color: Theme.of(context).canvasColor,
           child: Center(
               child: Text(
             'Loading dictionaries: '.i18n +
+                '\n' +
                 count.toString() +
                 ' / ' +
                 manager.dictionariesBeingProcessed.length.toString(),

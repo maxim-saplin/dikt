@@ -269,6 +269,8 @@ void showArticle(BuildContext context, String word, bool useDialog) {
           var articles = getArticlesUpdateHistory(context, word);
 
           return SimpleSimpleDialog(
+              backgroundColor:
+                  !kIsWeb ? Colors.transparent : Theme.of(context).cardColor,
               elevation: 0,
               insetPadding: EdgeInsets.fromLTRB(
                   0, !kIsWeb && Platform.isMacOS ? 28 : 0, 0, 0),

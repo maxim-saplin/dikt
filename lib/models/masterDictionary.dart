@@ -1,10 +1,10 @@
 import 'dart:async' show Future;
-import 'dart:math';
 import 'dart:typed_data';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:archive/archive.dart';
 import 'package:flutter/material.dart';
+import 'package:ikvpack/ikvpack.dart';
 
 import './dictionaryManager.dart';
 
@@ -91,28 +91,9 @@ class MasterDictionary extends ChangeNotifier {
   void _getMatchesForWord(String lookup) {
     lookupSw.reset();
     lookupSw.start();
-    matches.clear();
 
-    for (var d in dictionaryManager.dictionariesLoaded) {
-      matches.addAll(d.ikv.keysStartingWith(lookup));
-    }
-
-    if (matches.length > 1) {
-      matches.sort();
-      var unique = <String>[];
-      unique.add(matches[0]);
-
-      for (var i = 0; i < matches.length; i++) {
-        if (matches[i] != unique.last) {
-          unique.add(matches[i]);
-        }
-      }
-
-      matches = unique;
-
-      if (matches.length > maxResults)
-        matches = matches.sublist(0, min(maxResults, matches.length));
-    }
+    matches = IkvPack.consolidatedKeysStartingWith(
+        dictionaryManager.ikvPacksLoaded, lookup, maxResults);
 
     lookupSw.stop();
   }
@@ -135,8 +116,6 @@ class MasterDictionary extends ChangeNotifier {
   }
 
   Future<List<Article>> getArticles(String word) async {
-    word = word?.toLowerCase();
-
     List<Article> articles = [];
 
     for (var d in dictionaryManager.dictionariesLoaded) {

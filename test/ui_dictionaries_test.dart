@@ -19,11 +19,17 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'finders.dart';
 
+DictionaryManager dicManager;
+
 void main() {
-  const tmpPath = './test/tmp';
+  const tmpPath = 'test/tmp';
 
   setUpAll(() async {
     print('Setting up tests');
+
+    var tmpDir = Directory(tmpPath);
+    if (tmpDir.existsSync()) tmpDir.deleteSync(recursive: true);
+    Directory(tmpPath).createSync();
 
     await DictionaryManager.init(tmpPath);
 
@@ -44,13 +50,11 @@ void main() {
     ikv.saveTo(nameToIkvPath('EN_RU WordNet 3'));
     ikv.saveTo(nameToIkvPath('RU_EN WordNet 3'));
 
-    // await dictionaries.getAt(0).openIkv();
-    // await dictionaries.getAt(1).openIkv();
-    // await dictionaries.getAt(2).openIkv();
-
-    // await Hive.openLazyBox<Uint8List>(nameToBoxName('EN_EN WordNet 3'));
-    // await Hive.openLazyBox<Uint8List>(nameToBoxName('EN_RU WordNet 3'));
-    // await Hive.openLazyBox<Uint8List>(nameToBoxName('RU_EN WordNet 3'));
+// used to create manager in _createAndWrapWidget() each time a test is started
+// though after moving to Ikv and IsolatePool there was some serois trouble
+// with test harbess guts which maid 'await' stuck at 'pool.start()'
+    dicManager = DictionaryManager();
+    await dicManager.indexAndLoadDictionaries(true);
   });
 
   tearDownAll(() {
@@ -60,10 +64,6 @@ void main() {
   });
 
   group('Online Dictionaries', () {
-    // setUp(() async {
-    //   print('Online Dictionaries Set-up before test');
-    // });
-
     testWidgets('Empty URL shows error', (WidgetTester tester) async {
       await _openOnlineDictionariesAndWaitToLoad(tester);
 
@@ -469,10 +469,6 @@ Future _createAndWrapWidget(WidgetTester tester, Widget widget) async {
   var sp = MockSharedPrefferences();
   await PreferencesSingleton.init(sp);
   when(sp.getString('')).thenAnswer((_) => null);
-
-  var dicManager = DictionaryManager();
-
-  await dicManager.indexAndLoadDictionaries(true);
 
   await tester.pumpWidget(
     MultiProvider(

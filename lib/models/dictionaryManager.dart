@@ -23,7 +23,7 @@ String nameToIkvPath(String name) {
   if (fileName.length > 127)
     fileName = fileName.substring(0, min(127, fileName.length));
 
-  return DictionaryManager.homePath + '/' + fileName + 'ikv.dikt';
+  return DictionaryManager.homePath + '/' + fileName + '.ikv.dikt';
 }
 
 class BundledBinaryDictionary {
@@ -102,6 +102,7 @@ class DictionaryManager extends ChangeNotifier {
   static const dictionairesBoxName = 'dictionairesBoxName';
   static Box<IndexedDictionary> _dictionaries;
   static String homePath;
+  static String testPath;
 
   static Future<void> init([String testPath]) async {
     if (testPath == null) {
@@ -110,6 +111,7 @@ class DictionaryManager extends ChangeNotifier {
     } else {
       Hive.init(testPath); // autotests
       homePath = testPath;
+      DictionaryManager.testPath = testPath;
     }
     Hive.registerAdapter(IndexedDictionaryAdapter());
     _dictionaries = await Hive.openBox(dictionairesBoxName);
@@ -142,6 +144,12 @@ class DictionaryManager extends ChangeNotifier {
     //_getKeyStats();
   }
 
+  // Workaround for testing, avoid disposing object between tests
+  @override
+  void dispose() {
+    if (testPath == null) super.dispose();
+  }
+
   void _initDictionaryCollections() {
     _dictionariesAllList = <IndexedDictionary>[];
 
@@ -162,6 +170,8 @@ class DictionaryManager extends ChangeNotifier {
       var d = _dictionariesReadyList[i];
       if (d.isEnabled && !d.isError) _dictionariesEnabledList.add(d);
     }
+
+    _ikvPacksLoaded = dictionariesLoaded.map((d) => d.ikv);
   }
 
   int get totalDictionaries => _dictionariesAllList.length;
@@ -192,10 +202,18 @@ class DictionaryManager extends ChangeNotifier {
     if (_dictionariesBeingProcessed.length > 0) {
       notifyListeners();
       List<Future<IkvPack>> futures = [];
+      // var f = Future.delayed(Duration(seconds: 1), () => print('HI'));
+      // await f;
 
       var pool =
           IsolatePool(kIsWeb ? 1 : max(Platform.numberOfProcessors - 1, 1));
       await pool.start();
+
+      // f = Future.delayed(Duration(seconds: 1), () => print('HI2'));
+      // await f;
+
+      // pool.start();
+      // await Future.delayed(Duration(seconds: 1));
 
       for (var i in _dictionariesBeingProcessed) {
         i.state = DictionaryBeingProcessedState.inprogress;
@@ -405,9 +423,11 @@ class DictionaryManager extends ChangeNotifier {
     return _dictionariesEnabledList;
   }
 
-  List<IndexedDictionary> get dictionariesLoaded {
-    return _dictionariesEnabledList.where((e) => e.isLoaded).toList();
-  }
+  List<IndexedDictionary> get dictionariesLoaded =>
+      _dictionariesEnabledList.where((e) => e.isLoaded).toList();
+
+  Iterable<IkvPack> _ikvPacksLoaded;
+  Iterable<IkvPack> get ikvPacksLoaded => _ikvPacksLoaded;
 
   void reorder(int oldIndex, int newIndex) {
     for (var i = 0; i < _dictionariesReadyList.length; i++) {

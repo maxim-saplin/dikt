@@ -53,7 +53,8 @@ class WordArticles extends StatelessWidget {
                                   sliver: SliverList(
                                     delegate: SliverChildBuilderDelegate(
                                         (context, i) {
-                                      return Padding(
+                                      return Container(
+                                          color: Theme.of(context).cardColor,
                                           padding: EdgeInsets.fromLTRB(
                                               10, 0, 10, 10),
                                           child: Html(
