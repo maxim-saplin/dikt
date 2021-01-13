@@ -19,6 +19,8 @@ class MasterDictionary extends ChangeNotifier {
   Future loadJson;
   final int maxResults = 100;
   DictionaryManager dictionaryManager;
+  double _loadTimeSec = -1;
+  double get loadTimeSec => _loadTimeSec;
 
   void init() {
     print('Master dictionary init started: ' + DateTime.now().toString());
@@ -31,6 +33,7 @@ class MasterDictionary extends ChangeNotifier {
           DateTime.now().toString() +
           ' DURATION(MS): ' +
           sw.elapsedMilliseconds.toString());
+      _loadTimeSec = sw.elapsed.inMilliseconds / 1000;
     });
     dictionaryManager.partiallyLoaded.then((value) => isPartiallyLoaded = true);
   }

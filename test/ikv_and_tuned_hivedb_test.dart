@@ -209,6 +209,15 @@ void main() {
     expect(percent > -10, true);
   });
 
+  // test('Measure IkvPack load time ', () async {
+  //   var ms2 = await measureAvgMs(() async {
+  //     var ikvPath2 = 'EN_RU Multitran.dikt';
+  //     var ikv = IkvPack(ikvPath2, true);
+  //     return ikv.length;
+  //   }, teardown: () async {});
+  //   print('IkvPack: ' + ms2.toString());
+  // });
+
   test('IkvPack loads faster than tuned HiveDB ', () async {
     var ms = await measureAvgMs(() async {
       var b = await initHive();

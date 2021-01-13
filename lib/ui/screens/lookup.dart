@@ -226,7 +226,7 @@ class _SearchBar extends StatelessWidget {
                                               '  ╳')
                                       : '0_0'))),
                         )
-                      : Text('...'),
+                      : Text(''),
                   Opacity(
                       opacity: 0.2,
                       child: Text(

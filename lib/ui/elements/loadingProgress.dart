@@ -1,3 +1,4 @@
+import 'package:dikt/models/masterDictionary.dart';
 import 'package:dikt/ui/elements/managerState.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -62,27 +63,34 @@ class DictionaryLoadingNoAlign extends HookWidget {
             previousValue +
             (element.state == DictionaryBeingProcessedState.success ? 1 : 0));
 
-    var ui = Stack(alignment: Alignment.centerLeft, children: [
-      Container(
-          width: 264,
-          height: 48,
-          color: Theme.of(context).canvasColor,
-          child: Center(
-              child: Text(
-            'Loading dictionaries: '.i18n +
-                '\n' +
-                count.toString() +
-                ' / ' +
-                manager.dictionariesBeingProcessed.length.toString(),
-            style: TextStyle(fontSize: 18),
-          ))),
-      Container(
-        child: SizedBox(),
-        color: Colors.grey,
-        width: 4,
-        height: 36,
-      ),
-    ]);
+    var ui = (String time) => Stack(alignment: Alignment.centerLeft, children: [
+          Stack(alignment: Alignment.bottomRight, children: [
+            Container(
+                width: 244,
+                height: 48,
+                color: Theme.of(context).canvasColor,
+                child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Padding(
+                        padding: EdgeInsets.fromLTRB(9, 0, 0, 0),
+                        child: Text(
+                          'Loading dictionaries: '.i18n +
+                              '\n' +
+                              count.toString() +
+                              ' / ' +
+                              manager.dictionariesBeingProcessed.length
+                                  .toString(),
+                          style: TextStyle(fontSize: 18),
+                        )))),
+            Text(time, style: Theme.of(context).textTheme.overline)
+          ]),
+          Container(
+            child: SizedBox(),
+            color: Colors.grey,
+            width: 4,
+            height: 48,
+          ),
+        ]);
 
     Widget fade = SizedBox();
 
@@ -90,15 +98,16 @@ class DictionaryLoadingNoAlign extends HookWidget {
         manager.currentOperation == ManagerCurrentOperation.idle &&
         !fadeShown) {
       fadeShown = true;
+      var master = Provider.of<MasterDictionary>(context);
       fade = FadeTransition(
-          child: ui,
+          child: ui((master.loadTimeSec.toStringAsFixed(1))),
           opacity: useAnimationController(duration: Duration(seconds: 2))
             ..reverse(from: 0.6));
     }
 
     return manager.currentOperation == ManagerCurrentOperation.loading &&
             manager.isRunning
-        ? Opacity(opacity: 0.3, child: ui)
+        ? Opacity(opacity: 0.3, child: ui(''))
         : fade;
   }
 }

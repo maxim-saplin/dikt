@@ -205,15 +205,11 @@ class DictionaryManager extends ChangeNotifier {
       // var f = Future.delayed(Duration(seconds: 1), () => print('HI'));
       // await f;
 
-      var pool =
-          IsolatePool(kIsWeb ? 1 : max(Platform.numberOfProcessors - 1, 1));
+      var pool = IsolatePool(kIsWeb
+          ? 1
+          : min(max(Platform.numberOfProcessors - 1, 1),
+              _dictionariesBeingProcessed.length));
       await pool.start();
-
-      // f = Future.delayed(Duration(seconds: 1), () => print('HI2'));
-      // await f;
-
-      // pool.start();
-      // await Future.delayed(Duration(seconds: 1));
 
       for (var i in _dictionariesBeingProcessed) {
         i.state = DictionaryBeingProcessedState.inprogress;
@@ -227,7 +223,7 @@ class DictionaryManager extends ChangeNotifier {
           if (!_partiallyLoaded.isCompleted) _partiallyLoaded.complete();
           notifyListeners();
         }).catchError((err) {
-          print("Error loading box: " +
+          print("Error loading IkvPack: " +
               i.indexedDictionary.ikvPath +
               "\n" +
               err.toString());
@@ -340,7 +336,7 @@ class DictionaryManager extends ChangeNotifier {
           _dictionaries.delete(ikvPath);
         }
 
-        print("Error indexing box: " + d.ikvPath + "\n" + err.toString());
+        print("Error indexing IkvPack: " + d.ikvPath + "\n" + err.toString());
         dictionariesProcessed[i].state = DictionaryBeingProcessedState.error;
         notifyListeners();
         if (i == dictionariesProcessed.length - 1 && finished != null)
@@ -526,7 +522,7 @@ class DictionaryManager extends ChangeNotifier {
     var keysCount = 0;
 
     for (var d in dictionariesLoaded) {
-      keysCount += d.box.length;
+      keysCount += d.ikv.length;
     }
     sw.stop();
     print('Non-Unique keys ${keysCount} [${sw.elapsedMilliseconds}ms]');
@@ -540,7 +536,7 @@ class DictionaryManager extends ChangeNotifier {
     var totalLength = 0;
 
     for (var d in dictionariesLoaded) {
-      for (var k in d.box.keys) {
+      for (var k in d.ikv.keys) {
         for (var c in k.codeUnits) {
           bytes += ((c.bitLength + 1) / 8).ceil();
         }
@@ -556,7 +552,7 @@ class DictionaryManager extends ChangeNotifier {
     sw.reset();
 
     for (var d in dictionariesLoaded) {
-      for (var k in d.box.keys) {
+      for (var k in d.ikv.keys) {
         keys.add(k);
       }
     }
