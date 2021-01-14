@@ -48,7 +48,7 @@ class IndexedDictionary extends HiveObject {
         isLoaded = true;
         completer.complete(_ikv);
       }).catchError((e) {
-        print('Error loaidinf IkvPack.\n' + e);
+        print('Error loaiding IkvPack.\n' + e.toString());
         completer.completeError(e);
       });
       return completer.future;

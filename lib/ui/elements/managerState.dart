@@ -14,7 +14,7 @@ class ManagerState extends StatelessWidget {
 
     return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.start,
         children: [
           Text(manager.currentOperation == ManagerCurrentOperation.preparing
               ? 'One moment please'.i18n

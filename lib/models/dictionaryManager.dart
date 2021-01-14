@@ -99,15 +99,30 @@ class DictionaryBeingProcessed {
 enum ManagerCurrentOperation { preparing, indexing, loading, idle }
 
 class DictionaryManager extends ChangeNotifier {
-  static const dictionairesBoxName = 'dictionairesBoxName';
+  static const dictionairesBoxName = 'dictionairesboxname';
   static Box<IndexedDictionary> _dictionaries;
   static String homePath;
   static String testPath;
+
+  static bool hiveDicsDeleted = false;
 
   static Future<void> init([String testPath]) async {
     if (testPath == null) {
       await Hive.initFlutter();
       homePath = (await getApplicationDocumentsDirectory()).path;
+      try {
+        var oldHive = Directory(homePath)
+            .listSync(recursive: false, followLinks: false)
+            .where((f) =>
+                f.path.endsWith('.hive') &&
+                !f.path.contains(dictionairesBoxName) &&
+                !f.path.contains('.lock'))
+            .toList();
+        if (oldHive.length > 0)
+          oldHive.forEach((f) {
+            f.deleteSync();
+          });
+      } catch (_) {}
     } else {
       Hive.init(testPath); // autotests
       homePath = testPath;

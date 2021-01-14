@@ -111,83 +111,80 @@ class _OfflineDictionariesState extends State<OfflineDictionaries> {
     }
 
     return Container(
-        width: 400,
         child: Stack(alignment: AlignmentDirectional.bottomCenter, children: [
-          DragTarget<int>(onAccept: (index) {
-            _cancelReorder = true;
-            confirmAndDelete(context, manager.dictionariesReady[index].name,
-                () {
-              manager.deleteReadyDictionary(index);
-              Provider.of<MasterDictionary>(context, listen: false)?.notify();
-            });
-          }, onWillAccept: (data) {
-            return true;
-          }, builder: (context, List<int> candidateData, rejectedData) {
-            return Container(
-              width: 280,
-              padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
-              height: 40,
-              child: Center(
-                  child: _draggingIndex == null
-                      ? (manager.isRunning
-                          ? OutlinedButton(
-                              child: Text('Break'.i18n),
-                              onPressed: () {
-                                manager.cancel();
-                              })
-                          : Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                  OutlinedButton(
-                                    child: SizedBox(
-                                      child: Text('+ JSON'.i18n),
-                                      width: 85,
-                                    ),
-                                    onPressed: _importJsonOrDikt,
+      DragTarget<int>(onAccept: (index) {
+        _cancelReorder = true;
+        confirmAndDelete(context, manager.dictionariesReady[index].name, () {
+          manager.deleteReadyDictionary(index);
+          Provider.of<MasterDictionary>(context, listen: false)?.notify();
+        });
+      }, onWillAccept: (data) {
+        return true;
+      }, builder: (context, List<int> candidateData, rejectedData) {
+        return Container(
+          padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
+          height: 40,
+          child: Center(
+              child: _draggingIndex == null
+                  ? (manager.isRunning
+                      ? OutlinedButton(
+                          child: Text('Break'.i18n),
+                          onPressed: () {
+                            manager.cancel();
+                          })
+                      : Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                              OutlinedButton(
+                                child: SizedBox(
+                                  child: Text('+ JSON'.i18n),
+                                  width: 85,
+                                ),
+                                onPressed: _importJsonOrDikt,
+                              ),
+                              SizedBox(
+                                width: 10,
+                              ),
+                              OutlinedButton(
+                                  style: ButtonStyle(
+                                      backgroundColor:
+                                          MaterialStateProperty.all<Color>(
+                                              Colors.red.withAlpha(128))),
+                                  child: SizedBox(
+                                    child: Text('Online →'.i18n),
+                                    width: 85,
                                   ),
-                                  SizedBox(
-                                    width: 10,
-                                  ),
-                                  OutlinedButton(
-                                      style: ButtonStyle(
-                                          backgroundColor:
-                                              MaterialStateProperty.all<Color>(
-                                                  Colors.red.withAlpha(128))),
-                                      child: SizedBox(
-                                        child: Text('Online →'.i18n),
-                                        width: 85,
-                                      ),
-                                      onPressed: () async {
-                                        Routes.showOnlineDictionaries(context);
-                                      })
-                                ]))
-                      : Center(child: Text('DELETE'.i18n))),
-            );
-          }),
-          manager.isRunning
-              ? Padding(
-                  padding: EdgeInsets.fromLTRB(0, 0, 0, 48),
-                  child: SingleChildScrollView(child: ManagerState()))
-              : Padding(
-                  padding: EdgeInsets.fromLTRB(0, 0, 0, 40),
-                  child: CustomScrollView(
-                    controller: _scrollController,
-                    shrinkWrap: true,
-                    slivers: <Widget>[
-                      ReorderableSliverList(
-                        delegate: ReorderableSliverChildListDelegate(manager
-                            //.dictionariesAll
-                            .dictionariesReady
-                            .map((e) => OfflineDictionaryTile(
-                                manager: manager, dictionary: e))
-                            .toList()),
-                        onReorder: _onReorder,
-                        onDragging: _onDragging,
-                        onNoReorder: _onCancel,
-                      )
-                    ],
-                  ))
-        ]));
+                                  onPressed: () async {
+                                    Routes.showOnlineDictionaries(context);
+                                  })
+                            ]))
+                  : Center(child: Text('DELETE'.i18n))),
+        );
+      }),
+      manager.isRunning
+          ? Padding(
+              padding: EdgeInsets.fromLTRB(0, 0, 0, 48),
+              child: SingleChildScrollView(child: ManagerState()))
+          : Padding(
+              padding: EdgeInsets.fromLTRB(0, 0, 0, 40),
+              child: CustomScrollView(
+                controller: _scrollController,
+                shrinkWrap: true,
+                slivers: <Widget>[
+                  ReorderableSliverList(
+                    delegate: ReorderableSliverChildListDelegate(manager
+                        //.dictionariesAll
+                        .dictionariesReady
+                        .map((e) => OfflineDictionaryTile(
+                            manager: manager, dictionary: e))
+                        .toList()),
+                    onReorder: _onReorder,
+                    onDragging: _onDragging,
+                    onNoReorder: _onCancel,
+                  )
+                ],
+              ))
+    ]));
   }
 }
 
@@ -257,7 +254,7 @@ class OfflineDictionaryTile extends StatelessWidget {
                                           'entries'.i18n +
                                           (!kIsWeb
                                               ? ', ' +
-                                                  (ikv.sizeBytes / 1024 / 1204)
+                                                  (ikv.sizeBytes / 1024 / 1024)
                                                       .toStringAsFixed(1) +
                                                   "MB"
                                               : ''),

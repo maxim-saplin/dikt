@@ -2,6 +2,8 @@
 // Generated file. Do not edit.
 //
 
+// ignore_for_file: lines_longer_than_80_chars
+
 import 'package:file_picker/src/file_picker_web.dart';
 import 'package:firebase_analytics_web/firebase_analytics_web.dart';
 import 'package:firebase_core_web/firebase_core_web.dart';
