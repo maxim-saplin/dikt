@@ -23,6 +23,7 @@ class IndexedDictionary extends HiveObject {
 
   bool isError = false;
   bool isLoaded = false;
+  bool isLoading = false;
   bool isBundled = false;
 
   IkvPack _ikv;
@@ -40,15 +41,18 @@ class IndexedDictionary extends HiveObject {
   Future<IkvPack> openIkv([IsolatePool pool]) async {
     var completer = Completer<IkvPack>();
     if (!isLoaded) {
+      isLoading = true;
       var f = pool == null
           ? IkvPack.loadInIsolate(ikvPath)
           : IkvPack.loadInIsolatePool(pool, ikvPath);
       f.then((value) {
         _ikv = value;
         isLoaded = true;
+        isLoading = false;
         completer.complete(_ikv);
       }).catchError((e) {
         print('Error loaiding IkvPack.\n' + e.toString());
+        isLoading = false;
         completer.completeError(e);
       });
       return completer.future;
@@ -57,8 +61,12 @@ class IndexedDictionary extends HiveObject {
     return completer.future;
   }
 
-  double get fileSizeMb {
-    return ikv.sizeBytes / 1024 / 1024;
+  // double get fileSizeMb {
+  //   return ikv.sizeBytes / 1024 / 1024;
+  // }
+
+  Future<IkvInfo> getInfo() {
+    return IkvPack.getInfo(ikvPath);
   }
 
   IndexedDictionary();

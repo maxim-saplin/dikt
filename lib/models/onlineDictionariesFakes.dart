@@ -122,7 +122,7 @@ class FakeOnlineRepo extends OnlineRepo {
         100500, 105 * 1024 * 1024, '5'),
     RepoDictionary('https://repo.by/6', 'BY_RU Cлоўнік (А. Варвуль)', 100600,
         106 * 1024 * 1024, '6'),
-    RepoDictionary('https://repo.by/7', 'BY_BY Тлумачальны слоўнік', 100700,
+    RepoDictionary('https://repo.by/7', 'Тлумачальны слоўнік', 100700,
         107 * 1024 * 1024, '7'),
     RepoDictionary('https://repo.by/8', 'BY_EN Cлоўнік Якуба Коласа', 100800,
         108 * 1024 * 1024, '8'),

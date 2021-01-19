@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:ikvpack/ikvpack.dart';
 import 'package:reorderables/reorderables.dart';
 import 'package:provider/provider.dart';
@@ -111,20 +112,21 @@ class _OfflineDictionariesState extends State<OfflineDictionaries> {
     }
 
     return Container(
+        width: 450,
         child: Stack(alignment: AlignmentDirectional.bottomCenter, children: [
-      DragTarget<int>(onAccept: (index) {
-        _cancelReorder = true;
-        confirmAndDelete(context, manager.dictionariesReady[index].name, () {
-          manager.deleteReadyDictionary(index);
-          Provider.of<MasterDictionary>(context, listen: false)?.notify();
-        });
-      }, onWillAccept: (data) {
-        return true;
-      }, builder: (context, List<int> candidateData, rejectedData) {
-        return Container(
-          padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
-          height: 40,
-          child: Center(
+          DragTarget<int>(onAccept: (index) {
+            _cancelReorder = true;
+            confirmAndDelete(context, manager.dictionariesReady[index].name,
+                () {
+              manager.deleteReadyDictionary(index);
+              Provider.of<MasterDictionary>(context, listen: false)?.notify();
+            });
+          }, onWillAccept: (data) {
+            return true;
+          }, builder: (context, List<int> candidateData, rejectedData) {
+            return Container(
+              padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
+              height: 40,
               child: _draggingIndex == null
                   ? (manager.isRunning
                       ? OutlinedButton(
@@ -133,6 +135,7 @@ class _OfflineDictionariesState extends State<OfflineDictionaries> {
                             manager.cancel();
                           })
                       : Row(
+                          mainAxisSize: MainAxisSize.min,
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                               OutlinedButton(
@@ -158,33 +161,81 @@ class _OfflineDictionariesState extends State<OfflineDictionaries> {
                                     Routes.showOnlineDictionaries(context);
                                   })
                             ]))
-                  : Center(child: Text('DELETE'.i18n))),
-        );
-      }),
-      manager.isRunning
-          ? Padding(
-              padding: EdgeInsets.fromLTRB(0, 0, 0, 48),
-              child: SingleChildScrollView(child: ManagerState()))
-          : Padding(
-              padding: EdgeInsets.fromLTRB(0, 0, 0, 40),
-              child: CustomScrollView(
-                controller: _scrollController,
-                shrinkWrap: true,
-                slivers: <Widget>[
-                  ReorderableSliverList(
-                    delegate: ReorderableSliverChildListDelegate(manager
-                        //.dictionariesAll
-                        .dictionariesReady
-                        .map((e) => OfflineDictionaryTile(
-                            manager: manager, dictionary: e))
-                        .toList()),
-                    onReorder: _onReorder,
-                    onDragging: _onDragging,
-                    onNoReorder: _onCancel,
-                  )
-                ],
-              ))
-    ]));
+                  : Center(child: Text('DELETE'.i18n)),
+            );
+          }),
+          manager.isRunning
+              ? Padding(
+                  padding: EdgeInsets.fromLTRB(0, 0, 0, 48),
+                  child: SingleChildScrollView(child: ManagerState()))
+              : Padding(
+                  padding: EdgeInsets.fromLTRB(0, 0, 0, 40),
+                  child: CustomScrollView(
+                    controller: _scrollController,
+                    shrinkWrap: true,
+                    slivers: <Widget>[
+                      ReorderableSliverList(
+                        delegate: ReorderableSliverChildListDelegate(manager
+                            //.dictionariesAll
+                            .dictionariesReady
+                            .map((e) => OfflineDictionaryTile(
+                                manager: manager, dictionary: e))
+                            .toList()),
+                        onReorder: _onReorder,
+                        onDragging: _onDragging,
+                        onNoReorder: _onCancel,
+                      )
+                    ],
+                  ))
+        ]));
+  }
+}
+
+enum _TileState { notLoaded, loading, loaded }
+
+class _LoadAndEnabledButton extends HookWidget {
+  final IndexedDictionary dictionary;
+  final DictionaryManager manager;
+
+  _LoadAndEnabledButton(this.dictionary, this.manager);
+
+  void _swithcEnabled(BuildContext context) {
+    manager.switchIsEnabled(dictionary);
+    Provider.of<MasterDictionary>(context, listen: false)?.notify();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    var state = useState<_TileState>(
+        dictionary.isLoaded ? _TileState.loaded : _TileState.notLoaded);
+
+    if (state.value == _TileState.loaded) {
+      return FlatButton(
+          child: Text('↓', style: Theme.of(context).textTheme.caption),
+          padding: EdgeInsets.all(3),
+          onPressed: () {
+            if (dictionary.isError) return;
+            _swithcEnabled(context);
+          });
+    } else if (state.value == _TileState.loading) {
+      return Center(
+          child: SizedBox(
+              child: FadeTransition(
+                  child: CircularProgressIndicator(strokeWidth: 5),
+                  opacity:
+                      useAnimationController(duration: Duration(seconds: 2))
+                        ..forward(from: 0.0)),
+              width: 22,
+              height: 22));
+    }
+
+    return FlatButton(
+        child: Text('↓', style: Theme.of(context).textTheme.caption),
+        padding: EdgeInsets.all(3),
+        onPressed: () {
+          dictionary.openIkv().then((value) => _swithcEnabled(context));
+          state.value = _TileState.loading;
+        });
   }
 }
 
@@ -200,73 +251,85 @@ class OfflineDictionaryTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Opacity(
         opacity: !dictionary.isEnabled || !dictionary.isReadyToUse ? 0.5 : 1.0,
-        child: Row(mainAxisAlignment: MainAxisAlignment.start, children: [
-          Container(
-              width: 30,
-              height: 50,
-              child: FlatButton(
-                child: Text(
-                    !dictionary.isReadyToUse && dictionary.isBundled
-                        ? '↻'
-                        : (dictionary.isEnabled ? '↘' : '↓'),
-                    style: Theme.of(context).textTheme.caption),
-                padding: EdgeInsets.all(3),
-                onPressed: () {
-                  if (dictionary.isError) return;
-                  if (!dictionary.isReadyToUse && dictionary.isBundled) {
-                    manager.reindexBundledDictionaries(dictionary.ikvPath);
-                  } else {
-                    manager.switchIsEnabled(dictionary);
-                    Provider.of<MasterDictionary>(context, listen: false)
-                        ?.notify();
-                  }
-                },
-              )),
-          Flexible(
-              child: Container(
-                  padding: EdgeInsets.fromLTRB(6, 0, 0, 0),
-                  height: 55,
-                  child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(dictionary.name,
-                            overflow: TextOverflow.ellipsis,
-                            style: Theme.of(context).textTheme.caption),
-                        dictionary.isError
-                            ? Text('error', style: TextStyle(color: Colors.red))
-                            : FutureBuilder(
-                                future: dictionary
-                                    .openIkv(), //disabled boxes are not loaded upon start
-                                builder: (context, snapshot) {
-                                  if (snapshot.hasData &&
-                                      snapshot.data != null) {
-                                    Timer.run(() {
-                                      Provider.of<MasterDictionary>(context,
-                                              listen: false)
-                                          ?.notify();
-                                    }); // let Lookup update (e.g. no history and number of entries shown) if a new dictionary is imported
-                                    var ikv = snapshot.data as IkvPack;
-                                    return Text(
-                                      ikv.length.toString() +
-                                          ' ' +
-                                          'entries'.i18n +
-                                          (!kIsWeb
-                                              ? ', ' +
-                                                  (ikv.sizeBytes / 1024 / 1024)
-                                                      .toStringAsFixed(1) +
-                                                  "MB"
-                                              : ''),
-                                      overflow: TextOverflow.ellipsis,
-                                      style:
-                                          Theme.of(context).textTheme.subtitle2,
-                                    );
-                                  } else {
-                                    return Text('...');
-                                  }
-                                })
-                      ]))),
-        ]));
+        child: Row(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Container(
+                  width: 30,
+                  height: 50,
+                  child: !dictionary.isReadyToUse && dictionary.isBundled
+                      ? FlatButton(
+                          child: Text('↻',
+                              style: Theme.of(context).textTheme.caption),
+                          padding: EdgeInsets.all(3),
+                          onPressed: () {
+                            if (dictionary.isError) return;
+                            manager
+                                .reindexBundledDictionaries(dictionary.ikvPath);
+                          })
+                      : (dictionary.isEnabled
+                          ? FlatButton(
+                              child: Text('↘',
+                                  style: Theme.of(context).textTheme.caption),
+                              padding: EdgeInsets.all(3),
+                              onPressed: () {
+                                if (dictionary.isError) return;
+                                manager.switchIsEnabled(dictionary);
+                                Provider.of<MasterDictionary>(context,
+                                        listen: false)
+                                    ?.notify();
+                              })
+                          : _LoadAndEnabledButton(dictionary, manager))),
+              Flexible(
+                  child: Container(
+                      padding: EdgeInsets.fromLTRB(6, 0, 0, 0),
+                      height: 55,
+                      child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(dictionary.name,
+                                overflow: TextOverflow.ellipsis,
+                                style: Theme.of(context).textTheme.caption),
+                            dictionary.isError
+                                ? Text('error',
+                                    style: TextStyle(color: Colors.red))
+                                : FutureBuilder(
+                                    future: dictionary
+                                        .getInfo(), //disabled boxes are not loaded upon start
+                                    builder: (context, snapshot) {
+                                      if (snapshot.hasData &&
+                                          snapshot.data != null) {
+                                        Timer.run(() {
+                                          Provider.of<MasterDictionary>(context,
+                                                  listen: false)
+                                              ?.notify();
+                                        }); // let Lookup update (e.g. no history and number of entries shown) if a new dictionary is imported
+                                        var info = snapshot.data as IkvInfo;
+                                        return Text(
+                                          info.length.toString() +
+                                              ' ' +
+                                              'entries'.i18n +
+                                              (!kIsWeb
+                                                  ? ', ' +
+                                                      (info.sizeBytes /
+                                                              1024 /
+                                                              1024)
+                                                          .toStringAsFixed(1) +
+                                                      "MB"
+                                                  : ''),
+                                          overflow: TextOverflow.ellipsis,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .subtitle2,
+                                        );
+                                      } else {
+                                        return Text('...');
+                                      }
+                                    })
+                          ]))),
+            ]));
   }
 }

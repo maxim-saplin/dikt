@@ -78,13 +78,16 @@ class Title extends StatelessWidget {
     return Container(
         padding: EdgeInsets.fromLTRB(12, 12, 12, 12),
         height: 50.0,
-        child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(
-            'Dictionaries'.i18n,
-            style: Theme.of(context).textTheme.headline6,
-          ),
-          Text(' ' + manager.totalDictionaries.toString(),
-              style: Theme.of(context).textTheme.overline)
-        ]));
+        child: Row(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Dictionaries'.i18n,
+                style: Theme.of(context).textTheme.headline6,
+              ),
+              Text(' ' + manager.totalDictionaries.toString(),
+                  style: Theme.of(context).textTheme.overline)
+            ]));
   }
 }
