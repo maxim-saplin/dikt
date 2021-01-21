@@ -23,7 +23,7 @@ String nameToIkvPath(String name) {
   if (fileName.length > 127)
     fileName = fileName.substring(0, min(127, fileName.length));
 
-  return DictionaryManager.homePath + '/' + fileName + '.ikv.dikt';
+  return DictionaryManager.homePath + '/' + fileName + '.dikt';
 }
 
 class BundledBinaryDictionary {
@@ -39,7 +39,7 @@ class BundledBinaryDictionary {
 
 const bundledBinaryDictionaries = [
   BundledBinaryDictionary(
-      'assets/dictionaries/dik_enenwordnet3.ikv.dikt', 'EN_EN WordNet 3', '4')
+      'assets/dictionaries/dik_enenwordnet3.dikt', 'EN_EN WordNet 3', '4')
 ];
 
 enum DictionaryBeingProcessedState { pending, inprogress, success, error }
@@ -696,9 +696,9 @@ class JsonFileIndexer extends Indexer {
         var ikv = await IkvPack.buildFromMapInIsolate(result, true, (progress) {
           updateProgress(20 + (progress * 0.70).round());
         });
-        ikv.saveTo(ikvPath);
+        await ikv.saveTo(ikvPath);
         updateProgress(98);
-        ikv = IkvPack(ikvPath);
+        ikv = await IkvPack.load(ikvPath);
         updateProgress(100);
         sw.stop();
         runCompleter.complete(ikv);

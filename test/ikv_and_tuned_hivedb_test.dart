@@ -6,7 +6,7 @@ import 'package:hive_not_tuned/hive_not_tuned.dart' as HNT;
 import 'package:ikvpack/ikvpack.dart';
 
 void main() {
-  const ikvPath = 'test/data/dik_enenwordnet3.ikv';
+  const ikvPath = 'test/data/dik_enenwordnet3.dikt';
 
   void checkSorting(Iterable<dynamic> keys) {
     var keysFromHive = keys.toList();
@@ -57,7 +57,7 @@ void main() {
       matches.clear();
     }
 
-    var ikv = IkvPack(ikvPath);
+    var ikv = await IkvPack.load(ikvPath);
     var ms1 = await measureAvgMs(() async {
       getMatches(ikv.keys);
       return ikv.keys.length;
@@ -114,7 +114,7 @@ void main() {
     var b2 = await initHive();
     var matches = getMatches(b2.keys);
 
-    var ikv = IkvPack(ikvPath);
+    var ikv = await IkvPack.load(ikvPath);
     var ms1 = await measureAvgMs(() {
       for (var m in matches) {
         for (var w in m) {
@@ -187,7 +187,7 @@ void main() {
       matches.clear();
     }
 
-    var ikv = IkvPack(ikvPath);
+    var ikv = await IkvPack.load(ikvPath);
     var ms1 = await measureAvgMs(() async {
       getMatchesIkv(ikv);
       return ikv.keys.length;
@@ -229,7 +229,7 @@ void main() {
     print('Tuned: ' + ms.toString());
 
     var ms2 = await measureAvgMs(() async {
-      var ikv = IkvPack(ikvPath, false);
+      var ikv = await IkvPack.load(ikvPath, false);
       return ikv.length;
     }, teardown: () async {});
     print('IkvPack: ' + ms2.toString());

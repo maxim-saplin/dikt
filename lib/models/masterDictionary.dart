@@ -123,10 +123,15 @@ class MasterDictionary extends ChangeNotifier {
 
     for (var d in dictionaryManager.dictionariesLoaded) {
       //var a = d.ikv.valueRawCompressed(word);
-      var s = d.ikv.value(word);
-      if (s != null && !s.isEmpty)
-        //articles.add(Article(word, await _unzipIsolate(a), d.name));
-        articles.add(Article(word, s, d.name));
+      try {
+        var s = d.ikv.value(word);
+        if (s != null && !s.isEmpty)
+          //articles.add(Article(word, await _unzipIsolate(a), d.name));
+          articles.add(Article(word, s, d.name));
+      } catch (e) {
+        print('Cant decode value for ${word}, dictionary ${d.ikvPath}');
+        print(e);
+      }
     }
 
     return articles;

@@ -249,6 +249,7 @@ class OfflineDictionaryTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var info = dictionary.getInfo();
     return Opacity(
         opacity: !dictionary.isEnabled || !dictionary.isReadyToUse ? 0.5 : 1.0,
         child: Row(
@@ -297,8 +298,8 @@ class OfflineDictionaryTile extends StatelessWidget {
                                 ? Text('error',
                                     style: TextStyle(color: Colors.red))
                                 : FutureBuilder(
-                                    future: dictionary
-                                        .getInfo(), //disabled boxes are not loaded upon start
+                                    future:
+                                        info, //disabled boxes are not loaded upon start
                                     builder: (context, snapshot) {
                                       if (snapshot.hasData &&
                                           snapshot.data != null) {

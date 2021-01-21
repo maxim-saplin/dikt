@@ -35,7 +35,7 @@ dependencies:
   flutter_sticky_header: ^0.4.2
   reorderables: ^0.3.2
   double_back_to_close: ^1.0.2+mit
-  fluttertoast: 7.0.1
+  fluttertoast: ^7.0.1
   file_picker: ^3.0.0-nullsafety.0
   i18n_extension: ^1.4.2
   firebase_core: ^0.5.0
@@ -60,6 +60,8 @@ dependency_overrides:
     path: ./plugins/reorderables-0.3.2/
   flutter_html:
     path: ./plugins/flutter_html-1.0.2
+  crypto: ^3.0.0-nullsafety.0
+  archive: ^3.0.0-nullsafety.0
 
 dev_dependencies:
   flutter_test:
@@ -69,9 +71,8 @@ dev_dependencies:
     path: ./plugins/hive-not-tuned-1.4.1+1/
   hive_generator: ^0.7.0+2
   build_runner: ^1.10.0
-  flutter_launcher_icons: ^0.7.3
-  flutter_native_splash: ^0.1.9
-  
+  flutter_launcher_icons:
+  flutter_native_splash:
 
 flutter_icons:
   android: "launcher_icon"
