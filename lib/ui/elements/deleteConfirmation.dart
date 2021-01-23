@@ -25,17 +25,17 @@ void confirmAndDelete(BuildContext context, String name, Function onDelete) {
       barrierColor: !kIsWeb ? Colors.transparent : Colors.black54,
       routeSettings: RouteSettings(name: '/delete_dic'),
       builder: (context) => AlertDialog(
-            insetPadding: EdgeInsets.all(20),
+            insetPadding: EdgeInsets.all(10),
             content: Text('Delete_dic'.i18n.fill([name])),
             actions: [
-              FlatButton(
+              TextButton(
                 child: Text('Delete'.i18n),
                 onPressed: () {
                   onDelete();
                   Navigator.of(context).pop();
                 },
               ),
-              FlatButton(
+              TextButton(
                 child: Text('Cancel'.i18n),
                 onPressed: () {
                   Navigator.of(context).pop();

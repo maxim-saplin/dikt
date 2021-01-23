@@ -286,7 +286,7 @@ class DictionaryManager extends ChangeNotifier {
     Indexer getIndexer(
         DictionaryBeingProcessed dictionaryProcessed, String ikvPath) {
       var bbd = dictionaryProcessed.bundledBinaryDictionary;
-      return BundledBinaryIndexer(bbd.assetFileName, ikvPath, (progress) {
+      return BundledIndexer(bbd.assetFileName, ikvPath, (progress) {
         dictionaryProcessed.progressPercent = progress;
         notifyListeners();
       });
@@ -815,13 +815,13 @@ class WebIndexer extends Indexer {
   }
 }
 
-class BundledBinaryIndexer extends Indexer {
+class BundledIndexer extends Indexer {
   final String assetName;
   final Completer<IkvPack> runCompleter = Completer<IkvPack>();
   final String fileName;
   final Function(int progressPercent) updateProgress;
 
-  BundledBinaryIndexer(this.assetName, this.fileName, this.updateProgress);
+  BundledIndexer(this.assetName, this.fileName, this.updateProgress);
 
   Future<IkvPack> run() async {
     print('Indexing bundled bianry dictionary: ' + this.assetName);
