@@ -109,7 +109,8 @@ class DictionaryManager extends ChangeNotifier {
   static Future<void> init([String testPath]) async {
     if (testPath == null) {
       await Hive.initFlutter();
-      homePath = (await getApplicationDocumentsDirectory()).path;
+      homePath =
+          kIsWeb ? '/webhome' : (await getApplicationDocumentsDirectory()).path;
       try {
         var oldHive = Directory(homePath)
             .listSync(recursive: false, followLinks: false)
@@ -217,14 +218,16 @@ class DictionaryManager extends ChangeNotifier {
     if (_dictionariesBeingProcessed.length > 0) {
       notifyListeners();
       List<Future<IkvPack>> futures = [];
-      // var f = Future.delayed(Duration(seconds: 1), () => print('HI'));
-      // await f;
 
-      var pool = IsolatePool(kIsWeb
-          ? 1
-          : min(max(Platform.numberOfProcessors - 1, 1),
-              _dictionariesBeingProcessed.length));
-      await pool.start();
+      IsolatePool pool = null;
+
+      if (!kIsWeb) {
+        pool = IsolatePool(kIsWeb
+            ? 1
+            : min(max(Platform.numberOfProcessors - 1, 1),
+                _dictionariesBeingProcessed.length));
+        await pool.start();
+      }
 
       for (var i in _dictionariesBeingProcessed) {
         i.state = DictionaryBeingProcessedState.inprogress;
@@ -251,9 +254,9 @@ class DictionaryManager extends ChangeNotifier {
       }
       try {
         await Future.wait(futures);
-        pool.stop();
+        pool?.stop();
       } catch (e) {
-        pool.stop();
+        pool?.stop();
       }
     }
   }
@@ -384,12 +387,9 @@ class DictionaryManager extends ChangeNotifier {
         notifyListeners();
       };
 
-//TODO: add WebSupport for binary dictionary format
-      return kIsWeb
-          ? WebIndexer(dictionaryProcessed.file, ikvPath, progress)
-          : dictionaryProcessed.file.name.endsWith('.dikt')
-              ? DiktFileIndexer(dictionaryProcessed.file, ikvPath, progress)
-              : JsonFileIndexer(dictionaryProcessed.file, ikvPath, progress);
+      return dictionaryProcessed.file.name.endsWith('.dikt')
+          ? DiktFileIndexer(dictionaryProcessed.file, ikvPath, progress)
+          : JsonFileIndexer(dictionaryProcessed.file, ikvPath, progress);
     }
 
     print('Indexing JSON/DIKT files and packing to IkvPack: ' +
@@ -678,6 +678,90 @@ class JsonFileIndexer extends Indexer {
   JsonFileIndexer(this.file, this.ikvPath, this.updateProgress);
 
   Future<IkvPack> run() async {
+    return kIsWeb ? _runWeb() : _runVm();
+  }
+
+  Future<bool> _awaitableUpdateProgeress(int progress) {
+    if (_canceled) return null;
+    return Future(() {
+      updateProgress(progress);
+      return false;
+    });
+  }
+
+  Future<IkvPack> _runWeb() async {
+    print(file.path ?? file.name + '\n');
+    // Chunked json decoding isn't available in web
+    // var inSink = converterJson.startChunkedConversion(outSink);
+
+    var sw = Stopwatch();
+    sw.start();
+
+    try {
+      if (_canceled) {
+        runCompleter.complete();
+        return runCompleter.future;
+      }
+
+      var s = '';
+      updateProgress(3);
+      // Let UI pick up the update from microtask que
+      await Future(() {
+        s = utf8.decode(file.bytes);
+        print('JSON read (ms): ' + sw.elapsedMilliseconds.toString());
+      });
+
+      if (_canceled) {
+        runCompleter.complete();
+        return runCompleter.future;
+      }
+
+      updateProgress(5);
+
+      var m = <String, String>{};
+      await Future(() {
+        Map mm = json.decode(s);
+        m = mm.cast<String, String>();
+        print('JSON decoded (ms): ' + sw.elapsedMilliseconds.toString());
+      });
+
+      var ikv = await IkvPack.buildFromMapAsync(m, true, (progress) async {
+        return _awaitableUpdateProgeress(5 + (progress * 0.85).round());
+      });
+
+      if (_canceled) {
+        runCompleter.complete();
+        return runCompleter.future;
+      }
+
+      updateProgress(90);
+      if (_canceled) {
+        runCompleter.complete();
+        return runCompleter.future;
+      }
+
+      await ikv.saveTo(ikvPath);
+
+      updateProgress(95);
+      if (_canceled) {
+        runCompleter.complete();
+        return runCompleter.future;
+      }
+
+      ikv = await IkvPack.load(ikvPath);
+      updateProgress(100);
+
+      print('Indexing done(ms): ' + sw.elapsedMilliseconds.toString());
+      runCompleter.complete(ikv);
+    } catch (err) {
+      _canceled = true;
+      runCompleter.completeError(err);
+    }
+
+    return runCompleter.future;
+  }
+
+  Future<IkvPack> _runVm() async {
     var path = this.file.path ?? this.file.name;
     print(path + '\n');
     var file = File(path);
@@ -738,83 +822,6 @@ class JsonFileIndexer extends Indexer {
   }
 }
 
-class WebIndexer extends Indexer {
-  final PlatformFile file;
-  final Completer<IkvPack> runCompleter = Completer<IkvPack>();
-  final String ikvPath;
-  final Function(int progressPercent) updateProgress;
-
-  WebIndexer(this.file, this.ikvPath, this.updateProgress);
-
-  Future<IkvPack> run() async {
-    print(file.path ?? file.name + '\n');
-    //   // Chunked json decoding isn't available in web
-    //   // var inSink = converterJson.startChunkedConversion(outSink);
-
-    //   var sw = Stopwatch();
-    //   var zlib = ZLibEncoder();
-    //   sw.start();
-
-    //   try {
-    //     updateProgress(0);
-    //     if (_canceled) {
-    //       runCompleter.complete();
-    //       return runCompleter.future;
-    //     }
-    //     var s = utf8.decode(file.bytes);
-    //     print('JSON read (ms): ' + sw.elapsedMilliseconds.toString());
-    //     updateProgress(1);
-    //     if (_canceled) {
-    //       runCompleter.complete();
-    //       return runCompleter.future;
-    //     }
-    //     Map mm = json.decode(s);
-    //     Map<String, String> m = mm.cast<String, String>();
-    //     print('JSON decoded (ms): ' + sw.elapsedMilliseconds.toString());
-    //     updateProgress(5);
-    //     var i = 0;
-    //     var curr = 0;
-    //     Map<String, Uint8List> m2 = {};
-    //     for (var e in m.entries) {
-    //       if (_canceled) {
-    //         runCompleter.complete();
-    //         return runCompleter.future;
-    //       }
-    //       var bytes = utf8.encode(e.value);
-    //       var zlibBytes = zlib.encode(bytes);
-    //       var b = Uint8List.fromList(zlibBytes);
-    //       m2[e.key] = b;
-    //       i++;
-    //       var p = (i / m.length * 95).round();
-    //       if (p != curr) {
-    //         curr = p;
-    //         //await box.putAll(m2);
-    //         var keys = <String>[];
-    //         var values = <Uint8List>[];
-    //         for (var kv in m2.entries) {
-    //           keys.add(kv.key);
-    //           values.add(kv.value);
-    //         }
-    //         m2.clear();
-    //         await toFuture(bulkInsert(box.indexedDb, keys, values));
-    //         updateProgress(5 + curr);
-    //       }
-    //     }
-    //     if (m2.length > 0) await box.putAll(m2);
-    //     var boxName = box.name;
-    //     await box.close();
-    //     await Hive.openLazyBox<Uint8List>(boxName);
-    //     print('Indexing done(ms): ' + sw.elapsedMilliseconds.toString());
-    //     runCompleter.complete();
-    //   } catch (err) {
-    //     _canceled = true;
-    //     runCompleter.completeError(err);
-    //   }
-
-    return runCompleter.future;
-  }
-}
-
 class BundledIndexer extends Indexer {
   final String assetName;
   final Completer<IkvPack> runCompleter = Completer<IkvPack>();
@@ -839,7 +846,16 @@ class BundledIndexer extends Indexer {
         File(fileName).writeAsBytesSync(asset.buffer.asInt8List());
         runCompleter.complete();
       } else {
-        //TODO
+        // Cant just copy file in Web, parse asset and save via Ikv
+        var ikv = IkvPack.fromBytes(asset);
+        updateProgress(30);
+        if (_canceled) {
+          runCompleter.complete();
+          return runCompleter.future;
+        }
+        await ikv.saveTo(fileName);
+        updateProgress(95);
+        runCompleter.complete();
       }
 
       print('Indexing done(ms): ' + sw.elapsedMilliseconds.toString());

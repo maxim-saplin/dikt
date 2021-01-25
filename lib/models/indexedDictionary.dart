@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:ikvpack/ikvpack.dart';
 part 'indexedDictionary.g.dart';
@@ -42,9 +43,11 @@ class IndexedDictionary extends HiveObject {
     var completer = Completer<IkvPack>();
     if (!isLoaded) {
       isLoading = true;
-      var f = pool == null
-          ? IkvPack.loadInIsolate(ikvPath)
-          : IkvPack.loadInIsolatePool(pool, ikvPath);
+      var f = kIsWeb
+          ? IkvPack.load(ikvPath)
+          : (pool == null
+              ? IkvPack.loadInIsolate(ikvPath)
+              : IkvPack.loadInIsolatePool(pool, ikvPath));
       f.then((value) {
         _ikv = value;
         isLoaded = true;
