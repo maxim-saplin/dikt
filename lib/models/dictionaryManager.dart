@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:typed_data';
 import 'dart:io';
 import 'dart:core';
 import 'dart:math';
@@ -632,10 +631,17 @@ class DiktFileIndexer extends Indexer {
 
   DiktFileIndexer(this.file, this.ikvPath, this.updateProgress);
 
+  Future<bool> _awaitableUpdateProgeress(int progress) {
+    if (_canceled) return null;
+    return Future(() {
+      updateProgress(progress);
+      return false;
+    });
+  }
+
   Future<IkvPack> run() async {
     var path = this.file.path ?? this.file.name;
     print(path + '\n');
-    var sourceData = ByteData.sublistView(File(path).readAsBytesSync());
 
     var sw = Stopwatch();
 
@@ -649,15 +655,36 @@ class DiktFileIndexer extends Indexer {
 
     try {
       if (!kIsWeb) {
+        var sourceData = File(path).readAsBytesSync();
         updateProgress(5);
-        await File(ikvPath).writeAsBytes(sourceData.buffer.asInt8List());
+        await File(ikvPath).writeAsBytes(sourceData);
+        if (_canceled) {
+          runCompleter.complete();
+          return runCompleter.future;
+        }
         updateProgress(20);
         var ikv = await IkvPack.loadInIsolate(ikvPath);
+        if (_canceled) {
+          runCompleter.complete();
+          return runCompleter.future;
+        }
         updateProgress(100);
 
         runCompleter.complete(ikv);
       } else {
-        //TODO
+        var ikv = await IkvPack.buildFromBytesAsync(
+            file.bytes.buffer.asByteData(), true, (progress) async {
+          return _awaitableUpdateProgeress(3 + (progress * 0.12).round());
+        });
+        updateProgress(15);
+        if (_canceled) {
+          runCompleter.complete();
+          return runCompleter.future;
+        }
+        //await ikv.saveTo(fileName);
+        await ikv.saveTo(ikvPath,
+            (progress) => updateProgress(15 + (progress * 0.85).round()));
+        runCompleter.complete(ikv);
       }
 
       print('Indexing done(ms): ' + sw.elapsedMilliseconds.toString());
@@ -726,7 +753,7 @@ class JsonFileIndexer extends Indexer {
       });
 
       var ikv = await IkvPack.buildFromMapAsync(m, true, (progress) async {
-        return _awaitableUpdateProgeress(5 + (progress * 0.85).round());
+        return _awaitableUpdateProgeress(5 + (progress * 0.25).round());
       });
 
       if (_canceled) {
@@ -734,13 +761,15 @@ class JsonFileIndexer extends Indexer {
         return runCompleter.future;
       }
 
-      updateProgress(90);
+      updateProgress(30);
       if (_canceled) {
         runCompleter.complete();
         return runCompleter.future;
       }
 
-      await ikv.saveTo(ikvPath);
+      // await ikv.saveTo(ikvPath);
+      await ikv.saveTo(ikvPath,
+          (progress) => updateProgress(30 + (progress * 0.65).round()));
 
       updateProgress(95);
       if (_canceled) {
@@ -830,12 +859,21 @@ class BundledIndexer extends Indexer {
 
   BundledIndexer(this.assetName, this.fileName, this.updateProgress);
 
+  Future<bool> _awaitableUpdateProgeress(int progress) {
+    if (_canceled) return null;
+    return Future(() {
+      updateProgress(progress);
+      return false;
+    });
+  }
+
   Future<IkvPack> run() async {
     print('Indexing bundled bianry dictionary: ' + this.assetName);
     var sw = Stopwatch();
     sw.start();
+    updateProgress(0);
     var asset = await rootBundle.load(assetName);
-    updateProgress(3);
+    updateProgress(5);
     if (_canceled) {
       runCompleter.complete();
       return runCompleter.future;
@@ -847,14 +885,19 @@ class BundledIndexer extends Indexer {
         runCompleter.complete();
       } else {
         // Cant just copy file in Web, parse asset and save via Ikv
-        var ikv = IkvPack.fromBytes(asset);
-        updateProgress(30);
+        var ikv =
+            await IkvPack.buildFromBytesAsync(asset, true, (progress) async {
+          return _awaitableUpdateProgeress(5 + (progress * 0.1).round());
+        });
+        updateProgress(15);
         if (_canceled) {
           runCompleter.complete();
           return runCompleter.future;
         }
-        await ikv.saveTo(fileName);
-        updateProgress(95);
+        //await ikv.saveTo(fileName);
+        await ikv.saveTo(fileName,
+            (progress) => updateProgress(15 + (progress * 0.85).round()));
+        updateProgress(100);
         runCompleter.complete();
       }
 
