@@ -150,6 +150,8 @@ class DictionaryManager extends ChangeNotifier {
       _initDictionaryCollections();
     }
 
+    await _cleanupJunkDictionaries();
+
     _currentOperation = ManagerCurrentOperation.loading;
     await _loadEnabledDictionaries();
 
@@ -201,6 +203,21 @@ class DictionaryManager extends ChangeNotifier {
       d.order = i;
       i++;
       d.save();
+    }
+  }
+
+  // E.g. a user reloads pages while indexing file, there's not-ready dictioanry left
+  Future _cleanupJunkDictionaries() async {
+    try {
+      for (var i in _dictionaries.keys) {
+        var d = _dictionaries.get(i);
+        if (!d.isBundled && !d.isReadyToUse) {
+          IkvPack.delete(d.ikvPath);
+          _dictionaries.delete(i);
+        }
+      }
+    } catch (e) {
+      print('Error cleaning junk dictionaries\n' + e?.toString());
     }
   }
 
@@ -468,8 +485,8 @@ class DictionaryManager extends ChangeNotifier {
     notifyListeners();
   }
 
-  void deleteReadyDictionary(int index) {
-    var d = _dictionariesReadyList[index];
+  void deleteDictionary(String ikvPath) {
+    var d = _dictionariesAllList.where((d) => d.ikvPath == ikvPath).first;
     IkvPack.delete(d.ikvPath);
     if (bundledBinaryDictionaries.any((e) => e.ikvPath == d.ikvPath)) {
       d.isReadyToUse = false;

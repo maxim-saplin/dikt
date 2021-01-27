@@ -5,6 +5,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:ikvpack/ikvpack.dart';
 
 import '../../models/masterDictionary.dart';
 import '../../common/simpleSimpleDialog.dart';
@@ -154,9 +155,12 @@ class _Entry extends StatelessWidget {
                 Expanded(
                     child: Text(dictionary.isLookupWordEmpty ? '' : word,
                         style: TextStyle(
-                            fontWeight: word == dictionary.selectedWord
-                                ? FontWeight.bold
-                                : FontWeight.normal))),
+                            // Ikv returns original keys, i.e. not lower case
+                            // probably it is better to just highlight selected index rather than compare strings
+                            fontWeight:
+                                word.toLowerCase() == dictionary.selectedWord
+                                    ? FontWeight.bold
+                                    : FontWeight.normal))),
                 Text(dictionary.isLookupWordEmpty ? word : '·',
                     style: TextStyle(
                         fontStyle: FontStyle.italic,

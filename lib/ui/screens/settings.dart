@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 
 import '../../common/i18n.dart';
@@ -10,21 +11,35 @@ class Settings extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var model = Provider.of<Preferences>(context);
+    var history = Provider.of<History>(context);
     return SingleChildScrollView(
         padding: EdgeInsets.fromLTRB(24, 24, 24, 16),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            Row(
-              children: [
-                Container(
-                    height: 50.0,
-                    child: Text(
-                      'Settings'.i18n,
-                      style: Theme.of(context).textTheme.headline6,
-                    ))
-              ],
-            ),
+            Container(
+                height: 50.0,
+                child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Settings'.i18n,
+                        style: Theme.of(context).textTheme.headline6,
+                      ),
+                      FutureBuilder(
+                          future: PackageInfo.fromPlatform(),
+                          builder: (context, snapshot) {
+                            if (snapshot.hasData) {
+                              return Text(
+                                (snapshot.data as PackageInfo).version,
+                                style: Theme.of(context).textTheme.overline,
+                              );
+                            }
+                            ;
+                            return SizedBox();
+                          })
+                    ])),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -56,15 +71,17 @@ class Settings extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.end,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  OutlinedButton(
-                    child: Text('Clear History'.i18n),
-                    onPressed: () {
-                      Provider.of<History>(context, listen: false).clear();
-                      // Lazy implementing propper update, using workaround
-                      Provider.of<MasterDictionary>(context, listen: false)
-                          .notify();
-                    },
-                  )
+                  Opacity(
+                      opacity: history.wordsCount > 0 ? 1 : 0.5,
+                      child: OutlinedButton(
+                        child: Text('Clear History'.i18n),
+                        onPressed: () {
+                          history.clear();
+                          // Lazy implementing propper update, using workaround
+                          Provider.of<MasterDictionary>(context, listen: false)
+                              .notify();
+                        },
+                      ))
                 ]),
           ],
         ));

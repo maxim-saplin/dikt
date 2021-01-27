@@ -34,6 +34,7 @@ class _OfflineDictionariesState extends State<OfflineDictionaries> {
         PrimaryScrollController.of(context) ?? ScrollController();
 
     var manager = Provider.of<DictionaryManager>(context);
+    var dictionaries = manager.dictionariesAll;
 
     void _onReorder(int oldIndex, int newIndex) {
       if (!_cancelReorder)
@@ -116,9 +117,8 @@ class _OfflineDictionariesState extends State<OfflineDictionaries> {
         child: Stack(alignment: AlignmentDirectional.bottomCenter, children: [
           DragTarget<int>(onAccept: (index) {
             _cancelReorder = true;
-            confirmAndDelete(context, manager.dictionariesReady[index].name,
-                () {
-              manager.deleteReadyDictionary(index);
+            confirmAndDelete(context, dictionaries[index].name, () {
+              manager.deleteDictionary(dictionaries[index].ikvPath);
               Provider.of<MasterDictionary>(context, listen: false)?.notify();
             });
           }, onWillAccept: (data) {
@@ -127,6 +127,9 @@ class _OfflineDictionariesState extends State<OfflineDictionaries> {
             return Container(
               padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
               height: 40,
+              color: candidateData.length > 0
+                  ? Colors.red.withAlpha(128)
+                  : Colors.transparent,
               child: _draggingIndex == null
                   ? (manager.isRunning
                       ? OutlinedButton(
@@ -167,7 +170,8 @@ class _OfflineDictionariesState extends State<OfflineDictionaries> {
           manager.isRunning
               ? Padding(
                   padding: EdgeInsets.fromLTRB(0, 0, 0, 48),
-                  child: SingleChildScrollView(child: ManagerState()))
+                  child: SingleChildScrollView(child: ManagerState()),
+                )
               : Padding(
                   padding: EdgeInsets.fromLTRB(0, 0, 0, 40),
                   child: CustomScrollView(
@@ -175,12 +179,12 @@ class _OfflineDictionariesState extends State<OfflineDictionaries> {
                     shrinkWrap: true,
                     slivers: <Widget>[
                       ReorderableSliverList(
-                        delegate: ReorderableSliverChildListDelegate(manager
-                            //.dictionariesAll
-                            .dictionariesReady
-                            .map((e) => OfflineDictionaryTile(
-                                manager: manager, dictionary: e))
-                            .toList()),
+                        delegate: ReorderableSliverChildListDelegate(
+                            dictionaries
+                                //.dictionariesReady
+                                .map((e) => OfflineDictionaryTile(
+                                    manager: manager, dictionary: e))
+                                .toList()),
                         onReorder: _onReorder,
                         onDragging: _onDragging,
                         onNoReorder: _onCancel,

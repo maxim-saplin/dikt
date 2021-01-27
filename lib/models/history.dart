@@ -1,7 +1,9 @@
 import 'package:dikt/common/preferencesSingleton.dart';
 import 'dart:async';
 
-class History {
+import 'package:flutter/material.dart';
+
+class History extends ChangeNotifier {
   final int maxWords = 100;
   static const String _historyParam = 'history';
 
@@ -37,6 +39,7 @@ class History {
   void clear() {
     _words = [];
     PreferencesSingleton.sp.remove(_historyParam);
+    notifyListeners();
   }
 
   void removeWord(String word) {

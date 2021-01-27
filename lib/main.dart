@@ -94,7 +94,7 @@ class MyApp extends StatelessWidget {
           ChangeNotifierProvider<Preferences>(
             create: (context) => Preferences(),
           ),
-          Provider(create: (context) => History()),
+          ChangeNotifierProvider(create: (context) => History()),
           ChangeNotifierProvider<MasterDictionary>(create: (context) {
             var master = MasterDictionary();
             master.dictionaryManager =

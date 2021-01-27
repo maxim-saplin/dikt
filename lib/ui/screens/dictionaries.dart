@@ -27,15 +27,17 @@ class Dictionaries extends HookWidget {
     if (!toastShown) {
       var fToast = FToast();
       fToast.init(context);
-      Timer(
-          Duration(seconds: 1),
-          () => fToast.showToast(
+      Timer(Duration(seconds: 1), () {
+        try {
+          fToast.showToast(
               child: Container(
                 child: Text('Tap and hold to move'.i18n),
                 color: Colors.grey,
                 padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
               ),
-              toastDuration: Duration(seconds: 3)));
+              toastDuration: Duration(seconds: 3));
+        } catch (_) {}
+      });
       toastShown = true;
     }
 
