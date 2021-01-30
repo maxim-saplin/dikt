@@ -143,8 +143,9 @@ class _OfflineDictionariesState extends State<OfflineDictionaries> {
                           children: [
                               OutlinedButton(
                                 child: SizedBox(
-                                  child: Text('+ JSON'.i18n),
+                                  child: Center(child: Text('+ FILE'.i18n)),
                                   width: 85,
+                                  height: 30,
                                 ),
                                 onPressed: _importJsonOrDikt,
                               ),
@@ -157,8 +158,9 @@ class _OfflineDictionariesState extends State<OfflineDictionaries> {
                                           MaterialStateProperty.all<Color>(
                                               Colors.red.withAlpha(128))),
                                   child: SizedBox(
-                                    child: Text('Online →'.i18n),
+                                    child: Center(child: Text('Online →'.i18n)),
                                     width: 85,
+                                    height: 30,
                                   ),
                                   onPressed: () async {
                                     Routes.showOnlineDictionaries(context);
@@ -237,7 +239,9 @@ class _LoadAndEnabledButton extends HookWidget {
         child: Text('↓', style: Theme.of(context).textTheme.caption),
         padding: EdgeInsets.all(3),
         onPressed: () {
-          dictionary.openIkv().then((value) => _swithcEnabled(context));
+          dictionary.openIkv().then((value) {
+            _swithcEnabled(context);
+          });
           state.value = _TileState.loading;
         });
   }
