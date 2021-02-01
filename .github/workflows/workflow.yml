@@ -37,7 +37,9 @@ jobs:
 #       uses: mxschmitt/action-tmate@v3
 #       timeout-minutes: 15
     - name: Install dependencies
-      run: flutter pub upgrade
+      run: |
+        flutter clean
+        flutter pub upgrade
       working-directory: ./
     - name: Build Web
       run: flutter build web
