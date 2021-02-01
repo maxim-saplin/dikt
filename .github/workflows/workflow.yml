@@ -10,7 +10,7 @@ jobs:
     - uses: actions/setup-java@v1
       with:
         java-version: '12.x'
-    - uses: subosito/flutter-action@v1
+#    - uses: subosito/flutter-action@v1
 #       with:
 #         flutter-version: '1.26.0-8.0.pre'
 #         channel: 'dev'
@@ -18,12 +18,15 @@ jobs:
       with:
         flutter-version: '1.26.0-8.0.pre'
         channel: 'dev'
-    - name: Upgrades flutter
-      run: flutter upgrade
+    - name: Flutter Doctor
+      run: flutter doctor
       working-directory: ./
-    - name: Switch to 1.26.0-8.0.pre
-      run: git checkout 1.26.0-8.0.pre
-      working-directory: ${FLUTTER_HOME}
+#     - name: Upgrades flutter
+#       run: flutter upgrade
+#       working-directory: ./
+#     - name: Switch to 1.26.0-8.0.pre
+#       run: git checkout 1.26.0-8.0.pre
+#       working-directory: ${FLUTTER_HOME}
     - name: Enable Web
       run: flutter config --enable-web
       working-directory: ./
