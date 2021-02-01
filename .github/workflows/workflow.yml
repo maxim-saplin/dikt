@@ -33,11 +33,11 @@ jobs:
 #     - name: Install dependencies
 #       run: flutter packages get
 #       working-directory: ./
-    - name: Setup tmate session
-      uses: mxschmitt/action-tmate@v3
-      timeout-minutes: 15
+#     - name: Setup tmate session
+#       uses: mxschmitt/action-tmate@v3
+#       timeout-minutes: 15
     - name: Install dependencies
-      run: flutter pub get
+      run: flutter pub upgrade
       working-directory: ./
     - name: Build Web
       run: flutter build web
