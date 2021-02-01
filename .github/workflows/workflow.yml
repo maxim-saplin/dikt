@@ -35,7 +35,7 @@ jobs:
 #       working-directory: ./
     - name: Setup tmate session
       uses: mxschmitt/action-tmate@v3
-      timeout-minutes: 5
+      timeout-minutes: 15
     - name: Install dependencies
       run: flutter pub get
       working-directory: ./
