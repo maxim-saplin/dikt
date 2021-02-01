@@ -21,6 +21,11 @@ jobs:
     - name: Upgrades flutter
       run: flutter upgrade
       working-directory: ./
+    - name: pwd
+      run: pwd
+      working-directory: ./
+    - name: where flutter
+      run: where flutter
     - name: Switch to 1.26.0-8.0.pre
       run: git checkout 1.26.0-8.0.pre
       working-directory: ./
