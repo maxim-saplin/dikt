@@ -11,16 +11,19 @@ jobs:
       with:
         java-version: '12.x'
     - uses: subosito/flutter-action@v1
-      with:
-        flutter-version: '1.26.0-8.0.pre'
-        channel: 'dev'
-#     - uses: subosito/flutter-action@v1
 #       with:
-#         flutter-version: '1.22.0-12.0.pre'
+#         flutter-version: '1.26.0-8.0.pre'
 #         channel: 'dev'
-#     - name: Upgrades flutter
-#       run: flutter upgrade
-#       working-directory: ./
+    - uses: subosito/flutter-action@v1
+      with:
+        flutter-version: '1.22.0-12.0.pre'
+        channel: 'dev'
+    - name: Switch to 1.26.0-8.0.pre
+      run: git checkout 1.26.0-8.0.pre
+      working-directory: ./
+    - name: Upgrades flutter
+      run: flutter upgrade
+      working-directory: ./
     - name: Enable Web
       run: flutter config --enable-web
       working-directory: ./
