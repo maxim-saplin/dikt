@@ -12,16 +12,28 @@ jobs:
         java-version: '12.x'
     - uses: subosito/flutter-action@v1
       with:
-        flutter-version: '1.22.0-12.0.pre'
+        flutter-version: '1.26.0-8.0.pre'
         channel: 'dev'
-    - name: Upgrades flutter
-      run: flutter upgrade
+    - name: Flutter Doctor
+      run: flutter doctor
       working-directory: ./
+# Don't upgrade betond 1.26.0-8.0.pre since plugins are broken there
+#     - name: Upgrades flutter
+#       run: flutter upgrade
+#       working-directory: ./
     - name: Enable Web
       run: flutter config --enable-web
       working-directory: ./
+#     - name: Install dependencies
+#       run: flutter packages get
+#       working-directory: ./
+#     - name: Setup tmate session
+#       uses: mxschmitt/action-tmate@v3
+#       timeout-minutes: 15
     - name: Install dependencies
-      run: flutter packages get
+      run: |
+        flutter clean
+        flutter pub upgrade
       working-directory: ./
     - name: Build Web
       run: flutter build web
