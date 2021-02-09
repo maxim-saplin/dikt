@@ -157,8 +157,10 @@ class DictionaryManager extends ChangeNotifier {
 
     _initDictionaryCollections();
 
+    // var ikvs = _dictionariesReadyList.map((d) => d.ikv);
+    // var s = await IkvPack.getStatsAsCsv(ikvs);
+
     _isRunning = false;
-    //_getKeyStats();
   }
 
   // Workaround for testing, avoid disposing object between tests
