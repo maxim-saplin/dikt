@@ -318,7 +318,7 @@ class OfflineDictionaryTile extends StatelessWidget {
                                         }); // let Lookup update (e.g. no history and number of entries shown) if a new dictionary is imported
                                         var info = snapshot.data as IkvInfo;
                                         return Text(
-                                          info.length.toString() +
+                                          info.count.toString() +
                                               ' ' +
                                               'entries'.i18n +
                                               (!kIsWeb

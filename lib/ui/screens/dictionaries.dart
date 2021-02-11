@@ -26,7 +26,6 @@ class Dictionaries extends HookWidget {
   Widget build(BuildContext context) {
     if (!toastShown) {
       var fToast = FToast();
-      fToast.init(context);
       Timer(Duration(seconds: 1), () {
         try {
           fToast.showToast(
