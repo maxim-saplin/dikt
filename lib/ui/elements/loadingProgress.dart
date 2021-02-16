@@ -101,7 +101,7 @@ class DictionaryLoadingNoAlign extends HookWidget {
       var master = Provider.of<MasterDictionary>(context);
       fade = FadeTransition(
           child: ui((master.loadTimeSec.toStringAsFixed(1))),
-          opacity: useAnimationController(duration: Duration(seconds: 2))
+          opacity: useAnimationController(duration: Duration(seconds: 3))
             ..reverse(from: 0.6));
     }
 

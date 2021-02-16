@@ -164,10 +164,11 @@ void main() {
 
     const maxResults = 200;
 
-    void getMatchesIkv(IkvPack ikv) {
+    void getMatchesIkv(IkvPack ikv) async {
       List<String> matches = [];
       for (var w in words) {
-        matches = ikv.keysStartingWith(w, maxResults);
+        matches =
+            (await ikv.keysStartingWith(w, maxResults)).map((i) => i.original);
       }
       matches.clear();
     }

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:core';
 import 'dart:math';
 import 'dart:convert';
+import 'package:dikt/common/isolatePool.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:ikvpack/ikvpack.dart';
@@ -107,9 +108,11 @@ class DictionaryManager extends ChangeNotifier {
 
   static Future<void> init([String testPath]) async {
     if (testPath == null) {
-      await Hive.initFlutter();
+      //await Hive.initFlutter();
       homePath =
           kIsWeb ? '/webhome' : (await getApplicationDocumentsDirectory()).path;
+      if (!kIsWeb && Platform.isWindows) homePath += '\\dikt';
+      await Hive.initFlutter(homePath);
       try {
         var oldHive = Directory(homePath)
             .listSync(recursive: false, followLinks: false)
@@ -237,15 +240,17 @@ class DictionaryManager extends ChangeNotifier {
       notifyListeners();
       List<Future<IkvPack>> futures = [];
 
-      IsolatePool pool = null;
+      // IsolatePool pool = null;
 
-      if (!kIsWeb) {
-        pool = IsolatePool(kIsWeb
-            ? 1
-            : min(max(Platform.numberOfProcessors - 1, 1),
-                _dictionariesBeingProcessed.length));
-        await pool.start();
-      }
+      // if (!kIsWeb) {
+      //   pool = IsolatePool(kIsWeb
+      //       ? 1
+      //       : min(max(Platform.numberOfProcessors - 1, 1),
+      //           _dictionariesBeingProcessed.length));
+      //   await pool.start();
+      // }
+
+      if (!kIsWeb) await pool.started; // JIC wait for pool to finish startup
 
       for (var i in _dictionariesBeingProcessed) {
         i.state = DictionaryBeingProcessedState.inprogress;
@@ -272,9 +277,9 @@ class DictionaryManager extends ChangeNotifier {
       }
       try {
         await Future.wait(futures);
-        pool?.stop();
+        //pool?.stop();
       } catch (e) {
-        pool?.stop();
+        //pool?.stop();
       }
     }
   }
@@ -682,7 +687,9 @@ class DiktFileIndexer extends Indexer {
           return runCompleter.future;
         }
         updateProgress(20);
-        var ikv = await IkvPack.loadInIsolate(ikvPath);
+        //var ikv = await IkvPack.loadInIsolate(ikvPath);
+        var ikv =
+            await IkvPackProxy.loadInIsolatePoolAndUseProxy(pool, ikvPath);
         if (_canceled) {
           runCompleter.complete();
           return runCompleter.future;
@@ -825,12 +832,14 @@ class JsonFileIndexer extends Indexer {
     var outSinkJson = ChunkedConversionSink.withCallback((chunks) async {
       try {
         var result = chunks.single.cast<String, String>();
+        //TODO - consider implementing this build method in proxy
         var ikv = await IkvPack.buildFromMapInIsolate(result, true, (progress) {
           updateProgress(20 + (progress * 0.70).round());
         });
         await ikv.saveTo(ikvPath);
         updateProgress(98);
-        ikv = await IkvPack.load(ikvPath);
+        // ikv = await IkvPack.load(ikvPath);
+        ikv = await IkvPackProxy.loadInIsolatePoolAndUseProxy(pool, ikvPath);
         updateProgress(100);
         sw.stop();
         runCompleter.complete(ikv);

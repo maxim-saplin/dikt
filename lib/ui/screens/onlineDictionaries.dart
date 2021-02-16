@@ -185,11 +185,12 @@ class OnlineDictionaryTile extends HookWidget {
                                 color: Theme.of(context).accentColor)
                             : LinearProgressIndicator(minHeight: dicHeight))
                         : SizedBox(),
-                    FlatButton(
-                        height: dicHeight,
-                        padding: EdgeInsets.zero,
-                        mouseCursor: SystemMouseCursors.click,
-                        child: icon,
+                    TextButton(
+                        child: SizedBox(
+                          child: MouseRegion(
+                              child: icon, cursor: SystemMouseCursors.click),
+                          height: dicHeight,
+                        ),
                         onPressed: onPressed)
                   ])),
               Expanded(

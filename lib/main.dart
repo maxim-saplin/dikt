@@ -24,6 +24,7 @@ import './models/history.dart';
 import './models/dictionaryManager.dart';
 import './common/analyticsObserver.dart';
 import './common/i18n.dart';
+import 'common/isolatePool.dart';
 import 'models/onlineDictionariesFakes.dart';
 import 'ui/routes.dart';
 
@@ -34,6 +35,7 @@ import 'ui/routes.dart';
 bool _firebaseError = false;
 
 void main() async {
+  if (!kIsWeb) initIsolatePool();
   WidgetsFlutterBinding.ensureInitialized();
   try {
     if (kIsWeb || Platform.isAndroid || Platform.isIOS)

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:dikt/common/isolatePool.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
@@ -62,7 +63,8 @@ class _OfflineDictionariesState extends State<OfflineDictionaries> {
       List<PlatformFile> files = [];
 
       // Platform class is not implemented in Web
-      if (!kIsWeb && Platform.isMacOS) {
+      if (!kIsWeb &&
+          (Platform.isMacOS || Platform.isWindows || Platform.isLinux)) {
         var x = await showOpenPanel(
           allowsMultipleSelection: true,
           canSelectDirectories: false,
@@ -101,7 +103,7 @@ class _OfflineDictionariesState extends State<OfflineDictionaries> {
                     title: Text('There\'re issues...'.i18n),
                     content: SingleChildScrollView(child: ManagerState(true)),
                     actions: [
-                      FlatButton(
+                      TextButton(
                           child: Text('OK'),
                           onPressed: () {
                             Navigator.of(context).pop();
@@ -216,9 +218,10 @@ class _LoadAndEnabledButton extends HookWidget {
         dictionary.isLoaded ? _TileState.loaded : _TileState.notLoaded);
 
     if (state.value == _TileState.loaded) {
-      return FlatButton(
-          child: Text('↓', style: Theme.of(context).textTheme.caption),
-          padding: EdgeInsets.all(3),
+      return TextButton(
+          child: Padding(
+              padding: EdgeInsets.all(3),
+              child: Text('↓', style: Theme.of(context).textTheme.caption)),
           onPressed: () {
             if (dictionary.isError) return;
             _swithcEnabled(context);
@@ -235,11 +238,12 @@ class _LoadAndEnabledButton extends HookWidget {
               height: 22));
     }
 
-    return FlatButton(
-        child: Text('↓', style: Theme.of(context).textTheme.caption),
-        padding: EdgeInsets.all(3),
+    return TextButton(
+        child: Padding(
+            padding: EdgeInsets.all(3),
+            child: Text('↓', style: Theme.of(context).textTheme.caption)),
         onPressed: () {
-          dictionary.openIkv().then((value) {
+          dictionary.openIkv(pool).then((value) {
             _swithcEnabled(context);
           });
           state.value = _TileState.loading;
@@ -268,20 +272,23 @@ class OfflineDictionaryTile extends StatelessWidget {
                   width: 30,
                   height: 50,
                   child: !dictionary.isReadyToUse && dictionary.isBundled
-                      ? FlatButton(
-                          child: Text('↻',
-                              style: Theme.of(context).textTheme.caption),
-                          padding: EdgeInsets.all(3),
+                      ? TextButton(
+                          child: Padding(
+                              padding: EdgeInsets.all(3),
+                              child: Text('↻',
+                                  style: Theme.of(context).textTheme.caption)),
                           onPressed: () {
                             if (dictionary.isError) return;
                             manager
                                 .reindexBundledDictionaries(dictionary.ikvPath);
                           })
                       : (dictionary.isEnabled
-                          ? FlatButton(
-                              child: Text('↘',
-                                  style: Theme.of(context).textTheme.caption),
-                              padding: EdgeInsets.all(3),
+                          ? TextButton(
+                              child: Padding(
+                                  padding: EdgeInsets.all(3),
+                                  child: Text('↘',
+                                      style:
+                                          Theme.of(context).textTheme.caption)),
                               onPressed: () {
                                 if (dictionary.isError) return;
                                 manager.switchIsEnabled(dictionary);

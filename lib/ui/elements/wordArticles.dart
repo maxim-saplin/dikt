@@ -102,7 +102,7 @@ class WordArticles extends StatelessWidget {
         child: Container(
             padding: EdgeInsets.only(left: 30, right: 30),
             color: Theme.of(context).scaffoldBackgroundColor.withAlpha(105),
-            child: FlatButton(
+            child: TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
               },

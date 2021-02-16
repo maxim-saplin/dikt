@@ -65,12 +65,12 @@ class MasterDictionary extends ChangeNotifier {
     if (value == '' || value == null) {
       _lookupWord = '';
       matches.clear();
+      notifyListeners();
     } else {
       value = value?.toLowerCase();
       _lookupWord = value;
-      _getMatchesForWord(value);
+      _getMatchesForWord(value).whenComplete(() => notifyListeners());
     }
-    notifyListeners();
   }
 
   String _selectedWord;
@@ -91,11 +91,11 @@ class MasterDictionary extends ChangeNotifier {
 
   final Stopwatch lookupSw = Stopwatch();
 
-  void _getMatchesForWord(String lookup) {
+  Future _getMatchesForWord(String lookup) async {
     lookupSw.reset();
     lookupSw.start();
 
-    matches = IkvPack.consolidatedKeysStartingWith(
+    matches = await IkvPack.consolidatedKeysStartingWith(
         dictionaryManager.ikvPacksLoaded, lookup, maxResults);
 
     lookupSw.stop();

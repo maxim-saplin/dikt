@@ -47,7 +47,8 @@ class IndexedDictionary extends HiveObject {
           ? IkvPack.load(ikvPath)
           : (pool == null
               ? IkvPack.loadInIsolate(ikvPath)
-              : IkvPack.loadInIsolatePool(pool, ikvPath));
+              : IkvPackProxy.loadInIsolatePoolAndUseProxy(
+                  pool, ikvPath)); //IkvPack.loadInIsolatePool(pool, ikvPath));
       f.then((value) {
         _ikv = value;
         isLoaded = true;
