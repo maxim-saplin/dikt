@@ -111,7 +111,9 @@ class DictionaryManager extends ChangeNotifier {
       //await Hive.initFlutter();
       homePath =
           kIsWeb ? '/webhome' : (await getApplicationDocumentsDirectory()).path;
-      if (!kIsWeb && Platform.isWindows) homePath += '\\dikt';
+      if (!kIsWeb && Platform.isWindows)
+        homePath += '\\dikt';
+      else if (!kIsWeb && Platform.isLinux) homePath += '/dikt';
       await Hive.initFlutter(homePath);
       try {
         var oldHive = Directory(homePath)

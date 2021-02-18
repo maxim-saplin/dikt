@@ -10,7 +10,7 @@ import 'package:ikvpack/ikvpack.dart';
 import 'package:reorderables/reorderables.dart';
 import 'package:provider/provider.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:file_chooser/file_chooser.dart';
+import 'package:file_selector_platform_interface/file_selector_platform_interface.dart';
 
 import '../../models/dictionaryManager.dart';
 import '../../models/masterDictionary.dart';
@@ -65,17 +65,25 @@ class _OfflineDictionariesState extends State<OfflineDictionaries> {
       // Platform class is not implemented in Web
       if (!kIsWeb &&
           (Platform.isMacOS || Platform.isWindows || Platform.isLinux)) {
-        var x = await showOpenPanel(
-          allowsMultipleSelection: true,
-          canSelectDirectories: false,
-          allowedFileTypes: [
-            FileTypeFilterGroup(
-                label: 'JSON, DIKT', fileExtensions: ['json', 'dikt']),
-          ],
+        final XTypeGroup jsonOrDiktTypeGroup = XTypeGroup(
+          label: 'JSON or DIKT',
+          extensions: ['json', 'dikt'],
         );
 
-        for (var i in x.paths) {
-          var f = PlatformFile(name: i);
+        var x =
+            await FileSelectorPlatform.instance.openFiles(acceptedTypeGroups: [
+          jsonOrDiktTypeGroup,
+        ]
+                // allowsMultipleSelection: true,
+                // canSelectDirectories: false,
+                // allowedFileTypes: [
+                //   FileTypeFilterGroup(
+                //       label: 'JSON, DIKT', fileExtensions: ['json', 'dikt']),
+                // ],
+                );
+
+        for (var i in x) {
+          var f = PlatformFile(name: i.path);
           files.add(f);
         }
       } else {

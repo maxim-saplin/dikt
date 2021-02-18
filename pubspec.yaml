@@ -37,20 +37,19 @@ dependencies:
   fluttertoast: ^7.0.1
   file_picker: ^3.0.0-nullsafety.0
   i18n_extension: ^3.0.0-dev.1
-  firebase_core: ^0.5.0
-  firebase_analytics: ^6.0.0
+  firebase_core: ^0.7.0
+  firebase_analytics: ^7.0.0
   page_transition: ^1.1.6
-  file_chooser:
-    git:
-      url: git://github.com/google/flutter-desktop-embedding.git
-      path: plugins/file_chooser
-      ref: 5b3b930da18244ecf2a7140a0e33a9892273797c
-  flutter_hooks: ^0.14.1-nullsafety
+  file_selector_platform_interface: ^2.0.0-nullsafety.0
+  file_selector_linux: ^0.0.2
+  file_selector_macos: ^0.0.3
+  file_selector_windows: ^0.0.2
+  flutter_hooks: ^0.16.0
   superellipse_shape: ^0.1.5
   ikvpack:
     git: https://github.com/maxim-saplin/ikvpack
     #path: '../ikvpack'
-  package_info_plus: ^0.6.3
+  package_info_plus: ^0.6.4
 
 dependency_overrides:
   hive: # custom version remove box key assertion to be ASCII string not greater than 255 chars
@@ -61,6 +60,8 @@ dependency_overrides:
     path: ./plugins/flutter_html-1.0.2
   crypto: ^3.0.0-nullsafety.0
   archive: ^3.0.0-nullsafety.0
+  http: ^0.13.0-nullsafety.0
+  http_parser: ^4.0.0-nullsafety
 
 dev_dependencies:
   flutter_test:
