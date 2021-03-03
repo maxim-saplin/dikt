@@ -152,125 +152,120 @@ class OnlineDictionaryTile extends HookWidget {
         height: dicHeight,
         width: dicWidth,
         //color: Colors.yellow,
-        child: Row(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Container(
-                  width: 30,
-                  height: dicHeight,
-                  decoration: BoxDecoration(
-                      color: data.state == OnlineDictionaryState.error
-                          ? ownTheme(context).errorShade
-                          : Colors.grey.withAlpha(
+        child: Row(mainAxisAlignment: MainAxisAlignment.start, children: [
+          Container(
+              width: 30,
+              height: dicHeight,
+              decoration: BoxDecoration(
+                  color: data.state == OnlineDictionaryState.error
+                      ? ownTheme(context).errorShade
+                      : Colors.grey.withAlpha(
+                          data.state == OnlineDictionaryState.downloaded
+                              ? 0
+                              : 0),
+                  border: Border(
+                      bottom: horizontalBorder,
+                      top: horizontalBorder,
+                      right: BorderSide(
+                          color: Colors.grey.withAlpha(
                               data.state == OnlineDictionaryState.downloaded
-                                  ? 0
+                                  ? 40
                                   : 0),
-                      border: Border(
-                          bottom: horizontalBorder,
-                          top: horizontalBorder,
-                          right: BorderSide(
-                              color: Colors.grey.withAlpha(
-                                  data.state == OnlineDictionaryState.downloaded
-                                      ? 40
-                                      : 0),
-                              width: 1))),
-                  child: Stack(children: [
-                    data.state == OnlineDictionaryState.downloading ||
-                            data.state == OnlineDictionaryState.indexing
-                        ? (data.progressPercent > -1
-                            ? Container(
-                                width: 30 * (data.progressPercent / 100),
-                                height: 40,
-                                color: Theme.of(context).accentColor)
-                            : LinearProgressIndicator(minHeight: dicHeight))
-                        : SizedBox(),
-                    TextButton(
-                        child: SizedBox(
-                          child: MouseRegion(
-                              child: icon, cursor: SystemMouseCursors.click),
-                          height: dicHeight,
-                        ),
-                        onPressed: onPressed)
-                  ])),
-              Expanded(
-                  child: Stack(children: [
-                Container(
-                    padding: EdgeInsets.only(left: 8),
-                    decoration: BoxDecoration(
-                        border: Border(
-                            bottom: horizontalBorder, top: horizontalBorder)),
-                    child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Tooltip(
-                              message: data.repoDictionary.name,
-                              waitDuration: Duration(seconds: 1),
-                              child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    data.nameHighlighted != ''
-                                        ? Material(
-                                            color: ownTheme(context).textBaloon,
-                                            shape: SuperellipseShape(
-                                              borderRadius:
-                                                  BorderRadius.circular(28),
-                                            ),
-                                            child: Padding(
-                                                padding: EdgeInsets.only(
-                                                    left: 4, right: 4),
-                                                child: Text(
-                                                    data.nameHighlighted,
-                                                    style: TextStyle(
-                                                        fontSize: 16))))
-                                        : SizedBox(),
-                                    // Clip large text
-                                    Flexible(
+                          width: 1))),
+              child: Stack(children: [
+                data.state == OnlineDictionaryState.downloading ||
+                        data.state == OnlineDictionaryState.indexing
+                    ? (data.progressPercent > -1
+                        ? Container(
+                            width: 30 * (data.progressPercent / 100),
+                            height: 40,
+                            color: Theme.of(context).accentColor)
+                        : LinearProgressIndicator(minHeight: dicHeight))
+                    : SizedBox(),
+                TextButton(
+                    child: SizedBox(
+                      child: MouseRegion(
+                          child: Center(child: icon),
+                          cursor: SystemMouseCursors.click),
+                      height: dicHeight,
+                    ),
+                    onPressed: onPressed)
+              ])),
+          Expanded(
+              child: Stack(children: [
+            Container(
+                padding: EdgeInsets.only(left: 8),
+                decoration: BoxDecoration(
+                    border: Border(
+                        bottom: horizontalBorder, top: horizontalBorder)),
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Tooltip(
+                          message: data.repoDictionary.name,
+                          waitDuration: Duration(seconds: 1),
+                          child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                data.nameHighlighted != ''
+                                    ? Material(
+                                        color: ownTheme(context).textBaloon,
+                                        shape: SuperellipseShape(
+                                          borderRadius:
+                                              BorderRadius.circular(28),
+                                        ),
                                         child: Padding(
-                                            padding: EdgeInsets.only(left: 3),
-                                            child: Text(data.nameNotHighlighted,
-                                                softWrap: false,
-                                                maxLines: 1,
-                                                overflow: TextOverflow.clip,
+                                            padding: EdgeInsets.only(
+                                                left: 4, right: 4),
+                                            child: Text(data.nameHighlighted,
                                                 style:
                                                     TextStyle(fontSize: 16))))
-                                  ])),
-                          Text(
-                              data.state == OnlineDictionaryState.downloading
-                                  ? 'Downloading...'.i18n +
+                                    : SizedBox(),
+                                // Clip large text
+                                Flexible(
+                                    child: Padding(
+                                        padding: EdgeInsets.only(left: 3),
+                                        child: Text(data.nameNotHighlighted,
+                                            softWrap: false,
+                                            maxLines: 1,
+                                            overflow: TextOverflow.clip,
+                                            style: TextStyle(fontSize: 16))))
+                              ])),
+                      Text(
+                          data.state == OnlineDictionaryState.downloading
+                              ? 'Downloading...'.i18n +
+                                  (data.progressPercent > -1
+                                      ? ' ${data.progressPercent}%'
+                                      : '')
+                              : data.state == OnlineDictionaryState.indexing
+                                  ? 'Indexing...'.i18n +
                                       (data.progressPercent > -1
                                           ? ' ${data.progressPercent}%'
                                           : '')
-                                  : data.state == OnlineDictionaryState.indexing
-                                      ? 'Indexing...'.i18n +
-                                          (data.progressPercent > -1
-                                              ? ' ${data.progressPercent}%'
-                                              : '')
-                                      : (dictionary.repoDictionary.words
-                                              .toString() +
-                                          ' words, ' +
-                                          (dictionary.repoDictionary.sizeBytes /
-                                                  1024 /
-                                                  1024)
-                                              .toStringAsFixed(1) +
-                                          'Mb'),
-                              softWrap: false,
-                              maxLines: 1,
-                              style: Theme.of(context).textTheme.subtitle2)
-                        ])),
-                data.state != OnlineDictionaryState.error
-                    ? SizedBox()
-                    : Container(
-                        color: ownTheme(context).errorShade,
-                        child: Center(
-                            child: Text(
-                                data.error + ' - ' + data.repoDictionary.name,
-                                maxLines: 2,
-                                overflow: TextOverflow.clip,
-                                style: Theme.of(context).textTheme.overline)))
-              ])),
-            ]));
+                                  : (dictionary.repoDictionary.words
+                                          .toString() +
+                                      ' words, ' +
+                                      (dictionary.repoDictionary.sizeBytes /
+                                              1024 /
+                                              1024)
+                                          .toStringAsFixed(1) +
+                                      'Mb'),
+                          softWrap: false,
+                          maxLines: 1,
+                          style: Theme.of(context).textTheme.subtitle2)
+                    ])),
+            data.state != OnlineDictionaryState.error
+                ? SizedBox()
+                : Container(
+                    color: ownTheme(context).errorShade,
+                    child: Center(
+                        child: Text(
+                            data.error + ' - ' + data.repoDictionary.name,
+                            maxLines: 2,
+                            overflow: TextOverflow.clip,
+                            style: Theme.of(context).textTheme.overline)))
+          ])),
+        ]));
   }
 }
