@@ -28,9 +28,6 @@ import 'common/isolatePool.dart';
 import 'models/onlineDictionariesFakes.dart';
 import 'ui/routes.dart';
 
-// used package to run algoryth efficiency on actual platforms/devices rather than in Console app in DartVM on Mac
-//import 'package:dictionary_bundler/main.dart' show test;
-
 // Ad Blockers can break app due to exception in Firebase
 bool _firebaseError = false;
 
@@ -45,14 +42,6 @@ void main() async {
   }
   await PreferencesSingleton.init();
   await DictionaryManager.init();
-
-  // Testing archive efficiency on target platforms
-  //var s =
-  //    await rootBundle.loadString('assets/dictionaries/En-En-WordNet3-00.json');
-  //test(s);
-
-  // var p = PooledIsolateExecutor(8);
-  // await p.start();
 
   runApp(MyApp());
 }

@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:dikt/common/isolatePool.dart';
 import 'package:dikt/common/preferencesSingleton.dart';
 import 'package:dikt/models/dictionaryManager.dart';
 import 'package:dikt/models/indexedDictionary.dart';
@@ -26,6 +27,7 @@ void main() {
 
   setUpAll(() async {
     print('Setting up tests');
+    initIsolatePool();
 
     var tmpDir = Directory(tmpPath);
     if (tmpDir.existsSync()) tmpDir.deleteSync(recursive: true);
@@ -370,7 +372,7 @@ void main() {
 
       var d = find.byType(OfflineDictionaryTile).first;
       expect(d, findsOneWidget);
-      var b = d.byChildType(FlatButton);
+      var b = d.byChildType(TextButton);
       expect(b.byChildText('↘'), findsOneWidget);
 
       await tester.tap(b);
@@ -385,7 +387,7 @@ void main() {
 
       var d = find.byType(OfflineDictionaryTile).at(1);
       expect(d, findsOneWidget);
-      var b = d.byChildType(FlatButton);
+      var b = d.byChildType(TextButton);
       expect(b, findsOneWidget);
       expect(b.byChildText('↓'), findsOneWidget);
 
