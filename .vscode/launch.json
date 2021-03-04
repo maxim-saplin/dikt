@@ -16,6 +16,10 @@
       "type": "dart",
       "flutterMode" : "debug",
       "program" : "lib/main.dart",
+      "args": [
+        "--web-renderer", "canvaskit"
+      ],
+       
       // "args": [
       //   "--web-renderer", "html" // dev channel switched to canvaskit which in 1.26 can't work offline and has issues with fonts
       // ],
@@ -27,8 +31,11 @@
       "flutterMode" : "release",
       "program" : "lib/main.dart",
       "args": [
-        "--web-renderer", "html" // dev channel switched to canvaskit which in 1.26 can't work offline and has issues with fonts
+        "--web-renderer", "canvaskit"
       ],
+      // "args": [
+      //   "--web-renderer", "html" // dev channel switched to canvaskit which in 1.26 can't work offline and has issues with fonts
+      // ],
     }
   ]
 }
