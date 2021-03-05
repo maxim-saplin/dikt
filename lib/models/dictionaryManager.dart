@@ -12,7 +12,6 @@ import 'package:path_provider/path_provider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:flutter/material.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 
 import 'indexedDictionary.dart';
 import '../common/fileStream.dart';
@@ -108,13 +107,12 @@ class DictionaryManager extends ChangeNotifier {
 
   static Future<void> init([String testPath]) async {
     if (testPath == null) {
-      //await Hive.initFlutter();
       homePath =
           kIsWeb ? '/webhome' : (await getApplicationDocumentsDirectory()).path;
       if (!kIsWeb && Platform.isWindows)
         homePath += '\\dikt';
       else if (!kIsWeb && Platform.isLinux) homePath += '/dikt';
-      await Hive.initFlutter(homePath);
+      await Hive.init(homePath);
       try {
         var oldHive = Directory(homePath)
             .listSync(recursive: false, followLinks: false)

@@ -1,19 +1,20 @@
 # This is a generated file; do not edit or check into version control.
-file_picker=C:\\flutter\\.pub-cache\\hosted\\pub.dartlang.org\\file_picker-3.0.0-nullsafety.4\\
+file_picker=C:\\flutter\\.pub-cache\\hosted\\pub.dartlang.org\\file_picker-3.0.0\\
 file_selector_linux=C:\\flutter\\.pub-cache\\hosted\\pub.dartlang.org\\file_selector_linux-0.0.2\\
-file_selector_macos=C:\\flutter\\.pub-cache\\hosted\\pub.dartlang.org\\file_selector_macos-0.0.3\\
+file_selector_macos=C:\\flutter\\.pub-cache\\hosted\\pub.dartlang.org\\file_selector_macos-0.0.4\\
 file_selector_windows=C:\\flutter\\.pub-cache\\hosted\\pub.dartlang.org\\file_selector_windows-0.0.2\\
 firebase_analytics=C:\\flutter\\.pub-cache\\hosted\\pub.dartlang.org\\firebase_analytics-7.1.0\\
 firebase_analytics_web=C:\\flutter\\.pub-cache\\hosted\\pub.dartlang.org\\firebase_analytics_web-0.2.0\\
 firebase_core=C:\\flutter\\.pub-cache\\hosted\\pub.dartlang.org\\firebase_core-1.0.0\\
 firebase_core_web=C:\\flutter\\.pub-cache\\hosted\\pub.dartlang.org\\firebase_core_web-1.0.0\\
-flutter_plugin_android_lifecycle=C:\\flutter\\.pub-cache\\hosted\\pub.dartlang.org\\flutter_plugin_android_lifecycle-2.0.0-nullsafety.2\\
-fluttertoast=C:\\flutter\\.pub-cache\\hosted\\pub.dartlang.org\\fluttertoast-7.1.6\\
+flutter_plugin_android_lifecycle=C:\\flutter\\.pub-cache\\hosted\\pub.dartlang.org\\flutter_plugin_android_lifecycle-2.0.0\\
+fluttertoast=C:\\flutter\\.pub-cache\\hosted\\pub.dartlang.org\\fluttertoast-7.1.8\\
 package_info_plus=C:\\flutter\\.pub-cache\\hosted\\pub.dartlang.org\\package_info_plus-1.0.0\\
 package_info_plus_macos=C:\\flutter\\.pub-cache\\hosted\\pub.dartlang.org\\package_info_plus_macos-1.0.0\\
 package_info_plus_web=C:\\flutter\\.pub-cache\\hosted\\pub.dartlang.org\\package_info_plus_web-1.0.0\\
-path_provider=C:\\flutter\\.pub-cache\\hosted\\pub.dartlang.org\\path_provider-1.2.0\\
+path_provider=C:\\flutter\\.pub-cache\\hosted\\pub.dartlang.org\\path_provider-2.0.1\\
 path_provider_linux=C:\\flutter\\.pub-cache\\hosted\\pub.dartlang.org\\path_provider_linux-2.0.0\\
+path_provider_macos=C:\\flutter\\.pub-cache\\hosted\\pub.dartlang.org\\path_provider_macos-2.0.0\\
 path_provider_windows=C:\\flutter\\.pub-cache\\hosted\\pub.dartlang.org\\path_provider_windows-2.0.0\\
 shared_preferences=C:\\flutter\\.pub-cache\\hosted\\pub.dartlang.org\\shared_preferences-2.0.3\\
 shared_preferences_linux=C:\\flutter\\.pub-cache\\hosted\\pub.dartlang.org\\shared_preferences_linux-2.0.0\\
