@@ -11,9 +11,9 @@ class FileStream extends Stream<List<int>> {
 
   // Information about the underlying file.
   final String _path;
-  RandomAccessFile _openedFile;
+  late RandomAccessFile _openedFile;
   int _position;
-  final int _end;
+  final int? _end;
   final Completer _closeCompleter = Completer();
 
   // Has the stream been paused or unsubscribed?
@@ -25,12 +25,12 @@ class FileStream extends Stream<List<int>> {
 
   bool _atEnd = false;
 
-  FileStream(this._path, int position, this._end) : _position = position ?? 0 {
+  FileStream(this._path, int? position, this._end) : _position = position ?? 0 {
     //_openedFile = RandomAccessFile()
   }
 
-  StreamSubscription<Uint8List> listen(void onData(Uint8List event),
-      {Function onError, void onDone(), bool cancelOnError}) {
+  StreamSubscription<Uint8List> listen(void onData(Uint8List event)?,
+      {Function? onError, void onDone()?, bool? cancelOnError}) {
     _controller = new StreamController<Uint8List>(
         sync: true,
         onListen: _start,
@@ -139,11 +139,8 @@ class FileStream extends Stream<List<int>> {
     }
 
     final path = _path;
-    if (path != null) {
-      File(path)
-          .open(mode: FileMode.read)
-          .then(onOpenFile, onError: openFailed);
-    }
+
+    File(path).open(mode: FileMode.read).then(onOpenFile, onError: openFailed);
   }
 
   int get position {

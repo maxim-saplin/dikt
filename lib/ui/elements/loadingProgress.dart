@@ -59,7 +59,7 @@ class DictionaryLoadingNoAlign extends HookWidget {
 
     var count = manager.dictionariesBeingProcessed.fold(
         0,
-        (previousValue, element) =>
+        (dynamic previousValue, element) =>
             previousValue +
             (element.state == DictionaryBeingProcessedState.success ? 1 : 0));
 

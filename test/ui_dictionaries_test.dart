@@ -20,7 +20,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'finders.dart';
 
-DictionaryManager dicManager;
+DictionaryManager? dicManager;
 
 void main() {
   const tmpPath = 'test/tmp';
@@ -56,7 +56,7 @@ void main() {
 // though after moving to Ikv and IsolatePool there was some serois trouble
 // with test harbess guts which maid 'await' stuck at 'pool.start()'
     dicManager = DictionaryManager();
-    await dicManager.indexAndLoadDictionaries(true);
+    await dicManager!.indexAndLoadDictionaries(true);
   });
 
   tearDownAll(() {
@@ -434,7 +434,7 @@ void main() {
 
       expect(find.byType(AlertDialog), findsOneWidget);
 
-      return name?.data;
+      return name.data;
     }
 
     ;
@@ -481,7 +481,7 @@ Future _createAndWrapWidget(WidgetTester tester, Widget widget) async {
   await tester.pumpWidget(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider<DictionaryManager>(
+        ChangeNotifierProvider<DictionaryManager?>(
           create: (context) {
             return dicManager;
           },

@@ -20,7 +20,7 @@ class SimpleSimpleDialog extends StatelessWidget {
   ///
   /// The [titlePadding] and [contentPadding] arguments must not be null.
   const SimpleSimpleDialog(
-      {Key key,
+      {Key? key,
       this.title,
       this.titlePadding = const EdgeInsets.fromLTRB(24.0, 24.0, 24.0, 0.0),
       this.titleTextStyle,
@@ -30,20 +30,18 @@ class SimpleSimpleDialog extends StatelessWidget {
       this.elevation,
       this.semanticLabel,
       this.shape,
-      bool useMaterialBorderRadius,
+      bool? useMaterialBorderRadius,
       this.alignment = Alignment.bottomCenter,
       this.insetPadding = _defaultInsetPadding,
       this.maxWidth = double.infinity,
       this.blurBackground = true})
-      : assert(titlePadding != null),
-        assert(contentPadding != null),
-        super(key: key);
+      : super(key: key);
 
   /// The (optional) title of the dialog is displayed in a large font at the top
   /// of the dialog.
   ///
   /// Typically a [Text] widget.
-  final Widget title;
+  final Widget? title;
 
   /// Padding around the title.
   ///
@@ -60,13 +58,13 @@ class SimpleSimpleDialog extends StatelessWidget {
   ///
   /// If null, [DialogTheme.titleTextStyle] is used, if that's null, defaults to
   /// [ThemeData.textTheme.headline6].
-  final TextStyle titleTextStyle;
+  final TextStyle? titleTextStyle;
 
   /// The (optional) content of the dialog is displayed in a
   /// [SingleChildScrollView] underneath the title.
   ///
   /// Typically a list of [SimpleDialogOption]s.
-  final List<Widget> children;
+  final List<Widget>? children;
 
   /// Padding around the content.
   ///
@@ -83,11 +81,11 @@ class SimpleSimpleDialog extends StatelessWidget {
   final EdgeInsetsGeometry contentPadding;
 
   /// {@macro flutter.material.dialog.backgroundColor}
-  final Color backgroundColor;
+  final Color? backgroundColor;
 
   /// {@macro flutter.material.dialog.elevation}
   /// {@macro flutter.material.material.elevation}
-  final double elevation;
+  final double? elevation;
 
   /// The semantic label of the dialog used by accessibility frameworks to
   /// announce screen transitions when the dialog is opened and closed.
@@ -100,10 +98,10 @@ class SimpleSimpleDialog extends StatelessWidget {
   ///
   ///  * [SemanticsConfiguration.isRouteName], for a description of how this
   ///    value is used.
-  final String semanticLabel;
+  final String? semanticLabel;
 
   /// {@macro flutter.material.dialog.shape}
-  final ShapeBorder shape;
+  final ShapeBorder? shape;
 
   final AlignmentGeometry alignment;
 
@@ -118,7 +116,7 @@ class SimpleSimpleDialog extends StatelessWidget {
     assert(debugCheckHasMaterialLocalizations(context));
     final ThemeData theme = Theme.of(context);
 
-    String label = semanticLabel;
+    String? label = semanticLabel;
     if (title == null) {
       switch (theme.platform) {
         case TargetPlatform.macOS:
@@ -130,7 +128,7 @@ class SimpleSimpleDialog extends StatelessWidget {
         case TargetPlatform.linux:
         case TargetPlatform.windows:
           label =
-              semanticLabel ?? MaterialLocalizations.of(context)?.dialogLabel;
+              semanticLabel ?? MaterialLocalizations.of(context).dialogLabel;
       }
     }
 
@@ -142,7 +140,7 @@ class SimpleSimpleDialog extends StatelessWidget {
         children: <Widget>[
           if (children != null)
             Flexible(
-              child: children[0],
+              child: children![0],
             ),
         ],
       ),
@@ -196,7 +194,7 @@ class _Dialog extends StatelessWidget {
   ///
   /// Typically used in conjunction with [showDialog].
   const _Dialog(
-      {Key key,
+      {Key? key,
       this.backgroundColor,
       this.elevation,
       this.insetAnimationDuration = const Duration(milliseconds: 100),
@@ -206,8 +204,7 @@ class _Dialog extends StatelessWidget {
       this.shape,
       this.child,
       this.alignment = Alignment.bottomCenter})
-      : assert(clipBehavior != null),
-        super(key: key);
+      : super(key: key);
 
   /// {@template flutter.material.dialog.backgroundColor}
   /// The background color of the surface of this [Dialog].
@@ -216,7 +213,7 @@ class _Dialog extends StatelessWidget {
   ///
   /// If `null`, [ThemeData.cardColor] is used.
   /// {@endtemplate}
-  final Color backgroundColor;
+  final Color? backgroundColor;
 
   /// {@template flutter.material.dialog.elevation}
   /// The z-coordinate of this [Dialog].
@@ -225,7 +222,7 @@ class _Dialog extends StatelessWidget {
   /// dialog's elevation is 24.0.
   /// {@endtemplate}
   /// {@macro flutter.material.material.elevation}
-  final double elevation;
+  final double? elevation;
 
   /// {@template flutter.material.dialog.insetAnimationDuration}
   /// The duration of the animation to show when the system keyboard intrudes
@@ -270,12 +267,12 @@ class _Dialog extends StatelessWidget {
   ///
   /// The default shape is a [RoundedRectangleBorder] with a radius of 4.0
   /// {@endtemplate}
-  final ShapeBorder shape;
+  final ShapeBorder? shape;
 
   /// The widget below this widget in the tree.
   ///
   /// {@macro flutter.widgets.child}
-  final Widget child;
+  final Widget? child;
 
   final AlignmentGeometry alignment;
 
@@ -287,8 +284,8 @@ class _Dialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final DialogTheme dialogTheme = DialogTheme.of(context);
-    final EdgeInsets effectivePadding = MediaQuery.of(context).viewInsets +
-        (insetPadding ?? const EdgeInsets.all(0.0));
+    final EdgeInsets effectivePadding =
+        MediaQuery.of(context).viewInsets + insetPadding;
     return AnimatedPadding(
       padding: effectivePadding,
       duration: insetAnimationDuration,

@@ -16,7 +16,7 @@ class OnlineDictionaryManager extends ChangeNotifier with Debounce {
 
   OnlineDictionaryManager(this._repo, this._onlineToOffline);
 
-  String _repoUrl;
+  String? _repoUrl;
 
   // allow model refresh when navigating betwenn Offline and Online dictionaries UI
   void cleanUp() {
@@ -25,16 +25,16 @@ class OnlineDictionaryManager extends ChangeNotifier with Debounce {
     _dictionariesRequested = false;
   }
 
-  String get repoUrl {
+  String? get repoUrl {
     if (_repoUrl == null)
-      _repoUrl = PreferencesSingleton.sp.getString(repoUrlParam);
+      _repoUrl = PreferencesSingleton.sp!.getString(repoUrlParam);
     if (_repoUrl == null) {
       return defaultUrl;
     }
     return _repoUrl;
   }
 
-  set repoUrl(String value) {
+  set repoUrl(String? value) {
     var err = _repo.verifyUrl(value);
 
     if (value != _repoUrl) {
@@ -63,7 +63,7 @@ class OnlineDictionaryManager extends ChangeNotifier with Debounce {
                   ? OnlineDictionaryState.downloaded
                   : OnlineDictionaryState.notDownloaded))
           .toList();
-      PreferencesSingleton.sp.setString(repoUrlParam, repoUrl);
+      PreferencesSingleton.sp!.setString(repoUrlParam, repoUrl!);
     }).catchError((err) {
       _loading = false;
       _repoError = err.toString();
@@ -72,9 +72,9 @@ class OnlineDictionaryManager extends ChangeNotifier with Debounce {
 
   bool _dictionariesRequested = false;
 
-  List<OnlineDictionary> _dictionaries;
+  List<OnlineDictionary>? _dictionaries;
 
-  List<OnlineDictionary> get dictionaries {
+  List<OnlineDictionary>? get dictionaries {
     if (!_dictionariesRequested) {
       _dictionariesRequested = true;
       Timer.run(() => _loadDictionaries());
@@ -82,13 +82,13 @@ class OnlineDictionaryManager extends ChangeNotifier with Debounce {
     return _dictionaries;
   }
 
-  String __repoError;
+  String? __repoError;
 
-  String get repoError {
+  String? get repoError {
     return __repoError;
   }
 
-  set _repoError(String value) {
+  set _repoError(String? value) {
     if (value != __repoError) {
       __repoError = value;
       notifyListeners();
@@ -147,11 +147,11 @@ class OnlineDictionary extends ChangeNotifier {
     }
   }
 
-  RepoDownloader _downloader;
+  late RepoDownloader _downloader;
 
-  String _error;
+  String? _error;
 
-  String get error => _error;
+  String? get error => _error;
 
   bool _downloadOrIndexingCanceled = false;
 
@@ -178,7 +178,7 @@ class OnlineDictionary extends ChangeNotifier {
         _progressPrecent = _downloader.length == -1 ? -1 : 0;
         var bytes = BytesBuilder();
 
-        _downloader.bytes.listen(
+        _downloader.bytes!.listen(
             (Uint8List e) {
               _bytesDownloaded += e.length;
               bytes.add(e);
@@ -255,11 +255,11 @@ class RepoDictionary {
 
 abstract class RepoDownloader {
   final int length;
-  Stream<Uint8List> _bytes;
-  Stream<Uint8List> get bytes => _bytes;
+  Stream<Uint8List>? _bytes;
+  Stream<Uint8List>? get bytes => _bytes;
 
   @protected
-  set bytes(Stream<Uint8List> value) {
+  set bytes(Stream<Uint8List>? value) {
     _bytes = value;
   }
 
@@ -275,7 +275,7 @@ abstract class RepoDownloader {
 }
 
 abstract class OnlineRepo {
-  String verifyUrl(String url) {
+  String? verifyUrl(String? url) {
     if (url == null || url == '') return 'URL can\'t be empty';
 
     //if (Uri.tryParse(url) == null) return 'Invalid URL';
@@ -288,7 +288,7 @@ abstract class OnlineRepo {
     return null;
   }
 
-  Future<List<RepoDictionary>> getDictionariesList(String url);
+  Future<List<RepoDictionary>> getDictionariesList(String? url);
 
   RepoDownloader downloadDictionary(String url);
 }

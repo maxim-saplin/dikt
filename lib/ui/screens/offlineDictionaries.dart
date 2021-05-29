@@ -26,7 +26,7 @@ class OfflineDictionaries extends StatefulWidget {
 }
 
 class _OfflineDictionariesState extends State<OfflineDictionaries> {
-  int _draggingIndex;
+  int? _draggingIndex;
   bool _cancelReorder = false;
 
   @override
@@ -60,7 +60,7 @@ class _OfflineDictionariesState extends State<OfflineDictionaries> {
     }
 
     void _importJsonOrDikt() async {
-      List<PlatformFile> files = [];
+      List<PlatformFile>? files = [];
 
       // Platform class is not implemented in Web
       if (!kIsWeb &&
@@ -101,7 +101,7 @@ class _OfflineDictionariesState extends State<OfflineDictionaries> {
         manager
             .loadFromJsonOrDiktFiles(files)
             .whenComplete(() =>
-                Provider.of<MasterDictionary>(context, listen: false)?.notify())
+                Provider.of<MasterDictionary>(context, listen: false).notify())
             .catchError((err) {
           showDialog(
               context: context,
@@ -129,11 +129,11 @@ class _OfflineDictionariesState extends State<OfflineDictionaries> {
             _cancelReorder = true;
             confirmAndDelete(context, dictionaries[index].name, () {
               manager.deleteDictionary(dictionaries[index].ikvPath);
-              Provider.of<MasterDictionary>(context, listen: false)?.notify();
+              Provider.of<MasterDictionary>(context, listen: false).notify();
             });
           }, onWillAccept: (data) {
             return true;
-          }, builder: (context, List<int> candidateData, rejectedData) {
+          }, builder: (context, List<int?> candidateData, rejectedData) {
             return Container(
               padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
               height: 40,
@@ -217,7 +217,7 @@ class _LoadAndEnabledButton extends HookWidget {
 
   void _swithcEnabled(BuildContext context) {
     manager.switchIsEnabled(dictionary);
-    Provider.of<MasterDictionary>(context, listen: false)?.notify();
+    Provider.of<MasterDictionary>(context, listen: false).notify();
   }
 
   @override
@@ -261,7 +261,7 @@ class _LoadAndEnabledButton extends HookWidget {
 
 class OfflineDictionaryTile extends StatelessWidget {
   const OfflineDictionaryTile(
-      {Key key, @required this.manager, @required this.dictionary})
+      {Key? key, required this.manager, required this.dictionary})
       : super(key: key);
 
   final DictionaryManager manager;
@@ -286,7 +286,7 @@ class OfflineDictionaryTile extends StatelessWidget {
                               child: Text('↻',
                                   style: Theme.of(context).textTheme.caption)),
                           onPressed: () {
-                            if (dictionary.isError) return;
+                            //if (dictionary.isError) return;
                             manager
                                 .reindexBundledDictionaries(dictionary.ikvPath);
                           })
@@ -302,7 +302,7 @@ class OfflineDictionaryTile extends StatelessWidget {
                                 manager.switchIsEnabled(dictionary);
                                 Provider.of<MasterDictionary>(context,
                                         listen: false)
-                                    ?.notify();
+                                    .notify();
                               })
                           : _LoadAndEnabledButton(dictionary, manager))),
               Flexible(
@@ -329,7 +329,7 @@ class OfflineDictionaryTile extends StatelessWidget {
                                         Timer.run(() {
                                           Provider.of<MasterDictionary>(context,
                                                   listen: false)
-                                              ?.notify();
+                                              .notify();
                                         }); // let Lookup update (e.g. no history and number of entries shown) if a new dictionary is imported
                                         var info = snapshot.data as IkvInfo;
                                         return Text(

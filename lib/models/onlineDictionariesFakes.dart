@@ -10,7 +10,7 @@ class OnlineToOfflineFake extends OnlineToOffline {
   @override
   void cancelIndexingOrDelete(String hash) {
     if (scs.containsKey(hash)) {
-      scs[hash].close();
+      scs[hash]!.close();
       scs.remove(hash);
     } else
       downloadedHashes.remove(hash);
@@ -20,7 +20,7 @@ class OnlineToOfflineFake extends OnlineToOffline {
 
   void _index(StreamSink<int> sink) {
     var i = 0;
-    Function callback;
+    late Function callback;
     bool sinkClosed = false;
 
     sink.done.whenComplete(() => sinkClosed = true);
@@ -141,7 +141,7 @@ class FakeOnlineRepo extends OnlineRepo {
   static const Duration _timeoutMs = Duration(milliseconds: 2430);
 
   @override
-  Future<List<RepoDictionary>> getDictionariesList(String url) {
+  Future<List<RepoDictionary>> getDictionariesList(String? url) {
     if (url == null) throw 'URL not set';
     if (url == defaultUrl)
       return Future<List<RepoDictionary>>.delayed(
@@ -152,7 +152,7 @@ class FakeOnlineRepo extends OnlineRepo {
           _timeoutMs, () => dictionaries.reversed.take(5).toList());
 
     return Future<List<RepoDictionary>>.delayed(
-        _timeoutMs, () => throw 'Repository not available');
+        _timeoutMs, (() => throw 'Repository not available'));
   }
 
   // 3rd - stream error

@@ -18,7 +18,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 2.0.0
 
 environment:
-  sdk: ">=2.11.0-213.0.dev"
+  sdk: '>=2.12.0 <3.0.0'
 
 dependencies:
   flutter:
@@ -45,14 +45,14 @@ dependencies:
   file_selector_macos: ^0.0.3
   file_selector_windows: ^0.0.2
   flutter_hooks: ^0.17.0
-  superellipse_shape: ^0.1.5
+  superellipse_shape: ^0.2.0-nullsafety.0
   ikvpack:
     git: https://github.com/maxim-saplin/ikvpack
     #path: '../ikvpack'
   package_info_plus: ^1.0.0
 
 dependency_overrides:
-  reorderables:
+  reorderables: # added onDragging event handler to allow deletion of dics by dragging them on a dedicated elemtn
     path: ./plugins/reorderables-0.4.1/
   # flutter_html:
   #   path: ./plugins/flutter_html-1.0.2
@@ -60,7 +60,7 @@ dependency_overrides:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  mockito:
+  mockito: ^5.0.9
   hive_generator: ^1.1.0
   build_runner: ^2.0.4
   flutter_launcher_icons:

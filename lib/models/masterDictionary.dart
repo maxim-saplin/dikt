@@ -11,14 +11,14 @@ import './dictionaryManager.dart';
 class Article {
   final String word;
   final String article;
-  final String dictionaryName;
+  final String? dictionaryName;
   Article(this.word, this.article, this.dictionaryName);
 }
 
 class MasterDictionary extends ChangeNotifier {
-  Future loadJson;
+  Future? loadJson;
   final int maxResults = 100;
-  DictionaryManager dictionaryManager;
+  late DictionaryManager dictionaryManager;
   double _loadTimeSec = -1;
   double get loadTimeSec => _loadTimeSec;
 
@@ -35,7 +35,8 @@ class MasterDictionary extends ChangeNotifier {
           sw.elapsedMilliseconds.toString());
       _loadTimeSec = sw.elapsed.inMilliseconds / 1000;
     });
-    dictionaryManager.partiallyLoaded.then((value) => isPartiallyLoaded = true);
+    dictionaryManager.partiallyLoaded!
+        .then((value) => isPartiallyLoaded = true);
   }
 
   List<String> matches = [];
@@ -47,7 +48,7 @@ class MasterDictionary extends ChangeNotifier {
   int get totalEntries {
     var c = 0;
     for (var i in dictionaryManager.dictionariesEnabled)
-      if (i.ikv != null) c += i.ikv.length;
+      if (i.ikv != null) c += i.ikv!.length;
     return c;
   }
 
@@ -58,34 +59,34 @@ class MasterDictionary extends ChangeNotifier {
   }
 
   bool get isLookupWordEmpty {
-    return (_lookupWord == null || _lookupWord == '');
+    return (_lookupWord == '');
   }
 
   set lookupWord(String value) {
-    if (value == '' || value == null) {
+    if (value == '') {
       _lookupWord = '';
       matches.clear();
       notifyListeners();
     } else {
-      value = value?.toLowerCase();
+      value = value.toLowerCase();
       _lookupWord = value;
       _getMatchesForWord(value).whenComplete(() => notifyListeners());
     }
   }
 
-  String _selectedWord;
+  String? _selectedWord;
 
-  set selectedWord(String value) {
+  set selectedWord(String? value) {
     if (value == '' || value == null) {
       _selectedWord = '';
     } else {
-      value = value?.toLowerCase();
+      value = value.toLowerCase();
       _selectedWord = value;
     }
     //notifyListeners();
   }
 
-  String get selectedWord {
+  String? get selectedWord {
     return _selectedWord;
   }
 
@@ -110,7 +111,7 @@ class MasterDictionary extends ChangeNotifier {
   //   return await compute(_unzipIsolateBody, articleBytes);
   // }
 
-  Future<List<Article>> getArticleFromMatches(int n) async {
+  Future<List<Article>?> getArticleFromMatches(int n) async {
     if (n > matches.length - 1) return null;
 
     var word = matches[n];
@@ -124,8 +125,8 @@ class MasterDictionary extends ChangeNotifier {
     for (var d in dictionaryManager.dictionariesLoaded) {
       //var a = d.ikv.valueRawCompressed(word);
       try {
-        var s = await d.ikv.value(word);
-        if (s != null && !s.isEmpty)
+        var s = await d.ikv!.value(word);
+        if (!s.isEmpty)
           //articles.add(Article(word, await _unzipIsolate(a), d.name));
           articles.add(Article(word, s, d.name));
       } catch (e) {
@@ -176,7 +177,7 @@ class IsolateParams {
   final int file;
 }
 
-Map<String, Uint8List> isolateBody(IsolateParams params) {
+Map<String, Uint8List>? isolateBody(IsolateParams params) {
   print('  JSON loading IN ISOLATE, file ' + params.file.toString());
   //WidgetsFlutterBinding.ensureInitialized();
   var i = 0;

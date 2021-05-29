@@ -48,7 +48,7 @@ void main() async {
 
 class MyApp extends StatelessWidget {
   final GlobalKey<NavigatorState> _navigator = GlobalKey<NavigatorState>();
-  static FirebaseAnalytics analytics;
+  static FirebaseAnalytics? analytics;
 
   MyApp() {
     if (!_firebaseError && analytics == null) {
@@ -65,7 +65,7 @@ class MyApp extends StatelessWidget {
         body: DoubleBack(message: 'Tap back again to quit'.i18n, child: child));
   }
 
-  static bool _wide;
+  static bool? _wide;
   static double wideWidth = 600;
 
   @override
@@ -108,14 +108,14 @@ class MyApp extends StatelessWidget {
                     const Locale('ru', ''),
                   ],
                   navigatorKey: _navigator,
-                  navigatorObservers: preferences.isAnalyticsEnabled &&
+                  navigatorObservers: preferences.isAnalyticsEnabled! &&
                           !_firebaseError &&
                           (kIsWeb || Platform.isAndroid || Platform.isIOS)
                       ? [
-                          AnalyticsObserver(analytics: analytics),
+                          AnalyticsObserver(analytics: analytics!),
                         ]
                       : [],
-                  builder: (BuildContext context, Widget child) {
+                  builder: (BuildContext context, Widget? child) {
                     Timer.run(() {
                       if (preferences.isLocaleInitialized) {
                         I18n.of(context).locale = preferences.locale;
@@ -136,7 +136,7 @@ class MyApp extends StatelessWidget {
                     return MediaQuery(
                       data:
                           MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
-                      child: child,
+                      child: child!,
                     );
                   },
                   title: 'dikt',
@@ -149,14 +149,12 @@ class MyApp extends StatelessWidget {
                                 ? _getScaffold(Lookup(true))
                                 : _getScaffold(LookupAndArticle(null)),
                             type: PageTransitionType.fade);
-                        break;
                       case Routes.showArticleWide:
                         return PageTransition(
                             settings: settings,
-                            child: _getScaffold(
-                                LookupAndArticle(settings.arguments)),
+                            child: _getScaffold(LookupAndArticle(
+                                settings.arguments as String?)),
                             type: PageTransitionType.fade);
-                        break;
                       default:
                         return null;
                     }
@@ -172,10 +170,10 @@ class MyApp extends StatelessWidget {
     if (_wide == null) {
       _wide = wide; //MediaQuery.of(context).size.width >= wideWidth;
     } else {
-      if ((_wide && !wide) || (!_wide && wide)) {
-        _wide = !_wide;
+      if ((_wide! && !wide) || (!_wide! && wide)) {
+        _wide = !_wide!;
         Timer(Duration(microseconds: 10), () {
-          _navigator.currentState.pushNamedAndRemoveUntil(Routes.home,
+          _navigator.currentState!.pushNamedAndRemoveUntil(Routes.home,
               (r) => r.settings.name == Routes.home || r.settings.name == null);
         });
         return true;
