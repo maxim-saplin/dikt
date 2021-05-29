@@ -1,7 +1,7 @@
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 
-class PreferencesSingleton {
+class  PreferencesSingleton {
   static SharedPreferences sp;
 
   static Future<void> init([SharedPreferences mockInstance]) async {

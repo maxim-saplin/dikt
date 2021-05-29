@@ -26,25 +26,25 @@ dependencies:
   flutter_localizations:
     sdk: flutter
     
-  provider: ^4.0.2
+  provider: ^5.0.0
   path_provider: ^2.0.1
   shared_preferences: ^2.0.3
-  flutter_html: ^1.0.2
-  hive: ^1.4.1+1
-  flutter_sticky_header: ^0.4.2
+  flutter_html: ^2.0.0
+  hive: ^2.0.4
+  flutter_sticky_header: ^0.6.0
   reorderables: ^0.3.2
-  double_back_to_close: ^1.0.2+mit
-  fluttertoast: ^7.0.1
+  double_back_to_close: ^2.0.0
+  fluttertoast: ^8.0.7
   file_picker: ^3.0.0-nullsafety.0
-  i18n_extension: ^3.0.0-dev.1
+  i18n_extension: ^4.0.0
   firebase_core: ^1.0.0
-  firebase_analytics: ^7.1.0
-  page_transition: ^1.1.6
+  firebase_analytics: ^8.1.0
+  page_transition: ^2.0.2
   file_selector_platform_interface: ^2.0.0-nullsafety.0
   file_selector_linux: ^0.0.2
   file_selector_macos: ^0.0.3
   file_selector_windows: ^0.0.2
-  flutter_hooks: ^0.16.0
+  flutter_hooks: ^0.17.0
   superellipse_shape: ^0.1.5
   ikvpack:
     git: https://github.com/maxim-saplin/ikvpack
@@ -52,25 +52,17 @@ dependencies:
   package_info_plus: ^1.0.0
 
 dependency_overrides:
-  hive: # custom version remove box key assertion to be ASCII string not greater than 255 chars
-    path: ./plugins/hive-1.4.1+1/
   reorderables:
     path: ./plugins/reorderables-0.3.2/
-  flutter_html:
-    path: ./plugins/flutter_html-1.0.2
-  crypto: ^3.0.0-nullsafety.0
-  archive: ^3.0.0-nullsafety.0
-  http: ^0.13.0-nullsafety.0
-  http_parser: ^4.0.0-nullsafety
+  # flutter_html:
+  #   path: ./plugins/flutter_html-1.0.2
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   mockito:
-  hive_not_tuned: # used for benchamrking against performance tuned hive above
-    path: ./plugins/hive-not-tuned-1.4.1+1/
-  hive_generator: ^0.7.0+2
-  build_runner: ^1.10.0
+  hive_generator: ^1.1.0
+  build_runner: ^2.0.4
   flutter_launcher_icons:
   flutter_native_splash:
 

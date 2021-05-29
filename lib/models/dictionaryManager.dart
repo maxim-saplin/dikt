@@ -214,11 +214,11 @@ class DictionaryManager extends ChangeNotifier {
   // E.g. a user reloads pages while indexing file, there's not-ready dictioanry left
   Future _cleanupJunkDictionaries() async {
     try {
-      for (var i in _dictionaries.keys) {
-        var d = _dictionaries.get(i);
+      for (var i = 0; i < _dictionaries.length; i++) {
+        var d = _dictionaries.getAt(i);
         if (!d.isBundled && !d.isReadyToUse) {
           IkvPack.delete(d.ikvPath);
-          _dictionaries.delete(i);
+          _dictionaries.deleteAt(i);
         }
       }
     } catch (e) {
@@ -229,11 +229,11 @@ class DictionaryManager extends ChangeNotifier {
   Future _loadEnabledDictionaries() async {
     _dictionariesBeingProcessed = [];
 
-    for (var i in _dictionaries.keys) {
-      var d = _dictionaries.get(i);
+    for (var i = 0; i < _dictionaries.length; i++) {
+      var d = _dictionaries.getAt(i);
       if (d.isReadyToUse && d.isEnabled)
         _dictionariesBeingProcessed
-            .add(DictionaryBeingProcessed.indexed(_dictionaries.get(i)));
+            .add(DictionaryBeingProcessed.indexed(_dictionaries.getAt(i)));
     }
 
     if (_dictionariesBeingProcessed.length > 0) {
@@ -284,8 +284,21 @@ class DictionaryManager extends ChangeNotifier {
     }
   }
 
-  Future reindexBundledDictionaries(String boxName) async {
-    _dictionaries.delete(boxName);
+  int _indexFromIkvPath(String ikvPath, [bool throwIfNotFound = true]) {
+    for (var i = 0; i < _dictionaries.length; i++) {
+      var d = _dictionaries.getAt(i);
+      if (d.ikvPath == ikvPath) return i;
+    }
+
+    if (throwIfNotFound)
+      throw 'Dictionary with path $ikvPath not found in Hive DB';
+
+    return -1;
+  }
+
+  Future reindexBundledDictionaries(String ikvPath) async {
+    var i = _indexFromIkvPath(ikvPath);
+    _dictionaries.delete(i);
     indexAndLoadDictionaries();
   }
 
@@ -293,11 +306,11 @@ class DictionaryManager extends ChangeNotifier {
     _dictionariesBeingProcessed = <DictionaryBeingProcessed>[];
 
     for (var i in bundledBinaryDictionaries) {
-      if (!_dictionaries.containsKey(i.ikvPath)) {
+      if (_indexFromIkvPath(i.ikvPath, false) == -1) {
         _dictionariesBeingProcessed
             .add(DictionaryBeingProcessed.bundledBinary(i));
       } else {
-        _dictionaries.get(i.ikvPath).isBundled = true;
+        _dictionaries.getAt(_indexFromIkvPath(i.ikvPath)).isBundled = true;
       }
     }
 
@@ -349,7 +362,7 @@ class DictionaryManager extends ChangeNotifier {
       d.isReadyToUse = false;
       d.order = startOrderAt + i;
 
-      _dictionaries.put(d.ikvPath, d);
+      _dictionaries.add(d);
       _curIndexer = getIndexer(dictionariesProcessed[i], d.ikvPath);
       try {
         var ikv = await _curIndexer.run();
@@ -374,7 +387,7 @@ class DictionaryManager extends ChangeNotifier {
         if (!d.isBundled) {
           var ikvPath = d.ikvPath;
           d.delete();
-          _dictionaries.delete(ikvPath);
+          _dictionaries.delete(_indexFromIkvPath(ikvPath));
         }
 
         print("Error indexing IkvPack: " + d.ikvPath + "\n" + err.toString());
