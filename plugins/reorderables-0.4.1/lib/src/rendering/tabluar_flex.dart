@@ -1,32 +1,15 @@
-import 'dart:math' as math;
 import 'dart:collection';
+import 'dart:math' as math;
 
-import 'package:flutter/rendering.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/rendering.dart';
 
-bool _startIsTopLeft(Axis direction, TextDirection textDirection,
+bool? _startIsTopLeft(Axis direction, TextDirection? textDirection,
     VerticalDirection verticalDirection) {
-  assert(direction != null);
   // If the relevant value of textDirection or verticalDirection is null, this returns null too.
-  switch (direction) {
-    case Axis.horizontal:
-      switch (textDirection) {
-        case TextDirection.ltr:
-          return true;
-        case TextDirection.rtl:
-          return false;
-      }
-      break;
-    case Axis.vertical:
-      switch (verticalDirection) {
-        case VerticalDirection.down:
-          return true;
-        case VerticalDirection.up:
-          return false;
-      }
-      break;
-  }
-  return null;
+  return direction == Axis.horizontal
+      ? (textDirection == null ? null : textDirection == TextDirection.ltr)
+      : verticalDirection == VerticalDirection.down;
 }
 
 typedef _ChildSizingFunction = double Function(RenderBox child, double extent);
@@ -37,15 +20,15 @@ class RenderTabluarFlex extends RenderFlex {
   /// By default, the flex layout is horizontal and children are aligned to the
   /// start of the main axis and the center of the cross axis.
   RenderTabluarFlex({
-    List<RenderBox> children,
+    List<RenderBox>? children,
     Axis direction = Axis.horizontal,
     MainAxisSize mainAxisSize = MainAxisSize.max,
     MainAxisAlignment mainAxisAlignment = MainAxisAlignment.start,
     CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.center,
-    TextDirection textDirection,
+    TextDirection? textDirection,
     VerticalDirection verticalDirection = VerticalDirection.down,
-    TextBaseline textBaseline,
-    Decoration decoration,
+    TextBaseline? textBaseline,
+    Decoration? decoration,
     ImageConfiguration configuration = ImageConfiguration.empty,
   })  : _decoration = decoration,
         _configuration = configuration,
@@ -60,15 +43,15 @@ class RenderTabluarFlex extends RenderFlex {
           textBaseline: textBaseline,
         );
 
-  BoxPainter _painter;
+  BoxPainter? _painter;
 
   /// What decoration to paint.
   ///
   /// Commonly a [BoxDecoration].
-  Decoration get decoration => _decoration;
-  Decoration _decoration;
+  Decoration? get decoration => _decoration;
+  Decoration? _decoration;
 
-  set decoration(Decoration value) {
+  set decoration(Decoration? value) {
 //    assert(value != null);
     if (value == _decoration) return;
     _painter?.dispose();
@@ -87,7 +70,6 @@ class RenderTabluarFlex extends RenderFlex {
   ImageConfiguration _configuration;
 
   set configuration(ImageConfiguration value) {
-    assert(value != null);
     if (value == _configuration) return;
     _configuration = value;
     markNeedsPaint();
@@ -107,52 +89,37 @@ class RenderTabluarFlex extends RenderFlex {
   }
 
   bool get _debugHasNecessaryDirections {
-    assert(direction != null);
-    assert(crossAxisAlignment != null);
     if (firstChild != null && lastChild != firstChild) {
       // i.e. there's more than one child
-      switch (direction) {
-        case Axis.horizontal:
-          assert(textDirection != null,
-              'Horizontal $runtimeType with multiple children has a null textDirection, so the layout order is undefined.');
-          break;
-        case Axis.vertical:
-          assert(verticalDirection != null,
-              'Vertical $runtimeType with multiple children has a null verticalDirection, so the layout order is undefined.');
-          break;
-      }
+      assert(
+          direction == Axis.vertical || textDirection != null,
+          'Horizontal $runtimeType with multiple children has a '
+          'null textDirection, so the layout order is undefined.');
     }
     if (mainAxisAlignment == MainAxisAlignment.start ||
         mainAxisAlignment == MainAxisAlignment.end) {
-      switch (direction) {
-        case Axis.horizontal:
-          assert(textDirection != null,
-              'Horizontal $runtimeType with $mainAxisAlignment has a null textDirection, so the alignment cannot be resolved.');
-          break;
-        case Axis.vertical:
-          assert(verticalDirection != null,
-              'Vertical $runtimeType with $mainAxisAlignment has a null verticalDirection, so the alignment cannot be resolved.');
-          break;
-      }
+      assert(
+          direction == Axis.vertical || textDirection != null,
+          'Horizontal $runtimeType with $mainAxisAlignment has a null '
+          'textDirection, so the alignment cannot be resolved.');
     }
     if (crossAxisAlignment == CrossAxisAlignment.start ||
         crossAxisAlignment == CrossAxisAlignment.end) {
-      switch (direction) {
-        case Axis.horizontal:
-          assert(verticalDirection != null,
-              'Horizontal $runtimeType with $crossAxisAlignment has a null verticalDirection, so the alignment cannot be resolved.');
-          break;
-        case Axis.vertical:
-          assert(textDirection != null,
-              'Vertical $runtimeType with $crossAxisAlignment has a null textDirection, so the alignment cannot be resolved.');
-          break;
-      }
+      assert(
+          direction == Axis.horizontal || textDirection != null,
+          'Vertical $runtimeType with $crossAxisAlignment has a null '
+          'textDirection, so the alignment cannot be resolved.');
     }
     return true;
   }
 
   // Set during layout if overflow occurred on the main axis.
-  double _overflow;
+  double _overflow = 0;
+
+  ///
+  /// Determines whether the current overflow value is greater than zero.
+  ///
+  bool get _hasOverflow => _overflow > 0.0;
 
   final ListQueue<LayoutCallback<BoxConstraints>> layoutCallbackQueue =
       ListQueue<LayoutCallback<BoxConstraints>>();
@@ -168,10 +135,10 @@ class RenderTabluarFlex extends RenderFlex {
 //  }
 
   double _getIntrinsicSize(
-      {Axis sizingDirection,
-      double
+      {required Axis sizingDirection,
+      required double
           extent, // the extent in the direction that isn't the sizing direction
-      _ChildSizingFunction
+      required _ChildSizingFunction
           childSize // a method to find the size in the sizing direction
       }) {
     if (direction == sizingDirection) {
@@ -181,7 +148,7 @@ class RenderTabluarFlex extends RenderFlex {
       double totalFlex = 0.0;
       double inflexibleSpace = 0.0;
       double maxFlexFractionSoFar = 0.0;
-      RenderBox child = firstChild;
+      RenderBox? child = firstChild;
       while (child != null) {
         final int flex = _getFlex(child);
         totalFlex += flex;
@@ -192,7 +159,8 @@ class RenderTabluarFlex extends RenderFlex {
         } else {
           inflexibleSpace += childSize(child, extent);
         }
-        final FlexParentData childParentData = child.parentData;
+        final FlexParentData childParentData =
+            child.parentData! as FlexParentData;
         child = childParentData.nextSibling;
       }
       return maxFlexFractionSoFar * totalFlex + inflexibleSpace;
@@ -201,13 +169,14 @@ class RenderTabluarFlex extends RenderFlex {
       // Intrinsic cross size is the max of the intrinsic cross sizes of the
       // children, after the flexible children are fit into the available space,
       // with the children sized using their max intrinsic dimensions.
+      // TODO(ianh): Support baseline alignment.
 
       // Get inflexible space using the max intrinsic dimensions of fixed children in the main direction.
       final double availableMainSpace = extent;
       int totalFlex = 0;
       double inflexibleSpace = 0.0;
       double maxCrossSize = 0.0;
-      RenderBox child = firstChild;
+      RenderBox? child = firstChild;
       Map<int, double> maxGrandchildCrossSize = {};
       while (child != null) {
         final int flex = _getFlex(child);
@@ -226,7 +195,7 @@ class RenderTabluarFlex extends RenderFlex {
               break;
           }
 
-          RenderTabluarFlex tabluarFlexChild =
+          RenderTabluarFlex? tabluarFlexChild =
               _findTabluarFlexDescendant(child);
           if (tabluarFlexChild is RenderTabluarFlex) {
 //            RenderTabluarFlex _child = child as RenderTabluarFlex;
@@ -244,7 +213,8 @@ class RenderTabluarFlex extends RenderFlex {
           inflexibleSpace += mainSize;
           maxCrossSize = math.max(maxCrossSize, crossSize);
         }
-        final FlexParentData childParentData = child.parentData;
+        final FlexParentData childParentData =
+            child.parentData! as FlexParentData;
         child = childParentData.nextSibling;
       }
 
@@ -259,7 +229,7 @@ class RenderTabluarFlex extends RenderFlex {
         final int flex = _getFlex(child);
         if (flex > 0) {
           double mainSize = spacePerFlex * flex;
-          RenderTabluarFlex tabluarFlexChild =
+          RenderTabluarFlex? tabluarFlexChild =
               _findTabluarFlexDescendant(child);
           if (tabluarFlexChild is RenderTabluarFlex) {
             List<RenderBox> grandchildren =
@@ -274,7 +244,8 @@ class RenderTabluarFlex extends RenderFlex {
 //          maxCrossSize = math.max(maxCrossSize, childSize(child, spacePerFlex * flex));
           maxCrossSize = math.max(maxCrossSize, childSize(child, mainSize));
         }
-        final FlexParentData childParentData = child.parentData;
+        final FlexParentData childParentData =
+            child.parentData! as FlexParentData;
         child = childParentData.nextSibling;
       }
 
@@ -326,41 +297,27 @@ class RenderTabluarFlex extends RenderFlex {
   }
 
   int _getFlex(RenderBox child) {
-    final FlexParentData childParentData = child.parentData;
-    return childParentData.flex ?? 0;
+    final FlexParentData? childParentData = child.parentData as FlexParentData;
+    return childParentData?.flex ?? 0;
   }
 
-  FlexFit _getFit(RenderBox child) {
-    final FlexParentData childParentData = child.parentData;
-    return childParentData.fit ?? FlexFit.tight;
+  FlexFit _getFit(RenderBox? child) {
+    final FlexParentData? childParentData = child?.parentData as FlexParentData;
+    return childParentData?.fit ?? FlexFit.tight;
   }
 
-  double _getCrossSize(RenderBox child) {
-    switch (direction) {
-      case Axis.horizontal:
-        return child.size.height;
-      case Axis.vertical:
-        return child.size.width;
-    }
-    return null;
-  }
+  double _getCrossSize(RenderBox child) =>
+      direction == Axis.horizontal ? child.size.height : child.size.width;
 
-  double _getMainSize(RenderBox child) {
-    switch (direction) {
-      case Axis.horizontal:
-        return child.size.width;
-      case Axis.vertical:
-        return child.size.height;
-    }
-    return null;
-  }
+  double _getMainSize(RenderBox child) =>
+      direction == Axis.horizontal ? child.size.width : child.size.height;
 
-  RenderTabluarFlex _findTabluarFlexDescendant(RenderBox child) {
-    RenderObject curDescendant = child;
+  RenderTabluarFlex? _findTabluarFlexDescendant(RenderBox child) {
+    RenderObject? curDescendant = child;
     ListQueue<RenderObject> childrenQueue = ListQueue<RenderObject>();
     while (curDescendant != null && curDescendant is! RenderTabluarFlex) {
 //      RenderObject firstChildRenderer;
-      curDescendant.visitChildren((RenderObject renderObject) {
+      curDescendant!.visitChildren((RenderObject renderObject) {
 //        firstChildRenderer ??= renderObject;
         if (curDescendant is! RenderTabluarFlex) {
           if (renderObject is RenderTabluarFlex) {
@@ -377,8 +334,7 @@ class RenderTabluarFlex extends RenderFlex {
       }
     }
 
-    RenderTabluarFlex tabluarFlexDescendant = curDescendant;
-    return tabluarFlexDescendant;
+    return curDescendant == null ? null : curDescendant as RenderTabluarFlex;
   }
 
   @override
@@ -387,7 +343,6 @@ class RenderTabluarFlex extends RenderFlex {
     // Determine used flex factor, size inflexible items, calculate free space.
     int totalFlex = 0;
     int totalChildren = 0;
-    assert(constraints != null);
     final double maxMainSize = direction == Axis.horizontal
         ? constraints.maxWidth
         : constraints.maxHeight;
@@ -398,7 +353,7 @@ class RenderTabluarFlex extends RenderFlex {
     Map<RenderBox, RenderTabluarFlex> tabluarFlexDescendants = {};
 
     void _layoutChild(RenderBox child, BoxConstraints constraints) {
-      RenderTabluarFlex tabluarFlexChild = _findTabluarFlexDescendant(child);
+      RenderTabluarFlex? tabluarFlexChild = _findTabluarFlexDescendant(child);
 //      debugPrint('this:$this _layoutChild: child:$child tabluarFlexChild:$tabluarFlexChild');
       if (tabluarFlexChild != null) {
         //when this is laying out its child (and descendants), this function will be called. So that we can get the grandchild's size
@@ -465,12 +420,12 @@ class RenderTabluarFlex extends RenderFlex {
           case Axis.horizontal:
             innerConstraints = innerConstraints.copyWith(
                 minWidth: math.max(innerConstraints.minWidth,
-                    minChildrenMainSize[childIndex]));
+                    minChildrenMainSize[childIndex]!));
             break;
           case Axis.vertical:
             innerConstraints = innerConstraints.copyWith(
                 minHeight: math.max(innerConstraints.minHeight,
-                    minChildrenMainSize[childIndex]));
+                    minChildrenMainSize[childIndex]!));
             break;
         }
       }
@@ -483,11 +438,12 @@ class RenderTabluarFlex extends RenderFlex {
     double crossSize = 0.0;
     double allocatedSize =
         0.0; // Sum of the sizes of the non-flexible children.
-    RenderBox child = firstChild;
-    RenderBox lastFlexChild;
+    RenderBox? child = firstChild;
+    RenderBox? lastFlexChild;
     int childIndex = 0;
     while (child != null) {
-      final FlexParentData childParentData = child.parentData;
+      final FlexParentData childParentData =
+          child.parentData! as FlexParentData;
       totalChildren++;
       final int flex = _getFlex(child);
       if (flex > 0) {
@@ -511,16 +467,16 @@ class RenderTabluarFlex extends RenderFlex {
                 'axis. Setting a flex on a child (e.g. using Expanded) indicates that the child is to '
                 'expand to fill the remaining space in the $axis direction.';
             final StringBuffer information = StringBuffer();
-            RenderBox node = this;
+            RenderBox? node = this;
             switch (direction) {
               case Axis.horizontal:
-                while (!node.constraints.hasBoundedWidth &&
-                    node.parent is RenderBox) node = node.parent;
+                while (!node!.constraints.hasBoundedWidth &&
+                    node.parent is RenderBox) node = node.parent as RenderBox;
                 if (!node.constraints.hasBoundedWidth) node = null;
                 break;
               case Axis.vertical:
-                while (!node.constraints.hasBoundedHeight &&
-                    node.parent is RenderBox) node = node.parent;
+                while (!node!.constraints.hasBoundedHeight &&
+                    node.parent is RenderBox) node = node.parent as RenderBox;
                 if (!node.constraints.hasBoundedHeight) node = null;
                 break;
             }
@@ -555,7 +511,7 @@ class RenderTabluarFlex extends RenderFlex {
               'If none of the above helps enough to fix this problem, please don\'t hesitate to file a bug:\n'
               '  https://github.com/flutter/flutter/issues/new?template=BUG.md');
         }());
-        totalFlex += childParentData.flex;
+        totalFlex += childParentData.flex!;
         lastFlexChild = child;
       } else {
         BoxConstraints innerConstraints = _innerConstraints(childIndex);
@@ -615,7 +571,6 @@ class RenderTabluarFlex extends RenderFlex {
               minChildExtent = 0.0;
               break;
           }
-          assert(minChildExtent != null);
           BoxConstraints innerConstraints;
           if (crossAxisAlignment == CrossAxisAlignment.stretch) {
             switch (direction) {
@@ -656,12 +611,12 @@ class RenderTabluarFlex extends RenderFlex {
               case Axis.horizontal:
                 innerConstraints = innerConstraints.copyWith(
                     minWidth: math.max(innerConstraints.minWidth,
-                        minChildrenMainSize[childIndex]));
+                        minChildrenMainSize[childIndex]!));
                 break;
               case Axis.vertical:
                 innerConstraints = innerConstraints.copyWith(
                     minHeight: math.max(innerConstraints.minHeight,
-                        minChildrenMainSize[childIndex]));
+                        minChildrenMainSize[childIndex]!));
                 break;
             }
           }
@@ -683,12 +638,13 @@ class RenderTabluarFlex extends RenderFlex {
                   'To use FlexAlignItems.baseline, you must also specify which baseline to use using the "baseline" argument.');
             return true;
           }());
-          final double distance =
-              child.getDistanceToBaseline(textBaseline, onlyReal: true);
+          final double? distance =
+              child.getDistanceToBaseline(textBaseline!, onlyReal: true);
           if (distance != null)
             maxBaselineDistance = math.max(maxBaselineDistance, distance);
         }
-        final FlexParentData childParentData = child.parentData;
+        final FlexParentData childParentData =
+            child.parentData! as FlexParentData;
         child = childParentData.nextSibling;
         childIndex++;
       }
@@ -705,7 +661,7 @@ class RenderTabluarFlex extends RenderFlex {
       child = firstChild;
       while (child != null) {
 //          debugPrint('this:$this relayout child:$child');
-        BoxConstraints innerConstraints = childrenConstraints[child];
+        BoxConstraints innerConstraints = childrenConstraints[child]!;
         switch (direction) {
           case Axis.horizontal:
             innerConstraints = innerConstraints.copyWith(
@@ -724,7 +680,7 @@ class RenderTabluarFlex extends RenderFlex {
             callbackCalled = true;
           }
 
-          RenderTabluarFlex tabluarFlexChild = tabluarFlexDescendants[child];
+          RenderTabluarFlex tabluarFlexChild = tabluarFlexDescendants[child]!;
           tabluarFlexChild.layoutCallbackQueue.addLast(_childLayoutCallback);
           tabluarFlexChild.minMainSizesQueue.addLast(maxGrandchildrenCrossSize);
           tabluarFlexChild.layout(innerConstraints, parentUsesSize: true);
@@ -739,7 +695,8 @@ class RenderTabluarFlex extends RenderFlex {
         }
         crossSize = math.max(crossSize, _getCrossSize(child));
 
-        final FlexParentData childParentData = child.parentData;
+        final FlexParentData childParentData =
+            child.parentData! as FlexParentData;
         child = childParentData.nextSibling;
       }
 //    debugPrint('this:$this updated crossSize:$crossSize');
@@ -809,7 +766,8 @@ class RenderTabluarFlex extends RenderFlex {
         flipMainAxis ? actualSize - leadingSpace : leadingSpace;
     child = firstChild;
     while (child != null) {
-      final FlexParentData childParentData = child.parentData;
+      final FlexParentData childParentData =
+          child.parentData! as FlexParentData;
       double childCrossPosition;
       switch (crossAxisAlignment) {
         case CrossAxisAlignment.start:
@@ -830,8 +788,8 @@ class RenderTabluarFlex extends RenderFlex {
           childCrossPosition = 0.0;
           if (direction == Axis.horizontal) {
             assert(textBaseline != null);
-            final double distance =
-                child.getDistanceToBaseline(textBaseline, onlyReal: true);
+            final double? distance =
+                child.getDistanceToBaseline(textBaseline!, onlyReal: true);
             if (distance != null)
               childCrossPosition = maxBaselineDistance - distance;
           }
@@ -871,7 +829,7 @@ class RenderTabluarFlex extends RenderFlex {
 
   @override
   void paint(PaintingContext context, Offset offset) {
-    if (_overflow <= 0.0) {
+    if (!_hasOverflow) {
       defaultPaint(context, offset);
       return;
     }
@@ -880,10 +838,10 @@ class RenderTabluarFlex extends RenderFlex {
     if (size.isEmpty) return;
 
     if (_decoration != null) {
-      _painter ??= _decoration.createBoxPainter(markNeedsPaint);
+      _painter ??= _decoration!.createBoxPainter(markNeedsPaint);
       final ImageConfiguration filledConfiguration =
           configuration.copyWith(size: size);
-      _painter.paint(context.canvas, offset, filledConfiguration);
+      _painter!.paint(context.canvas, offset, filledConfiguration);
     }
 
     // We have overflow. Clip it.
@@ -933,13 +891,13 @@ class RenderTabluarFlex extends RenderFlex {
   }
 
   @override
-  Rect describeApproximatePaintClip(RenderObject child) =>
-      _overflow > 0.0 ? Offset.zero & size : null;
+  Rect? describeApproximatePaintClip(RenderObject child) =>
+      _hasOverflow ? Offset.zero & size : null;
 
   @override
   String toStringShort() {
     String header = super.toStringShort();
-    if (_overflow is double && _overflow > 0.0) header += ' OVERFLOWING';
+    if (_hasOverflow) header += ' OVERFLOWING';
     return header;
   }
 }
