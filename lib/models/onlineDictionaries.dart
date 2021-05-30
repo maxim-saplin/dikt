@@ -16,37 +16,45 @@ class OnlineDictionaryManager extends ChangeNotifier with Debounce {
 
   OnlineDictionaryManager(this._repo, this._onlineToOffline);
 
-  String? _repoUrl;
+  String _repoUrl = '';
 
   // allow model refresh when navigating betwenn Offline and Online dictionaries UI
   void cleanUp() {
-    _repoUrl = null;
+    _repoUrl = '';
     _repoError = null;
     _dictionariesRequested = false;
   }
 
-  String? get repoUrl {
-    if (_repoUrl == null)
-      _repoUrl = PreferencesSingleton.sp!.getString(repoUrlParam);
-    if (_repoUrl == null) {
+  String get repoUrl {
+    if (_repoUrl.isEmpty)
+      _repoUrl = PreferencesSingleton.sp!.getString(repoUrlParam) ?? '';
+    if (_repoUrl.isEmpty) {
       return defaultUrl;
     }
     return _repoUrl;
   }
 
-  set repoUrl(String? value) {
-    var err = _repo.verifyUrl(value);
+  set repoUrl(String value) {
+    debounce(() {
+      var err = _repo.verifyUrl(value);
 
-    if (value != _repoUrl) {
-      if (err != null) {
+      if (value.isEmpty) {
         _repoError = err;
       } else {
-        _repoUrl = value;
-        debounce(_loadDictionaries, 400);
+        if (value != _repoUrl) {
+          if (err.isNotEmpty) {
+            _repoError = err;
+          } else {
+            _repoUrl = value;
+            _loadDictionaries();
+            //debounce(_loadDictionaries, 500);
+          }
+        } else if (err.isEmpty) {
+          _loadDictionaries();
+          //debounce(_loadDictionaries, 500);
+        }
       }
-    } else if (err == null) {
-      debounce(_loadDictionaries, 400);
-    }
+    }, 600);
   }
 
   void _loadDictionaries() {
@@ -63,7 +71,7 @@ class OnlineDictionaryManager extends ChangeNotifier with Debounce {
                   ? OnlineDictionaryState.downloaded
                   : OnlineDictionaryState.notDownloaded))
           .toList();
-      PreferencesSingleton.sp!.setString(repoUrlParam, repoUrl!);
+      PreferencesSingleton.sp?.setString(repoUrlParam, repoUrl);
     }).catchError((err) {
       _loading = false;
       _repoError = err.toString();
@@ -72,9 +80,9 @@ class OnlineDictionaryManager extends ChangeNotifier with Debounce {
 
   bool _dictionariesRequested = false;
 
-  List<OnlineDictionary>? _dictionaries;
+  List<OnlineDictionary> _dictionaries = [];
 
-  List<OnlineDictionary>? get dictionaries {
+  List<OnlineDictionary> get dictionaries {
     if (!_dictionariesRequested) {
       _dictionariesRequested = true;
       Timer.run(() => _loadDictionaries());
@@ -275,17 +283,15 @@ abstract class RepoDownloader {
 }
 
 abstract class OnlineRepo {
-  String? verifyUrl(String? url) {
-    if (url == null || url == '') return 'URL can\'t be empty';
-
-    //if (Uri.tryParse(url) == null) return 'Invalid URL';
+  String verifyUrl(String url) {
+    if (url.isEmpty) return 'URL can\'t be empty';
 
     var matches = RegExp(
             r'((https?:www\.)|(https?:\/\/)|(www\.))[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9]{1,6}(\/[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)?')
         .allMatches(url);
     if (matches.length != 1) return 'Invalid URL';
 
-    return null;
+    return '';
   }
 
   Future<List<RepoDictionary>> getDictionariesList(String? url);
