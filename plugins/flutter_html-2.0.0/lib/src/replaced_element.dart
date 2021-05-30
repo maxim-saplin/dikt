@@ -1,6 +1,5 @@
 import 'dart:math';
 
-import 'package:chewie/chewie.dart';
 import 'package:chewie_audio/chewie_audio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -8,9 +7,6 @@ import 'package:flutter_html/html_parser.dart';
 import 'package:flutter_html/src/anchor.dart';
 import 'package:flutter_html/src/html_elements.dart';
 import 'package:flutter_html/src/utils.dart';
-import 'package:flutter_html/src/widgets/iframe_unsupported.dart'
-  if (dart.library.io) 'package:flutter_html/src/widgets/iframe_mobile.dart'
-  if (dart.library.html) 'package:flutter_html/src/widgets/iframe_web.dart';
 import 'package:flutter_html/style.dart';
 import 'package:flutter_math_fork/flutter_math.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -31,7 +27,12 @@ abstract class ReplacedElement extends StyledElement {
     required String elementId,
     dom.Element? node,
     this.alignment = PlaceholderAlignment.aboveBaseline,
-  }) : super(name: name, children: [], style: style, node: node, elementId: elementId);
+  }) : super(
+            name: name,
+            children: [],
+            style: style,
+            node: node,
+            elementId: elementId);
 
   static List<String?> parseMediaSources(List<dom.Element> elements) {
     return elements
@@ -54,7 +55,11 @@ class TextContentElement extends ReplacedElement {
     required this.text,
     this.node,
     dom.Element? element,
-  }) : super(name: "[text]", style: style, node: element, elementId: "[[No ID]]");
+  }) : super(
+            name: "[text]",
+            style: style,
+            node: element,
+            elementId: "[[No ID]]");
 
   @override
   String toString() {
@@ -76,7 +81,12 @@ class ImageContentElement extends ReplacedElement {
     required this.src,
     required this.alt,
     required dom.Element node,
-  }) : super(name: name, style: Style(), node: node, alignment: PlaceholderAlignment.middle, elementId: node.id);
+  }) : super(
+            name: name,
+            style: Style(),
+            node: node,
+            alignment: PlaceholderAlignment.middle,
+            elementId: node.id);
 
   @override
   Widget toWidget(RenderContext context) {
@@ -84,12 +94,14 @@ class ImageContentElement extends ReplacedElement {
       if (entry.key.call(attributes, element)) {
         final widget = entry.value.call(context, attributes, element);
         return RawGestureDetector(
-            key: AnchorKey.of(context.parser.key, this),
+          key: AnchorKey.of(context.parser.key, this),
           child: widget,
           gestures: {
-            MultipleTapGestureRecognizer: GestureRecognizerFactoryWithHandlers<MultipleTapGestureRecognizer>(
-                  () => MultipleTapGestureRecognizer(), (instance) {
-                instance..onTap = () => context.parser.onImageTap?.call(src, context, attributes, element);
+            MultipleTapGestureRecognizer: GestureRecognizerFactoryWithHandlers<
+                MultipleTapGestureRecognizer>(
+              () => MultipleTapGestureRecognizer(),
+              (instance) {
+                instance..onTap = () => context.parser.onImageTap?.call(src);
               },
             ),
           },
@@ -124,7 +136,8 @@ class AudioContentElement extends ReplacedElement {
       key: AnchorKey.of(context.parser.key, this),
       width: context.style.width ?? 300,
       height: Theme.of(context.buildContext).platform == TargetPlatform.android
-          ? 48 : 75,
+          ? 48
+          : 75,
       child: ChewieAudio(
         controller: ChewieAudioController(
           videoPlayerController: VideoPlayerController.network(
@@ -172,21 +185,7 @@ class VideoContentElement extends ReplacedElement {
       aspectRatio: _width / _height,
       child: Container(
         key: AnchorKey.of(context.parser.key, this),
-        child: Chewie(
-          controller: ChewieController(
-            videoPlayerController: VideoPlayerController.network(
-              src.first ?? "",
-            ),
-            placeholder: poster != null
-                ? Image.network(poster!)
-                : Container(color: Colors.black),
-            autoPlay: autoplay,
-            looping: loop,
-            showControls: showControls,
-            autoInitialize: true,
-            aspectRatio: _width / _height,
-          ),
-        ),
+        child: SizedBox(),
       ),
     );
   }
@@ -218,7 +217,8 @@ class SvgContentElement extends ReplacedElement {
 }
 
 class EmptyContentElement extends ReplacedElement {
-  EmptyContentElement({String name = "empty"}) : super(name: name, style: Style(), elementId: "[[No ID]]");
+  EmptyContentElement({String name = "empty"})
+      : super(name: name, style: Style(), elementId: "[[No ID]]");
 
   @override
   Widget? toWidget(_) => null;
@@ -228,7 +228,11 @@ class RubyElement extends ReplacedElement {
   dom.Element element;
 
   RubyElement({required this.element, String name = "ruby"})
-      : super(name: name, alignment: PlaceholderAlignment.middle, style: Style(), elementId: element.id);
+      : super(
+            name: name,
+            alignment: PlaceholderAlignment.middle,
+            style: Style(),
+            elementId: element.id);
 
   @override
   Widget toWidget(RenderContext context) {
@@ -283,26 +287,30 @@ class MathElement extends ReplacedElement {
     required this.element,
     this.texStr,
     String name = "math",
-  }) : super(name: name, alignment: PlaceholderAlignment.middle, style: Style(), elementId: element.id);
+  }) : super(
+            name: name,
+            alignment: PlaceholderAlignment.middle,
+            style: Style(),
+            elementId: element.id);
 
   @override
   Widget toWidget(RenderContext context) {
     texStr = parseMathRecursive(element, r'');
     return Container(
-      width: MediaQuery.of(context.buildContext).size.width,
-      child: Math.tex(
-        texStr ?? '',
-        mathStyle: MathStyle.display,
-        textStyle: context.style.generateTextStyle(),
-        onErrorFallback: (FlutterMathException e) {
-          if (context.parser.onMathError != null) {
-            return context.parser.onMathError!.call(texStr ?? '', e.message, e.messageWithType);
-          } else {
-            return Text(e.message);
-          }
-        },
-      )
-    );
+        width: MediaQuery.of(context.buildContext).size.width,
+        child: Math.tex(
+          texStr ?? '',
+          mathStyle: MathStyle.display,
+          textStyle: context.style.generateTextStyle(),
+          onErrorFallback: (FlutterMathException e) {
+            if (context.parser.onMathError != null) {
+              return context.parser.onMathError!
+                  .call(texStr ?? '', e.message, e.messageWithType);
+            } else {
+              return Text(e.message);
+            }
+          },
+        ));
   }
 
   String parseMathRecursive(dom.Node node, String parsed) {
@@ -315,13 +323,20 @@ class MathElement extends ReplacedElement {
       }
       // note: munder, mover, and munderover do not support placing braces and other
       // markings above/below elements, instead they are treated as super/subscripts for now.
-      if ((node.localName == "msup" || node.localName == "msub"
-          || node.localName == "munder" || node.localName == "mover") && nodeList.length == 2) {
+      if ((node.localName == "msup" ||
+              node.localName == "msub" ||
+              node.localName == "munder" ||
+              node.localName == "mover") &&
+          nodeList.length == 2) {
         parsed = parseMathRecursive(nodeList[0], parsed);
-        parsed = parseMathRecursive(nodeList[1],
-            parsed + "${node.localName == "msup" || node.localName == "mover" ? "^" : "_"}{") + "}";
+        parsed = parseMathRecursive(
+                nodeList[1],
+                parsed +
+                    "${node.localName == "msup" || node.localName == "mover" ? "^" : "_"}{") +
+            "}";
       }
-      if ((node.localName == "msubsup" || node.localName == "munderover") && nodeList.length == 3) {
+      if ((node.localName == "msubsup" || node.localName == "munderover") &&
+          nodeList.length == 3) {
         parsed = parseMathRecursive(nodeList[0], parsed);
         parsed = parseMathRecursive(nodeList[1], parsed + "_{") + "}";
         parsed = parseMathRecursive(nodeList[2], parsed + "^{") + "}";
@@ -342,11 +357,19 @@ class MathElement extends ReplacedElement {
         parsed = parseMathRecursive(nodeList[1], parsed + r"\sqrt[") + "]";
         parsed = parseMathRecursive(nodeList[0], parsed + "{") + "}";
       }
-      if (node.localName == "mi" || node.localName == "mn" || node.localName == "mo") {
+      if (node.localName == "mi" ||
+          node.localName == "mn" ||
+          node.localName == "mo") {
         if (mathML2Tex.keys.contains(node.text.trim())) {
-          parsed = parsed + mathML2Tex[mathML2Tex.keys.firstWhere((e) => e == node.text.trim())]!;
+          parsed = parsed +
+              mathML2Tex[
+                  mathML2Tex.keys.firstWhere((e) => e == node.text.trim())]!;
         } else if (node.text.startsWith("&") && node.text.endsWith(";")) {
-          parsed = parsed + node.text.trim().replaceFirst("&", r"\").substring(0, node.text.trim().length - 1);
+          parsed = parsed +
+              node.text
+                  .trim()
+                  .replaceFirst("&", r"\")
+                  .substring(0, node.text.trim().length - 1);
         } else {
           parsed = parsed + node.text.trim();
         }
@@ -380,20 +403,10 @@ ReplacedElement parseReplacedElement(
       );
     case "br":
       return TextContentElement(
-        text: "\n",
-        style: Style(whiteSpace: WhiteSpace.PRE),
-        element: element,
-        node: element
-      );
-    case "iframe":
-      return IframeContentElement(
-          name: "iframe",
-          src: element.attributes['src'],
-          width: double.tryParse(element.attributes['width'] ?? ""),
-          height: double.tryParse(element.attributes['height'] ?? ""),
-          navigationDelegate: navigationDelegateForIframe,
-          node: element,
-      );
+          text: "\n",
+          style: Style(whiteSpace: WhiteSpace.PRE),
+          element: element,
+          node: element);
     case "img":
       return ImageContentElement(
         name: "img",
@@ -438,6 +451,7 @@ ReplacedElement parseReplacedElement(
         element: element,
       );
     default:
-      return EmptyContentElement(name: element.localName == null ? "[[No Name]]" : element.localName!);
+      return EmptyContentElement(
+          name: element.localName == null ? "[[No Name]]" : element.localName!);
   }
 }

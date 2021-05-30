@@ -59,11 +59,10 @@ class WordArticles extends StatelessWidget {
                                               10, 0, 10, 10),
                                           child: Html(
                                             data: article.article,
-                                            //TODO: Fix link tap
-                                            // onLinkTap: (url) {
-                                            //   if (showAnotherWord != null)
-                                            //     showAnotherWord(url);
-                                            // },
+                                            onLinkTap: (url) {
+                                              if (showAnotherWord != null)
+                                                showAnotherWord!(url!);
+                                            },
                                             style: {
                                               "div": Style(
                                                   fontFamily:
