@@ -59,7 +59,7 @@ class WordArticles extends StatelessWidget {
                                               10, 0, 10, 10),
                                           child: Html(
                                             data: article.article,
-                                            onLinkTap: (url) {
+                                            onLinkTap: (String? url) {
                                               if (showAnotherWord != null)
                                                 showAnotherWord!(url!);
                                             },

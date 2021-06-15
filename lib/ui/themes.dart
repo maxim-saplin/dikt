@@ -36,6 +36,7 @@ extension ThemeDataExtensions on ThemeData {
 OwnThemeFields ownTheme(BuildContext context) => Theme.of(context).own();
 
 final ThemeData lightTheme = (ThemeData.light().copyWith(
+    visualDensity: VisualDensity(horizontal: -4, vertical: -4),
     outlinedButtonTheme: OutlinedButtonThemeData(
         style: ButtonStyle(
             foregroundColor: MaterialStateProperty.all<Color>(Colors.black))),
