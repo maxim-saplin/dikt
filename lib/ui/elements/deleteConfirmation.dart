@@ -7,7 +7,7 @@ import '../../common/i18n.dart';
 int _counter = 0;
 DateTime _lastTimeCalled = DateTime.now();
 
-void confirmAndDelete(BuildContext context, String name, Function onDelete) {
+void confirmAndDelete(BuildContext context, String? name, Function onDelete) {
   if (_counter < 3) {
     _counter++;
     _lastTimeCalled = DateTime.now();
@@ -26,7 +26,7 @@ void confirmAndDelete(BuildContext context, String name, Function onDelete) {
       routeSettings: RouteSettings(name: '/delete_dic'),
       builder: (context) => AlertDialog(
             insetPadding: EdgeInsets.all(10),
-            content: Text('Delete_dic'.i18n.fill([name])),
+            content: Text('Delete_dic'.i18n.fill([name!])),
             actions: [
               TextButton(
                 child: Text('Delete'.i18n),

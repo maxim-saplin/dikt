@@ -4,13 +4,13 @@ import 'package:dikt/common/preferencesSingleton.dart';
 
 class Preferences extends ChangeNotifier {
   static const String _themeModeParam = 'themeMode';
-  ThemeMode _themeMode;
+  ThemeMode? _themeMode;
 
-  ThemeMode get themeMode {
+  ThemeMode? get themeMode {
     if (_themeMode == null) {
-      int v;
+      int? v;
       try {
-        v = PreferencesSingleton.sp.getInt(_themeModeParam);
+        v = PreferencesSingleton.sp!.getInt(_themeModeParam);
       } catch (_) {}
       if (v == null) {
         _themeMode = ThemeMode.system;
@@ -20,10 +20,10 @@ class Preferences extends ChangeNotifier {
     return _themeMode;
   }
 
-  set themeMode(ThemeMode value) {
+  set themeMode(ThemeMode? value) {
     if (value != _themeMode) {
       _themeMode = value;
-      PreferencesSingleton.sp.setInt(_themeModeParam, value.index);
+      PreferencesSingleton.sp!.setInt(_themeModeParam, value!.index);
       notifyListeners();
     }
   }
@@ -44,11 +44,11 @@ class Preferences extends ChangeNotifier {
   }
 
   static const String _localeParam = 'locale';
-  Locale _locale;
+  Locale? _locale;
 
-  Locale get locale {
+  Locale? get locale {
     if (_locale == null) {
-      var v = PreferencesSingleton.sp.getString(_localeParam);
+      var v = PreferencesSingleton.sp!.getString(_localeParam);
       if (v == null) {
         _locale = Locale('en', '');
       } else
@@ -58,34 +58,34 @@ class Preferences extends ChangeNotifier {
   }
 
   bool get isLocaleInitialized {
-    return PreferencesSingleton.sp.containsKey(_localeParam);
+    return PreferencesSingleton.sp!.containsKey(_localeParam);
   }
 
-  set locale(Locale value) {
+  set locale(Locale? value) {
     if (value?.languageCode != _locale?.languageCode) {
       _locale = value;
-      PreferencesSingleton.sp.setString(_localeParam, value.languageCode);
+      PreferencesSingleton.sp!.setString(_localeParam, value!.languageCode);
       notifyListeners();
     }
   }
 
   void circleLocale() {
-    if (_locale.languageCode == 'en')
+    if (_locale!.languageCode == 'en')
       locale = Locale('be', '');
-    else if (_locale.languageCode == 'be')
+    else if (_locale!.languageCode == 'be')
       locale = Locale('ru', '');
     else
       locale = Locale('en', '');
   }
 
   static const String _analyticsParam = 'analytics';
-  bool _isAnalyticsEnabled;
+  bool? _isAnalyticsEnabled;
 
-  bool get isAnalyticsEnabled {
+  bool? get isAnalyticsEnabled {
     if (_isAnalyticsEnabled == null) {
-      bool v;
+      bool? v;
       try {
-        v = PreferencesSingleton.sp.getBool(_analyticsParam);
+        v = PreferencesSingleton.sp!.getBool(_analyticsParam);
       } catch (_) {}
       if (v == null) {
         _isAnalyticsEnabled = true;
@@ -95,15 +95,15 @@ class Preferences extends ChangeNotifier {
     return _isAnalyticsEnabled;
   }
 
-  set isAnalyticsEnabled(bool value) {
+  set isAnalyticsEnabled(bool? value) {
     if (value != _isAnalyticsEnabled) {
       _isAnalyticsEnabled = value;
-      PreferencesSingleton.sp.setBool(_analyticsParam, value);
+      PreferencesSingleton.sp!.setBool(_analyticsParam, value!);
       notifyListeners();
     }
   }
 
   void circleAnalyticsEnabled() {
-    isAnalyticsEnabled = !isAnalyticsEnabled;
+    isAnalyticsEnabled = !isAnalyticsEnabled!;
   }
 }

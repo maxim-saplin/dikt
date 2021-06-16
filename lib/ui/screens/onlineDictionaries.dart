@@ -29,8 +29,8 @@ class OnlineDictionaries extends StatelessWidget {
                     fontStyle: FontStyle.italic,
                     color: Theme.of(context)
                         .textTheme
-                        .bodyText2
-                        .color
+                        .bodyText2!
+                        .color!
                         .withAlpha(155)),
                 initialValue: odm.repoUrl)),
       ]),
@@ -52,8 +52,8 @@ class OnlineDictionaries extends StatelessWidget {
               child: SingleChildScrollView(
                   child: Column(children: [
                 (odm.repoError != null
-                    ? Text(odm.repoError)
-                    : (odm.dictionaries == null || odm.dictionaries.length == 0
+                    ? Text(odm.repoError!)
+                    : (odm.dictionaries.isEmpty == 0
                         ? Text('No dictonaries in the repository')
                         : LayoutBuilder(
                             builder: (context, constraints) => Wrap(
@@ -95,7 +95,7 @@ class OnlineDictionaries extends StatelessWidget {
 
 class OnlineDictionaryTile extends HookWidget {
   const OnlineDictionaryTile(this.dictionary, this.dicHeight, this.dicWidth,
-      {Key key = null})
+      {Key? key = null})
       : super(
           key: key,
         );
@@ -189,7 +189,7 @@ class OnlineDictionaryTile extends HookWidget {
                           cursor: SystemMouseCursors.click),
                       height: dicHeight,
                     ),
-                    onPressed: onPressed)
+                    onPressed: onPressed as void Function()?)
               ])),
           Expanded(
               child: Stack(children: [
@@ -261,7 +261,7 @@ class OnlineDictionaryTile extends HookWidget {
                     color: ownTheme(context).errorShade,
                     child: Center(
                         child: Text(
-                            data.error + ' - ' + data.repoDictionary.name,
+                            data.error! + ' - ' + data.repoDictionary.name,
                             maxLines: 2,
                             overflow: TextOverflow.clip,
                             style: Theme.of(context).textTheme.overline)))

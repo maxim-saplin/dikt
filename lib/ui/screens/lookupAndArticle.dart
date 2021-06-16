@@ -11,13 +11,13 @@ import '../../models/masterDictionary.dart';
 import '../../common/i18n.dart';
 
 class LookupAndArticle extends StatelessWidget {
-  final String word;
+  final String? word;
 
   LookupAndArticle(this.word);
 
   @override
   Widget build(BuildContext context) {
-    var word = ModalRoute.of(context).settings.arguments;
+    var word = ModalRoute.of(context)!.settings.arguments;
     var dictionary = Provider.of<MasterDictionary>(context);
     var manager = Provider.of<DictionaryManager>(context);
 
@@ -56,8 +56,8 @@ class LookupAndArticle extends StatelessWidget {
                           child: Padding(
                               padding: EdgeInsets.fromLTRB(0, 38, 0, 0),
                               child: WordArticles(
-                                  articles:
-                                      getArticlesUpdateHistory(context, word),
+                                  articles: getArticlesAndUpdateHistory(
+                                      context, word as String),
                                   word: word,
                                   showAnotherWord: (word) =>
                                       showArticle(context, word, false))))),

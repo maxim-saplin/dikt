@@ -8,40 +8,41 @@ part 'indexedDictionary.g.dart';
 @HiveType(typeId: 0)
 class IndexedDictionary extends HiveObject {
   @HiveField(0)
-  String ikvPath;
+  String ikvPath = '';
   @HiveField(1)
-  bool isEnabled;
+  bool isEnabled = false;
   @HiveField(2)
-  String name;
+  String name = '';
   //set to false before starting indexing and to true when done. E.g. if you reload page or close app while indexing it won't be ready and thus won't show up anywhere
   @HiveField(3)
-  bool isReadyToUse;
+  bool isReadyToUse = false;
   // error while indexing
   @HiveField(4)
-  int order;
+  int order = -1;
   @HiveField(5)
-  String hash;
+  String hash = '';
 
   bool isError = false;
-  bool isLoaded = false;
+  bool _isLoaded = false;
   bool isLoading = false;
   bool isBundled = false;
 
-  IkvPack _ikv;
+  bool get isLoaded => _isLoaded;
 
-  IkvPack get ikv {
-    if (!isLoaded) return null;
+  IkvPack? _ikv;
+
+  IkvPack? get ikv {
     return _ikv;
   }
 
-  set ikv(IkvPack value) {
+  set ikv(IkvPack? value) {
     _ikv = value;
-    isLoaded = true;
+    _isLoaded = value != null;
   }
 
-  Future<IkvPack> openIkv([IsolatePool pool]) async {
+  Future<IkvPack> openIkv([IsolatePool? pool]) async {
     var completer = Completer<IkvPack>();
-    if (!isLoaded) {
+    if (!_isLoaded) {
       isLoading = true;
       var f = kIsWeb
           ? IkvPack.load(ikvPath)
@@ -51,7 +52,7 @@ class IndexedDictionary extends HiveObject {
                   pool, ikvPath)); //IkvPack.loadInIsolatePool(pool, ikvPath));
       f.then((value) {
         _ikv = value;
-        isLoaded = true;
+        _isLoaded = true;
         isLoading = false;
         completer.complete(_ikv);
       }).catchError((e) {
@@ -64,10 +65,6 @@ class IndexedDictionary extends HiveObject {
     completer.complete(_ikv);
     return completer.future;
   }
-
-  // double get fileSizeMb {
-  //   return ikv.sizeBytes / 1024 / 1024;
-  // }
 
   Future<IkvInfo> getInfo() {
     return IkvPack.getInfo(ikvPath);

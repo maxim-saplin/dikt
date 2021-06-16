@@ -20,7 +20,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'finders.dart';
 
-DictionaryManager dicManager;
+DictionaryManager? dicManager;
 
 void main() {
   const tmpPath = 'test/tmp';
@@ -53,10 +53,10 @@ void main() {
     await ikv.saveTo(nameToIkvPath('RU_EN WordNet 3'));
 
 // used to create manager in _createAndWrapWidget() each time a test is started
-// though after moving to Ikv and IsolatePool there was some serois trouble
-// with test harbess guts which maid 'await' stuck at 'pool.start()'
+// though after moving to Ikv and IsolatePool there was some serous trouble
+// with test harness guts which maid 'await' stuck at 'pool.start()'
     dicManager = DictionaryManager();
-    await dicManager.indexAndLoadDictionaries(true);
+    await dicManager!.indexAndLoadDictionaries(true);
   });
 
   tearDownAll(() {
@@ -71,9 +71,14 @@ void main() {
 
       var field = find.byType(TextFormField);
       expect(field, findsOneWidget);
-      await tester.enterText(find.byType(TextFormField), '');
+      await tester.enterText(field, '');
 
-      await tester.pumpAndSettle(Duration(milliseconds: 100));
+      //await tester.pumpAndSettle();
+      await tester.pumpAndSettle(Duration(milliseconds: 800));
+
+      // peek into what text is visible
+      // var d = find.byType(OnlineDictionaries);
+      // var w = tester.widgetList(d.byChildType(Text)).toList();
 
       final errorFinder = find.text('URL can\'t be empty');
 
@@ -83,6 +88,10 @@ void main() {
     testWidgets('Default test URL loads 10 dictionaries',
         (WidgetTester tester) async {
       await _openOnlineDictionariesAndWaitToLoad(tester);
+
+      // peek into what text is visible
+      //var d = find.byType(OnlineDictionaries);
+      //var w = tester.widgetList(d.byChildType(Text)).toList();
 
       expect(find.byType(OnlineDictionaryTile), findsNWidgets(10));
     });
@@ -95,7 +104,7 @@ void main() {
       expect(field, findsOneWidget);
       await tester.enterText(
           find.byType(TextFormField), FakeOnlineRepo.secondUrl);
-      await tester.pumpAndSettle(Duration(milliseconds: 100));
+      await tester.pumpAndSettle(Duration(milliseconds: 800));
 
       expect(find.byType(OnlineDictionaryTile), findsNWidgets(5));
     });
@@ -307,7 +316,7 @@ void main() {
       var field = find.byType(TextFormField);
       expect(field, findsOneWidget);
       await tester.enterText(find.byType(TextFormField), 'htts://');
-      await tester.pumpAndSettle(Duration(milliseconds: 100));
+      await tester.pumpAndSettle(Duration(milliseconds: 800));
 
       expect(find.text('Invalid URL'), findsOneWidget);
     });
@@ -319,7 +328,7 @@ void main() {
       var field = find.byType(TextFormField);
       expect(field, findsOneWidget);
       await tester.enterText(find.byType(TextFormField), 'https://ipfs.com');
-      await tester.pumpAndSettle(Duration(milliseconds: 100));
+      await tester.pumpAndSettle(Duration(milliseconds: 800));
 
       expect(find.text('Repository not available'), findsOneWidget);
     });
@@ -335,7 +344,6 @@ void main() {
       var buttons = find.byType(OutlinedButton).hitTestable();
       expect(buttons, findsNWidgets(2));
 
-      //var text = buttons.first.byChildType(Text);
       expect(buttons.byChildText('FILE'), findsOneWidget);
 
       expect(buttons.byChildText('Online'), findsOneWidget);
@@ -434,7 +442,7 @@ void main() {
 
       expect(find.byType(AlertDialog), findsOneWidget);
 
-      return name?.data;
+      return name.data;
     }
 
     ;
@@ -463,7 +471,12 @@ void main() {
 
 Type typeOf<T>() => T;
 
-class MockSharedPrefferences extends Mock implements SharedPreferences {}
+class MockSharedPrefferences extends Mock implements SharedPreferences {
+  @override
+  Future<bool> setString(String key, String value) {
+    return Future.value(true);
+  }
+}
 
 Future _createOnlineDictionaries(WidgetTester tester) async {
   await _createAndWrapWidget(tester, OnlineDictionaries());
@@ -476,14 +489,14 @@ Future _createOfflineDictionaries(WidgetTester tester) async {
 Future _createAndWrapWidget(WidgetTester tester, Widget widget) async {
   var sp = MockSharedPrefferences();
   await PreferencesSingleton.init(sp);
-  when(sp.getString('')).thenAnswer((_) => null);
+  when(sp.getString('')).thenAnswer((_) => '');
 
   await tester.pumpWidget(
     MultiProvider(
       providers: [
         ChangeNotifierProvider<DictionaryManager>(
           create: (context) {
-            return dicManager;
+            return dicManager!;
           },
         ),
         ChangeNotifierProvider<OnlineDictionaryManager>(

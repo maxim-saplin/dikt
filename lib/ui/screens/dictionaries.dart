@@ -46,7 +46,7 @@ class Dictionaries extends HookWidget {
       switchedToOnline.yes = false;
     else {
       if (!switchedToOnline.yes) {
-        Provider.of<OnlineDictionaryManager>(context)?.cleanUp();
+        Provider.of<OnlineDictionaryManager>(context).cleanUp();
         switchedToOnline.yes = true;
       }
     }
@@ -63,15 +63,14 @@ class Dictionaries extends HookWidget {
           Title(),
           Padding(
               padding: EdgeInsets.fromLTRB(12, 50, 12, 12),
-              child: //Text('TEST')
-                  _offline ? OfflineDictionaries() : OnlineDictionaries())
+              child: _offline ? OfflineDictionaries() : OnlineDictionaries())
         ]));
   }
 }
 
 class Title extends StatelessWidget {
   const Title({
-    Key key,
+    Key? key,
   }) : super(key: key);
 
   @override

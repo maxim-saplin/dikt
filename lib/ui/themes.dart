@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
 class OwnThemeFields {
-  final Color errorShade;
-  final Color textBaloon;
+  final Color? errorShade;
+  final Color? textBaloon;
 
-  const OwnThemeFields({Color errorShade, Color textBaloon})
+  const OwnThemeFields({Color? errorShade, Color? textBaloon})
       : this.errorShade = errorShade,
         this.textBaloon = textBaloon;
 
@@ -21,7 +21,7 @@ extension ThemeDataExtensions on ThemeData {
     _own[this.inputDecorationTheme] = own;
   }
 
-  static OwnThemeFields empty = null;
+  static OwnThemeFields? empty = null;
 
   OwnThemeFields own() {
     var o = _own[this.inputDecorationTheme];
@@ -29,13 +29,14 @@ extension ThemeDataExtensions on ThemeData {
       if (empty == null) empty = OwnThemeFields.empty();
       o = empty;
     }
-    return o;
+    return o!;
   }
 }
 
 OwnThemeFields ownTheme(BuildContext context) => Theme.of(context).own();
 
 final ThemeData lightTheme = (ThemeData.light().copyWith(
+    visualDensity: VisualDensity(horizontal: -4, vertical: -4),
     outlinedButtonTheme: OutlinedButtonThemeData(
         style: ButtonStyle(
             foregroundColor: MaterialStateProperty.all<Color>(Colors.black))),

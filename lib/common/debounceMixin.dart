@@ -1,10 +1,10 @@
 import 'dart:async';
 
 class Debounce {
-  Timer debounceTimer;
+  Timer? debounceTimer;
 
   void debounce(Function f, int milliseconds) {
     debounceTimer?.cancel();
-    debounceTimer = Timer(Duration(milliseconds: milliseconds), f);
+    debounceTimer = Timer(Duration(milliseconds: milliseconds), f as void Function());
   }
 }

@@ -11,7 +11,7 @@ class Routes {
   static const String dictionariesOffline = '/dictionaries';
 
   static void showOfflineDictionaries(BuildContext context) {
-    if (ModalRoute.of(context).settings.name == dictionariesOnline)
+    if (ModalRoute.of(context)!.settings.name == dictionariesOnline)
       Navigator.of(context).pop();
 
     showDialog(
@@ -27,7 +27,7 @@ class Routes {
   }
 
   static void showOnlineDictionaries(BuildContext context) {
-    if (ModalRoute.of(context).settings.name == dictionariesOffline)
+    if (ModalRoute.of(context)!.settings.name == dictionariesOffline)
       Navigator.of(context).pop();
 
     showDialog(

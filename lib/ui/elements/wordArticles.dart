@@ -6,15 +6,15 @@ import 'package:flutter_sticky_header/flutter_sticky_header.dart';
 
 class WordArticles extends StatelessWidget {
   WordArticles(
-      {Key key,
-      @required this.articles,
-      @required this.word,
+      {Key? key,
+      required this.articles,
+      required this.word,
       this.showAnotherWord})
       : super(key: key);
 
   final Future<List<Article>> articles;
   final String word;
-  final Function(String word) showAnotherWord;
+  final Function(String word)? showAnotherWord;
   final ScrollController scrollController = ScrollController();
 
   @override
@@ -44,7 +44,7 @@ class WordArticles extends StatelessWidget {
                                     padding: EdgeInsets.fromLTRB(18, 0, 18, 0),
                                     height: 30.0,
                                     color: Theme.of(context).cardColor,
-                                    child: Text(article.dictionaryName,
+                                    child: Text(article.dictionaryName!,
                                         style: Theme.of(context)
                                             .textTheme
                                             .subtitle2),
@@ -59,9 +59,9 @@ class WordArticles extends StatelessWidget {
                                               10, 0, 10, 10),
                                           child: Html(
                                             data: article.article,
-                                            onLinkTap: (url) {
+                                            onLinkTap: (String? url) {
                                               if (showAnotherWord != null)
-                                                showAnotherWord(url);
+                                                showAnotherWord!(url!);
                                             },
                                             style: {
                                               "div": Style(

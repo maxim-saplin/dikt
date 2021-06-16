@@ -73,3 +73,5 @@ assets/dictionaries2/RuEnUniversal06.json
 assets/dictionaries2/RuEnUniversal07.json
 assets/dictionaries2/RuEnUniversal08.json
 test/data/dik_enenwordnet3.lock
+test/tmp/*
+

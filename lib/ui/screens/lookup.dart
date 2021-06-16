@@ -68,10 +68,10 @@ class Lookup extends StatelessWidget {
 
 class LookupWords extends StatelessWidget {
   const LookupWords(
-      {@required double barHeight,
-      @required this.dictionary,
-      @required this.history,
-      @required this.narrow})
+      {required double barHeight,
+      required this.dictionary,
+      required this.history,
+      required this.narrow})
       : _barHeight = barHeight;
 
   final double _barHeight;
@@ -127,7 +127,7 @@ class _Entry extends StatelessWidget {
   final History history;
   final bool narrow;
 
-  _Entry(this.index, this.dictionary, this.history, this.narrow, {Key key})
+  _Entry(this.index, this.dictionary, this.history, this.narrow, {Key? key})
       : super(key: key);
 
   @override
@@ -143,7 +143,7 @@ class _Entry extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: GestureDetector(
           onTap: () {
-            if (word == '' || word == null) return;
+            if (word == '') return;
             showArticle(context, word, narrow);
           },
           child: LimitedBox(
@@ -240,20 +240,18 @@ class _SearchBar extends StatelessWidget {
   }
 }
 
-Future<List<Article>> getArticlesUpdateHistory(
-    BuildContext context, String word) {
+Future<List<Article>> getArticlesAndUpdateHistory(
+    BuildContext context, String word) async {
   var dictionary = Provider.of<MasterDictionary>(context, listen: false);
   var history = Provider.of<History>(context, listen: false);
 
-  Future<List<Article>> articles;
+  List<Article> articles;
   if (dictionary.isLookupWordEmpty) {
-    articles = dictionary.getArticles(word);
-    if (articles == null) {
-      articles = Future<List<Article>>.value([Article('N/A', 'N/A', 'N/A')]);
-      history.removeWord(word);
-    }
+    articles = await dictionary.getArticles(word);
+    if (articles.isEmpty) articles = <Article>[Article('N/A', 'N/A', 'N/A')];
+    history.removeWord(word);
   } else {
-    articles = dictionary.getArticles(word);
+    articles = await dictionary.getArticles(word);
     history.addWord(word);
   }
 
@@ -269,7 +267,7 @@ void showArticle(BuildContext context, String word, bool useDialog) {
         barrierColor: !kIsWeb ? Colors.transparent : Colors.black54,
         routeSettings: RouteSettings(name: Routes.showArticle, arguments: word),
         builder: (BuildContext context) {
-          var articles = getArticlesUpdateHistory(context, word);
+          var articles = getArticlesAndUpdateHistory(context, word);
 
           return SimpleSimpleDialog(
               backgroundColor:

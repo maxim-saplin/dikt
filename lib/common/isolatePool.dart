@@ -3,9 +3,11 @@ import 'dart:math';
 
 import 'package:ikvpack/ikvpack.dart';
 
-IsolatePool pool;
+late IsolatePool pool;
 
 void initIsolatePool() {
-  pool = IsolatePool(max(Platform.numberOfProcessors - 1, 2));
+  //TODO - return pool back to normal
+  //pool = IsolatePool(max(Platform.numberOfProcessors - 1, 2));
+  pool = IsolatePool(4);
   pool.start();
 }

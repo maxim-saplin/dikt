@@ -26,7 +26,7 @@ class WidgetChildTypeFinder extends ChainedFinder {
 class WidgetChildTextFinder extends ChainedFinder {
   WidgetChildTextFinder(Finder parent, this.childTextIncludes) : super(parent);
 
-  final String childTextIncludes;
+  final String? childTextIncludes;
 
   @override
   String get description =>
@@ -38,7 +38,7 @@ class WidgetChildTextFinder extends ChainedFinder {
       var elements = collectAllElementsFrom(candidate, skipOffstage: false);
       for (var e in elements) {
         if (e.widget.runtimeType == Text &&
-            (e.widget as Text).data.contains(childTextIncludes)) {
+            (e.widget as Text).data!.contains(childTextIncludes!)) {
           yield e;
         }
       }
@@ -70,7 +70,7 @@ class WidgetChildIconFinder extends ChainedFinder {
 
 extension ExtraFinders on Finder {
   Finder byChildType(Type childType) => WidgetChildTypeFinder(this, childType);
-  Finder byChildText(String childTextIncludes) =>
+  Finder byChildText(String? childTextIncludes) =>
       WidgetChildTextFinder(this, childTextIncludes);
   Finder byChildIcon(IconData iconData) =>
       WidgetChildIconFinder(this, iconData);
