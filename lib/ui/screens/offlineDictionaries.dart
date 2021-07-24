@@ -325,7 +325,8 @@ class OfflineDictionaryTile extends StatelessWidget {
                                         info, //disabled boxes are not loaded upon start
                                     builder: (context, snapshot) {
                                       if (snapshot.hasData &&
-                                          snapshot.data != null) {
+                                          snapshot.data != null &&
+                                          snapshot.error == null) {
                                         Timer.run(() {
                                           Provider.of<MasterDictionary>(context,
                                                   listen: false)

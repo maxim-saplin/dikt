@@ -67,6 +67,7 @@ class IndexedDictionary extends HiveObject {
   }
 
   Future<IkvInfo> getInfo() {
+    // can throw
     return IkvPack.getInfo(ikvPath);
   }
 

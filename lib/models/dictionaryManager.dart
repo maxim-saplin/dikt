@@ -381,7 +381,8 @@ class DictionaryManager extends ChangeNotifier {
         if (!d.isBundled) {
           var ikvPath = d.ikvPath;
           d.delete();
-          _dictionaries.delete(_indexFromIkvPath(ikvPath));
+          var i = _indexFromIkvPath(ikvPath, false);
+          if (i > -1) _dictionaries.delete(i);
         }
 
         print("Error indexing IkvPack: " + d.ikvPath + "\n" + err.toString());
@@ -501,7 +502,12 @@ class DictionaryManager extends ChangeNotifier {
 
   void deleteDictionary(String? ikvPath) {
     var d = _dictionariesAllList.where((d) => d.ikvPath == ikvPath).first;
-    IkvPack.delete(d.ikvPath);
+    try {
+      // this method can throw if the path doesn't exist
+      // path can be unexisting if dictionary happens to be errored
+      // silence the error
+      IkvPack.delete(d.ikvPath);
+    } catch (e) {}
     if (bundledBinaryDictionaries.any((e) => e.ikvPath == d.ikvPath)) {
       d.isReadyToUse = false;
       d.save();
