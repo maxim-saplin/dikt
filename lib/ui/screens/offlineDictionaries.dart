@@ -83,7 +83,7 @@ class _OfflineDictionariesState extends State<OfflineDictionaries> {
                 );
 
         for (var i in x) {
-          var f = PlatformFile(name: i.path);
+          var f = PlatformFile(name: i.path, size: -1);
           files.add(f);
         }
       } else {

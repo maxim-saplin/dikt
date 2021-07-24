@@ -61,7 +61,7 @@ class DictionaryBeingProcessed {
         this.bundledBinaryDictionary = null;
 
   DictionaryBeingProcessed.file(PlatformFile this.file)
-      : this.name = (file.path ?? file.name)!
+      : this.name = (file.path ?? file.name)
             .split('/')
             .last
             .split('\\')
@@ -417,7 +417,7 @@ class DictionaryManager extends ChangeNotifier {
         notifyListeners();
       };
 
-      return dictionaryProcessed.file!.name!.endsWith('.dikt')
+      return dictionaryProcessed.file!.name.endsWith('.dikt')
           ? DiktFileIndexer(dictionaryProcessed.file, ikvPath, progress)
           : JsonFileIndexer(dictionaryProcessed.file, ikvPath, progress);
     }
@@ -671,7 +671,7 @@ class DiktFileIndexer extends Indexer {
   }
 
   Future<IkvPack?> run() async {
-    var path = this.file!.path ?? this.file!.name!;
+    var path = this.file!.path ?? this.file!.name;
     print(path + '\n');
 
     var sw = Stopwatch();
@@ -749,7 +749,7 @@ class JsonFileIndexer extends Indexer {
   }
 
   Future<IkvPack?> _runWeb() async {
-    print(file!.path ?? file!.name! + '\n');
+    print(file!.path ?? file!.name + '\n');
     // Chunked json decoding isn't available in web
     // var inSink = converterJson.startChunkedConversion(outSink);
 
@@ -823,7 +823,7 @@ class JsonFileIndexer extends Indexer {
   }
 
   Future<IkvPack?> _runVm() async {
-    var path = this.file!.path ?? this.file!.name!;
+    var path = this.file!.path ?? this.file!.name;
     print(path + '\n');
     var file = File(path);
     var s = FileStream(path, null, null);
