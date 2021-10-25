@@ -35,7 +35,7 @@ extension ThemeDataExtensions on ThemeData {
 
 OwnThemeFields ownTheme(BuildContext context) => Theme.of(context).own();
 
-final ThemeData lightTheme = (ThemeData.light().copyWith(
+final ThemeData lightTheme = ThemeData.light().copyWith(
     visualDensity: VisualDensity(horizontal: -4, vertical: -4),
     outlinedButtonTheme: OutlinedButtonThemeData(
         style: ButtonStyle(
@@ -86,7 +86,7 @@ final ThemeData lightTheme = (ThemeData.light().copyWith(
       // Dictionary card, dictionary  name
       caption: TextStyle(
           fontSize: 17.0, fontFamily: 'Montserrat', color: Colors.black),
-    )))
+    ))
   ..addOwn(OwnThemeFields(
       errorShade: Color.fromARGB(240, 255, 200, 200),
       textBaloon: Color.fromARGB(240, 255, 200, 200)));
