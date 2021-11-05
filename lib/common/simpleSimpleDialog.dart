@@ -159,7 +159,6 @@ class SimpleSimpleDialog extends StatelessWidget {
       shape: shape,
       child: dialogChild,
       alignment: alignment,
-      //useMaterialBorderRadius: useMaterialBorderRadius,
     );
 
     Widget completeDialog = dialog;

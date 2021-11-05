@@ -45,7 +45,9 @@ final ThemeData lightTheme = ThemeData.light().copyWith(
         border: InputBorder.none,
         labelStyle: TextStyle(
             fontSize: 18, fontFamily: 'Montserrat', color: Colors.red)),
-    accentColor: Colors.grey.withAlpha(128),
+    colorScheme:
+        ColorScheme.light().copyWith(secondary: Colors.grey.withAlpha(128)),
+    //accentColor: Colors.grey.withAlpha(128),
     backgroundColor: Color.fromARGB(255, 255, 255, 255),
     textTheme: TextTheme(
       button: TextStyle(
@@ -92,14 +94,16 @@ final ThemeData lightTheme = ThemeData.light().copyWith(
       textBaloon: Color.fromARGB(240, 255, 200, 200)));
 
 final ThemeData darkTheme = ThemeData.dark().copyWith(
-    cardColor: Color.fromARGB(255, 50, 50, 50),
-    scaffoldBackgroundColor: Color.fromARGB(255, 40, 40, 40),
-    dialogBackgroundColor: Color.fromARGB(255, 50, 50, 50),
+    cardColor: Color.fromARGB(255, 48, 49, 52),
+    canvasColor: Color.fromARGB(255, 32, 35, 36),
+    scaffoldBackgroundColor: Color.fromARGB(255, 32, 35, 36),
+    dialogBackgroundColor: Color.fromARGB(255, 48, 49, 52),
     outlinedButtonTheme: OutlinedButtonThemeData(
         style: ButtonStyle(
             foregroundColor: MaterialStateProperty.all<Color>(Colors.white))),
-    accentColor: Colors.grey.withAlpha(128),
-    backgroundColor: Color.fromARGB(255, 50, 50, 50),
+    colorScheme:
+        ColorScheme.dark().copyWith(secondary: Colors.grey.withAlpha(128)),
+    backgroundColor: Color.fromARGB(255, 32, 35, 36),
     textTheme: TextTheme(
       button: TextStyle(fontSize: 18, fontFamily: 'Montserrat'),
       headline6: TextStyle(

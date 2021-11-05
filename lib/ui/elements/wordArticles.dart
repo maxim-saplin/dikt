@@ -56,7 +56,7 @@ class WordArticles extends StatelessWidget {
                                       return Container(
                                           color: Theme.of(context).cardColor,
                                           padding: EdgeInsets.fromLTRB(
-                                              10, 0, 10, 10),
+                                              18, 0, 18, 10),
                                           child: Html(
                                             data: article.article,
                                             onLinkTap: (String? url) {
@@ -89,7 +89,7 @@ class WordArticles extends StatelessWidget {
           },
         ),
         Container(
-            padding: EdgeInsets.fromLTRB(10, 10, 10, 0),
+            padding: EdgeInsets.fromLTRB(18, 10, 18, 0),
             color: Theme.of(context).cardColor,
             height: 34.0,
             width: 1000,

@@ -179,7 +179,7 @@ class OnlineDictionaryTile extends HookWidget {
                         ? Container(
                             width: 30 * (data.progressPercent / 100),
                             height: 40,
-                            color: Theme.of(context).accentColor)
+                            color: Theme.of(context).colorScheme.secondary)
                         : LinearProgressIndicator(minHeight: dicHeight))
                     : SizedBox(),
                 TextButton(
