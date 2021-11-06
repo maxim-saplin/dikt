@@ -3,7 +3,7 @@ import 'dart:io';
 import 'dart:core';
 import 'dart:math';
 import 'dart:convert';
-import 'package:dikt/common/isolatePool.dart';
+import 'package:dikt/common/isolate_pool.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:ikvpack/ikvpack.dart';
@@ -14,7 +14,7 @@ import 'package:hive/hive.dart';
 import 'package:flutter/material.dart';
 
 import 'indexedDictionary.dart';
-import '../common/fileStream.dart';
+import '../common/file_stream.dart';
 
 String nameToIkvPath(String name) {
   var fileName = 'dik_' + name.replaceAll(' ', '_').toLowerCase();

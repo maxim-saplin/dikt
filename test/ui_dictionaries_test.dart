@@ -1,14 +1,14 @@
 import 'dart:io';
 
-import 'package:dikt/common/isolatePool.dart';
-import 'package:dikt/common/preferencesSingleton.dart';
+import 'package:dikt/common/isolate_pool.dart';
+import 'package:dikt/common/preferences_singleton.dart';
 import 'package:dikt/models/dictionaryManager.dart';
 import 'package:dikt/models/indexedDictionary.dart';
 import 'package:dikt/models/masterDictionary.dart';
 import 'package:dikt/models/onlineDictionaries.dart';
 import 'package:dikt/models/onlineDictionariesFakes.dart';
-import 'package:dikt/ui/screens/offlineDictionaries.dart';
-import 'package:dikt/ui/screens/onlineDictionaries.dart';
+import 'package:dikt/ui/screens/offline_dictionaries.dart';
+import 'package:dikt/ui/screens/online_dictionaries.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';

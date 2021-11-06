@@ -2,8 +2,8 @@ import 'dart:async';
 import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 
-import '../common/preferencesSingleton.dart';
-import '../common/debounceMixin.dart';
+import '../common/preferences_singleton.dart';
+import '../common/debounce_mixin.dart';
 
 class OnlineDictionaryManager extends ChangeNotifier with Debounce {
   static const String defaultUrl =

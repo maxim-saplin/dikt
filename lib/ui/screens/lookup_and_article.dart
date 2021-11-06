@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../ui/screens/lookup.dart';
-import '../../ui/elements/topButtons.dart';
-import '../../ui/elements/loadingProgress.dart';
-import '../../ui/elements/wordArticles.dart';
+import '../elements/menu_buttons.dart';
+import '../elements/loading_progress.dart';
+import '../elements/word_articles.dart';
 import '../../models/masterDictionary.dart';
 import '../../common/i18n.dart';
 

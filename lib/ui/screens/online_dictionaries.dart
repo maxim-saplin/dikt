@@ -8,7 +8,7 @@ import '../routes.dart';
 import '../themes.dart';
 import '../../common/i18n.dart';
 import '../../models/onlineDictionaries.dart';
-import '../../ui/elements/deleteConfirmation.dart';
+import '../elements/delete_confirmation.dart';
 
 class OnlineDictionaries extends StatelessWidget {
   @override

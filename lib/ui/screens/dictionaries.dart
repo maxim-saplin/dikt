@@ -9,8 +9,8 @@ import 'package:fluttertoast/fluttertoast.dart';
 import '../../models/dictionaryManager.dart';
 import '../../common/i18n.dart';
 import '../../models/onlineDictionaries.dart';
-import '../screens/onlineDictionaries.dart';
-import 'offlineDictionaries.dart';
+import 'online_dictionaries.dart';
+import 'offline_dictionaries.dart';
 
 class _SwitchedToOnline {
   bool yes = false;

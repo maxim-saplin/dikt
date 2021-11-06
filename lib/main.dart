@@ -12,19 +12,19 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 
-import 'package:dikt/common/preferencesSingleton.dart';
+import 'package:dikt/common/preferences_singleton.dart';
 import 'package:dikt/models/onlineDictionaries.dart';
 import 'package:dikt/ui/themes.dart';
 
 import './models/masterDictionary.dart';
 import './models/preferences.dart';
 import './ui/screens/lookup.dart';
-import './ui/screens/lookupAndArticle.dart';
+import 'ui/screens/lookup_and_article.dart';
 import './models/history.dart';
 import './models/dictionaryManager.dart';
-import './common/analyticsObserver.dart';
+import 'common/analytics_observer.dart';
 import './common/i18n.dart';
-import 'common/isolatePool.dart';
+import 'common/isolate_pool.dart';
 import 'models/onlineDictionariesFakes.dart';
 import 'ui/routes.dart';
 

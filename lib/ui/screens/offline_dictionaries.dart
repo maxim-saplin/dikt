@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:dikt/common/isolatePool.dart';
+import 'package:dikt/common/isolate_pool.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
@@ -15,10 +15,10 @@ import 'package:file_selector_platform_interface/file_selector_platform_interfac
 import '../../models/dictionaryManager.dart';
 import '../../models/masterDictionary.dart';
 import '../../common/i18n.dart';
-import '../elements/managerState.dart';
+import '../elements/manager_state.dart';
 import '../routes.dart';
 import '../../models/indexedDictionary.dart';
-import '../../ui/elements/deleteConfirmation.dart';
+import '../elements/delete_confirmation.dart';
 
 class OfflineDictionaries extends StatefulWidget {
   @override
