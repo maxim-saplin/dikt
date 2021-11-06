@@ -41,7 +41,7 @@ final ThemeData lightTheme = ThemeData.light().copyWith(
     backgroundColor: Color.fromARGB(255, 240, 242, 243),
     canvasColor: Color.fromARGB(255, 240, 242, 243),
     // scaffoldBackgroundColor: Color.fromARGB(255, 240, 242, 243),
-    visualDensity: VisualDensity(horizontal: -4, vertical: -4),
+    //visualDensity: VisualDensity(horizontal: -4, vertical: -4),
     outlinedButtonTheme: OutlinedButtonThemeData(
         style: ButtonStyle(
             foregroundColor: MaterialStateProperty.all<Color>(Colors.black))),
@@ -97,8 +97,8 @@ final ThemeData lightTheme = ThemeData.light().copyWith(
       textBaloon: Color.fromARGB(240, 255, 200, 200)));
 
 final ThemeData darkTheme = ThemeData.dark().copyWith(
-    cardColor: Color.fromARGB(255, 48, 49, 52),
-    dialogBackgroundColor: Color.fromARGB(255, 48, 49, 52),
+    cardColor: Color.fromARGB(255, 16, 17, 18),
+    dialogBackgroundColor: Color.fromARGB(255, 16, 17, 18),
     canvasColor: Color.fromARGB(255, 16, 17, 18),
     scaffoldBackgroundColor: Color.fromARGB(255, 32, 33, 36),
     outlinedButtonTheme: OutlinedButtonThemeData(

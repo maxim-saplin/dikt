@@ -179,64 +179,58 @@ class _SearchBar extends StatelessWidget {
   Widget build(BuildContext context) {
     var dictionary = Provider.of<MasterDictionary>(context, listen: false);
 
-    return Positioned(
-        bottom: 0.0,
-        left: 0.0,
-        right: 0.0,
-        child: Container(
-            decoration: BoxDecoration(
-                color: Theme.of(context).canvasColor,
-                borderRadius: BorderRadius.only(
-                    topLeft: (Radius.circular(10)),
-                    topRight: (Radius.circular(10)))),
-            child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: Stack(alignment: Alignment.bottomRight, children: [
-                  dictionary.isPartiallyLoaded
-                      ? TextField(
-                          controller: _controller,
-                          autofocus: true,
-                          onChanged: (text) {
-                            dictionary.lookupWord = text;
-                          },
-                          onSubmitted: (value) {
-                            if (dictionary.matchesCount > 0) {
-                              showArticle(
-                                  context, dictionary.getMatch(0), narrow);
-                            }
-                          },
-                          style: TextStyle(
-                              fontSize: 20.0, fontWeight: FontWeight.bold),
-                          decoration: InputDecoration(
-                              border: InputBorder.none,
-                              hintText: 'Search'.i18n,
-                              suffix: GestureDetector(
-                                  onTap: () {
-                                    dictionary.lookupWord = '';
-                                    _controller.clear();
-                                  },
-                                  child: Text(dictionary.isPartiallyLoaded
-                                      ? (dictionary.isLookupWordEmpty
-                                          ? ''
-                                          : (dictionary.matchesCount >
-                                                      dictionary.maxResults
-                                                  ? dictionary.maxResults
-                                                          .toString() +
-                                                      '+'
-                                                  : dictionary.matchesCount
-                                                      .toString()) +
-                                              '  ╳')
-                                      : '0_0'))),
-                        )
-                      : Text(''),
-                  Opacity(
-                      opacity: 0.2,
-                      child: Text(
-                          (dictionary.lookupSw.elapsedMicroseconds / 1000)
-                              .toStringAsFixed(1),
-                          style: Theme.of(context).textTheme.overline))
-                ]))));
+    return Container(
+        decoration: BoxDecoration(
+            color: Theme.of(context).canvasColor,
+            borderRadius: BorderRadius.only(
+                topLeft: (Radius.circular(10)),
+                topRight: (Radius.circular(10)))),
+        child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Stack(alignment: Alignment.bottomRight, children: [
+              dictionary.isPartiallyLoaded
+                  ? TextField(
+                      controller: _controller,
+                      autofocus: true,
+                      onChanged: (text) {
+                        dictionary.lookupWord = text;
+                      },
+                      onSubmitted: (value) {
+                        if (dictionary.matchesCount > 0) {
+                          showArticle(context, dictionary.getMatch(0), narrow);
+                        }
+                      },
+                      style: TextStyle(
+                          fontSize: 20.0, fontWeight: FontWeight.bold),
+                      decoration: InputDecoration(
+                          border: InputBorder.none,
+                          hintText: 'Search'.i18n,
+                          suffix: GestureDetector(
+                              onTap: () {
+                                dictionary.lookupWord = '';
+                                _controller.clear();
+                              },
+                              child: Text(dictionary.isPartiallyLoaded
+                                  ? (dictionary.isLookupWordEmpty
+                                      ? ''
+                                      : (dictionary.matchesCount >
+                                                  dictionary.maxResults
+                                              ? dictionary.maxResults
+                                                      .toString() +
+                                                  '+'
+                                              : dictionary.matchesCount
+                                                  .toString()) +
+                                          '  ╳')
+                                  : '0_0'))),
+                    )
+                  : Text(''),
+              Opacity(
+                  opacity: 0.2,
+                  child: Text(
+                      (dictionary.lookupSw.elapsedMicroseconds / 1000)
+                          .toStringAsFixed(1),
+                      style: Theme.of(context).textTheme.overline))
+            ])));
   }
 }
 
