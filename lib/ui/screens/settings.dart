@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 import '../../common/i18n.dart';
 import '../../models/preferences.dart';
 import '../../models/history.dart';
-import '../../models/masterDictionary.dart';
+import '../../models/master_dictionary.dart';
 
 class Settings extends StatelessWidget {
   @override

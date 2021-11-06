@@ -13,7 +13,7 @@ import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:flutter/material.dart';
 
-import 'indexedDictionary.dart';
+import 'indexed_dictionary.dart';
 import '../common/file_stream.dart';
 
 String nameToIkvPath(String name) {

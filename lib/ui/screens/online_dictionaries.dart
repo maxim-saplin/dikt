@@ -7,7 +7,7 @@ import 'package:superellipse_shape/superellipse_shape.dart';
 import '../routes.dart';
 import '../themes.dart';
 import '../../common/i18n.dart';
-import '../../models/onlineDictionaries.dart';
+import '../../models/online_dictionaries.dart';
 import '../elements/delete_confirmation.dart';
 
 class OnlineDictionaries extends StatelessWidget {

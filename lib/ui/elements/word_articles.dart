@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:dikt/models/masterDictionary.dart';
+import 'package:dikt/models/master_dictionary.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_html/style.dart';

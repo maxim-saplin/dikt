@@ -1,9 +1,9 @@
-import 'package:dikt/models/masterDictionary.dart';
+import 'package:dikt/models/master_dictionary.dart';
 import 'package:dikt/ui/elements/manager_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:provider/provider.dart';
-import '../../models/dictionaryManager.dart';
+import '../../models/dictionary_manager.dart';
 import '../../common/i18n.dart';
 
 class DictionaryIndexingOrLoading extends StatelessWidget {

@@ -12,12 +12,12 @@ import 'package:provider/provider.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:file_selector_platform_interface/file_selector_platform_interface.dart';
 
-import '../../models/dictionaryManager.dart';
-import '../../models/masterDictionary.dart';
+import '../../models/dictionary_manager.dart';
+import '../../models/master_dictionary.dart';
 import '../../common/i18n.dart';
 import '../elements/manager_state.dart';
 import '../routes.dart';
-import '../../models/indexedDictionary.dart';
+import '../../models/indexed_dictionary.dart';
 import '../elements/delete_confirmation.dart';
 
 class OfflineDictionaries extends StatefulWidget {

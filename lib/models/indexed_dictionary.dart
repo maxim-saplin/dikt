@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:ikvpack/ikvpack.dart';
-part 'indexedDictionary.g.dart';
+part 'indexed_dictionary.g.dart';
 
 @HiveType(typeId: 0)
 class IndexedDictionary extends HiveObject {

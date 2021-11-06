@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:typed_data';
-import './onlineDictionaries.dart';
+import 'online_dictionaries.dart';
 
 class OnlineToOfflineFake extends OnlineToOffline {
   final String throwErrorHash = '2';

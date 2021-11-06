@@ -6,7 +6,7 @@ import 'package:archive/archive.dart';
 import 'package:flutter/material.dart';
 import 'package:ikvpack/ikvpack.dart';
 
-import './dictionaryManager.dart';
+import 'dictionary_manager.dart';
 
 class Article {
   final String word;

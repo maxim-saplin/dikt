@@ -6,7 +6,7 @@ import 'package:dikt/ui/routes.dart';
 import 'package:dikt/ui/screens/settings.dart';
 import 'package:dikt/common/simple_simple_dialog.dart';
 import 'package:dikt/ui/screens/dictionaries.dart';
-import 'package:dikt/models/masterDictionary.dart';
+import 'package:dikt/models/master_dictionary.dart';
 
 class TopButtons extends StatelessWidget {
   @override

@@ -1,4 +1,4 @@
-import 'package:dikt/models/dictionaryManager.dart';
+import 'package:dikt/models/dictionary_manager.dart';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -7,7 +7,7 @@ import '../../ui/screens/lookup.dart';
 import '../elements/menu_buttons.dart';
 import '../elements/loading_progress.dart';
 import '../elements/word_articles.dart';
-import '../../models/masterDictionary.dart';
+import '../../models/master_dictionary.dart';
 import '../../common/i18n.dart';
 
 class LookupAndArticle extends StatelessWidget {

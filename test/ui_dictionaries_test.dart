@@ -2,11 +2,11 @@ import 'dart:io';
 
 import 'package:dikt/common/isolate_pool.dart';
 import 'package:dikt/common/preferences_singleton.dart';
-import 'package:dikt/models/dictionaryManager.dart';
-import 'package:dikt/models/indexedDictionary.dart';
-import 'package:dikt/models/masterDictionary.dart';
-import 'package:dikt/models/onlineDictionaries.dart';
-import 'package:dikt/models/onlineDictionariesFakes.dart';
+import 'package:dikt/models/dictionary_manager.dart';
+import 'package:dikt/models/indexed_dictionary.dart';
+import 'package:dikt/models/master_dictionary.dart';
+import 'package:dikt/models/online_dictionaries.dart';
+import 'package:dikt/models/online_dictionaries_fakes.dart';
 import 'package:dikt/ui/screens/offline_dictionaries.dart';
 import 'package:dikt/ui/screens/online_dictionaries.dart';
 import 'package:flutter/material.dart';

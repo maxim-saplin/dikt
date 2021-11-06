@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'indexedDictionary.dart';
+part of 'indexed_dictionary.dart';
 
 // **************************************************************************
 // TypeAdapterGenerator
