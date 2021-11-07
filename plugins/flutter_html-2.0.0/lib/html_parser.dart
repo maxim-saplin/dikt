@@ -686,7 +686,7 @@ class StyledText extends StatelessWidget {
       // On ANDROID semantics is somwhow intertwind with platform calls
       // and in articles with to many hrefs (e.g. try opening 'go' in WordNet)
       // it can literly take half a second to draw a single frame with most of
-      // delay happening in the native side
+      // delay happening in the native side. Disabling semanticd fixes issues
       child: ExcludeSemantics(
           child: SelectableText.rich(
         textSpan as TextSpan,
