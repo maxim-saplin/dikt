@@ -6,13 +6,10 @@ import 'package:csslib/visitor.dart' as css;
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
-import 'package:flutter_html/image_render.dart';
 import 'package:flutter_html/src/anchor.dart';
 import 'package:flutter_html/src/css_parser.dart';
 import 'package:flutter_html/src/html_elements.dart';
-import 'package:flutter_html/src/layout_element.dart';
 import 'package:flutter_html/src/utils.dart';
-import 'package:flutter_html/style.dart';
 import 'package:html/dom.dart' as dom;
 import 'package:html/parser.dart' as htmlparser;
 import 'package:webview_flutter/webview_flutter.dart';
@@ -260,10 +257,7 @@ class HtmlParser extends StatelessWidget {
 
       return TextSpan(
         style: newContext.style.generateTextStyle(),
-        recognizer: new TapGestureRecognizer()
-          ..onTap = () {
-            onLinkTap?.call(tree.href);
-          },
+        recognizer: new _HrefTap(onLinkTap, tree.href),
         text: tc.text,
       );
     } else {
@@ -689,14 +683,19 @@ class StyledText extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       width: calculateWidth(style.display, renderContext),
-      child: SelectableText.rich(
+      // On ANDROID semantics is somwhow intertwind with platform calls
+      // and in articles with to many hrefs (e.g. try opening 'go' in WordNet)
+      // it can literly take half a second to draw a single frame with most of
+      // delay happening in the native side
+      child: ExcludeSemantics(
+          child: SelectableText.rich(
         textSpan as TextSpan,
         style: style.generateTextStyle(),
         textAlign: style.textAlign,
         textDirection: style.direction,
         textScaleFactor: textScaleFactor,
         maxLines: style.maxLines,
-      ),
+      )),
     );
   }
 
@@ -710,4 +709,17 @@ class StyledText extends StatelessWidget {
     }
     return null;
   }
+}
+
+class _HrefTap extends TapGestureRecognizer {
+  _HrefTap(this.linkTap, this.href) {
+    onTap = _onTap;
+  }
+
+  void _onTap() {
+    if (linkTap != null && href != null) linkTap!(href);
+  }
+
+  final void Function(String?)? linkTap;
+  final String? href;
 }

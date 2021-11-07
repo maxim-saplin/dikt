@@ -9,28 +9,28 @@ environment:
 
 dependencies:
   # Plugin for parsing html
-  html: '>=0.15.0 <1.0.0'
+  html: 
 
   # Plugins for parsing css
-  csslib: '>=0.17.0 <1.0.0'
+  csslib: 
 
   # Plugins for rendering the <table> tag.
-  flutter_layout_grid: '>=1.0.1 <2.0.0'
+  flutter_layout_grid:
 
   # Plugin for rendering the <iframe> tag.
-  webview_flutter: '>=2.0.4 <3.0.0'
+  webview_flutter: 
 
   # Plugins for rendering the <audio> tag.
-  chewie_audio: '>=1.2.0 <2.0.0'
+  chewie_audio:
 
   # Plugins for rendering the <svg> tag.
-  flutter_svg: '>=0.22.0 <1.0.0'
+  flutter_svg: 
 
   # Plugin for rendering MathML
-  flutter_math_fork: '>=0.3.2+1 <1.0.0'
+  flutter_math_fork: 
 
   # plugin for firstWhereOrNull extension on lists
-  collection: '>=1.15.0 <2.0.0'
+  collection: 
 
   flutter:
     sdk: flutter

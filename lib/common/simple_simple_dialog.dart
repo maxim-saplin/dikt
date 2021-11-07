@@ -5,7 +5,6 @@
 import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter/material.dart';
 
 // Examples can assume:
@@ -146,12 +145,12 @@ class SimpleSimpleDialog extends StatelessWidget {
       ),
     );
 
-    if (label != null)
-      dialogChild = Semantics(
-        namesRoute: true,
-        label: label,
-        child: dialogChild,
-      );
+    // if (label != null)
+    //   dialogChild = Semantics(
+    //     namesRoute: true,
+    //     label: label,
+    //     child: dialogChild,
+    //   );
     var dialog = _Dialog(
       backgroundColor: backgroundColor,
       insetPadding: insetPadding,
