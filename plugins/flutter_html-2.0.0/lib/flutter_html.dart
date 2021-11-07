@@ -13,7 +13,6 @@ export 'package:flutter_html/src/styled_element.dart';
 export 'package:flutter_html/src/interactable_element.dart';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter_html/html_parser.dart';
 import 'package:flutter_html/image_render.dart';
 import 'package:flutter_html/src/html_elements.dart';
@@ -60,8 +59,8 @@ class Html extends StatelessWidget {
     this.tagsList = const [],
     this.style = const {},
     this.navigationDelegateForIframe,
-  }) : document = null,
-        assert (data != null),
+  })  : document = null,
+        assert(data != null),
         anchorKey = GlobalKey(),
         super(key: key);
 
@@ -78,9 +77,9 @@ class Html extends StatelessWidget {
     this.tagsList = const [],
     this.style = const {},
     this.navigationDelegateForIframe,
-  }) : data = null,
+  })  : data = null,
         assert(document != null),
-  anchorKey = GlobalKey(),
+        anchorKey = GlobalKey(),
         super(key: key);
 
   /// A unique key for this Html widget to ensure uniqueness of anchors
@@ -105,7 +104,6 @@ class Html extends StatelessWidget {
   /// A function that defines what to do when either <math> or <tex> fails to render
   /// You can return a widget here to override the default error widget.
   final OnMathError? onMathError;
-
 
   /// A parameter that should be set when the HTML widget is expected to be
   /// flexible
@@ -138,7 +136,8 @@ class Html extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dom.Document doc = data != null ? HtmlParser.parseHTML(data!) : document!;
+    final dom.Document doc =
+        data != null ? HtmlParser.parseHTML(data!) : document!;
     final double? width = shrinkWrap ? null : MediaQuery.of(context).size.width;
 
     return Container(

@@ -1,4 +1,4 @@
-import 'package:dikt/common/preferencesSingleton.dart';
+import 'package:dikt/common/preferences_singleton.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';

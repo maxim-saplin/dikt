@@ -6,19 +6,17 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
-import '../../models/masterDictionary.dart';
-import '../../common/simpleSimpleDialog.dart';
+import '../../models/master_dictionary.dart';
+import '../../common/simple_simple_dialog.dart';
 import '../../common/i18n.dart';
 
-import '../elements/wordArticles.dart';
-import '../elements/topButtons.dart';
-import '../elements/loadingProgress.dart';
+import '../elements/word_articles.dart';
+import '../elements/menu_buttons.dart';
+import '../elements/loading_progress.dart';
 import '../../models/history.dart';
 import '../routes.dart';
 
 class Lookup extends StatelessWidget {
-  static const double _barHeight = 60;
-
   final bool narrow;
 
   Lookup(this.narrow);
@@ -30,51 +28,51 @@ class Lookup extends StatelessWidget {
 
     return Stack(children: [
       narrow ? DictionaryIndexingOrLoading() : Text(''),
-      !dictionary.isPartiallyLoaded
-          ? Text('')
-          : ((dictionary.isLookupWordEmpty && history.wordsCount < 1) ||
-                  dictionary.totalEntries == 0
-              ? Padding(
-                  padding: EdgeInsets.fromLTRB(0, 0, 0, _barHeight + 20),
-                  child: Align(
-                      alignment: Alignment.bottomCenter,
-                      child: Text(
-                        (narrow
-                                ? ((dictionary.totalEntries == 0
-                                        ? '↑↑↑\n' +
-                                            'Try adding dictionaries'.i18n +
-                                            '\n\n'
-                                        : '') +
-                                    dictionary.totalEntries.toString() +
-                                    ' ' +
-                                    'entries'.i18n)
-                                : '') +
-                            (dictionary.totalEntries > 0
-                                ? '\n\n' + 'Type-in text below'.i18n + '\n↓ ↓ ↓'
-                                : ''),
-                        textAlign: TextAlign.center,
-                      )))
-              : LookupWords(
-                  barHeight: _barHeight,
-                  dictionary: dictionary,
-                  history: history,
-                  narrow: narrow,
-                )),
-      _SearchBar(narrow),
+      Column(children: [
+        !dictionary.isPartiallyLoaded
+            ? Expanded(child: Text(''))
+            : ((dictionary.isLookupWordEmpty && history.wordsCount < 1) ||
+                    dictionary.totalEntries == 0
+                ? Expanded(
+                    child: Center(
+                        child: Padding(
+                            padding: EdgeInsets.fromLTRB(0, 100, 0, 0),
+                            child: Text(
+                              (narrow
+                                      ? ((dictionary.totalEntries == 0
+                                              ? '↑↑↑\n' +
+                                                  'Try adding dictionaries'
+                                                      .i18n +
+                                                  '\n\n'
+                                              : '') +
+                                          dictionary.totalEntries.toString() +
+                                          ' ' +
+                                          'entries'.i18n)
+                                      : '') +
+                                  (dictionary.totalEntries > 0
+                                      ? '\n\n' +
+                                          'Type-in text below'.i18n +
+                                          '\n↓ ↓ ↓'
+                                      : ''),
+                              textAlign: TextAlign.center,
+                            ))))
+                : Expanded(
+                    child: _WordsList(
+                    dictionary: dictionary,
+                    history: history,
+                    narrow: narrow,
+                  ))),
+        _SearchBar(narrow)
+      ]),
       narrow ? TopButtons() : Text(''),
     ]);
   }
 }
 
-class LookupWords extends StatelessWidget {
-  const LookupWords(
-      {required double barHeight,
-      required this.dictionary,
-      required this.history,
-      required this.narrow})
-      : _barHeight = barHeight;
+class _WordsList extends StatelessWidget {
+  const _WordsList(
+      {required this.dictionary, required this.history, required this.narrow});
 
-  final double _barHeight;
   final MasterDictionary dictionary;
   final History history;
   final bool narrow;
@@ -114,10 +112,7 @@ class LookupWords extends StatelessWidget {
           child: sv);
     }
 
-    return Padding(
-        padding: EdgeInsets.only(
-            left: 0.0, top: 0.0, right: 0.0, bottom: _barHeight),
-        child: sv);
+    return sv;
   }
 }
 
@@ -139,13 +134,13 @@ class _Entry extends StatelessWidget {
       word = dictionary.getMatch(index);
     }
 
-    return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        child: GestureDetector(
-          onTap: () {
-            if (word == '') return;
-            showArticle(context, word, narrow);
-          },
+    return GestureDetector(
+        onTap: () {
+          if (word == '') return;
+          showArticle(context, word, narrow);
+        },
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: LimitedBox(
             maxHeight: 48,
             child: Row(
@@ -184,59 +179,58 @@ class _SearchBar extends StatelessWidget {
   Widget build(BuildContext context) {
     var dictionary = Provider.of<MasterDictionary>(context, listen: false);
 
-    return Positioned(
-        bottom: 0.0,
-        left: 0.0,
-        right: 0.0,
-        height: Lookup._barHeight,
-        child: Container(
+    return dictionary.isPartiallyLoaded
+        ? Container(
+            decoration: BoxDecoration(
+                color: Theme.of(context).canvasColor,
+                borderRadius: BorderRadius.only(
+                    topLeft: (Radius.circular(12)),
+                    topRight: (Radius.circular(12)))),
             child: Padding(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: Stack(alignment: Alignment.bottomRight, children: [
-                  dictionary.isPartiallyLoaded
-                      ? TextField(
-                          controller: _controller,
-                          autofocus: true,
-                          onChanged: (text) {
-                            dictionary.lookupWord = text;
-                          },
-                          onSubmitted: (value) {
-                            if (dictionary.matchesCount > 0) {
-                              showArticle(
-                                  context, dictionary.getMatch(0), narrow);
-                            }
-                          },
-                          style: TextStyle(fontSize: 20.0),
-                          decoration: InputDecoration(
-                              border: InputBorder.none,
-                              hintText: 'Search'.i18n,
-                              suffix: GestureDetector(
-                                  onTap: () {
-                                    dictionary.lookupWord = '';
-                                    _controller.clear();
-                                  },
-                                  child: Text(dictionary.isPartiallyLoaded
-                                      ? (dictionary.isLookupWordEmpty
-                                          ? ''
-                                          : (dictionary.matchesCount >
-                                                      dictionary.maxResults
-                                                  ? dictionary.maxResults
-                                                          .toString() +
-                                                      '+'
-                                                  : dictionary.matchesCount
-                                                      .toString()) +
-                                              '  ╳')
-                                      : '0_0'))),
-                        )
-                      : Text(''),
+                  TextField(
+                    controller: _controller,
+                    autofocus: true,
+                    onChanged: (text) {
+                      dictionary.lookupWord = text;
+                    },
+                    onSubmitted: (value) {
+                      if (dictionary.matchesCount > 0) {
+                        showArticle(context, dictionary.getMatch(0), narrow);
+                      }
+                    },
+                    style:
+                        TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
+                    decoration: InputDecoration(
+                        border: InputBorder.none,
+                        hintText: 'Search'.i18n,
+                        suffix: GestureDetector(
+                            onTap: () {
+                              dictionary.lookupWord = '';
+                              _controller.clear();
+                            },
+                            child: Text(dictionary.isPartiallyLoaded
+                                ? (dictionary.isLookupWordEmpty
+                                    ? ''
+                                    : (dictionary.matchesCount >
+                                                dictionary.maxResults
+                                            ? dictionary.maxResults.toString() +
+                                                '+'
+                                            : dictionary.matchesCount
+                                                .toString()) +
+                                        '  ╳')
+                                : '0_0'))),
+                  ),
                   Opacity(
                       opacity: 0.2,
                       child: Text(
                           (dictionary.lookupSw.elapsedMicroseconds / 1000)
                               .toStringAsFixed(1),
                           style: Theme.of(context).textTheme.overline))
-                ]))));
+                ])))
+        : SizedBox();
   }
 }
 

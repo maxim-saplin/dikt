@@ -1,6 +1,5 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:dikt/common/preferencesSingleton.dart';
+import 'package:dikt/common/preferences_singleton.dart';
 
 class Preferences extends ChangeNotifier {
   static const String _themeModeParam = 'themeMode';

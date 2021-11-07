@@ -6,11 +6,11 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:provider/provider.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
-import '../../models/dictionaryManager.dart';
+import '../../models/dictionary_manager.dart';
 import '../../common/i18n.dart';
-import '../../models/onlineDictionaries.dart';
-import '../screens/onlineDictionaries.dart';
-import 'offlineDictionaries.dart';
+import '../../models/online_dictionaries.dart';
+import 'online_dictionaries.dart';
+import 'offline_dictionaries.dart';
 
 class _SwitchedToOnline {
   bool yes = false;

@@ -35,8 +35,13 @@ extension ThemeDataExtensions on ThemeData {
 
 OwnThemeFields ownTheme(BuildContext context) => Theme.of(context).own();
 
-final ThemeData lightTheme = (ThemeData.light().copyWith(
-    visualDensity: VisualDensity(horizontal: -4, vertical: -4),
+final ThemeData lightTheme = ThemeData.light().copyWith(
+    // cardColor: Color.fromARGB(255, 240, 242, 243),
+    // dialogBackgroundColor: Color.fromARGB(255, 240, 242, 243),
+    backgroundColor: Color.fromARGB(255, 240, 242, 243),
+    canvasColor: Color.fromARGB(255, 240, 242, 243),
+    // scaffoldBackgroundColor: Color.fromARGB(255, 240, 242, 243),
+    //visualDensity: VisualDensity(horizontal: -4, vertical: -4),
     outlinedButtonTheme: OutlinedButtonThemeData(
         style: ButtonStyle(
             foregroundColor: MaterialStateProperty.all<Color>(Colors.black))),
@@ -45,8 +50,8 @@ final ThemeData lightTheme = (ThemeData.light().copyWith(
         border: InputBorder.none,
         labelStyle: TextStyle(
             fontSize: 18, fontFamily: 'Montserrat', color: Colors.red)),
-    accentColor: Colors.grey.withAlpha(128),
-    backgroundColor: Color.fromARGB(255, 255, 255, 255),
+    colorScheme:
+        ColorScheme.light().copyWith(secondary: Colors.grey.withAlpha(128)),
     textTheme: TextTheme(
       button: TextStyle(
           fontSize: 18, fontFamily: 'Montserrat', color: Colors.black),
@@ -86,20 +91,22 @@ final ThemeData lightTheme = (ThemeData.light().copyWith(
       // Dictionary card, dictionary  name
       caption: TextStyle(
           fontSize: 17.0, fontFamily: 'Montserrat', color: Colors.black),
-    )))
+    ))
   ..addOwn(OwnThemeFields(
       errorShade: Color.fromARGB(240, 255, 200, 200),
       textBaloon: Color.fromARGB(240, 255, 200, 200)));
 
 final ThemeData darkTheme = ThemeData.dark().copyWith(
-    cardColor: Color.fromARGB(255, 50, 50, 50),
-    scaffoldBackgroundColor: Color.fromARGB(255, 40, 40, 40),
-    dialogBackgroundColor: Color.fromARGB(255, 50, 50, 50),
+    cardColor: Color.fromARGB(255, 16, 17, 18),
+    dialogBackgroundColor: Color.fromARGB(255, 16, 17, 18),
+    canvasColor: Color.fromARGB(255, 16, 17, 18),
+    scaffoldBackgroundColor: Color.fromARGB(255, 32, 33, 36),
     outlinedButtonTheme: OutlinedButtonThemeData(
         style: ButtonStyle(
             foregroundColor: MaterialStateProperty.all<Color>(Colors.white))),
-    accentColor: Colors.grey.withAlpha(128),
-    backgroundColor: Color.fromARGB(255, 50, 50, 50),
+    colorScheme:
+        ColorScheme.dark().copyWith(secondary: Colors.grey.withAlpha(128)),
+    backgroundColor: Color.fromARGB(255, 32, 35, 36),
     textTheme: TextTheme(
       button: TextStyle(fontSize: 18, fontFamily: 'Montserrat'),
       headline6: TextStyle(

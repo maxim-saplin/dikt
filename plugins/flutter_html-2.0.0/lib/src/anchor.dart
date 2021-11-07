@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_html/src/styled_element.dart';
 
@@ -22,7 +21,10 @@ class AnchorKey extends GlobalKey {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is AnchorKey && runtimeType == other.runtimeType && parentKey == other.parentKey && id == other.id;
+      other is AnchorKey &&
+          runtimeType == other.runtimeType &&
+          parentKey == other.parentKey &&
+          id == other.id;
 
   @override
   int get hashCode => parentKey.hashCode ^ id.hashCode;

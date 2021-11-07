@@ -1,4 +1,4 @@
-import 'package:dikt/common/simpleSimpleDialog.dart';
+import 'package:dikt/common/simple_simple_dialog.dart';
 import 'package:dikt/ui/screens/dictionaries.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
