@@ -75,3 +75,7 @@ assets/dictionaries2/RuEnUniversal08.json
 test/data/dik_enenwordnet3.lock
 test/tmp/*
 
+.flutter-plugins
+.flutter-plugins-dependencies
+lib/generated_plugin_registrant.dart
+macos/Flutter/GeneratedPluginRegistrant.swift
