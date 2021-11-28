@@ -360,17 +360,29 @@ void main() {
     });
 
     testWidgets('Dictionary data is displayed', (WidgetTester tester) async {
-      await _createOfflineDictionaries(tester);
-      await tester.pumpAndSettle();
-      await tester.pumpAndSettle(); // allow Timer.run execute
-      await tester.pumpAndSettle(Duration(milliseconds: 1000));
+      await tester.runAsync(() async {
+        await _createOfflineDictionaries(tester);
+        await tester.pumpAndSettle();
+        // await tester.pumpAndSettle(); // allow Timer.run execute
 
-      var d = find.byType(OfflineDictionaryTile).first;
+        var d = find.byType(OfflineDictionaryTile).first;
 
-      expect(d.byChildText('EN_EN WordNet 3'), findsOneWidget);
-      expect(d.byChildText('↘'), findsOneWidget);
-      // Due to some reasons FutureBuilder in OfflineDictionary proceeds without waiting fot Future to complete
-      //expect(d.byChildText('entries'), findsOneWidget);
+        expect(d.byChildText('EN_EN WordNet 3'), findsOneWidget);
+        expect(d.byChildText('↘'), findsOneWidget);
+
+        // Let isolates finish work
+        await Future.delayed(Duration(
+            milliseconds: 100)); // !! Might need to increase if test fails
+        await tester.pumpAndSettle();
+
+        // Due to some reasons FutureBuilder in OfflineDictionary proceeds without waiting fot Future to complete
+        // Upd. Wrapping in tester.runAsync and addinf Future.delayed wait helped
+        expect(d.byChildText('entries'), findsOneWidget);
+
+        // Adding this await to allow complete another timer and avoid exception in test logs
+        await Future.delayed(Duration(milliseconds: 10));
+        await tester.pumpAndSettle();
+      });
     });
 
     testWidgets('Dictionary can be disabled', (WidgetTester tester) async {
@@ -389,26 +401,38 @@ void main() {
     });
 
     testWidgets('Dictionary can be enabled', (WidgetTester tester) async {
-      await _createOfflineDictionaries(tester);
-      await tester.pumpAndSettle();
-      await tester.pumpAndSettle(); // allow Timer.run execute
+      await tester.runAsync(() async {
+        await _createOfflineDictionaries(tester);
+        await tester.pumpAndSettle();
+        await tester.pumpAndSettle(); // allow Timer.run execute
 
-      var d = find.byType(OfflineDictionaryTile).at(1);
-      expect(d, findsOneWidget);
-      var b = d.byChildType(TextButton);
-      expect(b, findsOneWidget);
-      expect(b.byChildText('↓'), findsOneWidget);
+        var d = find.byType(OfflineDictionaryTile).at(1);
+        expect(d, findsOneWidget);
+        var b = d.byChildType(TextButton);
+        expect(b, findsOneWidget);
+        expect(b.byChildText('↓'), findsOneWidget);
 
-      await tester.tap(b);
-      await tester.pump();
-      expect(d.byChildType(CircularProgressIndicator), findsOneWidget);
-      // pumpAndSettle times out, most likely due to issues with isolates under testing, IkvLoad using pools and isolates to load dictionaries is somehow unstable
-      // await tester.pumpAndSettle(Duration(seconds: 10));
-      // expect(b.byChildText('↘'), findsOneWidget);
+        await tester.tap(b);
+        await tester.pump();
+        expect(d.byChildType(CircularProgressIndicator), findsOneWidget);
+        // pumpAndSettle times out, most likely due to issues with isolates under testing, IkvLoad using pools and isolates to load dictionaries is somehow unstable
+        // Upd. Wrapping in tester.runAsync and addinf Future.delayed wait helped
+
+        // Let isolates finish work
+        await Future.delayed(Duration(
+            milliseconds: 100)); // !! Might need to increase if test fails
+        await tester.pumpAndSettle();
+
+        expect(b.byChildText('↘'), findsOneWidget);
+
+        // Adding this await to allow complete another timer and avoid exception in test logs
+        await Future.delayed(Duration(milliseconds: 10));
+        await tester.pumpAndSettle();
+      });
     });
 
     dragToDelete(WidgetTester tester) async {
-      // double pumps to convrt fo cases like below:
+      // double pumps to conver fo cases like below:
       //  if (snapshot.hasData) {
       //    Timer.run(() {
       // ...
