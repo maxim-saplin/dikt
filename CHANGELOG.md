@@ -1,2 +1,3 @@
+- 2.0.0+5 - built with Flutter 2.8.0 stable, UI touches (bottom bar larger, mouse pointers, back icon), scrolling to given article via dictionary drop down
 - 2.0.0+4 - built with Master channel 2.6.0-12.0.pre.759 (fixing 'isolate group by default' perf, degradation) fixing load time (1.5s vs 3-4s) and freezes when resuming the app. Number of isolates set to #,cores - 2
 - 2.0.0+1-3 - converted to null safety the code base and forked plugins, update of major versions in pubspec, src file names changed, turned of Semantics for HTML viewer plugin and fixed scrolling lag in article view, refactored lookup screen layout, different color scheme

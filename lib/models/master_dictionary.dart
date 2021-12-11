@@ -11,7 +11,7 @@ import 'dictionary_manager.dart';
 class Article {
   final String word;
   final String article;
-  final String? dictionaryName;
+  final String dictionaryName;
   Article(this.word, this.article, this.dictionaryName);
 }
 

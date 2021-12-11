@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -57,11 +56,13 @@ class Lookup extends StatelessWidget {
                               textAlign: TextAlign.center,
                             ))))
                 : Expanded(
-                    child: _WordsList(
-                    dictionary: dictionary,
-                    history: history,
-                    narrow: narrow,
-                  ))),
+                    child: Padding(
+                        padding: EdgeInsets.fromLTRB(0, 0, 0, 10),
+                        child: _WordsList(
+                          dictionary: dictionary,
+                          history: history,
+                          narrow: narrow,
+                        )))),
         _SearchBar(narrow)
       ]),
       narrow ? TopButtons() : Text(''),
@@ -134,37 +135,40 @@ class _Entry extends StatelessWidget {
       word = dictionary.getMatch(index);
     }
 
-    return GestureDetector(
-        onTap: () {
-          if (word == '') return;
-          showArticle(context, word, narrow);
-        },
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: LimitedBox(
-            maxHeight: 48,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                    child: Text(dictionary.isLookupWordEmpty ? '' : word,
-                        style: TextStyle(
-                            // Ikv returns original keys, i.e. not lower case
-                            // probably it is better to just highlight selected index rather than compare strings
-                            fontWeight:
-                                word.toLowerCase() == dictionary.selectedWord
+    return MouseRegion(
+        cursor:
+            word == '' ? SystemMouseCursors.basic : SystemMouseCursors.click,
+        child: GestureDetector(
+            onTap: () {
+              if (word == '') return;
+              showArticle(context, word, narrow);
+            },
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: LimitedBox(
+                maxHeight: 48,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                        child: Text(dictionary.isLookupWordEmpty ? '' : word,
+                            style: TextStyle(
+                                // Ikv returns original keys, i.e. not lower case
+                                // probably it is better to just highlight selected index rather than compare strings
+                                fontWeight: word.toLowerCase() ==
+                                        dictionary.selectedWord
                                     ? FontWeight.bold
                                     : FontWeight.normal))),
-                Text(dictionary.isLookupWordEmpty ? word : '·',
-                    style: TextStyle(
-                        fontStyle: FontStyle.italic,
-                        fontWeight: word == dictionary.selectedWord
-                            ? FontWeight.bold
-                            : FontWeight.normal)),
-              ],
-            ),
-          ),
-        ));
+                    Text(dictionary.isLookupWordEmpty ? word : '·',
+                        style: TextStyle(
+                            fontStyle: FontStyle.italic,
+                            fontWeight: word == dictionary.selectedWord
+                                ? FontWeight.bold
+                                : FontWeight.normal)),
+                  ],
+                ),
+              ),
+            )));
   }
 }
 
@@ -184,52 +188,47 @@ class _SearchBar extends StatelessWidget {
             decoration: BoxDecoration(
                 color: Theme.of(context).canvasColor,
                 borderRadius: BorderRadius.only(
-                    topLeft: (Radius.circular(12)),
-                    topRight: (Radius.circular(12)))),
-            child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: Stack(alignment: Alignment.bottomRight, children: [
-                  TextField(
-                    controller: _controller,
-                    autofocus: true,
-                    onChanged: (text) {
-                      dictionary.lookupWord = text;
-                    },
-                    onSubmitted: (value) {
-                      if (dictionary.matchesCount > 0) {
-                        showArticle(context, dictionary.getMatch(0), narrow);
-                      }
-                    },
-                    style:
-                        TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
-                    decoration: InputDecoration(
-                        border: InputBorder.none,
-                        hintText: 'Search'.i18n,
-                        suffix: GestureDetector(
-                            onTap: () {
-                              dictionary.lookupWord = '';
-                              _controller.clear();
-                            },
-                            child: Text(dictionary.isPartiallyLoaded
-                                ? (dictionary.isLookupWordEmpty
-                                    ? ''
-                                    : (dictionary.matchesCount >
-                                                dictionary.maxResults
-                                            ? dictionary.maxResults.toString() +
-                                                '+'
-                                            : dictionary.matchesCount
-                                                .toString()) +
-                                        '  ╳')
-                                : '0_0'))),
-                  ),
-                  Opacity(
-                      opacity: 0.2,
-                      child: Text(
-                          (dictionary.lookupSw.elapsedMicroseconds / 1000)
-                              .toStringAsFixed(1),
-                          style: Theme.of(context).textTheme.overline))
-                ])))
+                    topLeft: narrow ? Radius.circular(12) : Radius.zero,
+                    topRight: narrow ? Radius.circular(12) : Radius.zero)),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            child: Stack(alignment: Alignment.bottomRight, children: [
+              TextField(
+                controller: _controller,
+                autofocus: true,
+                onChanged: (text) {
+                  dictionary.lookupWord = text;
+                },
+                onSubmitted: (value) {
+                  if (dictionary.matchesCount > 0) {
+                    showArticle(context, dictionary.getMatch(0), narrow);
+                  }
+                },
+                style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
+                decoration: InputDecoration(
+                    border: InputBorder.none,
+                    hintText: 'Search'.i18n,
+                    suffix: GestureDetector(
+                        onTap: () {
+                          dictionary.lookupWord = '';
+                          _controller.clear();
+                        },
+                        child: Text(dictionary.isPartiallyLoaded
+                            ? (dictionary.isLookupWordEmpty
+                                ? ''
+                                : (dictionary.matchesCount >
+                                            dictionary.maxResults
+                                        ? dictionary.maxResults.toString() + '+'
+                                        : dictionary.matchesCount.toString()) +
+                                    '  ╳')
+                            : '0_0'))),
+              ),
+              Opacity(
+                  opacity: 0.2,
+                  child: Text(
+                      (dictionary.lookupSw.elapsedMicroseconds / 1000)
+                          .toStringAsFixed(1),
+                      style: Theme.of(context).textTheme.overline))
+            ]))
         : SizedBox();
   }
 }

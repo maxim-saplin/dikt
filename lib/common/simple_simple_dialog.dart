@@ -113,23 +113,6 @@ class SimpleSimpleDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     assert(debugCheckHasMaterialLocalizations(context));
-    final ThemeData theme = Theme.of(context);
-
-    String? label = semanticLabel;
-    if (title == null) {
-      switch (theme.platform) {
-        case TargetPlatform.macOS:
-        case TargetPlatform.iOS:
-          label = semanticLabel;
-          break;
-        case TargetPlatform.android:
-        case TargetPlatform.fuchsia:
-        case TargetPlatform.linux:
-        case TargetPlatform.windows:
-          label =
-              semanticLabel ?? MaterialLocalizations.of(context).dialogLabel;
-      }
-    }
 
     Widget dialogChild = ConstrainedBox(
       constraints: BoxConstraints(minWidth: 280.0, maxWidth: maxWidth),
