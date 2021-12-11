@@ -1,16 +1,14 @@
 import 'package:flutter/material.dart';
 
 class OwnThemeFields {
-  final Color? errorShade;
-  final Color? textBaloon;
+  final Color errorShade;
+  final Color textBaloon;
+  final Color spanColor;
 
-  const OwnThemeFields({Color? errorShade, Color? textBaloon})
-      : this.errorShade = errorShade,
-        this.textBaloon = textBaloon;
-
-  factory OwnThemeFields.empty() {
-    return OwnThemeFields(errorShade: Colors.black, textBaloon: Colors.black);
-  }
+  const OwnThemeFields({Color? errorShade, Color? textBaloon, Color? spanColor})
+      : this.errorShade = errorShade ?? Colors.red,
+        this.textBaloon = textBaloon ?? Colors.black,
+        this.spanColor = spanColor ?? Colors.black;
 }
 
 extension ThemeDataExtensions on ThemeData {
@@ -26,7 +24,7 @@ extension ThemeDataExtensions on ThemeData {
   OwnThemeFields own() {
     var o = _own[this.inputDecorationTheme];
     if (o == null) {
-      if (empty == null) empty = OwnThemeFields.empty();
+      if (empty == null) empty = OwnThemeFields();
       o = empty;
     }
     return o!;
@@ -97,21 +95,20 @@ final ThemeData lightTheme = ThemeData.light().copyWith(
       textBaloon: Color.fromARGB(240, 255, 200, 200)));
 
 final ThemeData darkTheme = ThemeData.dark().copyWith(
-    cardColor: Color.fromARGB(255, 16, 17, 18),
-    dialogBackgroundColor: Color.fromARGB(255, 16, 17, 18),
-    canvasColor: Color.fromARGB(255, 16, 17, 18),
-    scaffoldBackgroundColor: Color.fromARGB(255, 32, 33, 36),
+    cardColor: Color.fromARGB(255, 32, 33, 36),
+    dialogBackgroundColor: Color.fromARGB(255, 32, 33, 36),
+    canvasColor: Color.fromARGB(255, 32, 33, 36),
+    scaffoldBackgroundColor: Color.fromARGB(255, 16, 17, 18),
     outlinedButtonTheme: OutlinedButtonThemeData(
         style: ButtonStyle(
             foregroundColor: MaterialStateProperty.all<Color>(Colors.white))),
-    colorScheme:
-        ColorScheme.dark().copyWith(secondary: Colors.grey.withAlpha(128)),
+    colorScheme: ColorScheme.dark().copyWith(secondary: Colors.green),
     backgroundColor: Color.fromARGB(255, 32, 35, 36),
     textTheme: TextTheme(
       button: TextStyle(fontSize: 18, fontFamily: 'Montserrat'),
       headline6: TextStyle(
         fontSize: 20.0,
-        color: Colors.white,
+        color: Color.fromARGB(255, 240, 240, 240),
         fontFamily: 'Montserrat',
         fontWeight: FontWeight.bold,
       ),
@@ -140,5 +137,6 @@ final ThemeData darkTheme = ThemeData.dark().copyWith(
           fontSize: 17.0, fontFamily: 'Montserrat', color: Colors.white),
     ))
   ..addOwn(OwnThemeFields(
+      spanColor: Colors.grey[400],
       errorShade: Color.fromARGB(240, 200, 0, 0),
       textBaloon: Color.fromARGB(255, 200, 80, 80)));

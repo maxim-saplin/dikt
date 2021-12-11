@@ -1,3 +1,7 @@
+import 'dart:async';
+
+import 'package:dikt/common/helpers.dart';
+import 'package:dikt/ui/themes.dart';
 import 'package:flutter/material.dart';
 import 'package:dikt/models/master_dictionary.dart';
 import 'package:flutter_html/flutter_html.dart';
@@ -18,6 +22,11 @@ class WordArticles extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var dicsCompleter = Completer<
+        Tuple<List<DropdownMenuItem<String>>, Map<String, GlobalKey>>>();
+
+    //scrollController.position.ensureVisible
+
     return Stack(children: [
       ClipRRect(
           borderRadius: BorderRadius.all(Radius.circular(10)),
@@ -38,14 +47,14 @@ class WordArticles extends StatelessWidget {
                           value: a.dictionaryName))
                       .toList();
 
-                  // var keys = List<GlobalKey>.generate(
-                  //     list.length, (index) => GlobalKey());
-                  // var i = 0;
-
                   var dicsToKeys = Map<String, GlobalKey>();
 
+                  if (!dicsCompleter.isCompleted) {
+                    dicsCompleter.complete(Tuple(dictionaries, dicsToKeys));
+                  }
+
                   return Padding(
-                      padding: EdgeInsets.fromLTRB(0, 25, 0, 50),
+                      padding: EdgeInsets.fromLTRB(0, 30, 0, 50),
                       child: PrimaryScrollController(
                           controller: scrollController,
                           child: Scrollbar(
@@ -64,27 +73,11 @@ class WordArticles extends StatelessWidget {
                                   padding: EdgeInsets.fromLTRB(18, 0, 18, 0),
                                   height: 30.0,
                                   color: Theme.of(context).cardColor,
-                                  child: DropdownButton(
-                                    iconSize: 0,
-                                    underline: SizedBox(),
-                                    alignment: Alignment.centerRight,
-                                    isDense: true,
-                                    items: dictionaries,
-                                    value: article.dictionaryName,
-                                    onChanged: (v) {
-                                      var key = dicsToKeys[v];
-                                      if (key != null) {
-                                        Scrollable.ensureVisible(
-                                            key.currentContext!,
-                                            duration:
-                                                Duration(milliseconds: 300));
-                                      }
-                                    },
-                                  ),
-                                  // Text(article.dictionaryName!,
-                                  //     style: Theme.of(context)
-                                  //         .textTheme
-                                  //         .subtitle2),
+                                  child: _DictionarySelector(
+                                      dictionaries: dictionaries,
+                                      dicsToKeys: dicsToKeys,
+                                      scrollController: scrollController,
+                                      dictionary: article.dictionaryName),
                                   alignment: Alignment.bottomRight,
                                 )),
                                 sliver: SliverList(
@@ -101,11 +94,28 @@ class WordArticles extends StatelessWidget {
                                               showAnotherWord!(url!);
                                           },
                                           style: {
+                                            "a": Style(
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .secondary,
+                                                fontSize: FontSize(18),
+                                                fontStyle: FontStyle.italic,
+                                                fontFamily: "OpenSans"),
+                                            // "i": Style(
+                                            //     color: Colors.green[700],
+                                            //     fontSize: FontSize(18),
+                                            //     fontStyle: FontStyle.italic,
+                                            //     fontFamily: "Roboto"),
+                                            "span": Style(
+                                                color:
+                                                    ownTheme(context).spanColor,
+                                                fontSize: FontSize(18),
+                                                fontStyle: FontStyle.italic,
+                                                fontFamily: "OpenSans"),
                                             "div": Style(
-                                                // fontFamily:
-                                                //     'sans-serif-light',
                                                 padding: EdgeInsets.all(0),
-                                                fontSize: FontSize(19)),
+                                                //fontFamily: "OpenSans",
+                                                fontSize: FontSize(18)),
                                           },
                                         ));
                                   }, childCount: 1),
@@ -115,7 +125,7 @@ class WordArticles extends StatelessWidget {
                           ))));
                 }
                 return Padding(
-                    padding: EdgeInsets.fromLTRB(0, 25, 0, 50),
+                    padding: EdgeInsets.fromLTRB(0, 30, 0, 50),
                     child: Container(
                         width: 10000,
                         height: 40,
@@ -126,9 +136,9 @@ class WordArticles extends StatelessWidget {
               },
             ),
             Container(
-                padding: EdgeInsets.fromLTRB(18, 10, 18, 0),
+                padding: EdgeInsets.fromLTRB(18, 15, 18, 0),
                 color: Theme.of(context).cardColor,
-                height: 34.0,
+                height: 39.0,
                 width: 1000,
                 child: SelectableText(
                   word,
@@ -137,23 +147,103 @@ class WordArticles extends StatelessWidget {
           ])),
       Positioned(
         child: Container(
-            //padding: EdgeInsets.only(left: 30, right: 30),
             color: Theme.of(context).cardColor,
-            //color: Theme.of(context).scaffoldBackgroundColor.withAlpha(105),
-            child: IconButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              iconSize: 20,
-              //hoverColor: The,
-              icon: Icon(Icons.arrow_back_ios_new),
-              //child: Text('▽'),
-            )),
+            child: Flex(
+                direction: Axis.horizontal,
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  Expanded(
+                      flex: 1,
+                      child: TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: Icon(
+                          Icons.arrow_back_ios_new_rounded,
+                          color: Theme.of(context).iconTheme.color,
+                          size: 18,
+                        ),
+                      )),
+                  Expanded(
+                      flex: 1,
+                      child: FutureBuilder<
+                              Tuple<List<DropdownMenuItem<String>>,
+                                  Map<String, GlobalKey>>>(
+                          future: dicsCompleter.future,
+                          builder: (c, s) => s.hasData && s.data != null
+                              ? Stack(alignment: Alignment.center, children: [
+                                  Icon(
+                                    Icons.launch_rounded,
+                                    size: 20,
+                                  ),
+                                  // TODO - fix button being to narrow and icon not covering the click area (e.g. wide window)
+                                  // try Actions https://stackoverflow.com/questions/57529394/how-to-open-dropdownbutton-when-other-widget-is-tapped-in-flutter
+                                  OverflowBox(
+                                      alignment: Alignment.centerRight,
+                                      maxWidth: 500,
+                                      child: SizedBox(
+                                          child: _DictionarySelector(
+                                              dictionaries: s.data!.value1,
+                                              dicsToKeys: s.data!.value2,
+                                              scrollController:
+                                                  scrollController)))
+                                ])
+                              : SizedBox())),
+                ])),
         bottom: 0.0,
         left: 0.0,
-        right: 00.0,
+        right: 0.0,
         height: 50,
       )
     ]);
+  }
+}
+
+class _DictionarySelector extends StatelessWidget {
+  const _DictionarySelector(
+      {required this.dictionaries,
+      required this.dicsToKeys,
+      required this.scrollController,
+      this.dictionary});
+
+  final List<DropdownMenuItem<String>> dictionaries;
+  final Map<String, GlobalKey<State<StatefulWidget>>> dicsToKeys;
+  final ScrollController scrollController;
+  final String? dictionary;
+
+  @override
+  Widget build(BuildContext context) {
+    Widget w = DropdownButton(
+      dropdownColor: Theme.of(context).scaffoldBackgroundColor,
+      iconSize: 0,
+      underline: SizedBox(),
+      iconEnabledColor: Theme.of(context).iconTheme.color,
+      alignment: Alignment.centerRight,
+      isDense: true,
+      items: dictionaries,
+      value: dictionary,
+      borderRadius: BorderRadius.all(Radius.circular(8)),
+      onChanged: (v) {
+        var key = dicsToKeys[v];
+        if (key != null) {
+          scrollController.position.ensureVisible(
+              key.currentContext!.findRenderObject()!,
+              duration: Duration(milliseconds: 300));
+          // Scrollable.ensureVisible(key.currentContext!,
+          //     duration: Duration(milliseconds: 300));
+        }
+      },
+    );
+
+    // Don't highlisght first item when clicking dropdown in the bottom
+    if (dictionary == null) {
+      w = Theme(
+          child: w,
+          data: Theme.of(context)
+              .copyWith(focusColor: Theme.of(context).scaffoldBackgroundColor));
+    }
+
+    return w;
   }
 }

@@ -207,20 +207,37 @@ class _SearchBar extends StatelessWidget {
                 decoration: InputDecoration(
                     border: InputBorder.none,
                     hintText: 'Search'.i18n,
-                    suffix: GestureDetector(
-                        onTap: () {
-                          dictionary.lookupWord = '';
-                          _controller.clear();
-                        },
-                        child: Text(dictionary.isPartiallyLoaded
-                            ? (dictionary.isLookupWordEmpty
-                                ? ''
-                                : (dictionary.matchesCount >
-                                            dictionary.maxResults
-                                        ? dictionary.maxResults.toString() + '+'
-                                        : dictionary.matchesCount.toString()) +
-                                    '  ╳')
-                            : '0_0'))),
+                    suffix: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(dictionary.isPartiallyLoaded
+                              ? (dictionary.isLookupWordEmpty
+                                  ? ''
+                                  : (dictionary.matchesCount >=
+                                          dictionary.maxResults
+                                      ? dictionary.maxResults.toString() + '+'
+                                      : dictionary.matchesCount.toString()))
+                              : '0_0'),
+                          if (!dictionary.isLookupWordEmpty)
+                            MouseRegion(
+                                cursor: SystemMouseCursors.click,
+                                child: GestureDetector(
+                                    child: Container(
+                                      //color: Colors.red,
+                                      height: 32,
+                                      width: 36,
+                                      child: Icon(
+                                        Icons.backspace_rounded,
+                                        size: 24,
+                                      ),
+                                    ),
+                                    onTap: () {
+                                      dictionary.lookupWord = '';
+                                      _controller.clear();
+                                    }))
+                        ])),
               ),
               Opacity(
                   opacity: 0.2,

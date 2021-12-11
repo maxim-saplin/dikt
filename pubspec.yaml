@@ -3,7 +3,7 @@ description: dikt - bottom-up offline dictionary.
 
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 2.0.0+5
+version: 2.0.0+6
 
 environment:
   sdk: '>=2.12.0 <3.0.0'
@@ -72,4 +72,11 @@ flutter:
         - asset: assets/Montserrat-Bold.ttf
           weight: 700
         - asset: assets/Montserrat-Italic.ttf
+          style: italic
+    - family: OpenSans
+      fonts:
+        - asset: assets/OpenSans-Regular.ttf
+        - asset: assets/OpenSans-Bold.ttf
+          weight: 700
+        - asset: assets/OpenSans-Italic.ttf
           style: italic
