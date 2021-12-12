@@ -15,7 +15,7 @@ class WordArticles extends StatelessWidget {
       this.showAnotherWord})
       : super(key: key);
 
-  final Future<List<Article>> articles;
+  final List<Future<Article>> articles;
   final String word;
   final Function(String word)? showAnotherWord;
   final ScrollController scrollController = ScrollController();
@@ -25,116 +25,123 @@ class WordArticles extends StatelessWidget {
     var dicsCompleter = Completer<
         Tuple<List<DropdownMenuItem<String>>, Map<String, GlobalKey>>>();
 
-    //scrollController.position.ensureVisible
+    //     var dictionaries = list
+    //     .map((a) => DropdownMenuItem<String>(
+    //         alignment: Alignment.centerRight,
+    //         child: Text(
+    //           a.dictionaryName,
+    //           style: Theme.of(context).textTheme.subtitle2,
+    //         ),
+    //         value: a.dictionaryName))
+    //     .toList();
+
+    // var dicsToKeys = Map<String, GlobalKey>();
+
+    // if (!dicsCompleter.isCompleted) {
+    //   dicsCompleter.complete(Tuple(dictionaries, dicsToKeys));
+    // }
 
     return Stack(children: [
       ClipRRect(
           borderRadius: BorderRadius.all(Radius.circular(10)),
           child: Stack(children: [
             FutureBuilder(
-              future: articles,
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  var list = snapshot.data as List<Article>;
+                future: Future.wait(articles),
+                builder: (c, s) => s.hasData
+                    ? Padding(
+                        padding: EdgeInsets.fromLTRB(0, 30, 0, 50),
+                        child: PrimaryScrollController(
+                            controller: scrollController,
+                            child: Scrollbar(
+                                child: CustomScrollView(
+                              physics: BouncingScrollPhysics(),
+                              semanticChildCount: articles.length,
+                              scrollDirection: Axis.vertical,
+                              shrinkWrap: true,
+                              slivers: articles.map((article) {
+                                // var key = GlobalKey();
+                                // dicsToKeys[article.dictionaryName] = key;
+                                return SliverStickyHeader(
+                                  key: key,
+                                  header: Align(
+                                      child: Container(
+                                    padding: EdgeInsets.fromLTRB(18, 0, 18, 0),
+                                    height: 30.0,
+                                    color: Theme.of(context).cardColor,
+                                    child: Text('TEST'),
 
-                  var dictionaries = list
-                      .map((a) => DropdownMenuItem<String>(
-                          alignment: Alignment.centerRight,
-                          child: Text(
-                            a.dictionaryName,
-                            style: Theme.of(context).textTheme.subtitle2,
-                          ),
-                          value: a.dictionaryName))
-                      .toList();
-
-                  var dicsToKeys = Map<String, GlobalKey>();
-
-                  if (!dicsCompleter.isCompleted) {
-                    dicsCompleter.complete(Tuple(dictionaries, dicsToKeys));
-                  }
-
-                  return Padding(
-                      padding: EdgeInsets.fromLTRB(0, 30, 0, 50),
-                      child: PrimaryScrollController(
-                          controller: scrollController,
-                          child: Scrollbar(
-                              child: CustomScrollView(
-                            physics: BouncingScrollPhysics(),
-                            semanticChildCount: list.length,
-                            scrollDirection: Axis.vertical,
-                            shrinkWrap: true,
-                            slivers: list.map((article) {
-                              var key = GlobalKey();
-                              dicsToKeys[article.dictionaryName] = key;
-                              return SliverStickyHeader(
-                                key: key,
-                                header: Align(
-                                    child: Container(
-                                  padding: EdgeInsets.fromLTRB(18, 0, 18, 0),
-                                  height: 30.0,
-                                  color: Theme.of(context).cardColor,
-                                  child: _DictionarySelector(
-                                      dictionaries: dictionaries,
-                                      dicsToKeys: dicsToKeys,
-                                      scrollController: scrollController,
-                                      dictionary: article.dictionaryName),
-                                  alignment: Alignment.bottomRight,
-                                )),
-                                sliver: SliverList(
-                                  delegate:
-                                      SliverChildBuilderDelegate((context, i) {
-                                    return Container(
-                                        color: Theme.of(context).cardColor,
-                                        padding:
-                                            EdgeInsets.fromLTRB(18, 0, 18, 10),
-                                        child: Html(
-                                          data: article.article,
-                                          onLinkTap: (String? url) {
-                                            if (showAnotherWord != null)
-                                              showAnotherWord!(url!);
-                                          },
-                                          style: {
-                                            "a": Style(
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .secondary,
-                                                fontSize: FontSize(18),
-                                                fontStyle: FontStyle.italic,
-                                                fontFamily: "OpenSans"),
-                                            // "i": Style(
-                                            //     color: Colors.green[700],
-                                            //     fontSize: FontSize(18),
-                                            //     fontStyle: FontStyle.italic,
-                                            //     fontFamily: "Roboto"),
-                                            "span": Style(
-                                                color:
-                                                    ownTheme(context).spanColor,
-                                                fontSize: FontSize(18),
-                                                fontStyle: FontStyle.italic,
-                                                fontFamily: "OpenSans"),
-                                            "div": Style(
-                                                padding: EdgeInsets.all(0),
-                                                //fontFamily: "OpenSans",
-                                                fontSize: FontSize(18)),
-                                          },
-                                        ));
-                                  }, childCount: 1),
-                                ),
-                              );
-                            }).toList(),
-                          ))));
-                }
-                return Padding(
-                    padding: EdgeInsets.fromLTRB(0, 30, 0, 50),
-                    child: Container(
-                        width: 10000,
-                        height: 40,
-                        child: Align(
-                          child: Text('...'),
-                          alignment: Alignment.center,
-                        )));
-              },
-            ),
+                                    // _DictionarySelector(
+                                    //     dictionaries: dictionaries,
+                                    //     dicsToKeys: dicsToKeys,
+                                    //     scrollController: scrollController,
+                                    //     dictionary: article.dictionaryName),
+                                    alignment: Alignment.bottomRight,
+                                  )),
+                                  sliver: SliverList(
+                                    delegate: SliverChildBuilderDelegate(
+                                        (context, i) => FutureBuilder<Article>(
+                                            future: article,
+                                            builder: (c, s) => s.hasData &&
+                                                    s.data != null
+                                                ? Container(
+                                                    color: Theme.of(context)
+                                                        .cardColor,
+                                                    padding:
+                                                        EdgeInsets.fromLTRB(
+                                                            18, 0, 18, 10),
+                                                    child: Html(
+                                                      data: s.data!.article,
+                                                      onLinkTap: (String? url) {
+                                                        if (showAnotherWord !=
+                                                            null)
+                                                          showAnotherWord!(
+                                                              url!);
+                                                      },
+                                                      style: {
+                                                        "a": Style(
+                                                            color: Theme.of(
+                                                                    context)
+                                                                .colorScheme
+                                                                .secondary,
+                                                            fontSize:
+                                                                FontSize(18),
+                                                            fontStyle: FontStyle
+                                                                .italic,
+                                                            fontFamily:
+                                                                "OpenSans"),
+                                                        "span": Style(
+                                                            color: ownTheme(
+                                                                    context)
+                                                                .spanColor,
+                                                            fontSize:
+                                                                FontSize(18),
+                                                            fontStyle: FontStyle
+                                                                .italic,
+                                                            fontFamily:
+                                                                "OpenSans"),
+                                                        "div": Style(
+                                                            padding:
+                                                                EdgeInsets.all(
+                                                                    0),
+                                                            //fontFamily: "OpenSans",
+                                                            fontSize:
+                                                                FontSize(18)),
+                                                      },
+                                                    ))
+                                                : Container(
+                                                    color: Theme.of(context)
+                                                        .cardColor,
+                                                    height: 30,
+                                                    padding:
+                                                        EdgeInsets.fromLTRB(
+                                                            18, 0, 18, 10),
+                                                    child: SizedBox())),
+                                        childCount: 1),
+                                  ),
+                                );
+                              }).toList(),
+                            ))))
+                    : SizedBox()),
             Container(
                 padding: EdgeInsets.fromLTRB(18, 15, 18, 0),
                 color: Theme.of(context).cardColor,

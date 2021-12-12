@@ -1,6 +1,7 @@
 import 'dart:async' show Future;
 import 'dart:typed_data';
 import 'dart:convert';
+import 'package:dikt/models/indexed_dictionary.dart';
 import 'package:flutter/foundation.dart';
 import 'package:archive/archive.dart';
 import 'package:flutter/material.dart';
@@ -111,24 +112,21 @@ class MasterDictionary extends ChangeNotifier {
   //   return await compute(_unzipIsolateBody, articleBytes);
   // }
 
-  Future<List<Article>?> getArticleFromMatches(int n) async {
-    if (n > matches.length - 1) return null;
+  List<Future<Article>> getArticleFromMatches(int n) {
+    if (n > matches.length - 1) return [];
 
     var word = matches[n];
 
     return getArticles(word);
   }
 
-  Future<List<Article>> getArticles(String word) async {
-    List<Article> articles = [];
+  List<Future<Article>> getArticles(String word) {
+    List<Future<Article>> articles = [];
 
     for (var d in dictionaryManager.dictionariesLoaded) {
       //var a = d.ikv.valueRawCompressed(word);
       try {
-        var s = await d.ikv!.getValue(word);
-        if (!s.isEmpty)
-          //articles.add(Article(word, await _unzipIsolate(a), d.name));
-          articles.add(Article(word, s, d.name));
+        articles.add(_getArticle(d, word));
       } catch (e) {
         print('Cant decode value for ${word}, dictionary ${d.ikvPath}');
         print(e);
@@ -136,6 +134,11 @@ class MasterDictionary extends ChangeNotifier {
     }
 
     return articles;
+  }
+
+  Future<Article> _getArticle(IndexedDictionary d, String word) async {
+    var s = d.ikv!.getValue(word);
+    return Article(word, await s, d.name);
   }
 
   bool _isFullyLoaded = false;

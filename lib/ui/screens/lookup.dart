@@ -250,18 +250,19 @@ class _SearchBar extends StatelessWidget {
   }
 }
 
-Future<List<Article>> getArticlesAndUpdateHistory(
-    BuildContext context, String word) async {
+List<Future<Article>> getArticlesAndUpdateHistory(
+    BuildContext context, String word) {
   var dictionary = Provider.of<MasterDictionary>(context, listen: false);
   var history = Provider.of<History>(context, listen: false);
 
-  List<Article> articles;
+  List<Future<Article>> articles;
   if (dictionary.isLookupWordEmpty) {
-    articles = await dictionary.getArticles(word);
-    if (articles.isEmpty) articles = <Article>[Article('N/A', 'N/A', 'N/A')];
+    articles = dictionary.getArticles(word);
+    if (articles.isEmpty)
+      articles = [Future<Article>(() => Article('N/A', 'N/A', 'N/A'))];
     history.removeWord(word);
   } else {
-    articles = await dictionary.getArticles(word);
+    articles = dictionary.getArticles(word);
     history.addWord(word);
   }
 
