@@ -25,7 +25,7 @@ class WordArticles extends StatelessWidget {
     var dicsCompleter = Completer<
         Tuple<List<DropdownMenuItem<String>>, Map<String, GlobalKey>>>();
 
-    //scrollController.position.ensureVisible
+    var insets = EdgeInsets.fromLTRB(0, 30, 0, 50);
 
     return Stack(children: [
       ClipRRect(
@@ -54,7 +54,7 @@ class WordArticles extends StatelessWidget {
                   }
 
                   return Padding(
-                      padding: EdgeInsets.fromLTRB(0, 30, 0, 50),
+                      padding: insets,
                       child: PrimaryScrollController(
                           controller: scrollController,
                           child: Scrollbar(
@@ -125,12 +125,13 @@ class WordArticles extends StatelessWidget {
                           ))));
                 }
                 return Padding(
-                    padding: EdgeInsets.fromLTRB(0, 30, 0, 50),
+                    padding: insets,
                     child: Container(
+                        color: Theme.of(context).cardColor,
                         width: 10000,
-                        height: 40,
+                        height: 120,
                         child: Align(
-                          child: Text('...'),
+                          child: SizedBox(),
                           alignment: Alignment.center,
                         )));
               },
