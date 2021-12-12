@@ -125,7 +125,7 @@ class MasterDictionary extends ChangeNotifier {
     for (var d in dictionaryManager.dictionariesLoaded) {
       //var a = d.ikv.valueRawCompressed(word);
       try {
-        var s = await d.ikv!.value(word);
+        var s = await d.ikv!.getValue(word);
         if (!s.isEmpty)
           //articles.add(Article(word, await _unzipIsolate(a), d.name));
           articles.add(Article(word, s, d.name));
