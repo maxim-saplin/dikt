@@ -32,7 +32,7 @@ class Settings extends StatelessWidget {
                           builder: (context, snapshot) {
                             if (snapshot.hasData) {
                               return Text(
-                                (snapshot.data as PackageInfo).version,
+                                '${(snapshot.data as PackageInfo).version}+${(snapshot.data as PackageInfo).buildNumber}',
                                 style: Theme.of(context).textTheme.overline,
                               );
                             }

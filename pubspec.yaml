@@ -39,7 +39,8 @@ dependencies:
   ikvpack:
     #git: https://github.com/maxim-saplin/ikvpack
     path: '../ikvpack'
-  package_info_plus: ^1.0.0    
+  package_info_plus: ^1.0.0  
+  after_layout: ^1.1.0  
 
 dev_dependencies:
   flutter_test:
