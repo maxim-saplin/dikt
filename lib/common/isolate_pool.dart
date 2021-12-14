@@ -10,6 +10,6 @@ void initIsolatePool() {
   // There's a bug when there're many isolates created and activity is hidden, resuming to the activity shows it frozen
   // https://github.com/dart-lang/sdk/issues/47672
   pool = IsolatePool(max(Platform.numberOfProcessors - 2, 2));
-  //pool = IsolatePool(10);
+  //pool = IsolatePool(2);
   pool.start();
 }

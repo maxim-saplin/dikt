@@ -286,12 +286,20 @@ void showArticle(BuildContext context, String word, bool useDialog) {
               insetPadding: EdgeInsets.fromLTRB(
                   0, !kIsWeb && Platform.isMacOS ? 28 : 0, 0, 0),
               children: [
-                WordArticles(
-                  articles: articles,
-                  word: word,
-                  showAnotherWord: (word) =>
-                      showArticle(context, word, useDialog),
-                )
+                // Let animation play rather than have some frames lost due to WordArticles
+                // doing heavy work composing many articles together. E.g. when having many
+                // disctionaries and showing popular word junk can be see
+                FutureBuilder(
+                    future:
+                        Future.delayed(Duration(milliseconds: 100), () => true),
+                    builder: (c, s) => s.hasData
+                        ? WordArticles(
+                            articles: articles,
+                            word: word,
+                            showAnotherWord: (word) =>
+                                showArticle(context, word, useDialog),
+                          )
+                        : SizedBox())
               ]);
         });
   } else {

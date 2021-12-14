@@ -53,7 +53,7 @@ class MyApp extends StatelessWidget {
   MyApp() {
     if (!_firebaseError && analytics == null) {
       try {
-        analytics = FirebaseAnalytics();
+        analytics = FirebaseAnalytics.instance;
       } catch (_) {
         _firebaseError = true;
       }
