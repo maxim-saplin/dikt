@@ -37,10 +37,11 @@ dependencies:
   flutter_hooks: ^0.18.0
   superellipse_shape: ^0.2.0-nullsafety.0
   ikvpack:
-    #git: https://github.com/maxim-saplin/ikvpack
-    path: '../ikvpack'
+    git: https://github.com/maxim-saplin/ikvpack
+    #path: '../ikvpack'
   package_info_plus: ^1.0.0  
   after_layout: ^1.1.0  
+  
 
 dev_dependencies:
   flutter_test:

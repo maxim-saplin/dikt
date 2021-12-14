@@ -1,5 +1,5 @@
 import 'dart:async';
-
+import 'package:after_layout/after_layout.dart';
 import 'package:dikt/common/helpers.dart';
 import 'package:dikt/ui/themes.dart';
 import 'package:flutter/material.dart';
@@ -7,7 +7,11 @@ import 'package:dikt/models/master_dictionary.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_sticky_header/flutter_sticky_header.dart';
 
-class WordArticles extends StatelessWidget {
+Stopwatch globalSw = Stopwatch();
+
+// Split into multiple widgets to allow getting timings for full widget display
+
+class WordArticles extends StatefulWidget {
   WordArticles(
       {Key? key,
       required this.articles,
@@ -18,131 +22,46 @@ class WordArticles extends StatelessWidget {
   final Future<List<Article>> articles;
   final String word;
   final Function(String word)? showAnotherWord;
+
+  @override
+  State<WordArticles> createState() => _WordArticlesState();
+}
+
+class _WordArticlesState extends State<WordArticles>
+    with AfterLayoutMixin<WordArticles> {
   final ScrollController scrollController = ScrollController();
+  var sw = Stopwatch();
+
+  @override
+  void afterFirstLayout(BuildContext context) {
+    print('WordArticles laidout ${sw.elapsedMilliseconds}ms');
+  }
 
   @override
   Widget build(BuildContext context) {
+    sw.reset();
+    sw.start();
+    globalSw.reset();
+    globalSw.start();
     var dicsCompleter = Completer<
         Tuple<List<DropdownMenuItem<String>>, Map<String, GlobalKey>>>();
 
-    var insets = EdgeInsets.fromLTRB(0, 30, 0, 50);
-
-    return Stack(children: [
+    var w = Stack(children: [
       ClipRRect(
           borderRadius: BorderRadius.all(Radius.circular(10)),
           child: Stack(children: [
-            FutureBuilder(
-              future: articles,
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  var list = snapshot.data as List<Article>;
-
-                  var dictionaries = list
-                      .map((a) => DropdownMenuItem<String>(
-                          alignment: Alignment.centerRight,
-                          child: Text(
-                            a.dictionaryName,
-                            style: Theme.of(context).textTheme.subtitle2,
-                          ),
-                          value: a.dictionaryName))
-                      .toList();
-
-                  var dicsToKeys = Map<String, GlobalKey>();
-
-                  if (!dicsCompleter.isCompleted) {
-                    dicsCompleter.complete(Tuple(dictionaries, dicsToKeys));
-                  }
-
-                  return Padding(
-                      padding: insets,
-                      child: PrimaryScrollController(
-                          controller: scrollController,
-                          child: Scrollbar(
-                              child: CustomScrollView(
-                            physics: BouncingScrollPhysics(),
-                            semanticChildCount: list.length,
-                            scrollDirection: Axis.vertical,
-                            shrinkWrap: true,
-                            slivers: list.map((article) {
-                              var key = GlobalKey();
-                              dicsToKeys[article.dictionaryName] = key;
-                              return SliverStickyHeader(
-                                key: key,
-                                header: Align(
-                                    child: Container(
-                                  padding: EdgeInsets.fromLTRB(18, 0, 18, 0),
-                                  height: 30.0,
-                                  color: Theme.of(context).cardColor,
-                                  child: _DictionarySelector(
-                                      dictionaries: dictionaries,
-                                      dicsToKeys: dicsToKeys,
-                                      scrollController: scrollController,
-                                      dictionary: article.dictionaryName),
-                                  alignment: Alignment.bottomRight,
-                                )),
-                                sliver: SliverList(
-                                  delegate:
-                                      SliverChildBuilderDelegate((context, i) {
-                                    return Container(
-                                        color: Theme.of(context).cardColor,
-                                        padding:
-                                            EdgeInsets.fromLTRB(18, 0, 18, 10),
-                                        child: Html(
-                                          data: article.article,
-                                          onLinkTap: (String? url) {
-                                            if (showAnotherWord != null)
-                                              showAnotherWord!(url!);
-                                          },
-                                          style: {
-                                            "a": Style(
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .secondary,
-                                                fontSize: FontSize(18),
-                                                fontStyle: FontStyle.italic,
-                                                fontFamily: "OpenSans"),
-                                            // "i": Style(
-                                            //     color: Colors.green[700],
-                                            //     fontSize: FontSize(18),
-                                            //     fontStyle: FontStyle.italic,
-                                            //     fontFamily: "Roboto"),
-                                            "span": Style(
-                                                color:
-                                                    ownTheme(context).spanColor,
-                                                fontSize: FontSize(18),
-                                                fontStyle: FontStyle.italic,
-                                                fontFamily: "OpenSans"),
-                                            "div": Style(
-                                                padding: EdgeInsets.all(0),
-                                                //fontFamily: "OpenSans",
-                                                fontSize: FontSize(18)),
-                                          },
-                                        ));
-                                  }, childCount: 1),
-                                ),
-                              );
-                            }).toList(),
-                          ))));
-                }
-                return Padding(
-                    padding: insets,
-                    child: Container(
-                        color: Theme.of(context).cardColor,
-                        width: 10000,
-                        height: 120,
-                        child: Align(
-                          child: SizedBox(),
-                          alignment: Alignment.center,
-                        )));
-              },
-            ),
+            _FuturedArticle(
+                widget: widget,
+                dicsCompleter: dicsCompleter,
+                scrollController: scrollController,
+                showAnotherWord: widget.showAnotherWord),
             Container(
                 padding: EdgeInsets.fromLTRB(18, 15, 18, 0),
                 color: Theme.of(context).cardColor,
                 height: 39.0,
                 width: 1000,
                 child: SelectableText(
-                  word,
+                  widget.word,
                   style: Theme.of(context).textTheme.headline6,
                 )),
           ])),
@@ -198,6 +117,184 @@ class WordArticles extends StatelessWidget {
         height: 50,
       )
     ]);
+
+    //sw.stop();
+    print('WordArticles built ${sw.elapsedMilliseconds}ms');
+
+    return w;
+  }
+}
+
+class _FuturedArticle extends StatefulWidget {
+  const _FuturedArticle(
+      {Key? key,
+      required this.widget,
+      required this.dicsCompleter,
+      required this.scrollController,
+      required this.showAnotherWord})
+      : super(key: key);
+
+  static EdgeInsets headerInsets = const EdgeInsets.fromLTRB(0, 30, 0, 50);
+
+  final WordArticles widget;
+  final Completer<
+      Tuple<List<DropdownMenuItem<String>>,
+          Map<String, GlobalKey<State<StatefulWidget>>>>> dicsCompleter;
+  final ScrollController scrollController;
+  final Function(String word)? showAnotherWord;
+
+  @override
+  State<_FuturedArticle> createState() => _FuturedArticleState();
+}
+
+class _FuturedArticleState extends State<_FuturedArticle>
+    with AfterLayoutMixin<_FuturedArticle> {
+  var sw = Stopwatch();
+
+  @override
+  void afterFirstLayout(BuildContext context) {
+    print('_FuturedArticle laidout ${sw.elapsedMilliseconds}ms');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    sw.reset();
+    sw.start();
+
+    var w = FutureBuilder(
+      future: widget.widget.articles,
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          return _FuturedArticleBody(snapshot, widget.dicsCompleter,
+              widget.scrollController, widget.showAnotherWord);
+        }
+        return Padding(
+            padding: _FuturedArticle.headerInsets,
+            child: Container(
+                width: 10000,
+                height: 40,
+                child: Align(
+                  child: Text('...'),
+                  alignment: Alignment.center,
+                )));
+      },
+    );
+
+    print('_FuturedArticle built ${sw.elapsedMilliseconds}ms');
+    return w;
+  }
+}
+
+class _FuturedArticleBody extends StatefulWidget {
+  _FuturedArticleBody(this.snapshot, this.dicsCompleter, this.scrollController,
+      this.showAnotherWord);
+  final AsyncSnapshot<Object?> snapshot;
+  final Completer<
+      Tuple<List<DropdownMenuItem<String>>,
+          Map<String, GlobalKey<State<StatefulWidget>>>>> dicsCompleter;
+  final ScrollController scrollController;
+  final Function(String word)? showAnotherWord;
+
+  @override
+  State<_FuturedArticleBody> createState() => _FuturedArticleBodyState();
+}
+
+class _FuturedArticleBodyState extends State<_FuturedArticleBody>
+    with AfterLayoutMixin<_FuturedArticleBody> {
+  var sw = Stopwatch();
+
+  @override
+  void afterFirstLayout(BuildContext context) {
+    print(
+        '_FuturedArticleBody laidout ${sw.elapsedMilliseconds}ms, total ${globalSw.elapsedMilliseconds}');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    sw.reset();
+    sw.start();
+    var list = widget.snapshot.data as List<Article>;
+
+    var dictionaries = list
+        .map((a) => DropdownMenuItem<String>(
+            alignment: Alignment.centerRight,
+            child: Text(
+              a.dictionaryName,
+              style: Theme.of(context).textTheme.subtitle2,
+            ),
+            value: a.dictionaryName))
+        .toList();
+
+    var dicsToKeys = Map<String, GlobalKey>();
+
+    if (!widget.dicsCompleter.isCompleted) {
+      widget.dicsCompleter.complete(Tuple(dictionaries, dicsToKeys));
+    }
+
+    var w = Padding(
+        padding: _FuturedArticle.headerInsets,
+        child: PrimaryScrollController(
+            controller: widget.scrollController,
+            child: Scrollbar(
+                child: CustomScrollView(
+              physics: BouncingScrollPhysics(),
+              semanticChildCount: list.length,
+              scrollDirection: Axis.vertical,
+              shrinkWrap: true,
+              slivers: list.map((article) {
+                var key = GlobalKey();
+                dicsToKeys[article.dictionaryName] = key;
+                return SliverStickyHeader(
+                  key: key,
+                  header: Align(
+                      child: Container(
+                    padding: EdgeInsets.fromLTRB(18, 0, 18, 0),
+                    height: 30.0,
+                    color: Theme.of(context).cardColor,
+                    child: _DictionarySelector(
+                        dictionaries: dictionaries,
+                        dicsToKeys: dicsToKeys,
+                        scrollController: widget.scrollController,
+                        dictionary: article.dictionaryName),
+                    alignment: Alignment.bottomRight,
+                  )),
+                  sliver: SliverList(
+                    delegate: SliverChildBuilderDelegate((context, i) {
+                      return Container(
+                          color: Theme.of(context).cardColor,
+                          padding: EdgeInsets.fromLTRB(18, 0, 18, 10),
+                          child: Html(
+                            data: article.article,
+                            onLinkTap: (String? url) {
+                              if (widget.showAnotherWord != null)
+                                widget.showAnotherWord!(url!);
+                            },
+                            style: {
+                              "a": Style(
+                                  color:
+                                      Theme.of(context).colorScheme.secondary,
+                                  fontSize: FontSize(18),
+                                  fontStyle: FontStyle.italic,
+                                  fontFamily: "OpenSans"),
+                              "span": Style(
+                                  color: ownTheme(context).spanColor,
+                                  fontSize: FontSize(18),
+                                  fontStyle: FontStyle.italic,
+                                  fontFamily: "OpenSans"),
+                              "div": Style(
+                                  padding: EdgeInsets.all(0),
+                                  //fontFamily: "OpenSans",
+                                  fontSize: FontSize(18)),
+                            },
+                          ));
+                    }, childCount: 1),
+                  ),
+                );
+              }).toList(),
+            ))));
+    print(
+        '_FuturedArticleBody built ${sw.elapsedMilliseconds}ms, total ${globalSw.elapsedMilliseconds}');
+    return w;
   }
 }
 
@@ -231,8 +328,6 @@ class _DictionarySelector extends StatelessWidget {
           scrollController.position.ensureVisible(
               key.currentContext!.findRenderObject()!,
               duration: Duration(milliseconds: 300));
-          // Scrollable.ensureVisible(key.currentContext!,
-          //     duration: Duration(milliseconds: 300));
         }
       },
     );
