@@ -65,6 +65,9 @@ class HtmlParser extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var sw = Stopwatch();
+    sw.start();
+
     StyledElement lexedTree = lexDomTree(
       htmlData,
       customRender.keys.toList(),
@@ -89,10 +92,10 @@ class HtmlParser extends StatelessWidget {
     // using textScaleFactor = 1.0 (which is the default). This ensures the correct
     // scaling is used, but relies on https://github.com/flutter/flutter/pull/59711
     // to wrap everything when larger accessibility fonts are used.
-    return StyledText(
+    var w = StyledText(
       textSpan: parsedTree,
       style: cleanedTree.style,
-      textScaleFactor: MediaQuery.of(context).textScaleFactor,
+      //textScaleFactor: MediaQuery.of(context).textScaleFactor,
       renderContext: RenderContext(
         buildContext: context,
         parser: this,
@@ -100,6 +103,9 @@ class HtmlParser extends StatelessWidget {
         style: Style.fromTextStyle(Theme.of(context).textTheme.bodyText2!),
       ),
     );
+
+    print('HtmlParser build ${sw.elapsedMilliseconds}ms');
+    return w;
   }
 
   /// [parseHTML] converts a string of HTML to a DOM document using the dart `html` library.
@@ -243,6 +249,7 @@ class HtmlParser extends StatelessWidget {
   InlineSpan parseTree(RenderContext context, StyledElement tree) {
     // Merge this element's style into the context so that children
     // inherit the correct style
+
     RenderContext newContext = RenderContext(
       buildContext: context.buildContext,
       parser: this,
@@ -250,20 +257,26 @@ class HtmlParser extends StatelessWidget {
       style: context.style.copyOnlyInherited(tree.style),
     );
 
+    var newContextStyle = newContext.style.generateTextStyle();
+
     if (tree is TextContentElement) {
+      //print('1 - ${tree.text}');
       return TextSpan(text: tree.text);
     } else if (tree is InteractableElement) {
+      //print('2  - ${tree.href}');
       var tc = tree.children[0] as TextContentElement;
 
       return TextSpan(
-        style: newContext.style.generateTextStyle(),
+        style: newContextStyle,
         recognizer: new _HrefTap(onLinkTap, tree.href),
         text: tc.text,
       );
     } else {
+      //print('3  - ${tree.name}');
+
       ///[tree] is an inline element.
       var span = TextSpan(
-        style: newContext.style.generateTextStyle(),
+        style: newContextStyle,
         text: tree.style.display == Display.BLOCK &&
                 tree.name != 'html' &&
                 tree.name != 'body' &&
@@ -681,34 +694,37 @@ class StyledText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: calculateWidth(style.display, renderContext),
-      // On ANDROID semantics is somwhow intertwind with platform calls
-      // and in articles with to many hrefs (e.g. try opening 'go' in WordNet)
-      // it can literly take half a second to draw a single frame with most of
-      // delay happening in the native side. Disabling semanticd fixes issues
-      child: ExcludeSemantics(
-          child: SelectableText.rich(
-        textSpan as TextSpan,
-        style: style.generateTextStyle(),
-        textAlign: style.textAlign,
-        textDirection: style.direction,
-        textScaleFactor: textScaleFactor,
-        maxLines: style.maxLines,
-      )),
-    );
+    //return SizedBox(
+    //width: calculateWidth(style.display, renderContext),
+
+    // On ANDROID semantics is somwhow intertwind with platform calls
+    // and in articles with to many hrefs (e.g. try opening 'go' in WordNet)
+    // it can literly take half a second to draw a single frame with most of
+    // delay happening in the native side. Disabling semanticd fixes issues
+    //child:
+
+    return ExcludeSemantics(
+        child: SelectableText.rich(
+      textSpan as TextSpan,
+      style: style.generateTextStyle(),
+      textAlign: style.textAlign,
+      textDirection: style.direction,
+      textScaleFactor: textScaleFactor,
+      maxLines: style.maxLines,
+    ));
+    //);
   }
 
-  double? calculateWidth(Display? display, RenderContext context) {
-    if ((display == Display.BLOCK || display == Display.LIST_ITEM) &&
-        !renderContext.parser.shrinkWrap) {
-      return double.infinity;
-    }
-    if (renderContext.parser.shrinkWrap) {
-      return MediaQuery.of(context.buildContext).size.width;
-    }
-    return null;
-  }
+  // double? calculateWidth(Display? display, RenderContext context) {
+  //   if ((display == Display.BLOCK || display == Display.LIST_ITEM) &&
+  //       !renderContext.parser.shrinkWrap) {
+  //     return double.infinity;
+  //   }
+  //   if (renderContext.parser.shrinkWrap) {
+  //     return MediaQuery.of(context.buildContext).size.width;
+  //   }
+  //   return null;
+  // }
 }
 
 class _HrefTap extends TapGestureRecognizer {

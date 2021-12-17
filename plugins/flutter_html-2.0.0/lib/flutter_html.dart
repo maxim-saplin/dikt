@@ -59,26 +59,7 @@ class Html extends StatelessWidget {
     this.tagsList = const [],
     this.style = const {},
     this.navigationDelegateForIframe,
-  })  : document = null,
-        assert(data != null),
-        anchorKey = GlobalKey(),
-        super(key: key);
-
-  Html.fromDom({
-    Key? key,
-    @required this.document,
-    this.onLinkTap,
-    this.customRender = const {},
-    this.customImageRenders = const {},
-    this.onImageError,
-    this.onMathError,
-    this.shrinkWrap = false,
-    this.onImageTap,
-    this.tagsList = const [],
-    this.style = const {},
-    this.navigationDelegateForIframe,
-  })  : data = null,
-        assert(document != null),
+  })  : assert(data != null),
         anchorKey = GlobalKey(),
         super(key: key);
 
@@ -87,9 +68,6 @@ class Html extends StatelessWidget {
 
   /// The HTML data passed to the widget as a String
   final String? data;
-
-  /// The HTML data passed to the widget as a pre-processed [dom.Document]
-  final dom.Document? document;
 
   /// A function that defines what to do when a link is tapped
   final OnTap? onLinkTap;
@@ -136,11 +114,12 @@ class Html extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dom.Document doc =
-        data != null ? HtmlParser.parseHTML(data!) : document!;
+    var sw = Stopwatch();
+    sw.start();
+    final dom.Document doc = HtmlParser.parseHTML(data!);
     final double? width = shrinkWrap ? null : MediaQuery.of(context).size.width;
 
-    return Container(
+    var w = Container(
       width: width,
       child: HtmlParser(
         key: anchorKey,
@@ -152,12 +131,15 @@ class Html extends StatelessWidget {
         shrinkWrap: shrinkWrap,
         style: style,
         customRender: customRender,
-        imageRenders: {}
-          ..addAll(customImageRenders)
-          ..addAll(defaultImageRenders),
+        imageRenders: {},
+        // ..addAll(customImageRenders)
+        // ..addAll(defaultImageRenders),
         tagsList: tagsList.isEmpty ? Html.tags : tagsList,
         navigationDelegateForIframe: navigationDelegateForIframe,
       ),
     );
+
+    print('Html build ${sw.elapsedMilliseconds}ms');
+    return w;
   }
 }

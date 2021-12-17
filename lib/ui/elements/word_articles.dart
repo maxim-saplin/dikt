@@ -294,6 +294,7 @@ class _FuturedArticleBodyState extends State<_FuturedArticleBody>
             ))));
     print(
         '_FuturedArticleBody built ${sw.elapsedMilliseconds}ms, total ${globalSw.elapsedMilliseconds}');
+    print('HtmlParser build ${sw.elapsedMilliseconds}ms');
     return w;
   }
 }
