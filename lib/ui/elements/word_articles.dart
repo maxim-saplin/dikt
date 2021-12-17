@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:after_layout/after_layout.dart';
 import 'package:dikt/common/helpers.dart';
+import 'package:dikt/common/isolate_pool.dart';
 import 'package:dikt/ui/themes.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -89,7 +90,7 @@ class _WordArticlesState extends State<WordArticles> {
                                     Icons.launch_rounded,
                                     size: 20,
                                   ),
-                                  // TODO - fix button being to narrow and icon not covering the click area (e.g. wide window)
+                                  // TODO - fix button being too narrow and icon not covering the click area (e.g. wide window)
                                   // try Actions https://stackoverflow.com/questions/57529394/how-to-open-dropdownbutton-when-other-widget-is-tapped-in-flutter
                                   OverflowBox(
                                       alignment: Alignment.centerRight,
@@ -255,6 +256,7 @@ class _FuturedArticleBodyState extends State<_FuturedArticleBody>
                           child: Html(
                             sw: globalSw,
                             useIsolate: !kIsWeb,
+                            isolatePool: !kIsWeb ? pool : null,
                             data: article.article,
                             onLinkTap: (String? url) {
                               if (widget.showAnotherWord != null)

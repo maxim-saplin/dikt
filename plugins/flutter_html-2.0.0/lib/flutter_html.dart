@@ -19,6 +19,7 @@ import 'package:flutter_html/src/html_elements.dart';
 import 'package:flutter_html/style.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:html/dom.dart' as dom;
+import 'package:ikvpack/ikvpack.dart';
 
 Stopwatch? _globalSw;
 
@@ -56,6 +57,7 @@ class Html extends StatelessWidget {
       this.tagsList = const [],
       this.style = const {},
       this.useIsolate = false,
+      this.isolatePool,
       this.sw})
       : assert(data != null),
         anchorKey = GlobalKey(),
@@ -86,6 +88,10 @@ class Html extends StatelessWidget {
   /// Whether to paralellize some of hard work
   final bool useIsolate;
 
+  /// useIsolate == true, isolatePool == null - run in compute()
+  /// useIsolate == true, isolatePool != null - run as PooledJob in the provided pool
+  final IsolatePool? isolatePool;
+
   static List<String> get tags => new List<String>.from(STYLED_ELEMENTS)
     ..addAll(INTERACTABLE_ELEMENTS)
     ..addAll(REPLACED_ELEMENTS)
@@ -108,13 +114,6 @@ class Html extends StatelessWidget {
     );
   }
 
-  static StyledText _computeBody(_ComputeParams params) {
-    final dom.Document doc = HtmlParser.parseHTML(params.data);
-
-    var text = params.parser.parse(doc);
-    return text;
-  }
-
   Future<StyledText> _parseHtmlToTextSpans(bool useIsolate) {
     var parser = HtmlParser(
       shrinkWrap: shrinkWrap,
@@ -122,10 +121,14 @@ class Html extends StatelessWidget {
       tagsList: tagsList.isEmpty ? Html.tags : tagsList,
     );
 
+    var params = _ComputeParams(parser, data!);
+
     var w = useIsolate
-        ? compute(_computeBody, _ComputeParams(parser, data!))
+        ? isolatePool == null
+            ? compute(_computeBody, params)
+            : isolatePool!.scheduleJob<StyledText>(_ParseHtmlJob(params))
         : Future<StyledText>(() {
-            return _computeBody(_ComputeParams(parser, data!));
+            return _computeBody(params);
           });
 
     return w;
@@ -136,6 +139,23 @@ class _ComputeParams {
   _ComputeParams(this.parser, this.data);
   final HtmlParser parser;
   final String data;
+}
+
+StyledText _computeBody(_ComputeParams params) {
+  final dom.Document doc = HtmlParser.parseHTML(params.data);
+
+  var text = params.parser.parse(doc);
+  return text;
+}
+
+class _ParseHtmlJob extends PooledJob<StyledText> {
+  _ParseHtmlJob(this.params);
+  _ComputeParams params;
+
+  @override
+  Future<StyledText> job() async {
+    return _computeBody(params);
+  }
 }
 
 class _FuturedHtml extends StatelessWidget {

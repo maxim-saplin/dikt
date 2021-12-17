@@ -1,3 +1,4 @@
+- 2.0.0+8 - experimental, HTML parsing on isolates 
 - 2.0.0+7 - large article view, junk during opening fix
 - 2.0.0+6 - added bottom selector of dictionary in article view, different fonts in article, playing with theme colors
 - 2.0.0+5 - built with Flutter 2.8.0 stable, UI touches (bottom bar larger, mouse pointers, back icon), scrolling to given article via dictionary drop down

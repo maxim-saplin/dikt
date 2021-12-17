@@ -24,7 +24,11 @@ dependencies:
 
   # plugin for firstWhereOrNull extension on lists
   collection: 
+
   after_layout: ^1.1.0  
+  ikvpack:
+    #git: https://github.com/maxim-saplin/ikvpack
+    path: '../../../ikvpack'
 
   flutter:
     sdk: flutter
