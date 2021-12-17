@@ -1,17 +1,12 @@
 import 'dart:math';
 
-import 'package:chewie_audio/chewie_audio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/html_parser.dart';
 import 'package:flutter_html/src/anchor.dart';
 import 'package:flutter_html/src/html_elements.dart';
-import 'package:flutter_html/src/utils.dart';
 import 'package:flutter_html/style.dart';
-import 'package:flutter_math_fork/flutter_math.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:html/dom.dart' as dom;
-import 'package:video_player/video_player.dart';
-import 'package:webview_flutter/webview_flutter.dart';
 
 /// A [ReplacedElement] is a type of [StyledElement] that does not require its [children] to be rendered.
 ///
@@ -69,127 +64,6 @@ class TextContentElement extends ReplacedElement {
   Widget? toWidget(_) => null;
 }
 
-/// [ImageContentElement] is a [ReplacedElement] with an image as its content.
-/// https://developer.mozilla.org/en-US/docs/Web/HTML/Element/img
-class ImageContentElement extends ReplacedElement {
-  final String? src;
-  final String? alt;
-
-  ImageContentElement({
-    required String name,
-    required this.src,
-    required this.alt,
-    required dom.Element node,
-  }) : super(
-            name: name,
-            style: Style(),
-            node: node,
-            alignment: PlaceholderAlignment.middle,
-            elementId: node.id);
-
-  @override
-  Widget toWidget(RenderContext context) {
-    for (final entry in context.parser.imageRenders.entries) {
-      if (entry.key.call(attributes, element)) {
-        final widget = entry.value.call(context, attributes, element);
-        return RawGestureDetector(
-          key: AnchorKey.of(context.parser.key, this),
-          child: widget,
-          gestures: {
-            MultipleTapGestureRecognizer: GestureRecognizerFactoryWithHandlers<
-                MultipleTapGestureRecognizer>(
-              () => MultipleTapGestureRecognizer(),
-              (instance) {
-                instance..onTap = () => context.parser.onImageTap?.call(src);
-              },
-            ),
-          },
-        );
-      }
-    }
-    return SizedBox(width: 0, height: 0);
-  }
-}
-
-/// [AudioContentElement] is a [ContentElement] with an audio file as its content.
-class AudioContentElement extends ReplacedElement {
-  final List<String?> src;
-  final bool showControls;
-  final bool autoplay;
-  final bool loop;
-  final bool muted;
-
-  AudioContentElement({
-    required String name,
-    required this.src,
-    required this.showControls,
-    required this.autoplay,
-    required this.loop,
-    required this.muted,
-    required dom.Element node,
-  }) : super(name: name, style: Style(), node: node, elementId: node.id);
-
-  @override
-  Widget toWidget(RenderContext context) {
-    return Container(
-      key: AnchorKey.of(context.parser.key, this),
-      width: context.style.width ?? 300,
-      height: Theme.of(context.buildContext).platform == TargetPlatform.android
-          ? 48
-          : 75,
-      child: ChewieAudio(
-        controller: ChewieAudioController(
-          videoPlayerController: VideoPlayerController.network(
-            src.first ?? "",
-          ),
-          autoPlay: autoplay,
-          looping: loop,
-          showControls: showControls,
-          autoInitialize: true,
-        ),
-      ),
-    );
-  }
-}
-
-/// [VideoContentElement] is a [ContentElement] with a video file as its content.
-class VideoContentElement extends ReplacedElement {
-  final List<String?> src;
-  final String? poster;
-  final bool showControls;
-  final bool autoplay;
-  final bool loop;
-  final bool muted;
-  final double? width;
-  final double? height;
-
-  VideoContentElement({
-    required String name,
-    required this.src,
-    required this.poster,
-    required this.showControls,
-    required this.autoplay,
-    required this.loop,
-    required this.muted,
-    required this.width,
-    required this.height,
-    required dom.Element node,
-  }) : super(name: name, style: Style(), node: node, elementId: node.id);
-
-  @override
-  Widget toWidget(RenderContext context) {
-    final double _width = width ?? (height ?? 150) * 2;
-    final double _height = height ?? (width ?? 300) / 2;
-    return AspectRatio(
-      aspectRatio: _width / _height,
-      child: Container(
-        key: AnchorKey.of(context.parser.key, this),
-        child: SizedBox(),
-      ),
-    );
-  }
-}
-
 /// [SvgContentElement] is a [ReplacedElement] with an SVG as its contents.
 class SvgContentElement extends ReplacedElement {
   final String data;
@@ -208,7 +82,7 @@ class SvgContentElement extends ReplacedElement {
   Widget toWidget(RenderContext context) {
     return SvgPicture.string(
       data,
-      key: AnchorKey.of(context.parser.key, this),
+      key: AnchorKey.of(null, this),
       width: width,
       height: height,
     );
@@ -269,7 +143,7 @@ class RubyElement extends ReplacedElement {
       }
     });
     return Row(
-      key: AnchorKey.of(context.parser.key, this),
+      key: AnchorKey.of(null, this),
       crossAxisAlignment: CrossAxisAlignment.end,
       textBaseline: TextBaseline.alphabetic,
       mainAxisSize: MainAxisSize.min,
@@ -278,161 +152,14 @@ class RubyElement extends ReplacedElement {
   }
 }
 
-class MathElement extends ReplacedElement {
-  dom.Element element;
-  String? texStr;
-
-  MathElement({
-    required this.element,
-    this.texStr,
-    String name = "math",
-  }) : super(
-            name: name,
-            alignment: PlaceholderAlignment.middle,
-            style: Style(),
-            elementId: element.id);
-
-  @override
-  Widget toWidget(RenderContext context) {
-    texStr = parseMathRecursive(element, r'');
-    return Container(
-        width: MediaQuery.of(context.buildContext).size.width,
-        child: Math.tex(
-          texStr ?? '',
-          mathStyle: MathStyle.display,
-          textStyle: context.style.generateTextStyle(),
-          onErrorFallback: (FlutterMathException e) {
-            if (context.parser.onMathError != null) {
-              return context.parser.onMathError!
-                  .call(texStr ?? '', e.message, e.messageWithType);
-            } else {
-              return Text(e.message);
-            }
-          },
-        ));
-  }
-
-  String parseMathRecursive(dom.Node node, String parsed) {
-    if (node is dom.Element) {
-      List<dom.Element> nodeList = node.nodes.whereType<dom.Element>().toList();
-      if (node.localName == "math" || node.localName == "mrow") {
-        nodeList.forEach((element) {
-          parsed = parseMathRecursive(element, parsed);
-        });
-      }
-      // note: munder, mover, and munderover do not support placing braces and other
-      // markings above/below elements, instead they are treated as super/subscripts for now.
-      if ((node.localName == "msup" ||
-              node.localName == "msub" ||
-              node.localName == "munder" ||
-              node.localName == "mover") &&
-          nodeList.length == 2) {
-        parsed = parseMathRecursive(nodeList[0], parsed);
-        parsed = parseMathRecursive(
-                nodeList[1],
-                parsed +
-                    "${node.localName == "msup" || node.localName == "mover" ? "^" : "_"}{") +
-            "}";
-      }
-      if ((node.localName == "msubsup" || node.localName == "munderover") &&
-          nodeList.length == 3) {
-        parsed = parseMathRecursive(nodeList[0], parsed);
-        parsed = parseMathRecursive(nodeList[1], parsed + "_{") + "}";
-        parsed = parseMathRecursive(nodeList[2], parsed + "^{") + "}";
-      }
-      if (node.localName == "mfrac" && nodeList.length == 2) {
-        parsed = parseMathRecursive(nodeList[0], parsed + r"\frac{") + "}";
-        parsed = parseMathRecursive(nodeList[1], parsed + "{") + "}";
-      }
-      // note: doesn't support answer & intermediate steps
-      if (node.localName == "mlongdiv" && nodeList.length == 4) {
-        parsed = parseMathRecursive(nodeList[0], parsed);
-        parsed = parseMathRecursive(nodeList[2], parsed + r"\overline{)") + "}";
-      }
-      if (node.localName == "msqrt" && nodeList.length == 1) {
-        parsed = parseMathRecursive(nodeList[0], parsed + r"\sqrt{") + "}";
-      }
-      if (node.localName == "mroot" && nodeList.length == 2) {
-        parsed = parseMathRecursive(nodeList[1], parsed + r"\sqrt[") + "]";
-        parsed = parseMathRecursive(nodeList[0], parsed + "{") + "}";
-      }
-      if (node.localName == "mi" ||
-          node.localName == "mn" ||
-          node.localName == "mo") {
-        if (mathML2Tex.keys.contains(node.text.trim())) {
-          parsed = parsed +
-              mathML2Tex[
-                  mathML2Tex.keys.firstWhere((e) => e == node.text.trim())]!;
-        } else if (node.text.startsWith("&") && node.text.endsWith(";")) {
-          parsed = parsed +
-              node.text
-                  .trim()
-                  .replaceFirst("&", r"\")
-                  .substring(0, node.text.trim().length - 1);
-        } else {
-          parsed = parsed + node.text.trim();
-        }
-      }
-    }
-    return parsed;
-  }
-}
-
-ReplacedElement parseReplacedElement(
-  dom.Element element,
-  NavigationDelegate? navigationDelegateForIframe,
-) {
+ReplacedElement parseReplacedElement(dom.Element element) {
   switch (element.localName) {
-    case "audio":
-      final sources = <String?>[
-        if (element.attributes['src'] != null) element.attributes['src'],
-        ...ReplacedElement.parseMediaSources(element.children),
-      ];
-      if (sources.isEmpty || sources.first == null) {
-        return EmptyContentElement();
-      }
-      return AudioContentElement(
-        name: "audio",
-        src: sources,
-        showControls: element.attributes['controls'] != null,
-        loop: element.attributes['loop'] != null,
-        autoplay: element.attributes['autoplay'] != null,
-        muted: element.attributes['muted'] != null,
-        node: element,
-      );
     case "br":
       return TextContentElement(
           text: "\n",
           style: Style(whiteSpace: WhiteSpace.PRE),
           element: element,
           node: element);
-    case "img":
-      return ImageContentElement(
-        name: "img",
-        src: element.attributes['src'],
-        alt: element.attributes['alt'],
-        node: element,
-      );
-    case "video":
-      final sources = <String?>[
-        if (element.attributes['src'] != null) element.attributes['src'],
-        ...ReplacedElement.parseMediaSources(element.children),
-      ];
-      if (sources.isEmpty || sources.first == null) {
-        return EmptyContentElement();
-      }
-      return VideoContentElement(
-        name: "video",
-        src: sources,
-        poster: element.attributes['poster'],
-        showControls: element.attributes['controls'] != null,
-        loop: element.attributes['loop'] != null,
-        autoplay: element.attributes['autoplay'] != null,
-        muted: element.attributes['muted'] != null,
-        width: double.tryParse(element.attributes['width'] ?? ""),
-        height: double.tryParse(element.attributes['height'] ?? ""),
-        node: element,
-      );
     case "svg":
       return SvgContentElement(
         name: "svg",
@@ -443,10 +170,6 @@ ReplacedElement parseReplacedElement(
       );
     case "ruby":
       return RubyElement(
-        element: element,
-      );
-    case "math":
-      return MathElement(
         element: element,
       );
     default:

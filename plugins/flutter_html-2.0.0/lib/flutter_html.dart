@@ -1,7 +1,5 @@
 library flutter_html;
 
-//export image render api
-export 'package:flutter_html/image_render.dart';
 //export style api
 export 'package:flutter_html/style.dart';
 //export render context api
@@ -12,13 +10,16 @@ export 'package:flutter_html/src/replaced_element.dart';
 export 'package:flutter_html/src/styled_element.dart';
 export 'package:flutter_html/src/interactable_element.dart';
 
+import 'package:after_layout/after_layout.dart';
+import 'package:dikt/ui/elements/word_articles.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/html_parser.dart';
-import 'package:flutter_html/image_render.dart';
 import 'package:flutter_html/src/html_elements.dart';
 import 'package:flutter_html/style.dart';
-import 'package:webview_flutter/webview_flutter.dart';
 import 'package:html/dom.dart' as dom;
+
+Stopwatch? _globalSw;
 
 class Html extends StatelessWidget {
   /// The `Html` widget takes HTML as input and displays a RichText
@@ -46,20 +47,19 @@ class Html extends StatelessWidget {
   ///
   /// **style** Pass in the style information for the Html here.
   /// See [its wiki page](https://github.com/Sub6Resources/flutter_html/wiki/Style) for more info.
-  Html({
-    Key? key,
-    required this.data,
-    this.onLinkTap,
-    this.customRender = const {},
-    this.customImageRenders = const {},
-    this.onImageError,
-    this.onMathError,
-    this.shrinkWrap = false,
-    this.onImageTap,
-    this.tagsList = const [],
-    this.style = const {},
-    this.navigationDelegateForIframe,
-  })  : assert(data != null),
+  Html(
+      {Key? key,
+      required this.data,
+      this.onLinkTap,
+      this.onImageError,
+      this.onMathError,
+      this.shrinkWrap = false,
+      this.onImageTap,
+      this.tagsList = const [],
+      this.style = const {},
+      this.useIsolate = false,
+      this.sw})
+      : assert(data != null),
         anchorKey = GlobalKey(),
         super(key: key);
 
@@ -71,10 +71,6 @@ class Html extends StatelessWidget {
 
   /// A function that defines what to do when a link is tapped
   final OnTap? onLinkTap;
-
-  /// An API that allows you to customize the entire process of image rendering.
-  /// See the README for more details.
-  final Map<ImageSourceMatcher, ImageRender> customImageRenders;
 
   /// A function that defines what to do when an image errors
   final ImageErrorListener? onImageError;
@@ -93,17 +89,14 @@ class Html extends StatelessWidget {
   /// A list of HTML tags that defines what elements are not rendered
   final List<String> tagsList;
 
-  /// Either return a custom widget for specific node types or return null to
-  /// fallback to the default rendering.
-  final Map<String, CustomRender> customRender;
-
   /// An API that allows you to override the default style for any HTML element
   final Map<String, Style> style;
 
-  /// Decides how to handle a specific navigation request in the WebView of an
-  /// Iframe. It's necessary to use the webview_flutter package inside the app
-  /// to use NavigationDelegate.
-  final NavigationDelegate? navigationDelegateForIframe;
+  /// Let the widget report completion of laying out via print()
+  final Stopwatch? sw;
+
+  /// Whether to paralellize some of hard work
+  final bool useIsolate;
 
   static List<String> get tags => new List<String>.from(STYLED_ELEMENTS)
     ..addAll(INTERACTABLE_ELEMENTS)
@@ -114,32 +107,91 @@ class Html extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var sw = Stopwatch();
-    sw.start();
-    final dom.Document doc = HtmlParser.parseHTML(data!);
+    _globalSw = sw;
+
     final double? width = shrinkWrap ? null : MediaQuery.of(context).size.width;
 
-    var w = Container(
-      width: width,
-      child: HtmlParser(
-        key: anchorKey,
-        htmlData: doc,
-        onLinkTap: onLinkTap,
-        onImageTap: onImageTap,
-        onImageError: onImageError,
-        onMathError: onMathError,
-        shrinkWrap: shrinkWrap,
-        style: style,
-        customRender: customRender,
-        imageRenders: {},
-        // ..addAll(customImageRenders)
-        // ..addAll(defaultImageRenders),
-        tagsList: tagsList.isEmpty ? Html.tags : tagsList,
-        navigationDelegateForIframe: navigationDelegateForIframe,
-      ),
+    var text = _parseHtmlToTextSpans(context, useIsolate);
+
+    return _FuturedHtml(width: width, text: text);
+  }
+
+  static StyledText _computeBody(_ComputeParams params) {
+//Style.fromTextStyle(Theme.of(context).textTheme.bodyText2!)
+
+    final dom.Document doc = HtmlParser.parseHTML(params.data);
+
+    var text = params.parser.parse(doc);
+    // var text = StyledText(
+    //   textSpan: TextSpan(text: 'Hello world'),
+    //   style: Style(fontSize: FontSize.xxLarge),
+    // );
+    return text;
+  }
+
+  Future<StyledText> _parseHtmlToTextSpans(
+      BuildContext context, bool useIsolate) {
+    var parser = HtmlParser(
+      shrinkWrap: shrinkWrap,
+      style: style,
+      tagsList: tagsList.isEmpty ? Html.tags : tagsList,
     );
 
-    print('Html build ${sw.elapsedMilliseconds}ms');
-    return w;
+    return useIsolate
+        ? compute(_computeBody, _ComputeParams(parser, data!))
+        : Future<StyledText>(() {
+            return _computeBody(_ComputeParams(parser, data!));
+          });
+  }
+}
+
+class _ComputeParams {
+  _ComputeParams(this.parser, this.data);
+  //final BuildContext? context;
+  final HtmlParser parser;
+  final String data;
+}
+
+class _FuturedHtml extends StatelessWidget {
+  const _FuturedHtml({Key? key, required this.width, required this.text})
+      : super(key: key);
+
+  final double? width;
+  final Future<StyledText> text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+        width: width,
+        child: FutureBuilder<StyledText>(
+          future: text,
+          builder: (c, s) =>
+              s.hasData && s.data != null ? _FuturedBody(s.data!) : SizedBox(),
+        ));
+  }
+}
+
+class _FuturedBody extends StatefulWidget {
+  _FuturedBody(this.richText);
+
+  final StyledText richText;
+
+  @override
+  State<_FuturedBody> createState() => _FuturedBodyState();
+}
+
+class _FuturedBodyState extends State<_FuturedBody>
+    with AfterLayoutMixin<_FuturedBody> {
+  @override
+  void afterFirstLayout(BuildContext context) {
+    if (_globalSw != null) {
+      print(
+          'Html._FuturedBody laidout, total ${globalSw.elapsedMilliseconds}ms');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return widget.richText;
   }
 }

@@ -17,7 +17,12 @@ abstract class LayoutElement extends StyledElement {
     required List<StyledElement> children,
     String? elementId,
     dom.Element? node,
-  }) : super(name: name, children: children, style: Style(), node: node, elementId: elementId ?? "[[No ID]]");
+  }) : super(
+            name: name,
+            children: children,
+            style: Style(),
+            node: node,
+            elementId: elementId ?? "[[No ID]]");
 
   Widget? toWidget(RenderContext context);
 }
@@ -32,7 +37,7 @@ class TableLayoutElement extends LayoutElement {
   @override
   Widget toWidget(RenderContext context) {
     return Container(
-      key: AnchorKey.of(context.parser.key, this),
+      key: AnchorKey.of(null, this),
       margin: style.margin,
       padding: style.padding,
       decoration: BoxDecoration(
@@ -41,7 +46,8 @@ class TableLayoutElement extends LayoutElement {
       ),
       width: style.width,
       height: style.height,
-      child: LayoutBuilder(builder: (_, constraints) => _layoutCells(context, constraints)),
+      child: LayoutBuilder(
+          builder: (_, constraints) => _layoutCells(context, constraints)),
     );
   }
 
@@ -195,7 +201,13 @@ class TableCellElement extends StyledElement {
     required List<StyledElement> children,
     required Style style,
     required dom.Element node,
-  }) : super(name: name, elementId: elementId, elementClasses: elementClasses, children: children, style: style, node: node) {
+  }) : super(
+            name: name,
+            elementId: elementId,
+            elementClasses: elementClasses,
+            children: children,
+            style: style,
+            node: node) {
     colspan = _parseSpan(this, "colspan");
     rowspan = _parseSpan(this, "rowspan");
   }
@@ -270,42 +282,55 @@ class DetailsContentElement extends LayoutElement {
 
   @override
   Widget toWidget(RenderContext context) {
-    List<InlineSpan>? childrenList = children.map((tree) => context.parser.parseTree(context, tree)).toList();
+    List<InlineSpan>? childrenList = children
+        .map((tree) => context.parser.parseTree(context, tree))
+        .toList();
     List<InlineSpan> toRemove = [];
     for (InlineSpan child in childrenList) {
-      if (child is TextSpan && child.text != null && child.text!.trim().isEmpty) {
+      if (child is TextSpan &&
+          child.text != null &&
+          child.text!.trim().isEmpty) {
         toRemove.add(child);
       }
     }
     for (InlineSpan child in toRemove) {
       childrenList.remove(child);
     }
-    InlineSpan? firstChild = childrenList.isNotEmpty == true ? childrenList.first : null;
+    InlineSpan? firstChild =
+        childrenList.isNotEmpty == true ? childrenList.first : null;
     return ExpansionTile(
-        key: AnchorKey.of(context.parser.key, this),
+        key: AnchorKey.of(null, this),
         expandedAlignment: Alignment.centerLeft,
-        title: elementList.isNotEmpty == true && elementList.first.localName == "summary" ? StyledText(
-          textSpan: TextSpan(
-            style: style.generateTextStyle(),
-            children: firstChild == null ? [] : [firstChild],
-          ),
-          style: style,
-          renderContext: context,
-        ) : Text("Details"),
+        title: elementList.isNotEmpty == true &&
+                elementList.first.localName == "summary"
+            ? StyledText(
+                textSpan: TextSpan(
+                  style: style.generateTextStyle(),
+                  children: firstChild == null ? [] : [firstChild],
+                ),
+                style: style,
+                renderContext: context,
+              )
+            : Text("Details"),
         children: [
           StyledText(
             textSpan: TextSpan(
-              style: style.generateTextStyle(),
-              children: getChildren(childrenList, context, elementList.isNotEmpty == true && elementList.first.localName == "summary" ? firstChild : null)
-            ),
+                style: style.generateTextStyle(),
+                children: getChildren(
+                    childrenList,
+                    context,
+                    elementList.isNotEmpty == true &&
+                            elementList.first.localName == "summary"
+                        ? firstChild
+                        : null)),
             style: style,
             renderContext: context,
           ),
-        ]
-    );
+        ]);
   }
 
-  List<InlineSpan> getChildren(List<InlineSpan> children, RenderContext context, InlineSpan? firstChild) {
+  List<InlineSpan> getChildren(List<InlineSpan> children, RenderContext context,
+      InlineSpan? firstChild) {
     if (firstChild != null) children.removeAt(0);
     return children;
   }
@@ -319,8 +344,8 @@ class EmptyLayoutElement extends LayoutElement {
 }
 
 LayoutElement parseLayoutElement(
-    dom.Element element,
-    List<StyledElement> children,
+  dom.Element element,
+  List<StyledElement> children,
 ) {
   switch (element.localName) {
     case "details":
@@ -331,8 +356,7 @@ LayoutElement parseLayoutElement(
           node: element,
           name: element.localName!,
           children: children,
-          elementList: element.children
-      );
+          elementList: element.children);
     case "table":
       return TableLayoutElement(
         name: element.localName!,
@@ -354,9 +378,6 @@ LayoutElement parseLayoutElement(
       );
     default:
       return TableLayoutElement(
-          children: children,
-          name: "[[No Name]]",
-          node: element
-      );
+          children: children, name: "[[No Name]]", node: element);
   }
 }

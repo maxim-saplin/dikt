@@ -41,7 +41,6 @@ dependencies:
     #path: '../ikvpack'
   package_info_plus: ^1.0.0  
   after_layout: ^1.1.0  
-  
 
 dev_dependencies:
   flutter_test:

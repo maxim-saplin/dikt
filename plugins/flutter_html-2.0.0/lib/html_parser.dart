@@ -12,67 +12,42 @@ import 'package:flutter_html/src/html_elements.dart';
 import 'package:flutter_html/src/utils.dart';
 import 'package:html/dom.dart' as dom;
 import 'package:html/parser.dart' as htmlparser;
-import 'package:webview_flutter/webview_flutter.dart';
 
 typedef OnTap = void Function(
   String? url,
-  // RenderContext context,
-  // Map<String, String> attributes,
-  // dom.Element? element,
 );
 typedef OnMathError = Widget Function(
   String parsedTex,
   String exception,
   String exceptionWithType,
 );
-typedef CustomRender = dynamic Function(
-  RenderContext context,
-  Widget parsedChild,
-);
 
-class HtmlParser extends StatelessWidget {
-  final Key? key;
-  final dom.Document htmlData;
-  final OnTap? onLinkTap;
-  final OnTap? onImageTap;
-  final ImageErrorListener? onImageError;
-  final OnMathError? onMathError;
+class HtmlParser {
+  //dom.Document htmlData = dom.Document();
+  OnTap? onLinkTap;
   final bool shrinkWrap;
-
   final Map<String, Style> style;
-  final Map<String, CustomRender> customRender;
-  final Map<ImageSourceMatcher, ImageRender> imageRenders;
+  static Style defaultStyle = Style();
   final List<String> tagsList;
-  final NavigationDelegate? navigationDelegateForIframe;
   // final OnTap? _onAnchorTap;
 
   bool _firstDiv = true;
 
   HtmlParser({
-    required this.key,
-    required this.htmlData,
-    required this.onLinkTap,
-    required this.onImageTap,
-    required this.onImageError,
-    required this.onMathError,
+    //required this.htmlData,
+    this.onLinkTap,
     required this.shrinkWrap,
     required this.style,
-    required this.customRender,
-    required this.imageRenders,
     required this.tagsList,
-    required this.navigationDelegateForIframe,
-  }) : super(key: key);
+  });
 
-  @override
-  Widget build(BuildContext context) {
+  StyledText parse(dom.Document html) {
     var sw = Stopwatch();
     sw.start();
 
     StyledElement lexedTree = lexDomTree(
-      htmlData,
-      customRender.keys.toList(),
+      html,
       tagsList,
-      navigationDelegateForIframe,
     );
     StyledElement inlineStyledTree = applyInlineStyles(lexedTree);
     StyledElement customStyledTree = _applyCustomStyles(inlineStyledTree);
@@ -80,11 +55,11 @@ class HtmlParser extends StatelessWidget {
     StyledElement cleanedTree = cleanTree(cascadedStyledTree);
     InlineSpan parsedTree = parseTree(
       RenderContext(
-        buildContext: context,
-        parser: this,
-        tree: cleanedTree,
-        style: Style.fromTextStyle(Theme.of(context).textTheme.bodyText2!),
-      ),
+          parser: this,
+          tree: cleanedTree,
+          style:
+              defaultStyle //Style.fromTextStyle(Theme.of(context).textTheme.bodyText2!),
+          ),
       cleanedTree,
     );
 
@@ -97,10 +72,9 @@ class HtmlParser extends StatelessWidget {
       style: cleanedTree.style,
       //textScaleFactor: MediaQuery.of(context).textScaleFactor,
       renderContext: RenderContext(
-        buildContext: context,
         parser: this,
         tree: cleanedTree,
-        style: Style.fromTextStyle(Theme.of(context).textTheme.bodyText2!),
+        style: defaultStyle,
       ),
     );
 
@@ -119,12 +93,7 @@ class HtmlParser extends StatelessWidget {
   }
 
   /// [lexDomTree] converts a DOM document to a simplified tree of [StyledElement]s.
-  static StyledElement lexDomTree(
-    dom.Document html,
-    List<String> customRenderTags,
-    List<String> tagsList,
-    NavigationDelegate? navigationDelegateForIframe,
-  ) {
+  static StyledElement lexDomTree(dom.Document html, List<String> tagsList) {
     StyledElement tree = StyledElement(
       name: "[Tree Root]",
       children: <StyledElement>[],
@@ -135,9 +104,7 @@ class HtmlParser extends StatelessWidget {
     html.nodes.forEach((node) {
       tree.children.add(_recursiveLexer(
         node,
-        customRenderTags,
         tagsList,
-        navigationDelegateForIframe,
       ));
     });
 
@@ -150,18 +117,14 @@ class HtmlParser extends StatelessWidget {
   /// element and returns a [StyledElement] tree representing the element.
   static StyledElement _recursiveLexer(
     dom.Node node,
-    List<String> customRenderTags,
     List<String> tagsList,
-    NavigationDelegate? navigationDelegateForIframe,
   ) {
     List<StyledElement> children = <StyledElement>[];
 
     node.nodes.forEach((childNode) {
       children.add(_recursiveLexer(
         childNode,
-        customRenderTags,
         tagsList,
-        navigationDelegateForIframe,
       ));
     });
 
@@ -175,15 +138,13 @@ class HtmlParser extends StatelessWidget {
       } else if (INTERACTABLE_ELEMENTS.contains(node.localName)) {
         return parseInteractableElement(node, children);
       } else if (REPLACED_ELEMENTS.contains(node.localName)) {
-        return parseReplacedElement(node, navigationDelegateForIframe);
+        return parseReplacedElement(node);
       } else if (LAYOUT_ELEMENTS.contains(node.localName)) {
         return parseLayoutElement(node, children);
       } else if (TABLE_CELL_ELEMENTS.contains(node.localName)) {
         return parseTableCellElement(node, children);
       } else if (TABLE_DEFINITION_ELEMENTS.contains(node.localName)) {
         return parseTableDefinitionElement(node, children);
-      } else if (customRenderTags.contains(node.localName)) {
-        return parseStyledElement(node, children);
       } else {
         return EmptyContentElement();
       }
@@ -251,7 +212,6 @@ class HtmlParser extends StatelessWidget {
     // inherit the correct style
 
     RenderContext newContext = RenderContext(
-      buildContext: context.buildContext,
       parser: this,
       tree: tree,
       style: context.style.copyOnlyInherited(tree.style),
@@ -343,7 +303,7 @@ class HtmlParser extends StatelessWidget {
       wpc.data = false;
     }
 
-    if (tree is ImageContentElement || tree is SvgContentElement) {
+    if (tree is SvgContentElement) {
       wpc.data = false;
     }
 
@@ -618,13 +578,11 @@ class HtmlParser extends StatelessWidget {
 /// in the [HtmlParser], and contains information about the [Style] of the current
 /// tree root.
 class RenderContext {
-  final BuildContext buildContext;
   final HtmlParser parser;
   final StyledElement tree;
   final Style style;
 
   RenderContext({
-    required this.buildContext,
     required this.parser,
     required this.tree,
     required this.style,
@@ -681,14 +639,14 @@ class StyledText extends StatelessWidget {
   final InlineSpan textSpan;
   final Style style;
   final double textScaleFactor;
-  final RenderContext renderContext;
+  final RenderContext? renderContext;
   final AnchorKey? key;
 
   const StyledText({
     required this.textSpan,
     required this.style,
     this.textScaleFactor = 1.0,
-    required this.renderContext,
+    this.renderContext,
     this.key,
   }) : super(key: key);
 

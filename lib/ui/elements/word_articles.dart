@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:after_layout/after_layout.dart';
 import 'package:dikt/common/helpers.dart';
 import 'package:dikt/ui/themes.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:dikt/models/master_dictionary.dart';
 import 'package:flutter_html/flutter_html.dart';
@@ -27,20 +28,11 @@ class WordArticles extends StatefulWidget {
   State<WordArticles> createState() => _WordArticlesState();
 }
 
-class _WordArticlesState extends State<WordArticles>
-    with AfterLayoutMixin<WordArticles> {
+class _WordArticlesState extends State<WordArticles> {
   final ScrollController scrollController = ScrollController();
-  var sw = Stopwatch();
-
-  @override
-  void afterFirstLayout(BuildContext context) {
-    print('WordArticles laidout ${sw.elapsedMilliseconds}ms');
-  }
 
   @override
   Widget build(BuildContext context) {
-    sw.reset();
-    sw.start();
     globalSw.reset();
     globalSw.start();
     var dicsCompleter = Completer<
@@ -118,9 +110,6 @@ class _WordArticlesState extends State<WordArticles>
       )
     ]);
 
-    //sw.stop();
-    print('WordArticles built ${sw.elapsedMilliseconds}ms');
-
     return w;
   }
 }
@@ -153,7 +142,7 @@ class _FuturedArticleState extends State<_FuturedArticle>
 
   @override
   void afterFirstLayout(BuildContext context) {
-    print('_FuturedArticle laidout ${sw.elapsedMilliseconds}ms');
+    //print('_FuturedArticle laidout ${sw.elapsedMilliseconds}ms');
   }
 
   @override
@@ -180,7 +169,7 @@ class _FuturedArticleState extends State<_FuturedArticle>
       },
     );
 
-    print('_FuturedArticle built ${sw.elapsedMilliseconds}ms');
+    //print('_FuturedArticle built ${sw.elapsedMilliseconds}ms');
     return w;
   }
 }
@@ -264,6 +253,8 @@ class _FuturedArticleBodyState extends State<_FuturedArticleBody>
                           color: Theme.of(context).cardColor,
                           padding: EdgeInsets.fromLTRB(18, 0, 18, 10),
                           child: Html(
+                            sw: globalSw,
+                            useIsolate: !kIsWeb,
                             data: article.article,
                             onLinkTap: (String? url) {
                               if (widget.showAnotherWord != null)
