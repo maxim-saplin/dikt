@@ -125,6 +125,7 @@ class HtmlParser {
     });
 
     //TODO(Sub6Resources): There's probably a more efficient way to look this up.
+    // Maxim - replaced Lists with Sets, should be quicker
     if (node is dom.Element) {
       if (!tagsList.contains(node.localName)) {
         return EmptyContentElement();
