@@ -23,13 +23,22 @@ typedef OnMathError = Widget Function(
 );
 
 class HtmlParser {
-  //dom.Document htmlData = dom.Document();
   OnTap? onLinkTap;
+  OnTap? _onLinkTapHandler;
   final bool shrinkWrap;
   final Map<String, Style> style;
   static Style defaultStyle = Style();
   final List<String> tagsList;
-  // final OnTap? _onAnchorTap;
+
+  void _onLinkTap(String? s) {
+    if (_onLinkTapHandler != null) _onLinkTapHandler!(s);
+  }
+
+  // Workaround for closures which are not allowed
+  // to be passed between isolates
+  void fixTap(OnTap onLinkTap) {
+    _onLinkTapHandler = onLinkTap;
+  }
 
   bool _firstDiv = true;
 
@@ -228,7 +237,7 @@ class HtmlParser {
 
       return TextSpan(
         style: newContextStyle,
-        recognizer: new _HrefTap(onLinkTap, tree.href),
+        recognizer: new _HrefTap(onLinkTap ?? _onLinkTap, tree.href),
         text: tc.text,
       );
     } else {

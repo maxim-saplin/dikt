@@ -17,6 +17,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_html/html_parser.dart';
 import 'package:flutter_html/src/html_elements.dart';
 import 'package:flutter_html/style.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:html/dom.dart' as dom;
 
 Stopwatch? _globalSw;
@@ -117,31 +118,30 @@ class Html extends StatelessWidget {
   }
 
   static StyledText _computeBody(_ComputeParams params) {
-//Style.fromTextStyle(Theme.of(context).textTheme.bodyText2!)
-
     final dom.Document doc = HtmlParser.parseHTML(params.data);
 
     var text = params.parser.parse(doc);
-    // var text = StyledText(
-    //   textSpan: TextSpan(text: 'Hello world'),
-    //   style: Style(fontSize: FontSize.xxLarge),
-    // );
     return text;
   }
 
   Future<StyledText> _parseHtmlToTextSpans(
       BuildContext context, bool useIsolate) {
     var parser = HtmlParser(
+      //onLinkTap: useIsolate ? null : onLinkTap,
       shrinkWrap: shrinkWrap,
       style: style,
       tagsList: tagsList.isEmpty ? Html.tags : tagsList,
     );
 
-    return useIsolate
+    var w = useIsolate
         ? compute(_computeBody, _ComputeParams(parser, data!))
         : Future<StyledText>(() {
             return _computeBody(_ComputeParams(parser, data!));
           });
+
+    if (onLinkTap != null) parser.fixTap(onLinkTap!);
+
+    return w;
   }
 }
 
