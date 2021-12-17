@@ -129,7 +129,7 @@ class TableLayoutElement extends LayoutElement {
                       style.alignment ??
                       Alignment.centerLeft,
                   child: StyledText(
-                    textSpan: context.parser.parseTree(context, child),
+                    textSpan: context.parser.parseTree(context, child, null),
                     style: child.style,
                     renderContext: context,
                   ),
@@ -283,7 +283,7 @@ class DetailsContentElement extends LayoutElement {
   @override
   Widget toWidget(RenderContext context) {
     List<InlineSpan>? childrenList = children
-        .map((tree) => context.parser.parseTree(context, tree))
+        .map((tree) => context.parser.parseTree(context, tree, null))
         .toList();
     List<InlineSpan> toRemove = [];
     for (InlineSpan child in childrenList) {

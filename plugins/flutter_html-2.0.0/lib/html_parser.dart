@@ -16,44 +16,33 @@ import 'package:html/parser.dart' as htmlparser;
 typedef OnTap = void Function(
   String? url,
 );
-typedef OnMathError = Widget Function(
-  String parsedTex,
-  String exception,
-  String exceptionWithType,
-);
+
+class _TapHandler {
+  OnTap? _onLinkTapHandler;
+
+  void onLinkTap(String? s) {
+    if (_onLinkTapHandler != null) _onLinkTapHandler!(s);
+  }
+}
 
 class HtmlParser {
-  OnTap? onLinkTap;
-  OnTap? _onLinkTapHandler;
   final bool shrinkWrap;
   final Map<String, Style> style;
   static Style defaultStyle = Style();
   final List<String> tagsList;
 
-  void _onLinkTap(String? s) {
-    if (_onLinkTapHandler != null) _onLinkTapHandler!(s);
-  }
-
-  // Workaround for closures which are not allowed
-  // to be passed between isolates
-  void fixTap(OnTap onLinkTap) {
-    _onLinkTapHandler = onLinkTap;
-  }
-
   bool _firstDiv = true;
 
   HtmlParser({
     //required this.htmlData,
-    this.onLinkTap,
     required this.shrinkWrap,
     required this.style,
     required this.tagsList,
   });
 
-  StyledText parse(dom.Document html) {
-    var sw = Stopwatch();
-    sw.start();
+  var tapHandler = _TapHandler();
 
+  StyledText parse(dom.Document html) {
     StyledElement lexedTree = lexDomTree(
       html,
       tagsList,
@@ -63,22 +52,23 @@ class HtmlParser {
     StyledElement cascadedStyledTree = _cascadeStyles(customStyledTree);
     StyledElement cleanedTree = cleanTree(cascadedStyledTree);
     InlineSpan parsedTree = parseTree(
-      RenderContext(
-          parser: this,
-          tree: cleanedTree,
-          style:
-              defaultStyle //Style.fromTextStyle(Theme.of(context).textTheme.bodyText2!),
-          ),
-      cleanedTree,
-    );
+        RenderContext(
+            parser: this,
+            tree: cleanedTree,
+            style:
+                defaultStyle //Style.fromTextStyle(Theme.of(context).textTheme.bodyText2!),
+            ),
+        cleanedTree,
+        tapHandler);
 
     // This is the final scaling that assumes any other StyledText instances are
     // using textScaleFactor = 1.0 (which is the default). This ensures the correct
     // scaling is used, but relies on https://github.com/flutter/flutter/pull/59711
     // to wrap everything when larger accessibility fonts are used.
-    var w = StyledText(
+    return StyledText(
       textSpan: parsedTree,
       style: cleanedTree.style,
+      tapHandler: tapHandler,
       //textScaleFactor: MediaQuery.of(context).textScaleFactor,
       renderContext: RenderContext(
         parser: this,
@@ -86,9 +76,6 @@ class HtmlParser {
         style: defaultStyle,
       ),
     );
-
-    print('HtmlParser build ${sw.elapsedMilliseconds}ms');
-    return w;
   }
 
   /// [parseHTML] converts a string of HTML to a DOM document using the dart `html` library.
@@ -216,7 +203,8 @@ class HtmlParser {
   ///
   /// [parseTree] is responsible for handling the [customRender] parameter and
   /// deciding what different `Style.display` options look like as Widgets.
-  InlineSpan parseTree(RenderContext context, StyledElement tree) {
+  InlineSpan parseTree(
+      RenderContext context, StyledElement tree, _TapHandler? handler) {
     // Merge this element's style into the context so that children
     // inherit the correct style
 
@@ -237,7 +225,8 @@ class HtmlParser {
 
       return TextSpan(
         style: newContextStyle,
-        recognizer: new _HrefTap(onLinkTap ?? _onLinkTap, tree.href),
+        recognizer:
+            handler == null ? null : new _HrefTap(handler.onLinkTap, tree.href),
         text: tc.text,
       );
     } else {
@@ -252,8 +241,9 @@ class HtmlParser {
                 !_firstDiv
             ? '\n'
             : '',
-        children:
-            tree.children.map((tree) => parseTree(newContext, tree)).toList(),
+        children: tree.children
+            .map((tree) => parseTree(newContext, tree, handler))
+            .toList(),
       );
       if (tree.name == 'div') _firstDiv = false;
 
@@ -650,25 +640,32 @@ class StyledText extends StatelessWidget {
   final double textScaleFactor;
   final RenderContext? renderContext;
   final AnchorKey? key;
+  final _TapHandler? _tapHandler;
 
-  const StyledText({
+  // Workaround for closures which are not allowed
+  // to be passed between isolates
+  void fixTap(OnTap onLinkTap) {
+    if (_tapHandler != null) {
+      _tapHandler!._onLinkTapHandler = onLinkTap;
+    }
+  }
+
+  StyledText({
     required this.textSpan,
     required this.style,
     this.textScaleFactor = 1.0,
     this.renderContext,
+    _TapHandler? tapHandler,
     this.key,
-  }) : super(key: key);
+  })  : this._tapHandler = tapHandler,
+        super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    //return SizedBox(
-    //width: calculateWidth(style.display, renderContext),
-
     // On ANDROID semantics is somwhow intertwind with platform calls
     // and in articles with to many hrefs (e.g. try opening 'go' in WordNet)
     // it can literly take half a second to draw a single frame with most of
     // delay happening in the native side. Disabling semanticd fixes issues
-    //child:
 
     return ExcludeSemantics(
         child: SelectableText.rich(
@@ -679,19 +676,7 @@ class StyledText extends StatelessWidget {
       textScaleFactor: textScaleFactor,
       maxLines: style.maxLines,
     ));
-    //);
   }
-
-  // double? calculateWidth(Display? display, RenderContext context) {
-  //   if ((display == Display.BLOCK || display == Display.LIST_ITEM) &&
-  //       !renderContext.parser.shrinkWrap) {
-  //     return double.infinity;
-  //   }
-  //   if (renderContext.parser.shrinkWrap) {
-  //     return MediaQuery.of(context.buildContext).size.width;
-  //   }
-  //   return null;
-  // }
 }
 
 class _HrefTap extends TapGestureRecognizer {
@@ -700,6 +685,7 @@ class _HrefTap extends TapGestureRecognizer {
   }
 
   void _onTap() {
+    print('_onTap');
     if (linkTap != null && href != null) linkTap!(href);
   }
 

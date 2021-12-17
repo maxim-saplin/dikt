@@ -52,10 +52,7 @@ class Html extends StatelessWidget {
       {Key? key,
       required this.data,
       this.onLinkTap,
-      this.onImageError,
-      this.onMathError,
       this.shrinkWrap = false,
-      this.onImageTap,
       this.tagsList = const [],
       this.style = const {},
       this.useIsolate = false,
@@ -73,19 +70,9 @@ class Html extends StatelessWidget {
   /// A function that defines what to do when a link is tapped
   final OnTap? onLinkTap;
 
-  /// A function that defines what to do when an image errors
-  final ImageErrorListener? onImageError;
-
-  /// A function that defines what to do when either <math> or <tex> fails to render
-  /// You can return a widget here to override the default error widget.
-  final OnMathError? onMathError;
-
   /// A parameter that should be set when the HTML widget is expected to be
   /// flexible
   final bool shrinkWrap;
-
-  /// A function that defines what to do when an image is tapped
-  final OnTap? onImageTap;
 
   /// A list of HTML tags that defines what elements are not rendered
   final List<String> tagsList;
@@ -112,9 +99,13 @@ class Html extends StatelessWidget {
 
     final double? width = shrinkWrap ? null : MediaQuery.of(context).size.width;
 
-    var text = _parseHtmlToTextSpans(context, useIsolate);
+    var text = _parseHtmlToTextSpans(useIsolate);
 
-    return _FuturedHtml(width: width, text: text);
+    return _FuturedHtml(
+      width: width,
+      text: text,
+      onLinkTap: onLinkTap,
+    );
   }
 
   static StyledText _computeBody(_ComputeParams params) {
@@ -124,10 +115,8 @@ class Html extends StatelessWidget {
     return text;
   }
 
-  Future<StyledText> _parseHtmlToTextSpans(
-      BuildContext context, bool useIsolate) {
+  Future<StyledText> _parseHtmlToTextSpans(bool useIsolate) {
     var parser = HtmlParser(
-      //onLinkTap: useIsolate ? null : onLinkTap,
       shrinkWrap: shrinkWrap,
       style: style,
       tagsList: tagsList.isEmpty ? Html.tags : tagsList,
@@ -139,25 +128,24 @@ class Html extends StatelessWidget {
             return _computeBody(_ComputeParams(parser, data!));
           });
 
-    if (onLinkTap != null) parser.fixTap(onLinkTap!);
-
     return w;
   }
 }
 
 class _ComputeParams {
   _ComputeParams(this.parser, this.data);
-  //final BuildContext? context;
   final HtmlParser parser;
   final String data;
 }
 
 class _FuturedHtml extends StatelessWidget {
-  const _FuturedHtml({Key? key, required this.width, required this.text})
+  const _FuturedHtml(
+      {Key? key, required this.width, required this.text, this.onLinkTap})
       : super(key: key);
 
   final double? width;
   final Future<StyledText> text;
+  final OnTap? onLinkTap;
 
   @override
   Widget build(BuildContext context) {
@@ -165,8 +153,14 @@ class _FuturedHtml extends StatelessWidget {
         width: width,
         child: FutureBuilder<StyledText>(
           future: text,
-          builder: (c, s) =>
-              s.hasData && s.data != null ? _FuturedBody(s.data!) : SizedBox(),
+          builder: (c, s) {
+            if (s.hasData && s.data != null) {
+              if (onLinkTap != null) s.data!.fixTap(onLinkTap!);
+              return _FuturedBody(s.data!);
+            } else {
+              return SizedBox();
+            }
+          },
         ));
   }
 }
