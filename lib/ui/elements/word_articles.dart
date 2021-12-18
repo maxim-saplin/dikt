@@ -160,11 +160,8 @@ class _Empty extends StatelessWidget {
         child: Container(
             color: Theme.of(context).cardColor,
             width: 10000,
-            height: 80,
-            child: Align(
-              child: Text(''),
-              alignment: Alignment.center,
-            )));
+            height: 40,
+            child: SizedBox()));
   }
 }
 
@@ -307,11 +304,9 @@ class _FuturedArticleBodyState extends State<_FuturedArticleBody>
     return FutureBuilder(
         future: _offstageCompleter.future,
         builder: (c, s) => !s.hasData
-            ? Stack(children: [Offstage(child: w, offstage: true), _Empty()])
-            : Offstage(
-                child: w,
-                offstage: false,
-              ));
+            ? Offstage(child: w, offstage: true)
+            : AnimatedScale(
+                duration: Duration(milliseconds: 2660), scale: 1.0, child: w));
   }
 }
 

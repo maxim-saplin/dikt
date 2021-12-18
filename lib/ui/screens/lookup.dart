@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:dikt/common/helpers.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
@@ -286,12 +287,20 @@ void showArticle(BuildContext context, String word, bool useDialog) {
               insetPadding: EdgeInsets.fromLTRB(
                   0, !kIsWeb && Platform.isMacOS ? 28 : 0, 0, 0),
               children: [
-                WordArticles(
-                  articles: articles,
-                  word: word,
-                  showAnotherWord: (word) =>
-                      showArticle(context, word, useDialog),
-                )
+                KeyboardVisibilityBuilder(
+                    builder: (c, iv) => iv
+                        ? SizedBox()
+                        : FutureBuilder(
+                            future: Future.delayed(
+                                Duration(milliseconds: 80), () => true),
+                            builder: (c, s) => s.hasData
+                                ? WordArticles(
+                                    articles: articles,
+                                    word: word,
+                                    showAnotherWord: (word) =>
+                                        showArticle(context, word, useDialog),
+                                  )
+                                : SizedBox()))
               ]);
         });
   } else {
