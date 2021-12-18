@@ -24,31 +24,6 @@ import 'package:ikvpack/ikvpack.dart';
 Stopwatch? _globalSw;
 
 class Html extends StatelessWidget {
-  /// The `Html` widget takes HTML as input and displays a RichText
-  /// tree of the parsed HTML content.
-  ///
-  /// **Attributes**
-  /// **data** *required* takes in a String of HTML data (required only for `Html` constructor).
-  /// **document** *required* takes in a Document of HTML data (required only for `Html.fromDom` constructor).
-  ///
-  /// **onLinkTap** This function is called whenever a link (`<a href>`)
-  /// is tapped.
-  /// **customRender** This function allows you to return your own widgets
-  /// for existing or custom HTML tags.
-  /// See [its wiki page](https://github.com/Sub6Resources/flutter_html/wiki/All-About-customRender) for more info.
-  ///
-  /// **onImageError** This is called whenever an image fails to load or
-  /// display on the page.
-  ///
-  /// **shrinkWrap** This makes the Html widget take up only the width it
-  /// needs and no more.
-  ///
-  /// **onImageTap** This is called whenever an image is tapped.
-  ///
-  /// **tagsList** Tag names in this array will be the only tags rendered. By default all tags are rendered.
-  ///
-  /// **style** Pass in the style information for the Html here.
-  /// See [its wiki page](https://github.com/Sub6Resources/flutter_html/wiki/Style) for more info.
   Html(
       {Key? key,
       required this.data,
@@ -58,6 +33,8 @@ class Html extends StatelessWidget {
       this.style = const {},
       this.useIsolate = false,
       this.isolatePool,
+      this.onBuilt,
+      this.onLaidOut,
       this.sw})
       : assert(data != null),
         anchorKey = GlobalKey(),
@@ -88,6 +65,12 @@ class Html extends StatelessWidget {
   /// Whether to paralellize some of hard work
   final bool useIsolate;
 
+  /// Called when futured part is built
+  final Function? onBuilt;
+
+  /// Called when futured
+  final Function? onLaidOut;
+
   /// useIsolate == true, isolatePool == null - run in compute()
   /// useIsolate == true, isolatePool != null - run as PooledJob in the provided pool
   final IsolatePool? isolatePool;
@@ -111,6 +94,8 @@ class Html extends StatelessWidget {
       width: width,
       text: text,
       onLinkTap: onLinkTap,
+      onBuilt: onBuilt,
+      onLaidOut: onLaidOut,
     );
   }
 
@@ -160,12 +145,19 @@ class _ParseHtmlJob extends PooledJob<StyledText> {
 
 class _FuturedHtml extends StatelessWidget {
   const _FuturedHtml(
-      {Key? key, required this.width, required this.text, this.onLinkTap})
+      {Key? key,
+      required this.width,
+      required this.text,
+      this.onLinkTap,
+      this.onBuilt,
+      this.onLaidOut})
       : super(key: key);
 
   final double? width;
   final Future<StyledText> text;
   final OnTap? onLinkTap;
+  final Function? onBuilt;
+  final Function? onLaidOut;
 
   @override
   Widget build(BuildContext context) {
@@ -176,7 +168,8 @@ class _FuturedHtml extends StatelessWidget {
           builder: (c, s) {
             if (s.hasData && s.data != null) {
               if (onLinkTap != null) s.data!.fixTap(onLinkTap!);
-              return _FuturedBody(s.data!);
+
+              return _FuturedBody(s.data!, onBuilt, onLaidOut);
             } else {
               return SizedBox();
             }
@@ -186,9 +179,11 @@ class _FuturedHtml extends StatelessWidget {
 }
 
 class _FuturedBody extends StatefulWidget {
-  _FuturedBody(this.richText);
+  _FuturedBody(this.richText, this.onBuilt, this.onLaidOut);
 
   final StyledText richText;
+  final Function? onBuilt;
+  final Function? onLaidOut;
 
   @override
   State<_FuturedBody> createState() => _FuturedBodyState();
@@ -202,10 +197,13 @@ class _FuturedBodyState extends State<_FuturedBody>
       print(
           'Html._FuturedBody laidout, total ${globalSw.elapsedMilliseconds}ms');
     }
+    widget.onLaidOut?.call();
   }
 
   @override
   Widget build(BuildContext context) {
+    widget.onBuilt?.call();
+
     return widget.richText;
   }
 }

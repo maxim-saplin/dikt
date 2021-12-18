@@ -9,11 +9,10 @@ import 'package:dikt/models/master_dictionary.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_sticky_header/flutter_sticky_header.dart';
 
+// Started when top level widget build() is called and used to measure article widgets layouts - essentialy time to dispolay
 Stopwatch globalSw = Stopwatch();
 
-// Split into multiple widgets to allow getting timings for full widget display
-
-class WordArticles extends StatefulWidget {
+class WordArticles extends StatelessWidget {
   WordArticles(
       {Key? key,
       required this.articles,
@@ -21,16 +20,11 @@ class WordArticles extends StatefulWidget {
       this.showAnotherWord})
       : super(key: key);
 
+  final ScrollController scrollController = ScrollController();
+
   final Future<List<Article>> articles;
   final String word;
   final Function(String word)? showAnotherWord;
-
-  @override
-  State<WordArticles> createState() => _WordArticlesState();
-}
-
-class _WordArticlesState extends State<WordArticles> {
-  final ScrollController scrollController = ScrollController();
 
   @override
   Widget build(BuildContext context) {
@@ -43,21 +37,24 @@ class _WordArticlesState extends State<WordArticles> {
       ClipRRect(
           borderRadius: BorderRadius.all(Radius.circular(10)),
           child: Stack(children: [
-            _FuturedArticle(
-                widget: widget,
+            // Article list
+            _FuturedArticles(
+                articles: articles,
                 dicsCompleter: dicsCompleter,
                 scrollController: scrollController,
-                showAnotherWord: widget.showAnotherWord),
+                showAnotherWord: showAnotherWord),
+            // Title with selectable text - word
             Container(
                 padding: EdgeInsets.fromLTRB(18, 15, 18, 0),
                 color: Theme.of(context).cardColor,
                 height: 39.0,
                 width: 1000,
                 child: SelectableText(
-                  widget.word,
+                  word,
                   style: Theme.of(context).textTheme.headline6,
                 )),
           ])),
+      // Bottom buttons
       Positioned(
         child: Container(
             color: Theme.of(context).cardColor,
@@ -66,6 +63,7 @@ class _WordArticlesState extends State<WordArticles> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 mainAxisSize: MainAxisSize.max,
                 children: [
+                  // Back button
                   Expanded(
                       flex: 1,
                       child: TextButton(
@@ -78,6 +76,7 @@ class _WordArticlesState extends State<WordArticles> {
                           size: 18,
                         ),
                       )),
+                  // Dictionary selector
                   Expanded(
                       flex: 1,
                       child: FutureBuilder<
@@ -115,10 +114,10 @@ class _WordArticlesState extends State<WordArticles> {
   }
 }
 
-class _FuturedArticle extends StatefulWidget {
-  const _FuturedArticle(
+class _FuturedArticles extends StatelessWidget {
+  const _FuturedArticles(
       {Key? key,
-      required this.widget,
+      required this.articles,
       required this.dicsCompleter,
       required this.scrollController,
       required this.showAnotherWord})
@@ -126,40 +125,22 @@ class _FuturedArticle extends StatefulWidget {
 
   static EdgeInsets headerInsets = const EdgeInsets.fromLTRB(0, 30, 0, 50);
 
-  final WordArticles widget;
-  final Completer<
-      Tuple<List<DropdownMenuItem<String>>,
-          Map<String, GlobalKey<State<StatefulWidget>>>>> dicsCompleter;
+  final Future<List<Article>> articles;
+  final Completer<Tuple<List<DropdownMenuItem<String>>, Map<String, GlobalKey>>>
+      dicsCompleter;
   final ScrollController scrollController;
   final Function(String word)? showAnotherWord;
 
-  @override
-  State<_FuturedArticle> createState() => _FuturedArticleState();
-}
-
-class _FuturedArticleState extends State<_FuturedArticle>
-    with AfterLayoutMixin<_FuturedArticle> {
-  var sw = Stopwatch();
-
-  @override
-  void afterFirstLayout(BuildContext context) {
-    //print('_FuturedArticle laidout ${sw.elapsedMilliseconds}ms');
-  }
-
-  @override
   Widget build(BuildContext context) {
-    sw.reset();
-    sw.start();
-
     var w = FutureBuilder(
-      future: widget.widget.articles,
+      future: articles,
       builder: (context, snapshot) {
         if (snapshot.hasData) {
-          return _FuturedArticleBody(snapshot, widget.dicsCompleter,
-              widget.scrollController, widget.showAnotherWord);
+          return _FuturedArticleBody(
+              snapshot, dicsCompleter, scrollController, showAnotherWord);
         }
         return Padding(
-            padding: _FuturedArticle.headerInsets,
+            padding: _FuturedArticles.headerInsets,
             child: Container(
                 color: Theme.of(context).cardColor,
                 width: 10000,
@@ -222,8 +203,11 @@ class _FuturedArticleBodyState extends State<_FuturedArticleBody>
       widget.dicsCompleter.complete(Tuple(dictionaries, dicsToKeys));
     }
 
-    var w = Padding(
-        padding: _FuturedArticle.headerInsets,
+    var builtCounter = 0;
+    var laidoutCounter = 0;
+
+    Widget w = Padding(
+        padding: _FuturedArticles.headerInsets,
         child: PrimaryScrollController(
             controller: widget.scrollController,
             child: Scrollbar(
@@ -249,45 +233,53 @@ class _FuturedArticleBodyState extends State<_FuturedArticleBody>
                         dictionary: article.dictionaryName),
                     alignment: Alignment.bottomRight,
                   )),
-                  sliver: SliverList(
-                    delegate: SliverChildBuilderDelegate((context, i) {
-                      return Container(
-                          color: Theme.of(context).cardColor,
-                          padding: EdgeInsets.fromLTRB(18, 0, 18, 10),
-                          child: Html(
-                            sw: globalSw,
-                            useIsolate: !kIsWeb,
-                            isolatePool: !kIsWeb ? pool : null,
-                            data: article.article,
-                            onLinkTap: (String? url) {
-                              if (widget.showAnotherWord != null)
-                                widget.showAnotherWord!(url!);
-                            },
-                            style: {
-                              "a": Style(
-                                  color:
-                                      Theme.of(context).colorScheme.secondary,
-                                  fontSize: FontSize(18),
-                                  fontStyle: FontStyle.italic,
-                                  fontFamily: "OpenSans"),
-                              "span": Style(
-                                  color: ownTheme(context).spanColor,
-                                  fontSize: FontSize(18),
-                                  fontStyle: FontStyle.italic,
-                                  fontFamily: "OpenSans"),
-                              "div": Style(
-                                  padding: EdgeInsets.all(0),
-                                  //fontFamily: "OpenSans",
-                                  fontSize: FontSize(18)),
-                            },
-                          ));
-                    }, childCount: 1),
-                  ),
+                  sliver: SliverToBoxAdapter(
+                      child: Container(
+                    color: Theme.of(context).cardColor,
+                    padding: EdgeInsets.fromLTRB(18, 0, 18, 10),
+                    child: Html(
+                      sw: globalSw,
+                      useIsolate: !kIsWeb,
+                      isolatePool: !kIsWeb ? pool : null,
+                      data: article.article,
+                      onLinkTap: (String? url) {
+                        if (widget.showAnotherWord != null)
+                          widget.showAnotherWord!(url!);
+                      },
+                      onBuilt: () => dicsToKeys.length == ++builtCounter
+                          ? print(
+                              'Html.built, # ${builtCounter}, ${globalSw.elapsedMilliseconds}ms')
+                          : {},
+                      onLaidOut: () {
+                        if (dicsToKeys.length == ++laidoutCounter) {
+                          print(
+                              'Html.laidout, # ${laidoutCounter}, ${globalSw.elapsedMilliseconds}ms');
+                        }
+                      },
+                      style: {
+                        "a": Style(
+                            color: Theme.of(context).colorScheme.secondary,
+                            fontSize: FontSize(18),
+                            fontStyle: FontStyle.italic,
+                            fontFamily: "OpenSans"),
+                        "span": Style(
+                            color: ownTheme(context).spanColor,
+                            fontSize: FontSize(18),
+                            fontStyle: FontStyle.italic,
+                            fontFamily: "OpenSans"),
+                        "div": Style(
+                            padding: EdgeInsets.all(0),
+                            //fontFamily: "OpenSans",
+                            fontSize: FontSize(18)),
+                      },
+                    ),
+                  )),
                 );
               }).toList(),
             ))));
     print(
         '_FuturedArticleBody built ${sw.elapsedMilliseconds}ms, total ${globalSw.elapsedMilliseconds}');
+
     return w;
   }
 }
