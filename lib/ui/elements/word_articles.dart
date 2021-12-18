@@ -164,7 +164,7 @@ class _FuturedArticleState extends State<_FuturedArticle>
                 width: 10000,
                 height: 40,
                 child: Align(
-                  child: Text('...'),
+                  child: Text(''),
                   alignment: Alignment.center,
                 )));
       },
