@@ -304,7 +304,7 @@ class _FuturedArticleBodyState extends State<_FuturedArticleBody>
     return FutureBuilder(
         future: _offstageCompleter.future,
         builder: (c, s) => !s.hasData
-            ? Offstage(child: w, offstage: true)
+            ? Stack(children: [Offstage(child: w, offstage: true), _Empty()])
             : AnimatedScale(
                 duration: Duration(milliseconds: 2660), scale: 1.0, child: w));
   }
