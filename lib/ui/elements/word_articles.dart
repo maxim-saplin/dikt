@@ -139,21 +139,32 @@ class _FuturedArticles extends StatelessWidget {
           return _FuturedArticleBody(
               snapshot, dicsCompleter, scrollController, showAnotherWord);
         }
-        return Padding(
-            padding: _FuturedArticles.headerInsets,
-            child: Container(
-                color: Theme.of(context).cardColor,
-                width: 10000,
-                height: 120,
-                child: Align(
-                  child: Text(''),
-                  alignment: Alignment.center,
-                )));
+        return _Empty();
       },
     );
 
     //print('_FuturedArticle built ${sw.elapsedMilliseconds}ms');
     return w;
+  }
+}
+
+class _Empty extends StatelessWidget {
+  const _Empty({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+        padding: _FuturedArticles.headerInsets,
+        child: Container(
+            color: Theme.of(context).cardColor,
+            width: 10000,
+            height: 80,
+            child: Align(
+              child: Text(''),
+              alignment: Alignment.center,
+            )));
   }
 }
 
@@ -181,6 +192,17 @@ class _FuturedArticleBodyState extends State<_FuturedArticleBody>
         '_FuturedArticleBody laidout ${sw.elapsedMilliseconds}ms, total ${globalSw.elapsedMilliseconds}');
   }
 
+  //bool _buildingHtmlComplete = false;
+  UniqueKey scrollKey = UniqueKey();
+
+  var _offstageCompleter = Completer();
+
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   _buildingHtmlComplete = false;
+  // }
+
   @override
   Widget build(BuildContext context) {
     sw.reset();
@@ -207,6 +229,7 @@ class _FuturedArticleBodyState extends State<_FuturedArticleBody>
     var laidoutCounter = 0;
 
     Widget w = Padding(
+        key: scrollKey,
         padding: _FuturedArticles.headerInsets,
         child: PrimaryScrollController(
             controller: widget.scrollController,
@@ -238,7 +261,7 @@ class _FuturedArticleBodyState extends State<_FuturedArticleBody>
                     color: Theme.of(context).cardColor,
                     padding: EdgeInsets.fromLTRB(18, 0, 18, 10),
                     child: Html(
-                      sw: globalSw,
+                      //sw: globalSw,
                       useIsolate: !kIsWeb,
                       isolatePool: !kIsWeb ? pool : null,
                       data: article.article,
@@ -254,6 +277,7 @@ class _FuturedArticleBodyState extends State<_FuturedArticleBody>
                         if (dicsToKeys.length == ++laidoutCounter) {
                           print(
                               'Html.laidout, # ${laidoutCounter}, ${globalSw.elapsedMilliseconds}ms');
+                          _offstageCompleter.complete(true);
                         }
                       },
                       style: {
@@ -277,10 +301,17 @@ class _FuturedArticleBodyState extends State<_FuturedArticleBody>
                 );
               }).toList(),
             ))));
-    print(
-        '_FuturedArticleBody built ${sw.elapsedMilliseconds}ms, total ${globalSw.elapsedMilliseconds}');
+    // print(
+    //     '_FuturedArticleBody built ${sw.elapsedMilliseconds}ms, total ${globalSw.elapsedMilliseconds}');
 
-    return w;
+    return FutureBuilder(
+        future: _offstageCompleter.future,
+        builder: (c, s) => !s.hasData
+            ? Stack(children: [Offstage(child: w, offstage: true), _Empty()])
+            : Offstage(
+                child: w,
+                offstage: false,
+              ));
   }
 }
 
