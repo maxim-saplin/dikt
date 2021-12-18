@@ -161,8 +161,9 @@ class _FuturedArticleState extends State<_FuturedArticle>
         return Padding(
             padding: _FuturedArticle.headerInsets,
             child: Container(
+                color: Theme.of(context).cardColor,
                 width: 10000,
-                height: 40,
+                height: 120,
                 child: Align(
                   child: Text(''),
                   alignment: Alignment.center,
