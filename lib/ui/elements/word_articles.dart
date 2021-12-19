@@ -286,17 +286,16 @@ class _FuturedArticleBodyState extends State<_FuturedArticleBody>
                           fontFamily: "FiraSans",
                         ),
                         'i': Style(
-                          //color: Theme.of(context).colorScheme.secondary,
+                          //color: Colors.teal[100],
                           fontSize: FontSize(18),
                           fontStyle: FontStyle.italic,
-                          fontWeight: FontWeight.w600,
-                          fontFamily: "FiraSans",
+                          //fontFamily: "FiraSans",
                         ),
                         'span': Style(
                           color: ownTheme(context).spanColor,
                           fontSize: FontSize(18),
                           //fontFamily: "FiraSans",
-                          //fontStyle: FontStyle.italic,
+                          fontStyle: FontStyle.italic,
                         ),
                         'div': Style(
                             padding: EdgeInsets.all(0),
