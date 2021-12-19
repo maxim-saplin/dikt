@@ -79,29 +79,30 @@ class WordArticles extends StatelessWidget {
                   // Dictionary selector
                   Expanded(
                       flex: 1,
-                      child: FutureBuilder<
-                              Tuple<List<DropdownMenuItem<String>>,
-                                  Map<String, GlobalKey>>>(
-                          future: dicsCompleter.future,
-                          builder: (c, s) => s.hasData && s.data != null
-                              ? Stack(alignment: Alignment.center, children: [
-                                  Icon(
-                                    Icons.launch_rounded,
-                                    size: 20,
-                                  ),
-                                  // TODO - fix button being too narrow and icon not covering the click area (e.g. wide window)
-                                  // try Actions https://stackoverflow.com/questions/57529394/how-to-open-dropdownbutton-when-other-widget-is-tapped-in-flutter
-                                  OverflowBox(
-                                      alignment: Alignment.centerRight,
-                                      maxWidth: 500,
-                                      child: SizedBox(
-                                          child: _DictionarySelector(
-                                              dictionaries: s.data!.value1,
-                                              dicsToKeys: s.data!.value2,
-                                              scrollController:
-                                                  scrollController)))
-                                ])
-                              : SizedBox())),
+                      child: Stack(alignment: Alignment.center, children: [
+                        Icon(
+                          Icons.launch_rounded,
+                          size: 20,
+                        ),
+                        FutureBuilder<
+                                Tuple<List<DropdownMenuItem<String>>,
+                                    Map<String, GlobalKey>>>(
+                            future: dicsCompleter.future,
+                            builder: (c, s) => s.hasData && s.data != null
+                                ?
+                                // TODO - fix button being too narrow and icon not covering the click area (e.g. wide window)
+                                // try Actions https://stackoverflow.com/questions/57529394/how-to-open-dropdownbutton-when-other-widget-is-tapped-in-flutter
+                                OverflowBox(
+                                    alignment: Alignment.centerRight,
+                                    maxWidth: 500,
+                                    child: SizedBox(
+                                        child: _DictionarySelector(
+                                            dictionaries: s.data!.value1,
+                                            dicsToKeys: s.data!.value2,
+                                            scrollController:
+                                                scrollController)))
+                                : SizedBox())
+                      ])),
                 ])),
         bottom: 0.0,
         left: 0.0,
@@ -279,10 +280,11 @@ class _FuturedArticleBodyState extends State<_FuturedArticleBody>
                       },
                       style: {
                         "a": Style(
-                            color: Theme.of(context).colorScheme.secondary,
-                            fontSize: FontSize(18),
-                            fontStyle: FontStyle.italic,
-                            fontFamily: "OpenSans"),
+                          color: Theme.of(context).colorScheme.secondary,
+                          fontSize: FontSize(18),
+                          fontStyle: FontStyle.italic,
+                          fontFamily: "OpenSans",
+                        ),
                         "span": Style(
                             color: ownTheme(context).spanColor,
                             fontSize: FontSize(18),

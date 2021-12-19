@@ -69,6 +69,7 @@ void main() {
     print('Map avg: ${swSet.elapsedMilliseconds / iterations_l1}ms');
     print('List avg: ${swList.elapsedMilliseconds / iterations_l1}ms');
     expect(swSet.elapsedMilliseconds < swList.elapsedMilliseconds, true);
+    expect(contains, contains);
   });
 
   // This one actually fails as searching on short lists is faster than on sets
@@ -128,6 +129,7 @@ void main() {
     print('Map avg: ${swSet.elapsedMilliseconds / iterations_l1}ms');
     print('List avg: ${swList.elapsedMilliseconds / iterations_l1}ms');
     expect(swSet.elapsedMilliseconds < swList.elapsedMilliseconds, true);
+    expect(contains, contains);
   }, skip: true);
 }
 

@@ -107,34 +107,40 @@ final ThemeData darkTheme = ThemeData.dark().copyWith(
     textTheme: TextTheme(
       button: TextStyle(fontSize: 18, fontFamily: 'Montserrat'),
       headline6: TextStyle(
-        fontSize: 20.0,
-        color: Color.fromARGB(255, 240, 240, 240),
-        fontFamily: 'Montserrat',
-        fontWeight: FontWeight.bold,
-      ),
+          fontSize: 20.0,
+          color: Color.fromARGB(255, 240, 240, 240),
+          fontFamily: 'Montserrat',
+          fontWeight: FontWeight.bold,
+          fontFamilyFallback: ['Roboto']),
       subtitle1: TextStyle(
-        fontSize: 20.0,
-        fontFamily: 'Montserrat',
-        color: Colors.white,
-      ),
+          fontSize: 20.0,
+          fontFamily: 'Montserrat',
+          color: Colors.white,
+          fontFamilyFallback: ['Roboto']),
       subtitle2: TextStyle(
-        fontSize: 16.0,
-        fontFamily: 'Montserrat',
-        fontStyle: FontStyle.italic,
-        color: Colors.white.withAlpha(128),
-      ),
+          fontSize: 16.0,
+          fontFamily: 'Montserrat',
+          fontStyle: FontStyle.italic,
+          color: Colors.white.withAlpha(128),
+          fontFamilyFallback: ['Roboto']),
       // used for dictionary error text in Online dicts
       overline: TextStyle(
-        fontSize: 14.0,
-        fontFamily: 'Montserrat',
-        fontStyle: FontStyle.italic,
-        color: Colors.white,
-      ),
+          fontSize: 14.0,
+          fontFamily: 'Montserrat',
+          fontStyle: FontStyle.italic,
+          color: Colors.white,
+          fontFamilyFallback: ['Roboto']),
       bodyText2: TextStyle(
-          fontSize: 20.0, fontFamily: 'Montserrat', color: Colors.white),
+          fontSize: 20.0,
+          fontFamily: 'Montserrat',
+          color: Colors.white,
+          fontFamilyFallback: ['Roboto']),
       // Dictionary card, dictionary  name
       caption: TextStyle(
-          fontSize: 17.0, fontFamily: 'Montserrat', color: Colors.white),
+          fontSize: 17.0,
+          fontFamily: 'Montserrat',
+          color: Colors.white,
+          fontFamilyFallback: ['Roboto']),
     ))
   ..addOwn(OwnThemeFields(
       spanColor: Colors.grey[400],
