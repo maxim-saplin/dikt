@@ -29,7 +29,7 @@ class Html extends StatelessWidget {
       required this.data,
       this.onLinkTap,
       this.shrinkWrap = false,
-      this.tagsList = const [],
+      this.tagsList = const {},
       this.style = const {},
       this.useIsolate = false,
       this.isolatePool,
@@ -54,7 +54,7 @@ class Html extends StatelessWidget {
   final bool shrinkWrap;
 
   /// A list of HTML tags that defines what elements are not rendered
-  final List<String> tagsList;
+  final Set<String> tagsList;
 
   /// An API that allows you to override the default style for any HTML element
   final Map<String, Style> style;
@@ -75,12 +75,12 @@ class Html extends StatelessWidget {
   /// useIsolate == true, isolatePool != null - run as PooledJob in the provided pool
   final IsolatePool? isolatePool;
 
-  static List<String> get tags => new List<String>.from(STYLED_ELEMENTS)
+  static Set<String> get tags => new Set<String>.from(STYLED_ELEMENTS)
     ..addAll(INTERACTABLE_ELEMENTS)
     ..addAll(REPLACED_ELEMENTS)
-    ..addAll(LAYOUT_ELEMENTS)
-    ..addAll(TABLE_CELL_ELEMENTS)
-    ..addAll(TABLE_DEFINITION_ELEMENTS);
+    ..addAll(LAYOUT_ELEMENTS);
+  //..addAll(TABLE_CELL_ELEMENTS)
+  //..addAll(TABLE_DEFINITION_ELEMENTS);
 
   @override
   Widget build(BuildContext context) {

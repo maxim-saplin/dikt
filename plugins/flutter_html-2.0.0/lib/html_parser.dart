@@ -29,7 +29,7 @@ class HtmlParser {
   final bool shrinkWrap;
   final Map<String, Style> style;
   static Style defaultStyle = Style();
-  final List<String> tagsList;
+  final Set<String> tagsList;
 
   bool _firstDiv = true;
 
@@ -89,7 +89,7 @@ class HtmlParser {
   }
 
   /// [lexDomTree] converts a DOM document to a simplified tree of [StyledElement]s.
-  static StyledElement lexDomTree(dom.Document html, List<String> tagsList) {
+  static StyledElement lexDomTree(dom.Document html, Set<String> tagsList) {
     StyledElement tree = StyledElement(
       name: "[Tree Root]",
       children: <StyledElement>[],
@@ -113,7 +113,7 @@ class HtmlParser {
   /// element and returns a [StyledElement] tree representing the element.
   static StyledElement _recursiveLexer(
     dom.Node node,
-    List<String> tagsList,
+    Set<String> tagsList,
   ) {
     List<StyledElement> children = <StyledElement>[];
 

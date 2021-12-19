@@ -45,11 +45,12 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  mockito: ^5.0.9
-  hive_generator: ^1.1.0
-  build_runner: ^2.0.4
+  mockito:
+  hive_generator: 
+  build_runner: 
   flutter_launcher_icons:
   flutter_native_splash:
+  test:
 
 flutter_icons:
   android: "launcher_icon"
