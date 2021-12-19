@@ -279,20 +279,28 @@ class _FuturedArticleBodyState extends State<_FuturedArticleBody>
                         }
                       },
                       style: {
-                        "a": Style(
+                        'a': Style(
                           color: Theme.of(context).colorScheme.secondary,
                           fontSize: FontSize(18),
                           fontStyle: FontStyle.italic,
-                          fontFamily: "OpenSans",
+                          fontFamily: "FiraSans",
                         ),
-                        "span": Style(
-                            color: ownTheme(context).spanColor,
-                            fontSize: FontSize(18),
-                            fontStyle: FontStyle.italic,
-                            fontFamily: "OpenSans"),
-                        "div": Style(
+                        'i': Style(
+                          //color: Theme.of(context).colorScheme.secondary,
+                          fontSize: FontSize(18),
+                          fontStyle: FontStyle.italic,
+                          fontWeight: FontWeight.w600,
+                          fontFamily: "FiraSans",
+                        ),
+                        'span': Style(
+                          color: ownTheme(context).spanColor,
+                          fontSize: FontSize(18),
+                          //fontFamily: "FiraSans",
+                          //fontStyle: FontStyle.italic,
+                        ),
+                        'div': Style(
                             padding: EdgeInsets.all(0),
-                            //fontFamily: "OpenSans",
+                            fontFamily: "FiraSans",
                             fontSize: FontSize(18)),
                       },
                     ),

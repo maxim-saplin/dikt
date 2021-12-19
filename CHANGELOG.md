@@ -1,4 +1,4 @@
-- 2.0.0+10 - fallback font fix
+- 2.0.0+10 - replaced OpenSans with another font containing necessary glyphs
 - 2.0.0+9 - displaying all articles after they are laid out, waiting for on-screen keyboard to be collapsed
 - 2.0.0+8 - experimental, HTML parsing on isolates 
 - 2.0.0+7 - large article view, junk during opening fix

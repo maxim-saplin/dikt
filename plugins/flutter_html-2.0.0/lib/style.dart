@@ -249,9 +249,9 @@ class Style {
       decorationStyle: textDecorationStyle,
       decorationThickness: textDecorationThickness,
       fontFamily: fontFamily,
-      // TODO check other platforms
+
       // Quick fix for Android, macOS worked without this workaround
-      fontFamilyFallback: const ['Roboto'],
+      //fontFamilyFallback: const ['Roboto'], // turns out this doesn't fix one character but rather renders the entire rich text with fallbacl font
       fontFeatures: fontFeatureSettings,
       fontSize: fontSize?.size,
       fontStyle: fontStyle,
