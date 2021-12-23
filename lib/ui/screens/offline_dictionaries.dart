@@ -61,13 +61,16 @@ class _OfflineDictionariesState extends State<OfflineDictionaries> {
     void _importJsonOrDikt() async {
       List<PlatformFile>? files = [];
 
+      manager.gettingFileList = true;
+
       // Platform class is not implemented in Web
       if (!kIsWeb &&
           (Platform.isMacOS || Platform.isWindows || Platform.isLinux)) {
         final XTypeGroup jsonOrDiktTypeGroup = XTypeGroup(
-          label: 'JSON or DIKT',
-          extensions: ['json', 'dikt'],
-        );
+            // TODO - return back to normal
+            //label: 'JSON or DIKT',
+            //extensions: ['json', 'dikt'],
+            );
 
         var x =
             await FileSelectorPlatform.instance.openFiles(acceptedTypeGroups: [
@@ -95,6 +98,8 @@ class _OfflineDictionariesState extends State<OfflineDictionaries> {
                     ))
             ?.files;
       }
+
+      manager.gettingFileList = false;
 
       if (files != null && files.length > 0) {
         manager
@@ -201,7 +206,13 @@ class _OfflineDictionariesState extends State<OfflineDictionaries> {
                         onNoReorder: _onCancel,
                       )
                     ],
-                  ))
+                  )),
+          manager.gettingFileList
+              ? Positioned.fill(
+                  child: ColoredBox(
+                      color: Theme.of(context).cardColor.withAlpha(196),
+                      child: Center(child: Text('Loading...'))))
+              : SizedBox()
         ]));
   }
 }

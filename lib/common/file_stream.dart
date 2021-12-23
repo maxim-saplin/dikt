@@ -5,6 +5,8 @@ import 'dart:io';
 
 const int _blockSize = 64 * 1024;
 
+// Created this fork of darts FileStream to allow shgowing progress when reading JSON file
+
 class FileStream extends Stream<List<int>> {
   // Stream controller.
   StreamController<Uint8List> _controller = StreamController<Uint8List>();
@@ -93,7 +95,11 @@ class FileStream extends Stream<List<int>> {
       if (!_atEnd && !_controller.isPaused) {
         _readBlock();
       }
-      _controller.add(block);
+      try {
+        _controller.add(block);
+      } catch (err) {
+        print(err);
+      }
       if (_atEnd) {
         _closeFile();
       }

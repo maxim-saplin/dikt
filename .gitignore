@@ -82,3 +82,4 @@ macos/Flutter/GeneratedPluginRegistrant.swift
 .flutter-plugins-dependencies
 ios/Podfile.lock
 .gitignore
+macos/Podfile.lock

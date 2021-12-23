@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:core';
 import 'dart:math';
 import 'dart:convert';
+import 'package:dikt/common/helpers.dart';
 import 'package:dikt/common/isolate_pool.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/services.dart' show rootBundle;
@@ -97,7 +98,7 @@ class DictionaryBeingProcessed {
 
 enum ManagerCurrentOperation { preparing, indexing, loading, idle }
 
-class DictionaryManager extends ChangeNotifier {
+class DictionaryManager extends ChangeNotifier with Debounce {
   static const dictionairesBoxName = 'dictionairesboxname';
   static late Box<IndexedDictionary> _dictionaries;
   static late String homePath;
@@ -244,7 +245,7 @@ class DictionaryManager extends ChangeNotifier {
       notifyListeners();
       List<Future<IkvPack>> futures = [];
 
-      if (!kIsWeb) await pool.started; // JIC wait for pool to finish startup
+      if (!kIsWeb) await pool!.started; // JIC wait for pool to finish startup
 
       for (var i in _dictionariesBeingProcessed) {
         i.state = DictionaryBeingProcessedState.inprogress;
@@ -548,6 +549,28 @@ class DictionaryManager extends ChangeNotifier {
     }
   }
 
+  bool _gettingFileList = false;
+
+  /// File picker might be slow returning back the list of files
+  /// (noticable on Android). Use this property to allow show spinner
+  bool get gettingFileList => _gettingFileList;
+
+  /// Debounced
+  set gettingFileList(bool v) {
+    if (v != _gettingFileList) {
+      if (v) {
+        debounce(() {
+          _gettingFileList = v;
+          notifyListeners();
+        }, 700);
+      } else {
+        cancel();
+        _gettingFileList = false;
+        notifyListeners();
+      }
+    }
+  }
+
   ManagerCurrentOperation __currentOperation =
       ManagerCurrentOperation.preparing;
 
@@ -690,7 +713,7 @@ class DiktFileIndexer extends Indexer {
     }
 
     try {
-      if (!kIsWeb) {
+      if (!kIsWeb && pool != null) {
         var sourceData = File(path).readAsBytesSync();
         updateProgress(5);
         await File(ikvPath!).writeAsBytes(sourceData);
@@ -701,7 +724,7 @@ class DiktFileIndexer extends Indexer {
         updateProgress(20);
         //var ikv = await IkvPack.loadInIsolate(ikvPath);
         var ikv =
-            await IkvPackProxy.loadInIsolatePoolAndUseProxy(pool, ikvPath!);
+            await IkvPackProxy.loadInIsolatePoolAndUseProxy(pool!, ikvPath!);
         if (_canceled) {
           runCompleter.complete();
           return runCompleter.future;
@@ -850,8 +873,10 @@ class JsonFileIndexer extends Indexer {
         });
         await ikv.saveTo(ikvPath!);
         updateProgress(98);
-        // ikv = await IkvPack.load(ikvPath);
-        ikv = await IkvPackProxy.loadInIsolatePoolAndUseProxy(pool, ikvPath!);
+
+        ikv = pool == null
+            ? await IkvPack.load(ikvPath!)
+            : await IkvPackProxy.loadInIsolatePoolAndUseProxy(pool!, ikvPath!);
         updateProgress(100);
         sw.stop();
         runCompleter.complete(ikv);
@@ -885,7 +910,14 @@ class JsonFileIndexer extends Indexer {
         runCompleter.completeError(err);
         _canceled = true;
       }
-    }, onDone: () => inSinkZip.close());
+    }, onDone: () {
+      try {
+        inSinkZip.close();
+      } catch (err) {
+        runCompleter.completeError(err);
+        _canceled = true;
+      }
+    });
 
     return runCompleter.future;
   }

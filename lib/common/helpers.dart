@@ -3,12 +3,16 @@ import 'dart:async';
 import 'package:flutter/widgets.dart';
 
 class Debounce {
-  Timer? debounceTimer;
+  Timer? _debounceTimer;
 
   void debounce(Function f, int milliseconds) {
-    debounceTimer?.cancel();
-    debounceTimer =
+    _debounceTimer?.cancel();
+    _debounceTimer =
         Timer(Duration(milliseconds: milliseconds), f as void Function());
+  }
+
+  void cancel() {
+    _debounceTimer?.cancel();
   }
 }
 

@@ -21,10 +21,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'finders.dart';
 
 DictionaryManager? dicManager;
+const tmpPath = 'test/tmp';
 
 void main() {
-  const tmpPath = 'test/tmp';
-
   setUpAll(() async {
     print('Setting up tests');
     initIsolatePool();
