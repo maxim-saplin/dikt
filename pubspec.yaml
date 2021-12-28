@@ -75,10 +75,10 @@ flutter:
           weight: 700
         - asset: assets/Montserrat-Italic.ttf
           style: italic
-    - family: FiraSans
+    - family: Tinos
       fonts:
-        - asset: assets/FiraSans-Regular.ttf
-        - asset: assets/FiraSans-Bold.ttf
+        - asset: assets/Tinos-Regular.ttf
+        - asset: assets/Tinos-Bold.ttf
           weight: 700
-        - asset: assets/FiraSans-Italic.ttf
+        - asset: assets/Tinos-Italic.ttf
           style: italic

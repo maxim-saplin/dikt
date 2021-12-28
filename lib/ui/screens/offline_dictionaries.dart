@@ -211,7 +211,7 @@ class _OfflineDictionariesState extends State<OfflineDictionaries> {
               ? Positioned.fill(
                   child: ColoredBox(
                       color: Theme.of(context).cardColor.withAlpha(196),
-                      child: Center(child: Text('Loading...'))))
+                      child: Center(child: Text('Loading...'.i18n))))
               : SizedBox()
         ]));
   }
