@@ -1,3 +1,4 @@
+- 2.0.0+12 - updated to Flutter 3.0 and Android SDK 32
 - 2.0.0+11 - spinner in dictionaries while doing file loading 
 - 2.0.0+10 - replaced OpenSans with another font containing necessary glyphs
 - 2.0.0+9 - displaying all articles after they are laid out, waiting for on-screen keyboard to be collapsed
