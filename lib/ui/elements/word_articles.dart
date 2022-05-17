@@ -190,16 +190,9 @@ class _FuturedArticleBodyState extends State<_FuturedArticleBody>
         '_FuturedArticleBody laidout ${sw.elapsedMilliseconds}ms, total ${globalSw.elapsedMilliseconds}');
   }
 
-  //bool _buildingHtmlComplete = false;
   UniqueKey scrollKey = UniqueKey();
 
   var _offstageCompleter = Completer();
-
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   _buildingHtmlComplete = false;
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -241,19 +234,18 @@ class _FuturedArticleBodyState extends State<_FuturedArticleBody>
                 var key = GlobalKey();
                 dicsToKeys[article.dictionaryName] = key;
                 return SliverStickyHeader(
+                  //TODO, check if verisions above 0.6.2 have the issue with not clickable _DictionarySelector fixed
                   key: key,
-                  header: Align(
-                      child: Container(
-                    padding: EdgeInsets.fromLTRB(18, 0, 18, 0),
-                    height: 30.0,
-                    color: Theme.of(context).cardColor,
-                    child: _DictionarySelector(
-                        dictionaries: dictionaries,
-                        dicsToKeys: dicsToKeys,
-                        scrollController: widget.scrollController,
-                        dictionary: article.dictionaryName),
-                    alignment: Alignment.bottomRight,
-                  )),
+                  header: Container(
+                      padding: EdgeInsets.fromLTRB(18, 0, 18, 0),
+                      height: 30.0,
+                      color: Theme.of(context).cardColor,
+                      alignment: Alignment.bottomRight,
+                      child: _DictionarySelector(
+                          dictionaries: dictionaries,
+                          dicsToKeys: dicsToKeys,
+                          scrollController: widget.scrollController,
+                          dictionary: article.dictionaryName)),
                   sliver: SliverToBoxAdapter(
                       child: Container(
                     color: Theme.of(context).cardColor,
