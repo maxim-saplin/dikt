@@ -166,19 +166,22 @@ class _OfflineDictionariesState extends State<OfflineDictionaries> {
                               SizedBox(
                                 width: 10,
                               ),
-                              OutlinedButton(
-                                  style: ButtonStyle(
-                                      backgroundColor:
-                                          MaterialStateProperty.all<Color>(
-                                              Colors.red.withAlpha(128))),
-                                  child: SizedBox(
-                                    child: Center(child: Text('Online →'.i18n)),
-                                    width: 85,
-                                    height: 30,
-                                  ),
-                                  onPressed: () async {
-                                    Routes.showOnlineDictionaries(context);
-                                  })
+                              kReleaseMode
+                                  ? SizedBox()
+                                  : OutlinedButton(
+                                      style: ButtonStyle(
+                                          backgroundColor:
+                                              MaterialStateProperty.all<Color>(
+                                                  Colors.red.withAlpha(128))),
+                                      child: SizedBox(
+                                        child: Center(
+                                            child: Text('Online →'.i18n)),
+                                        width: 85,
+                                        height: 30,
+                                      ),
+                                      onPressed: () async {
+                                        Routes.showOnlineDictionaries(context);
+                                      })
                             ]))
                   : Center(child: Text('DELETE'.i18n)),
             );
