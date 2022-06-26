@@ -119,7 +119,6 @@ class MasterDictionary extends ChangeNotifier {
     List<Article> articles = [];
 
     for (var d in dictionaryManager.dictionariesLoaded) {
-      //var a = d.ikv.valueRawCompressed(word);
       try {
         var s = (await d.ikv!.getValues(word)).fold<String>(
             '',
