@@ -107,10 +107,6 @@ class MasterDictionary extends ChangeNotifier {
     return matches[n];
   }
 
-  // Future<String> _unzipIsolate(Uint8List articleBytes) async {
-  //   return await compute(_unzipIsolateBody, articleBytes);
-  // }
-
   Future<List<Article>?> getArticleFromMatches(int n) async {
     if (n > matches.length - 1) return null;
 
@@ -125,10 +121,12 @@ class MasterDictionary extends ChangeNotifier {
     for (var d in dictionaryManager.dictionariesLoaded) {
       //var a = d.ikv.valueRawCompressed(word);
       try {
-        var s = await d.ikv!.getValue(word);
-        if (!s.isEmpty)
-          //articles.add(Article(word, await _unzipIsolate(a), d.name));
-          articles.add(Article(word, s, d.name));
+        var s = (await d.ikv!.getValues(word)).fold<String>(
+            '',
+            (previousValue, element) => previousValue.isNotEmpty
+                ? previousValue + '</br></br>' + element
+                : element);
+        if (!s.isEmpty) articles.add(Article(word, s, d.name));
       } catch (e) {
         print('Cant decode value for ${word}, dictionary ${d.ikvPath}');
         print(e);
