@@ -70,7 +70,7 @@ void main() {
     print('List avg: ${swList.elapsedMilliseconds / iterations_l1}ms');
     expect(swSet.elapsedMilliseconds < swList.elapsedMilliseconds, true);
     expect(contains, contains);
-  });
+  }, skip: true);
 
   // This one actually fails as searching on short lists is faster than on sets
   test('Sets are faster than lists when doing contains() on small collection',

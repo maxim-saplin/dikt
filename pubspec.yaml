@@ -1,9 +1,9 @@
 name: dikt
-description: dikt - bottom-up offline dictionary.
+description: dikt - bottom-up offline dictionary
 
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 2.0.0+12
+version: 2.1.0+12
 
 environment:
   sdk: '>=2.17.0 <3.0.0'
@@ -20,7 +20,7 @@ dependencies:
   flutter_html:
     path: ./plugins/flutter_html-2.0.0
   hive: ^2.0.4
-  flutter_sticky_header: 0.6.1 # fixing at 0.6.1, 0.6.2 breaked dictionary selection via drop down list at _FuturedArticleBodyState
+  flutter_sticky_header: ^0.6.3 # fixing at 0.6.1, 0.6.2 breaked dictionary selection via drop down list at _FuturedArticleBodyState
   reorderables: # added onDragging event handler to allow deletion of dics by dragging them on a dedicated elemtn
     path: ./plugins/reorderables-0.4.1/
   double_back_to_close: ^2.0.0
@@ -30,12 +30,12 @@ dependencies:
   firebase_core: 
   firebase_analytics: 
   page_transition: ^2.0.2
-  file_selector_platform_interface: ^2.0.0-nullsafety.0
+  file_selector_platform_interface: ^2.0.0
   file_selector_linux: ^0.0.2
   file_selector_macos: ^0.8.2+1
   file_selector_windows: ^0.8.2+1
   flutter_hooks: ^0.18.0
-  superellipse_shape: ^0.2.0-nullsafety.0
+  superellipse_shape: ^0.2.0
   ikvpack:
     #git: https://github.com/maxim-saplin/ikvpack
     path: '../ikvpack'

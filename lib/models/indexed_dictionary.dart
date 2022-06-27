@@ -5,6 +5,8 @@ import 'package:hive/hive.dart';
 import 'package:ikvpack/ikvpack.dart';
 part 'indexed_dictionary.g.dart';
 
+const String _separator = '␞';
+
 @HiveType(typeId: 0)
 class IndexedDictionary extends HiveObject {
   @HiveField(0)
@@ -28,6 +30,13 @@ class IndexedDictionary extends HiveObject {
   bool isBundled = false;
 
   bool get isLoaded => _isLoaded;
+
+  int get parts {
+    if (ikvPath.contains(_separator)) {
+      var n = ikvPath.substring(ikvPath.indexOf(_separator, ikvPath.length));
+    }
+    return 1;
+  }
 
   IkvPack? _ikv;
 
