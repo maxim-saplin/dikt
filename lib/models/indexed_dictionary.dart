@@ -71,6 +71,7 @@ class IndexedDictionary extends HiveObject {
   }
 
   bool get isLoaded => _isLoaded;
+  set isLoaded(bool v) => _isLoaded = v;
 
   bool get isMultiPart =>
       RegExp(r'(\.part\d+.dikt)').allMatches(ikvPath).isNotEmpty;
@@ -83,11 +84,6 @@ class IndexedDictionary extends HiveObject {
 
   set ikvs(List<IkvPack> ikvs) {
     _ikvs = ikvs;
-  }
-
-  void addIkv(IkvPack ikv, bool isLastOne) {
-    _ikvs.add(ikv);
-    _isLoaded = isLastOne;
   }
 
   Future<List<IkvPack>> openIkvs([IsolatePool? pool]) async {

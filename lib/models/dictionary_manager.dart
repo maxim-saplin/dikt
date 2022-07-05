@@ -372,6 +372,7 @@ class DictionaryManager extends ChangeNotifier with Debounce {
 
         if (!_curIndexer!.canceled) {
           d.isReadyToUse = true;
+          d.isLoaded = true;
           d.ikvs = ikvs;
           d.save();
         } else if (!d.isBundled) {
