@@ -372,7 +372,9 @@ class DictionaryManager extends ChangeNotifier with Debounce {
 
         if (!_curIndexer!.canceled) {
           d.isReadyToUse = true;
-          d.isLoaded = true;
+          if (!d.isBundled) {
+            d.isLoaded = true;
+          }
           d.ikvs = ikvs;
           d.save();
         } else if (!d.isBundled) {
@@ -403,7 +405,7 @@ class DictionaryManager extends ChangeNotifier with Debounce {
     }
   }
 
-  Future<void> loadFromJsonOrDiktFiles(List<PlatformFile> files) async {
+  Future<void> indexAndLoadJsonOrDiktFiles(List<PlatformFile> files) async {
     _isRunning = true;
     _canceled = false;
     _dictionariesBeingProcessed = [];

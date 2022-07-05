@@ -40,7 +40,7 @@ void main() {
       for (var file in files) {
         var f = runZonedGuarded(() async {
           try {
-            await dicManager.loadFromJsonOrDiktFiles(
+            await dicManager.indexAndLoadJsonOrDiktFiles(
                 [PlatformFile(path: file, name: file, size: 1)]);
           } catch (err) {
             //print(err);
@@ -62,7 +62,7 @@ void main() {
     test(
         'DictionaryManager - fine JSON and IKV dictionaries are properlly handled',
         () async {
-      var f = dicManager.loadFromJsonOrDiktFiles([
+      var f = dicManager.indexAndLoadJsonOrDiktFiles([
         PlatformFile(
             path: 'test/data/BY_RU Ворвуль.json',
             name: 'test/data/BY_RU Ворвуль.json',
@@ -90,7 +90,7 @@ void main() {
     test(
         'DictionaryManager - isolate pool, fine JSON and IKV dictionaries are properlly handled',
         () async {
-      var f = dicManager.loadFromJsonOrDiktFiles([
+      var f = dicManager.indexAndLoadJsonOrDiktFiles([
         PlatformFile(
             path: 'test/data/BY_RU Ворвуль.json',
             name: 'test/data/BY_RU Ворвуль.json',

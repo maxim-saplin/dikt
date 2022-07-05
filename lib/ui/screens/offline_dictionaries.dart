@@ -103,7 +103,7 @@ class _OfflineDictionariesState extends State<OfflineDictionaries> {
 
       if (files != null && files.length > 0) {
         manager
-            .loadFromJsonOrDiktFiles(files)
+            .indexAndLoadJsonOrDiktFiles(files)
             .whenComplete(() =>
                 Provider.of<MasterDictionary>(context, listen: false).notify())
             .catchError((err) {
