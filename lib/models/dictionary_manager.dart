@@ -9,6 +9,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:ikvpack/ikvpack.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as path;
 
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
@@ -67,7 +68,8 @@ class DictionaryBeingProcessed {
             .split('\\')
             .last
             .replaceFirst('.json', '')
-            .replaceFirst('.dikt', ''),
+            .replaceFirst('.dikt', '')
+            .replaceFirst('.mdikt', ''),
         this.indexedDictionary = null,
         this.bundledBinaryDictionary = null;
 
@@ -161,9 +163,6 @@ class DictionaryManager extends ChangeNotifier with Debounce {
 
     _initDictionaryCollections();
 
-    // var ikvs = _dictionariesReadyList.map((d) => d.ikv);
-    // var s = await IkvPack.getStatsAsCsv(ikvs);
-
     _isRunning = false;
   }
 
@@ -194,7 +193,12 @@ class DictionaryManager extends ChangeNotifier with Debounce {
       if (d.isEnabled && !d.isError) _dictionariesEnabledList.add(d);
     }
 
-    _ikvPacksLoaded = dictionariesLoaded.map((d) => d.ikv!);
+    _ikvPacksLoaded = dictionariesLoaded
+        .map<List<IkvPack>>((d) => d.ikvs)
+        .fold<List<IkvPack>>([], (previousValue, element) {
+      previousValue.addAll(element);
+      return previousValue;
+    });
   }
 
   int get totalDictionaries => _dictionariesAllList.length;
@@ -243,7 +247,7 @@ class DictionaryManager extends ChangeNotifier with Debounce {
 
     if (_dictionariesBeingProcessed.length > 0) {
       notifyListeners();
-      List<Future<IkvPack>> futures = [];
+      List<Future<List<IkvPack>>> futures = [];
 
       if (!kIsWeb) await pool!.started; // JIC wait for pool to finish startup
 
@@ -251,7 +255,7 @@ class DictionaryManager extends ChangeNotifier with Debounce {
         i.state = DictionaryBeingProcessedState.inprogress;
         notifyListeners();
 
-        var f = i.indexedDictionary!.openIkv(pool);
+        var f = i.indexedDictionary!.openIkvs(pool);
 
         f.then((value) {
           i.state = DictionaryBeingProcessedState.success;
@@ -360,11 +364,15 @@ class DictionaryManager extends ChangeNotifier with Debounce {
       _dictionaries.add(d);
       _curIndexer = getIndexer(dictionariesProcessed[i], d.ikvPath);
       try {
-        var ikv = await _curIndexer!.run();
+        var ikvs = await _curIndexer!.run();
+        if (ikvs.length > 1) {
+          d.ikvPath = d.ikvPath.substring(0, d.ikvPath.length - 5);
+          d.ikvPath = d.ikvPath + '.part${ikvs.length}.dikt';
+        }
 
         if (!_curIndexer!.canceled) {
           d.isReadyToUse = true;
-          d.ikv = ikv;
+          d.ikvs = ikvs;
           d.save();
         } else if (!d.isBundled) {
           print("Canceling box indexing: " + d.ikvPath);
@@ -418,7 +426,8 @@ class DictionaryManager extends ChangeNotifier with Debounce {
         notifyListeners();
       };
 
-      return dictionaryProcessed.file!.name.endsWith('.dikt')
+      return dictionaryProcessed.file!.name.endsWith('.dikt') ||
+              dictionaryProcessed.file!.name.endsWith('.mdikt')
           ? DiktFileIndexer(dictionaryProcessed.file, ikvPath, progress)
           : JsonFileIndexer(dictionaryProcessed.file, ikvPath, progress);
     }
@@ -506,7 +515,13 @@ class DictionaryManager extends ChangeNotifier with Debounce {
       // this method can throw if the path doesn't exist
       // path can be unexisting if dictionary happens to be errored
       // silence the error
-      IkvPack.delete(d.ikvPath);
+      if (!d.isMultiPart) {
+        IkvPack.delete(d.ikvPath);
+      } else {
+        for (var p in IndexedDictionary.getPartsPaths(d.ikvPath)) {
+          IkvPack.delete(p);
+        }
+      }
     } catch (e) {}
     if (bundledBinaryDictionaries.any((e) => e.ikvPath == d.ikvPath)) {
       d.isReadyToUse = false;
@@ -595,7 +610,7 @@ class DictionaryManager extends ChangeNotifier with Debounce {
     var keysCount = 0;
 
     for (var d in dictionariesLoaded) {
-      keysCount += d.ikv!.length;
+      keysCount += d.ikvs.fold(0, (prev, curr) => prev + curr.length);
     }
     sw.stop();
     print('Non-Unique keys ${keysCount} [${sw.elapsedMilliseconds}ms]');
@@ -609,11 +624,13 @@ class DictionaryManager extends ChangeNotifier with Debounce {
     var totalLength = 0;
 
     for (var d in dictionariesLoaded) {
-      for (var k in d.ikv!.keys) {
-        for (var c in k.codeUnits) {
-          bytes += ((c.bitLength + 1) / 8).ceil();
+      for (var i in d.ikvs) {
+        for (var k in i.keys) {
+          for (var c in k.codeUnits) {
+            bytes += ((c.bitLength + 1) / 8).ceil();
+          }
+          totalLength += k.length;
         }
-        totalLength += k.length;
       }
     }
     sw.stop();
@@ -625,8 +642,10 @@ class DictionaryManager extends ChangeNotifier with Debounce {
     sw.reset();
 
     for (var d in dictionariesLoaded) {
-      for (var k in d.ikv!.keys) {
-        keys.add(k);
+      for (var i in d.ikvs) {
+        for (var k in i.keys) {
+          keys.add(k);
+        }
       }
     }
     keys.sort();
@@ -669,7 +688,7 @@ class IsolateParams {
 }
 
 abstract class Indexer {
-  Future<IkvPack?> run();
+  Future<List<IkvPack>> run();
 
   bool _canceled = false;
 
@@ -680,11 +699,21 @@ abstract class Indexer {
   void cancel() {
     _canceled = true;
   }
+
+  void _deleteFiles(Iterable<String> paths) {
+    try {
+      for (var p in paths) {
+        File(p).delete();
+      }
+    } catch (e) {
+      print('DiktFileIndexer, error deleting files\n $e');
+    }
+  }
 }
 
 class DiktFileIndexer extends Indexer {
   final PlatformFile? file;
-  final Completer<IkvPack?> runCompleter = Completer<IkvPack?>();
+  final Completer<List<IkvPack>> runCompleter = Completer<List<IkvPack>>();
   final String? ikvPath;
   final Function(int progressPercent) updateProgress;
 
@@ -698,57 +727,100 @@ class DiktFileIndexer extends Indexer {
     });
   }
 
-  Future<IkvPack?> run() async {
-    var path = this.file!.path ?? this.file!.name;
-    print(path + '\n');
+  // TODO test cleanup of file when dictionary indexing faling midway
+  Future<List<IkvPack>> run() async {
+    var sourceFilePath = this.file!.path ?? this.file!.name;
+    var multipart = sourceFilePath.toLowerCase().endsWith('.mdikt');
+    print(sourceFilePath + '\n');
 
     var sw = Stopwatch();
 
-    print('Saving DIKT binary dictionary: ' + path);
+    print(
+        'Saving DIKT binary dictionary (${multipart ? 'multi-part' : 'single-part'}): ' +
+            sourceFilePath);
     sw.start();
     updateProgress(3);
     if (_canceled) {
-      runCompleter.complete();
+      runCompleter.complete(<IkvPack>[]);
       return runCompleter.future;
     }
 
+    var cleanupPaths = <String>[];
+
     try {
       if (!kIsWeb && pool != null) {
-        var sourceData = File(path).readAsBytesSync();
+        var sourceData = File(sourceFilePath).readAsBytesSync();
+        //TODO, test delete file if canceled
         updateProgress(5);
-        await File(ikvPath!).writeAsBytes(sourceData);
-        if (_canceled) {
-          runCompleter.complete();
-          return runCompleter.future;
-        }
-        updateProgress(20);
-        //var ikv = await IkvPack.loadInIsolate(ikvPath);
-        var ikv =
-            await IkvPackProxy.loadInIsolatePoolAndUseProxy(pool!, ikvPath!);
-        if (_canceled) {
-          runCompleter.complete();
-          return runCompleter.future;
-        }
-        updateProgress(100);
+        if (!multipart) {
+          await File(ikvPath!).writeAsBytes(sourceData);
+          cleanupPaths.add(ikvPath!);
+          if (_canceled) {
+            runCompleter.complete(<IkvPack>[]);
+            _deleteFiles([ikvPath!]);
+            return runCompleter.future;
+          }
+          updateProgress(20);
+          var ikv =
+              await IkvPackProxy.loadInIsolatePoolAndUseProxy(pool!, ikvPath!);
+          if (_canceled) {
+            runCompleter.complete(<IkvPack>[]);
+            _deleteFiles([ikvPath!]);
+            return runCompleter.future;
+          }
+          updateProgress(100);
 
-        runCompleter.complete(ikv);
-      } else {
-        var ikv = await IkvPack.buildFromBytesAsync(
-            file!.bytes!.buffer.asByteData(), true, (progress) async {
-          return _awaitableUpdateProgeress(3 + (progress * 0.12).round());
-        });
-        updateProgress(15);
-        if (_canceled) {
-          runCompleter.complete();
-          return runCompleter.future;
+          runCompleter.complete([ikv]);
+        } else {
+          var outputDir = path.dirname(ikvPath!);
+          var count = await extractFromSingleFilePooled(
+              sourceFilePath, outputDir, pool!, '.dikt', ikvPath!);
+          var partsPaths =
+              IndexedDictionary.getPartsPathsFromOneFile(ikvPath!, count);
+          cleanupPaths = partsPaths;
+
+          if (_canceled) {
+            runCompleter.complete(<IkvPack>[]);
+            _deleteFiles([ikvPath!]);
+            return runCompleter.future;
+          }
+          updateProgress(25);
+          var ikvs = <IkvPack>[];
+
+          for (var p in partsPaths) {
+            ikvs.add(await IkvPackProxy.loadInIsolatePoolAndUseProxy(pool!, p));
+          }
+          if (_canceled) {
+            runCompleter.complete(<IkvPack>[]);
+            _deleteFiles([ikvPath!]);
+            return runCompleter.future;
+          }
+          updateProgress(100);
+
+          runCompleter.complete(ikvs);
         }
-        await ikv!.saveTo(ikvPath!,
-            (progress) => updateProgress(15 + (progress * 0.85).round()));
-        runCompleter.complete(ikv);
+      } else {
+        if (!multipart) {
+          var ikv = await IkvPack.buildFromBytesAsync(
+              file!.bytes!.buffer.asByteData(), true, (progress) async {
+            return _awaitableUpdateProgeress(3 + (progress * 0.12).round());
+          });
+          updateProgress(15);
+          if (_canceled) {
+            runCompleter.complete(<IkvPack>[]);
+            return runCompleter.future;
+          }
+          await ikv!.saveTo(ikvPath!,
+              (progress) => updateProgress(15 + (progress * 0.85).round()));
+          runCompleter.complete([ikv]);
+        } else {
+          throw 'Multipart DIKT files are not supported in Web and non isolate pool modes';
+        }
       }
 
       print('Indexing done(ms): ' + sw.elapsedMilliseconds.toString());
     } catch (err) {
+      _deleteFiles(cleanupPaths);
       runCompleter.completeError(err);
     }
 
@@ -758,13 +830,13 @@ class DiktFileIndexer extends Indexer {
 
 class JsonFileIndexer extends Indexer {
   final PlatformFile? file;
-  final Completer<IkvPack?> runCompleter = Completer<IkvPack?>();
+  final Completer<List<IkvPack>> runCompleter = Completer<List<IkvPack>>();
   final String? ikvPath;
   final Function(int progressPercent) updateProgress;
 
   JsonFileIndexer(this.file, this.ikvPath, this.updateProgress);
 
-  Future<IkvPack?> run() async {
+  Future<List<IkvPack>> run() async {
     return kIsWeb ? _runWeb() : _runVm();
   }
 
@@ -776,7 +848,8 @@ class JsonFileIndexer extends Indexer {
     });
   }
 
-  Future<IkvPack?> _runWeb() async {
+  // TODO, add cleanup of canceled/errored dictionaries, remove data from Indexed DB
+  Future<List<IkvPack>> _runWeb() async {
     print(file!.path ?? file!.name + '\n');
     // Chunked json decoding isn't available in web
     // var inSink = converterJson.startChunkedConversion(outSink);
@@ -786,7 +859,7 @@ class JsonFileIndexer extends Indexer {
 
     try {
       if (_canceled) {
-        runCompleter.complete();
+        runCompleter.complete([]);
         return runCompleter.future;
       }
 
@@ -799,7 +872,7 @@ class JsonFileIndexer extends Indexer {
       });
 
       if (_canceled) {
-        runCompleter.complete();
+        runCompleter.complete([]);
         return runCompleter.future;
       }
 
@@ -817,23 +890,22 @@ class JsonFileIndexer extends Indexer {
       });
 
       if (_canceled) {
-        runCompleter.complete();
+        runCompleter.complete([]);
         return runCompleter.future;
       }
 
       updateProgress(30);
       if (_canceled) {
-        runCompleter.complete();
+        runCompleter.complete([]);
         return runCompleter.future;
       }
 
-      // await ikv.saveTo(ikvPath);
       await ikv!.saveTo(ikvPath!,
           (progress) => updateProgress(30 + (progress * 0.65).round()));
 
       updateProgress(95);
       if (_canceled) {
-        runCompleter.complete();
+        runCompleter.complete([]);
         return runCompleter.future;
       }
 
@@ -841,7 +913,7 @@ class JsonFileIndexer extends Indexer {
       updateProgress(100);
 
       print('Indexing done(ms): ' + sw.elapsedMilliseconds.toString());
-      runCompleter.complete(ikv);
+      runCompleter.complete([ikv]);
     } catch (err) {
       _canceled = true;
       runCompleter.completeError(err);
@@ -850,7 +922,7 @@ class JsonFileIndexer extends Indexer {
     return runCompleter.future;
   }
 
-  Future<IkvPack?> _runVm() async {
+  Future<List<IkvPack>> _runVm() async {
     var path = this.file!.path ?? this.file!.name;
     print(path + '\n');
     var file = File(path);
@@ -872,6 +944,7 @@ class JsonFileIndexer extends Indexer {
           updateProgress(20 + (progress * 0.70).round());
         });
         await ikv.saveTo(ikvPath!);
+
         updateProgress(98);
 
         ikv = pool == null
@@ -879,10 +952,11 @@ class JsonFileIndexer extends Indexer {
             : await IkvPackProxy.loadInIsolatePoolAndUseProxy(pool!, ikvPath!);
         updateProgress(100);
         sw.stop();
-        runCompleter.complete(ikv);
+        runCompleter.complete([ikv]);
         print('ELAPSED (ms): ' + sw.elapsedMilliseconds.toString());
       } catch (err) {
         _canceled = true;
+        _deleteFiles([ikvPath!]);
         runCompleter.completeError(err);
       }
     });
@@ -898,7 +972,8 @@ class JsonFileIndexer extends Indexer {
       try {
         if (_canceled) {
           subscription?.cancel();
-          runCompleter.complete();
+          _deleteFiles([ikvPath!]);
+          runCompleter.complete([]);
         }
         inSinkZip.add(event);
         var curr = (s.position / length * 20).round();
@@ -907,6 +982,7 @@ class JsonFileIndexer extends Indexer {
           updateProgress(progress);
         }
       } catch (err) {
+        _deleteFiles([ikvPath!]);
         runCompleter.completeError(err);
         _canceled = true;
       }
@@ -914,6 +990,7 @@ class JsonFileIndexer extends Indexer {
       try {
         inSinkZip.close();
       } catch (err) {
+        _deleteFiles([ikvPath!]);
         runCompleter.completeError(err);
         _canceled = true;
       }
@@ -925,7 +1002,7 @@ class JsonFileIndexer extends Indexer {
 
 class BundledIndexer extends Indexer {
   final String assetName;
-  final Completer<IkvPack?> runCompleter = Completer<IkvPack?>();
+  final Completer<List<IkvPack>> runCompleter = Completer<List<IkvPack>>();
   final String? fileName;
   final Function(int progressPercent) updateProgress;
 
@@ -939,7 +1016,7 @@ class BundledIndexer extends Indexer {
     });
   }
 
-  Future<IkvPack?> run() async {
+  Future<List<IkvPack>> run() async {
     print('Indexing bundled bianry dictionary: ' + this.assetName);
     var sw = Stopwatch();
     sw.start();
@@ -947,14 +1024,14 @@ class BundledIndexer extends Indexer {
     var asset = await rootBundle.load(assetName);
     updateProgress(5);
     if (_canceled) {
-      runCompleter.complete();
+      runCompleter.complete([]);
       return runCompleter.future;
     }
 
     try {
       if (!kIsWeb) {
         File(fileName!).writeAsBytesSync(asset.buffer.asInt8List());
-        runCompleter.complete();
+        runCompleter.complete([]);
       } else {
         // Cant just copy file in Web, parse asset and save via Ikv
         var ikv =
@@ -963,13 +1040,13 @@ class BundledIndexer extends Indexer {
         });
         updateProgress(15);
         if (_canceled) {
-          runCompleter.complete();
+          runCompleter.complete([]);
           return runCompleter.future;
         }
         await ikv!.saveTo(fileName!,
             (progress) => updateProgress(15 + (progress * 0.85).round()));
         updateProgress(100);
-        runCompleter.complete();
+        runCompleter.complete([]);
       }
 
       print('Indexing done(ms): ' + sw.elapsedMilliseconds.toString());

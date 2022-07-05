@@ -264,7 +264,8 @@ class _FuturedArticleBodyState extends State<_FuturedArticleBody>
                               'Html.built, # ${builtCounter}, ${globalSw.elapsedMilliseconds}ms')
                           : {},
                       onLaidOut: () {
-                        if (dicsToKeys.length == ++laidoutCounter) {
+                        if (dicsToKeys.length == ++laidoutCounter &&
+                            !_offstageCompleter.isCompleted) {
                           print(
                               'Html.laidout, # ${laidoutCounter}, ${globalSw.elapsedMilliseconds}ms');
                           _offstageCompleter.complete(true);

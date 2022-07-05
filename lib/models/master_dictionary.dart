@@ -48,7 +48,9 @@ class MasterDictionary extends ChangeNotifier {
   int get totalEntries {
     var c = 0;
     for (var i in dictionaryManager.dictionariesEnabled)
-      if (i.ikv != null) c += i.ikv!.length;
+      for (var ikv in i.ikvs) {
+        c += ikv.length;
+      }
     return c;
   }
 
@@ -120,11 +122,22 @@ class MasterDictionary extends ChangeNotifier {
 
     for (var d in dictionaryManager.dictionariesLoaded) {
       try {
-        var s = (await d.ikv!.getValues(word)).fold<String>(
-            '',
-            (previousValue, element) => previousValue.isNotEmpty
-                ? previousValue + '</br></br>' + element
-                : element);
+        var s = '';
+        for (var i = 0; i < d.ikvs.length; i++) {
+          var ikv = d.ikvs[i];
+          var ss = (await ikv.getValues(word)).fold<String>(
+              '',
+              (previousValue, element) => previousValue.isNotEmpty
+                  ? previousValue + '</br></br>' + element
+                  : element);
+
+          if (s.isNotEmpty && ss.isNotEmpty) {
+            ss += '</br></br>';
+          }
+
+          s += ss;
+        }
+
         if (!s.isEmpty) articles.add(Article(word, s, d.name));
       } catch (e) {
         print('Cant decode value for ${word}, dictionary ${d.ikvPath}');

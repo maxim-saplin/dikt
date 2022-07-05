@@ -5,10 +5,10 @@ import 'package:hive/hive.dart';
 import 'package:ikvpack/ikvpack.dart';
 part 'indexed_dictionary.g.dart';
 
-const String _separator = '␞';
-
 @HiveType(typeId: 0)
 class IndexedDictionary extends HiveObject {
+  /// For multi-file dictionary the path will contain number of dictionaries encoded
+  /// in the ending og the file name, e.g. "EN RU Dictionary.part5.dikt"
   @HiveField(0)
   String ikvPath = '';
   @HiveField(1)
@@ -29,41 +29,96 @@ class IndexedDictionary extends HiveObject {
   bool isLoading = false;
   bool isBundled = false;
 
+  /// If multy file dictionary is used, number of dictionaries used is returned. If single file dictionary 0 is returned
+  static int getNumOfParts(String path) {
+    var exp = RegExp(r'(\.part\d+.dikt)');
+    var matches = exp.allMatches(path);
+    if (matches.isNotEmpty) {
+      exp = RegExp(r"(\d+)");
+      matches = exp.allMatches(matches.first.group(0)!);
+
+      return int.parse(matches.first.group(0)!);
+    }
+    return 0;
+  }
+
+  static List<String> getPartsPaths(String path) {
+    var num = getNumOfParts(path);
+    var paths = List<String>.filled(num, '');
+    var p = path.replaceAll(RegExp(r'(\.part\d+.dikt)'), '');
+
+    for (var i = 0; i < paths.length; i++) {
+      paths[i] = p + '.part${i + 1}.dikt';
+    }
+
+    return paths;
+  }
+
+  static List<String> getPartsPathsFromOneFile(String path, int n) {
+    var paths = List<String>.filled(n, '');
+
+    if (!path.endsWith('.dikt')) {
+      throw 'Invalid path, must end with .dikt: $path';
+    }
+
+    path = path.substring(0, path.length - 5);
+
+    for (var i = 0; i < paths.length; i++) {
+      paths[i] = path + '.part${i + 1}.dikt';
+    }
+
+    return paths;
+  }
+
   bool get isLoaded => _isLoaded;
 
-  int get parts {
-    if (ikvPath.contains(_separator)) {
-      var n = ikvPath.substring(ikvPath.indexOf(_separator, ikvPath.length));
-    }
-    return 1;
+  bool get isMultiPart =>
+      RegExp(r'(\.part\d+.dikt)').allMatches(ikvPath).isNotEmpty;
+
+  List<IkvPack> _ikvs = [];
+
+  List<IkvPack> get ikvs {
+    return _ikvs;
   }
 
-  IkvPack? _ikv;
-
-  IkvPack? get ikv {
-    return _ikv;
+  set ikvs(List<IkvPack> ikvs) {
+    _ikvs = ikvs;
   }
 
-  set ikv(IkvPack? value) {
-    _ikv = value;
-    _isLoaded = value != null;
+  void addIkv(IkvPack ikv, bool isLastOne) {
+    _ikvs.add(ikv);
+    _isLoaded = isLastOne;
   }
 
-  Future<IkvPack> openIkv([IsolatePool? pool]) async {
-    var completer = Completer<IkvPack>();
+  Future<List<IkvPack>> openIkvs([IsolatePool? pool]) async {
+    var completer = Completer<List<IkvPack>>();
+    var futures = <Future<IkvPack>>[];
+
     if (!_isLoaded) {
       isLoading = true;
-      var f = kIsWeb
-          ? IkvPack.load(ikvPath)
-          : (pool == null
+      var partsPaths = getPartsPaths(ikvPath);
+
+      if (kIsWeb) {
+        futures.add(IkvPack.load(ikvPath));
+      } else {
+        if (partsPaths.isEmpty) {
+          futures.add(pool == null
               ? IkvPack.loadInIsolate(ikvPath)
-              : IkvPackProxy.loadInIsolatePoolAndUseProxy(
-                  pool, ikvPath)); //IkvPack.loadInIsolatePool(pool, ikvPath));
-      f.then((value) {
-        _ikv = value;
+              : IkvPackProxy.loadInIsolatePoolAndUseProxy(pool, ikvPath));
+        } else {
+          for (var p in partsPaths) {
+            futures.add(pool == null
+                ? IkvPack.loadInIsolate(p)
+                : IkvPackProxy.loadInIsolatePoolAndUseProxy(pool, p));
+          }
+        }
+      }
+
+      Future.wait(futures).then((value) {
+        _ikvs = value;
         _isLoaded = true;
         isLoading = false;
-        completer.complete(_ikv);
+        completer.complete(_ikvs);
       }).catchError((e) {
         print('Error loaiding IkvPack.\n' + e.toString());
         isLoading = false;
@@ -71,12 +126,26 @@ class IndexedDictionary extends HiveObject {
       });
       return completer.future;
     }
-    completer.complete(_ikv);
+
     return completer.future;
   }
 
-  Future<IkvInfo> getInfo() {
-    // can throw
+  // can throw
+  Future<IkvInfo> getInfo() async {
+    var paths = getPartsPaths(ikvPath);
+
+    if (paths.isNotEmpty) {
+      var bytes = 0;
+      var count = 0;
+
+      for (var p in paths) {
+        var i = await IkvPack.getInfo(p);
+        bytes += i.sizeBytes;
+        count += i.count;
+      }
+
+      return IkvInfo(bytes, count);
+    }
     return IkvPack.getInfo(ikvPath);
   }
 

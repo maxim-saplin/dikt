@@ -264,7 +264,7 @@ class _LoadAndEnabledButton extends HookWidget {
             padding: EdgeInsets.all(3),
             child: Text('↓', style: Theme.of(context).textTheme.caption)),
         onPressed: () {
-          dictionary.openIkv(pool).then((value) {
+          dictionary.openIkvs(pool).then((value) {
             _swithcEnabled(context);
           });
           state.value = _TileState.loading;
