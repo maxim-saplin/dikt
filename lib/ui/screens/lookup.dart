@@ -16,6 +16,8 @@ import '../elements/loading_progress.dart';
 import '../../models/history.dart';
 import '../routes.dart';
 
+bool _fullyLoaded = false;
+
 class Lookup extends StatelessWidget {
   final bool narrow;
 
@@ -25,6 +27,16 @@ class Lookup extends StatelessWidget {
   Widget build(BuildContext context) {
     var dictionary = Provider.of<MasterDictionary>(context);
     var history = Provider.of<History>(context, listen: false);
+
+    if (dictionary.isFullyLoaded && !_fullyLoaded) {
+      print('Dictionaries loaded, lookup view ready');
+      _fullyLoaded = true;
+      var v = _searchBarController.value;
+      if (v.text.isNotEmpty) {
+        _searchBarController.value = TextEditingValue.empty;
+        _searchBarController.value = v;
+      }
+    }
 
     return Stack(children: [
       narrow ? DictionaryIndexingOrLoading() : Text(''),
@@ -173,9 +185,9 @@ class _Entry extends StatelessWidget {
   }
 }
 
-class _SearchBar extends StatelessWidget {
-  static var _controller = TextEditingController();
+final _searchBarController = TextEditingController();
 
+class _SearchBar extends StatelessWidget {
   final bool narrow;
 
   _SearchBar(this.narrow);
@@ -184,70 +196,65 @@ class _SearchBar extends StatelessWidget {
   Widget build(BuildContext context) {
     var dictionary = Provider.of<MasterDictionary>(context, listen: false);
 
-    return dictionary.isPartiallyLoaded
-        ? Container(
-            decoration: BoxDecoration(
-                color: Theme.of(context).canvasColor,
-                borderRadius: BorderRadius.only(
-                    topLeft: narrow ? Radius.circular(12) : Radius.zero,
-                    topRight: narrow ? Radius.circular(12) : Radius.zero)),
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-            child: Stack(alignment: Alignment.bottomRight, children: [
-              TextField(
-                controller: _controller,
-                autofocus: true,
-                onChanged: (text) {
-                  dictionary.lookupWord = text;
-                },
-                onSubmitted: (value) {
-                  if (dictionary.matchesCount > 0) {
-                    showArticle(context, dictionary.getMatch(0), narrow);
-                  }
-                },
-                style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
-                decoration: InputDecoration(
-                    border: InputBorder.none,
-                    hintText: 'Search'.i18n,
-                    suffix: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(dictionary.isPartiallyLoaded
-                              ? (dictionary.isLookupWordEmpty
-                                  ? ''
-                                  : (dictionary.matchesCount >=
-                                          dictionary.maxResults
-                                      ? dictionary.maxResults.toString() + '+'
-                                      : dictionary.matchesCount.toString()))
-                              : '0_0'),
-                          if (!dictionary.isLookupWordEmpty)
-                            MouseRegion(
-                                cursor: SystemMouseCursors.click,
-                                child: GestureDetector(
-                                    child: Container(
-                                      //color: Colors.red,
-                                      height: 32,
-                                      width: 36,
-                                      child: Icon(
-                                        Icons.backspace_rounded,
-                                        size: 24,
-                                      ),
-                                    ),
-                                    onTap: () {
-                                      dictionary.lookupWord = '';
-                                      _controller.clear();
-                                    }))
-                        ])),
-              ),
-              Opacity(
-                  opacity: 0.2,
-                  child: Text(
-                      (dictionary.lookupSw.elapsedMicroseconds / 1000)
-                          .toStringAsFixed(1),
-                      style: Theme.of(context).textTheme.overline))
-            ]))
-        : SizedBox();
+    return Container(
+        decoration: BoxDecoration(
+            color: Theme.of(context).canvasColor,
+            borderRadius: BorderRadius.only(
+                topLeft: narrow ? Radius.circular(12) : Radius.zero,
+                topRight: narrow ? Radius.circular(12) : Radius.zero)),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        child: Stack(alignment: Alignment.bottomRight, children: [
+          TextField(
+            controller: _searchBarController,
+            autofocus: true,
+            onChanged: (text) {
+              dictionary.lookupWord = text;
+            },
+            onSubmitted: (value) {
+              if (dictionary.matchesCount > 0) {
+                showArticle(context, dictionary.getMatch(0), narrow);
+              }
+            },
+            style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
+            decoration: InputDecoration(
+                border: InputBorder.none,
+                hintText: 'Search'.i18n,
+                suffix: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text((dictionary.isLookupWordEmpty
+                          ? ''
+                          : (dictionary.matchesCount >= dictionary.maxResults
+                              ? dictionary.maxResults.toString() + '+'
+                              : dictionary.matchesCount.toString()))),
+                      if (!dictionary.isLookupWordEmpty)
+                        MouseRegion(
+                            cursor: SystemMouseCursors.click,
+                            child: GestureDetector(
+                                child: Container(
+                                  //color: Colors.red,
+                                  height: 32,
+                                  width: 36,
+                                  child: Icon(
+                                    Icons.backspace_rounded,
+                                    size: 24,
+                                  ),
+                                ),
+                                onTap: () {
+                                  dictionary.lookupWord = '';
+                                  _searchBarController.clear();
+                                }))
+                    ])),
+          ),
+          Opacity(
+              opacity: 0.2,
+              child: Text(
+                  (dictionary.lookupSw.elapsedMicroseconds / 1000)
+                      .toStringAsFixed(1),
+                  style: Theme.of(context).textTheme.overline))
+        ]));
   }
 }
 
