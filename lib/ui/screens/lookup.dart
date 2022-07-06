@@ -28,6 +28,7 @@ class Lookup extends StatefulWidget {
 class LookupState extends State<Lookup> with WidgetsBindingObserver {
   bool _fullyLoaded = false;
   bool _firstBuild = true;
+  bool _resumed = true;
 
   late TextEditingController _searchBarController;
   late FocusNode _searchBarFocusNode;
@@ -37,7 +38,9 @@ class LookupState extends State<Lookup> with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      _showKeyboard();
+      setState(() {
+        _resumed = true;
+      });
     }
   }
 
@@ -78,6 +81,13 @@ class LookupState extends State<Lookup> with WidgetsBindingObserver {
     if (_firstBuild) {
       _firstBuild = false;
       Future.delayed(Duration.zero, () => _showKeyboard());
+    }
+
+    if (_resumed) {
+      _resumed = false;
+      if (_searchBarFocusNode.hasFocus) {
+        Future.delayed(Duration.zero, () => _showKeyboard());
+      }
     }
 
     if (dictionary.isFullyLoaded && !_fullyLoaded) {

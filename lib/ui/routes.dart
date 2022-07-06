@@ -4,6 +4,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class Routes {
+  static final GlobalKey<NavigatorState> navigator =
+      GlobalKey<NavigatorState>();
+
   static const String home = '/';
   static const String showArticleWide = '/lookupAndArticle';
   static const String showArticle = '/article';

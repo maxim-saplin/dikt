@@ -47,7 +47,6 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
-  final GlobalKey<NavigatorState> _navigator = GlobalKey<NavigatorState>();
   static FirebaseAnalytics? analytics;
 
   MyApp() {
@@ -107,7 +106,7 @@ class MyApp extends StatelessWidget {
                     const Locale('be', ''),
                     const Locale('ru', ''),
                   ],
-                  navigatorKey: _navigator,
+                  navigatorKey: Routes.navigator,
                   navigatorObservers: preferences.isAnalyticsEnabled! &&
                           !_firebaseError &&
                           (kIsWeb || Platform.isAndroid || Platform.isIOS)
@@ -126,7 +125,7 @@ class MyApp extends StatelessWidget {
                     });
 
                     narrow = MediaQuery.of(context).size.width < wideWidth;
-                    resetNavHistoryIfWideModeChanged(context, !narrow);
+                    resetNavHistoryIfWideModeChanged(!narrow);
 
                     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
                       systemNavigationBarColor: Theme.of(context)
@@ -166,14 +165,14 @@ class MyApp extends StatelessWidget {
                 ))));
   }
 
-  bool resetNavHistoryIfWideModeChanged(BuildContext context, bool wide) {
+  bool resetNavHistoryIfWideModeChanged(bool wide) {
     if (_wide == null) {
       _wide = wide; //MediaQuery.of(context).size.width >= wideWidth;
     } else {
       if ((_wide! && !wide) || (!_wide! && wide)) {
         _wide = !_wide!;
         Timer(Duration(microseconds: 10), () {
-          _navigator.currentState!.pushNamedAndRemoveUntil(Routes.home,
+          Routes.navigator.currentState!.pushNamedAndRemoveUntil(Routes.home,
               (r) => r.settings.name == Routes.home || r.settings.name == null);
         });
         return true;
