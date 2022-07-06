@@ -239,7 +239,19 @@ class _FuturedArticleBodyState extends State<_FuturedArticleBody>
                   header: Container(
                       padding: EdgeInsets.fromLTRB(18, 0, 18, 0),
                       height: 30.0,
-                      color: Theme.of(context).cardColor,
+                      decoration: BoxDecoration(
+                          backgroundBlendMode: BlendMode.srcOver,
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            stops: [0.6, 1],
+                            colors: [
+                              Theme.of(context).cardColor,
+                              //Theme.of(context).cardColor
+                              Theme.of(context).cardColor.withAlpha(100)
+                            ],
+                          )),
+                      //color: Theme.of(context).cardColor,
                       alignment: Alignment.bottomRight,
                       child: _DictionarySelector(
                           dictionaries: dictionaries,

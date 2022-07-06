@@ -33,6 +33,7 @@ class Lookup extends StatelessWidget {
       _fullyLoaded = true;
       var v = _searchBarController.value;
       if (v.text.isNotEmpty) {
+        // If there's text in search bar, trigger onChange() event to show lookup results
         _searchBarController.value = TextEditingValue.empty;
         _searchBarController.value = v;
       }
@@ -69,13 +70,12 @@ class Lookup extends StatelessWidget {
                               textAlign: TextAlign.center,
                             ))))
                 : Expanded(
-                    child: Padding(
-                        padding: EdgeInsets.fromLTRB(0, 0, 0, 10),
-                        child: _WordsList(
-                          dictionary: dictionary,
-                          history: history,
-                          narrow: narrow,
-                        )))),
+                    child: _WordsList(
+                      dictionary: dictionary,
+                      history: history,
+                      narrow: narrow,
+                    ),
+                  )),
         _SearchBar(narrow)
       ]),
       narrow ? TopButtons() : Text(''),
@@ -100,7 +100,12 @@ class _WordsList extends StatelessWidget {
       slivers: [
         SliverList(
           delegate: SliverChildBuilderDelegate((context, index) {
-            return _Entry(index, dictionary, history, narrow);
+            Widget x = _Entry(index, dictionary, history, narrow);
+            if (index == 0) {
+              x = Padding(padding: EdgeInsets.fromLTRB(0, 0, 0, 10), child: x);
+            }
+
+            return x;
           },
               childCount: _emptyEntries +
                   (dictionary.isLookupWordEmpty
@@ -119,12 +124,25 @@ class _WordsList extends StatelessWidget {
             return LinearGradient(
               begin: Alignment.bottomCenter,
               end: Alignment.topCenter,
-              colors: [Colors.black, Colors.transparent],
-            ).createShader(Rect.fromLTRB(0, 0, rect.width, rect.height - 200));
+              colors: [Colors.transparent, Colors.black],
+            ).createShader(
+                Rect.fromLTRB(0, rect.height - 20, rect.width, rect.height));
           },
           blendMode: BlendMode.dstIn,
-          child: sv);
+          child: ShaderMask(
+              shaderCallback: (rect) {
+                return LinearGradient(
+                  begin: Alignment.bottomCenter,
+                  end: Alignment.topCenter,
+                  colors: [Colors.black, Colors.transparent],
+                ).createShader(
+                    Rect.fromLTRB(0, 0, rect.width, rect.height - 200));
+              },
+              blendMode: BlendMode.dstIn,
+              child: sv));
     }
+
+    sv = Scrollbar(child: sv);
 
     return sv;
   }
@@ -234,7 +252,6 @@ class _SearchBar extends StatelessWidget {
                             cursor: SystemMouseCursors.click,
                             child: GestureDetector(
                                 child: Container(
-                                  //color: Colors.red,
                                   height: 32,
                                   width: 36,
                                   child: Icon(
@@ -288,8 +305,7 @@ void showArticle(BuildContext context, String word, bool useDialog) {
           var articles = getArticlesAndUpdateHistory(context, word);
 
           return SimpleSimpleDialog(
-              backgroundColor:
-                  !kIsWeb ? Colors.transparent : Theme.of(context).cardColor,
+              backgroundColor: Theme.of(context).cardColor,
               elevation: 0,
               insetPadding: EdgeInsets.fromLTRB(
                   0, !kIsWeb && Platform.isMacOS ? 28 : 0, 0, 0),

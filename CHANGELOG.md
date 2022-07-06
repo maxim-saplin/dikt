@@ -1,3 +1,4 @@
+- 2.1.0+15 - serach bar visible right away, gradients in lookup/search box and article/dictionary name
 - 2.1.0+14 - multi-file dictionaries (one dictionary containing multiple IKV files)
 - 2.0.0+12 - updated to Flutter 3.0 and Android SDK 32
 - 2.0.0+11 - spinner in dictionaries while doing file loading 
