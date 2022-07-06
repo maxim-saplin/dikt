@@ -16,17 +16,69 @@ import '../elements/loading_progress.dart';
 import '../../models/history.dart';
 import '../routes.dart';
 
-bool _fullyLoaded = false;
-
-class Lookup extends StatelessWidget {
+class Lookup extends StatefulWidget {
   final bool narrow;
 
   Lookup(this.narrow);
 
   @override
+  State<StatefulWidget> createState() => LookupState();
+}
+
+class LookupState extends State<Lookup> with WidgetsBindingObserver {
+  bool _fullyLoaded = false;
+  bool _firstBuild = true;
+
+  late TextEditingController _searchBarController;
+  late FocusNode _searchBarFocusNode;
+
+  //late AppLifecycleState _notification;
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _showKeyboard();
+    }
+  }
+
+  void _showKeyboard() {
+    _searchBarFocusNode.unfocus();
+    Future.delayed(
+        Duration(milliseconds: 100), () => _searchBarFocusNode.requestFocus());
+  }
+
+  @override
+  void initState() {
+    _searchBarController = TextEditingController();
+    _searchBarFocusNode = FocusNode();
+
+    _searchBarFocusNode.addListener(() {
+      print(
+          '${_searchBarFocusNode.hasFocus} | ${_searchBarFocusNode.hasPrimaryFocus}');
+    });
+
+    WidgetsBinding.instance.addObserver(this);
+
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _searchBarController.dispose();
+    _searchBarFocusNode.dispose();
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     var dictionary = Provider.of<MasterDictionary>(context);
     var history = Provider.of<History>(context, listen: false);
+
+    if (_firstBuild) {
+      _firstBuild = false;
+      Future.delayed(Duration.zero, () => _showKeyboard());
+    }
 
     if (dictionary.isFullyLoaded && !_fullyLoaded) {
       print('Dictionaries loaded, lookup view ready');
@@ -40,7 +92,7 @@ class Lookup extends StatelessWidget {
     }
 
     return Stack(children: [
-      narrow ? DictionaryIndexingOrLoading() : Text(''),
+      widget.narrow ? DictionaryIndexingOrLoading() : Text(''),
       Column(children: [
         !dictionary.isPartiallyLoaded
             ? Expanded(child: Text(''))
@@ -51,7 +103,7 @@ class Lookup extends StatelessWidget {
                         child: Padding(
                             padding: EdgeInsets.fromLTRB(0, 100, 0, 0),
                             child: Text(
-                              (narrow
+                              (widget.narrow
                                       ? ((dictionary.totalEntries == 0
                                               ? '↑↑↑\n' +
                                                   'Try adding dictionaries'
@@ -73,12 +125,12 @@ class Lookup extends StatelessWidget {
                     child: _WordsList(
                       dictionary: dictionary,
                       history: history,
-                      narrow: narrow,
+                      narrow: widget.narrow,
                     ),
                   )),
-        _SearchBar(narrow)
+        _SearchBar(widget.narrow, _searchBarController, _searchBarFocusNode)
       ]),
-      narrow ? TopButtons() : Text(''),
+      widget.narrow ? TopButtons() : Text(''),
     ]);
   }
 }
@@ -203,12 +255,13 @@ class _Entry extends StatelessWidget {
   }
 }
 
-final _searchBarController = TextEditingController();
-
 class _SearchBar extends StatelessWidget {
   final bool narrow;
+  final TextEditingController controller;
+  final FocusNode focusNode;
+  static GlobalKey _key = GlobalKey();
 
-  _SearchBar(this.narrow);
+  _SearchBar(this.narrow, this.controller, this.focusNode);
 
   @override
   Widget build(BuildContext context) {
@@ -223,8 +276,10 @@ class _SearchBar extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         child: Stack(alignment: Alignment.bottomRight, children: [
           TextField(
-            controller: _searchBarController,
+            key: _SearchBar._key,
+            controller: controller,
             autofocus: true,
+            focusNode: focusNode,
             onChanged: (text) {
               dictionary.lookupWord = text;
             },
@@ -261,7 +316,7 @@ class _SearchBar extends StatelessWidget {
                                 ),
                                 onTap: () {
                                   dictionary.lookupWord = '';
-                                  _searchBarController.clear();
+                                  controller.clear();
                                 }))
                     ])),
           ),

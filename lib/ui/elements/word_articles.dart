@@ -234,7 +234,6 @@ class _FuturedArticleBodyState extends State<_FuturedArticleBody>
                 var key = GlobalKey();
                 dicsToKeys[article.dictionaryName] = key;
                 return SliverStickyHeader(
-                  //TODO, check if verisions above 0.6.2 have the issue with not clickable _DictionarySelector fixed
                   key: key,
                   header: Container(
                       padding: EdgeInsets.fromLTRB(18, 0, 18, 0),
@@ -248,7 +247,7 @@ class _FuturedArticleBodyState extends State<_FuturedArticleBody>
                             colors: [
                               Theme.of(context).cardColor,
                               //Theme.of(context).cardColor
-                              Theme.of(context).cardColor.withAlpha(100)
+                              Theme.of(context).cardColor.withAlpha(0)
                             ],
                           )),
                       //color: Theme.of(context).cardColor,
