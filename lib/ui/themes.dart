@@ -4,11 +4,17 @@ class OwnThemeFields {
   final Color errorShade;
   final Color textBaloon;
   final Color spanColor;
+  final Color textSelectionPopupColor;
 
-  const OwnThemeFields({Color? errorShade, Color? textBaloon, Color? spanColor})
+  const OwnThemeFields(
+      {Color? errorShade,
+      Color? textBaloon,
+      Color? spanColor,
+      Color? textSelectionPopupColor})
       : this.errorShade = errorShade ?? Colors.red,
         this.textBaloon = textBaloon ?? Colors.black,
-        this.spanColor = spanColor ?? Colors.black;
+        this.spanColor = spanColor ?? Colors.black,
+        this.textSelectionPopupColor = textSelectionPopupColor ?? Colors.black;
 }
 
 extension ThemeDataExtensions on ThemeData {
@@ -92,7 +98,8 @@ final ThemeData lightTheme = ThemeData.light().copyWith(
     ))
   ..addOwn(OwnThemeFields(
       errorShade: Color.fromARGB(240, 255, 200, 200),
-      textBaloon: Color.fromARGB(240, 255, 200, 200)));
+      textBaloon: Color.fromARGB(240, 255, 200, 200),
+      textSelectionPopupColor: Color.fromARGB(255, 255, 200, 200)));
 
 final ThemeData darkTheme = ThemeData.dark().copyWith(
     cardColor: Color.fromARGB(255, 32, 33, 36),
@@ -104,6 +111,8 @@ final ThemeData darkTheme = ThemeData.dark().copyWith(
             foregroundColor: MaterialStateProperty.all<Color>(Colors.white))),
     colorScheme: ColorScheme.dark().copyWith(secondary: Colors.green),
     backgroundColor: Color.fromARGB(255, 32, 35, 36),
+    buttonTheme:
+        ButtonThemeData(buttonColor: Colors.white, splashColor: Colors.white),
     textTheme: TextTheme(
       button: TextStyle(fontSize: 18, fontFamily: 'Montserrat'),
       headline6: TextStyle(
@@ -145,4 +154,5 @@ final ThemeData darkTheme = ThemeData.dark().copyWith(
   ..addOwn(OwnThemeFields(
       spanColor: Colors.grey[400],
       errorShade: Color.fromARGB(240, 200, 0, 0),
-      textBaloon: Color.fromARGB(255, 200, 80, 80)));
+      textBaloon: Color.fromARGB(255, 200, 80, 80),
+      textSelectionPopupColor: Color.fromARGB(255, 200, 80, 80)));

@@ -67,10 +67,10 @@ class _OfflineDictionariesState extends State<OfflineDictionaries> {
       if (!kIsWeb &&
           (Platform.isMacOS || Platform.isWindows || Platform.isLinux)) {
         final XTypeGroup jsonOrDiktTypeGroup = XTypeGroup(
-            // TODO - return back to normal
-            //label: 'JSON or DIKT',
-            //extensions: ['json', 'dikt'],
-            );
+          // ODO - return back to normal
+          label: 'JSON or DIKT/MDIKT',
+          extensions: ['json', 'dikt', 'mdikt'],
+        );
 
         var x =
             await FileSelectorPlatform.instance.openFiles(acceptedTypeGroups: [

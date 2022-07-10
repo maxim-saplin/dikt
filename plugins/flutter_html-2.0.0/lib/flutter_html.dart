@@ -11,17 +11,14 @@ export 'package:flutter_html/src/styled_element.dart';
 export 'package:flutter_html/src/interactable_element.dart';
 
 import 'package:after_layout/after_layout.dart';
-import 'package:dikt/ui/elements/word_articles.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/html_parser.dart';
 import 'package:flutter_html/src/html_elements.dart';
 import 'package:flutter_html/style.dart';
-import 'package:flutter_test/flutter_test.dart';
+
 import 'package:html/dom.dart' as dom;
 import 'package:ikvpack/ikvpack.dart';
-
-Stopwatch? _globalSw;
 
 class Html extends StatelessWidget {
   Html(
@@ -35,6 +32,7 @@ class Html extends StatelessWidget {
       this.isolatePool,
       this.onBuilt,
       this.onLaidOut,
+      this.selectionControls,
       this.sw})
       : assert(data != null),
         anchorKey = GlobalKey(),
@@ -45,6 +43,9 @@ class Html extends StatelessWidget {
 
   /// The HTML data passed to the widget as a String
   final String? data;
+
+  /// Custom pop-up with actions to be showed when a text span is selected
+  final TextSelectionControls? selectionControls;
 
   /// A function that defines what to do when a link is tapped
   final OnTap? onLinkTap;
@@ -84,8 +85,6 @@ class Html extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    _globalSw = sw;
-
     final double? width = shrinkWrap ? null : MediaQuery.of(context).size.width;
 
     var text = _parseHtmlToTextSpans(useIsolate);
@@ -96,15 +95,15 @@ class Html extends StatelessWidget {
       onLinkTap: onLinkTap,
       onBuilt: onBuilt,
       onLaidOut: onLaidOut,
+      selectionControls: selectionControls,
     );
   }
 
   Future<StyledText> _parseHtmlToTextSpans(bool useIsolate) {
     var parser = HtmlParser(
-      shrinkWrap: shrinkWrap,
-      style: style,
-      tagsList: tagsList.isEmpty ? Html.tags : tagsList,
-    );
+        shrinkWrap: shrinkWrap,
+        style: style,
+        tagsList: tagsList.isEmpty ? Html.tags : tagsList);
 
     var params = _ComputeParams(parser, data!);
 
@@ -150,7 +149,8 @@ class _FuturedHtml extends StatelessWidget {
       required this.text,
       this.onLinkTap,
       this.onBuilt,
-      this.onLaidOut})
+      this.onLaidOut,
+      required this.selectionControls})
       : super(key: key);
 
   final double? width;
@@ -158,6 +158,7 @@ class _FuturedHtml extends StatelessWidget {
   final OnTap? onLinkTap;
   final Function? onBuilt;
   final Function? onLaidOut;
+  final TextSelectionControls? selectionControls;
 
   @override
   Widget build(BuildContext context) {
@@ -167,7 +168,15 @@ class _FuturedHtml extends StatelessWidget {
           future: text,
           builder: (c, s) {
             if (s.hasData && s.data != null) {
-              if (onLinkTap != null) s.data!.fixTap(onLinkTap!);
+              // similar fix to below
+              if (onLinkTap != null) {
+                s.data!.fixTap(onLinkTap!);
+              }
+
+              // hack to allow use text selection controlls with event handlers/heavy objects and avoid isolate boundaries crossing errors
+              if (selectionControls != null) {
+                s.data!.selectionControlsCallback = () => selectionControls;
+              }
 
               return _FuturedBody(s.data!, onBuilt, onLaidOut);
             } else {
@@ -193,10 +202,10 @@ class _FuturedBodyState extends State<_FuturedBody>
     with AfterLayoutMixin<_FuturedBody> {
   @override
   void afterFirstLayout(BuildContext context) {
-    if (_globalSw != null) {
-      print(
-          'Html._FuturedBody laidout, total ${globalSw.elapsedMilliseconds}ms');
-    }
+    // if (_globalSw != null) {
+    //   print(
+    //       'Html._FuturedBody laidout, total ${globalSw.elapsedMilliseconds}ms');
+    // }
     widget.onLaidOut?.call();
   }
 

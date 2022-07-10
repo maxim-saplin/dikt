@@ -1,3 +1,4 @@
+- 2.1.0+17 - selecting text in article shows lookup option in popup
 - 2.1.0+16 - showing soft keyboard when started and when minimizing/resuming
 - 2.1.0+15 - search bar visible right away, gradients in lookup/search box and article/dictionary name
 - 2.1.0+14 - multi-file dictionaries (one dictionary containing multiple IKV files)

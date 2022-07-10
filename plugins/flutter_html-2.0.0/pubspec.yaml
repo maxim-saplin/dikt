@@ -2,6 +2,7 @@ name: flutter_html
 description: A Flutter widget rendering static HTML and CSS as Flutter widgets.
 version: 2.0.0
 homepage: https://github.com/Sub6Resources/flutter_html
+publish_to: none
 
 environment:
   sdk: '>=2.12.0 <3.0.0'
@@ -27,8 +28,7 @@ dependencies:
 
   after_layout: ^1.1.0  
   ikvpack:
-    #git: https://github.com/maxim-saplin/ikvpack
-    path: '../../../ikvpack'
+    git: https://github.com/maxim-saplin/ikvpack
 
   flutter:
     sdk: flutter

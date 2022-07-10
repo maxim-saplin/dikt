@@ -1,7 +1,6 @@
 name: dikt
 description: dikt - bottom-up offline dictionary
-
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+publish_to: 'none'
 
 version: 2.1.0+17
 
@@ -37,8 +36,8 @@ dependencies:
   flutter_hooks: ^0.18.0
   superellipse_shape: ^0.2.0
   ikvpack:
-    #git: https://github.com/maxim-saplin/ikvpack
-    path: '../ikvpack'
+    git: https://github.com/maxim-saplin/ikvpack
+    #path: '../ikvpack'
   package_info_plus: ^1.0.0  
   after_layout: ^1.1.0  
   path: ^1.8.1

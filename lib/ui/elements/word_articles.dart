@@ -9,6 +9,8 @@ import 'package:dikt/models/master_dictionary.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_sticky_header/flutter_sticky_header.dart';
 
+import '../../common/text_selection_controls.dart';
+
 // Started when top level widget build() is called and used to measure article widgets layouts - essentialy time to dispolay
 Stopwatch globalSw = Stopwatch();
 
@@ -246,11 +248,9 @@ class _FuturedArticleBodyState extends State<_FuturedArticleBody>
                             stops: [0.6, 1],
                             colors: [
                               Theme.of(context).cardColor,
-                              //Theme.of(context).cardColor
                               Theme.of(context).cardColor.withAlpha(0)
                             ],
                           )),
-                      //color: Theme.of(context).cardColor,
                       alignment: Alignment.bottomRight,
                       child: _DictionarySelector(
                           dictionaries: dictionaries,
@@ -263,12 +263,35 @@ class _FuturedArticleBodyState extends State<_FuturedArticleBody>
                     padding: EdgeInsets.fromLTRB(18, 0, 18, 10),
                     child: Html(
                       //sw: globalSw,
+                      selectionControls: FlutterSelectionControls(
+                          popupBackgroundColor:
+                              ownTheme(context).textSelectionPopupColor,
+                          toolBarItems: <ToolBarItem>[
+                            ToolBarItem(
+                                item: Icon(Icons.copy),
+                                itemControl: ToolBarItemControl.copy),
+                            ToolBarItem(
+                                item: Icon(Icons.select_all_rounded),
+                                itemControl: ToolBarItemControl.selectAll),
+                            ToolBarItem(
+                                item: SizedBox(
+                                  child: Icon(Icons.search),
+                                  width: 50,
+                                ),
+                                onItemPressed: (highlightedText, s, e) {
+                                  if (highlightedText.isNotEmpty) {
+                                    widget.showAnotherWord
+                                        ?.call(highlightedText);
+                                  }
+                                })
+                          ]),
                       useIsolate: !kIsWeb,
                       isolatePool: !kIsWeb ? pool : null,
                       data: article.article,
                       onLinkTap: (String? url) {
-                        if (widget.showAnotherWord != null)
-                          widget.showAnotherWord!(url!);
+                        if (url != null && url.isNotEmpty) {
+                          widget.showAnotherWord?.call(url);
+                        }
                       },
                       onBuilt: () => dicsToKeys.length == ++builtCounter
                           ? print(

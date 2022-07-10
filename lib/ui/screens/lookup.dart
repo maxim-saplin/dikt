@@ -55,11 +55,6 @@ class LookupState extends State<Lookup> with WidgetsBindingObserver {
     _searchBarController = TextEditingController();
     _searchBarFocusNode = FocusNode();
 
-    _searchBarFocusNode.addListener(() {
-      print(
-          '${_searchBarFocusNode.hasFocus} | ${_searchBarFocusNode.hasPrimaryFocus}');
-    });
-
     WidgetsBinding.instance.addObserver(this);
 
     super.initState();
@@ -269,7 +264,7 @@ class _SearchBar extends StatelessWidget {
   final bool narrow;
   final TextEditingController controller;
   final FocusNode focusNode;
-  static GlobalKey _key = GlobalKey();
+  //static GlobalKey _key = GlobalKey();
 
   _SearchBar(this.narrow, this.controller, this.focusNode);
 
@@ -286,7 +281,7 @@ class _SearchBar extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         child: Stack(alignment: Alignment.bottomRight, children: [
           TextField(
-            key: _SearchBar._key,
+            //key: _SearchBar._key,
             controller: controller,
             autofocus: true,
             focusNode: focusNode,

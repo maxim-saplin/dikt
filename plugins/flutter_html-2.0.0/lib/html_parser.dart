@@ -21,7 +21,7 @@ class _TapHandler {
   OnTap? _onLinkTapHandler;
 
   void onLinkTap(String? s) {
-    if (_onLinkTapHandler != null) _onLinkTapHandler!(s);
+    _onLinkTapHandler?.call(s);
   }
 }
 
@@ -33,12 +33,8 @@ class HtmlParser {
 
   bool _firstDiv = true;
 
-  HtmlParser({
-    //required this.htmlData,
-    required this.shrinkWrap,
-    required this.style,
-    required this.tagsList,
-  });
+  HtmlParser(
+      {required this.shrinkWrap, required this.style, required this.tagsList});
 
   var tapHandler = _TapHandler();
 
@@ -124,7 +120,7 @@ class HtmlParser {
       ));
     });
 
-    //TODO(Sub6Resources): There's probably a more efficient way to look this up.
+    //(Sub6Resources): There's probably a more efficient way to look this up.
     // Maxim - replaced Lists with Sets, should be quicker
     if (node is dom.Element) {
       if (!tagsList.contains(node.localName)) {
@@ -600,15 +596,17 @@ class ContainerSpan extends StatelessWidget {
   final Style style;
   final RenderContext newContext;
   final bool shrinkWrap;
+  final TextSelectionControls? Function() selectionControlsCallback;
 
-  ContainerSpan({
-    this.key,
-    this.child,
-    this.children,
-    required this.style,
-    required this.newContext,
-    this.shrinkWrap = false,
-  }) : super(key: key);
+  ContainerSpan(
+      {this.key,
+      this.child,
+      this.children,
+      required this.style,
+      required this.newContext,
+      this.shrinkWrap = false,
+      required this.selectionControlsCallback})
+      : super(key: key);
 
   @override
   Widget build(BuildContext _) {
@@ -642,6 +640,7 @@ class StyledText extends StatelessWidget {
   final RenderContext? renderContext;
   final AnchorKey? key;
   final _TapHandler? _tapHandler;
+  TextSelectionControls? Function() selectionControlsCallback = () => null;
 
   // Workaround for closures which are not allowed
   // to be passed between isolates
@@ -651,14 +650,14 @@ class StyledText extends StatelessWidget {
     }
   }
 
-  StyledText({
-    required this.textSpan,
-    required this.style,
-    this.textScaleFactor = 1.0,
-    this.renderContext,
-    _TapHandler? tapHandler,
-    this.key,
-  })  : this._tapHandler = tapHandler,
+  StyledText(
+      {required this.textSpan,
+      required this.style,
+      this.textScaleFactor = 1.0,
+      this.renderContext,
+      _TapHandler? tapHandler,
+      this.key})
+      : this._tapHandler = tapHandler,
         super(key: key);
 
   @override
@@ -672,6 +671,7 @@ class StyledText extends StatelessWidget {
         child: SelectableText.rich(
       textSpan as TextSpan,
       style: style.generateTextStyle(),
+      selectionControls: selectionControlsCallback(),
       textAlign: style.textAlign,
       textDirection: style.direction,
       textScaleFactor: textScaleFactor,
