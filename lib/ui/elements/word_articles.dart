@@ -24,7 +24,7 @@ class WordArticles extends StatelessWidget {
 
   final ScrollController scrollController = ScrollController();
 
-  final Future<List<Article>> articles;
+  final Future<List<Article>>? articles;
   final String word;
   final Function(String word)? showAnotherWord;
 
@@ -35,13 +35,17 @@ class WordArticles extends StatelessWidget {
     var dicsCompleter = Completer<
         Tuple<List<DropdownMenuItem<String>>, Map<String, GlobalKey>>>();
 
+    if (articles == null) {
+      return const SizedBox();
+    }
+
     var w = Stack(children: [
       ClipRRect(
           borderRadius: const BorderRadius.all(Radius.circular(10)),
           child: Stack(children: [
             // Article list
             _FuturedArticles(
-                articles: articles,
+                articles: articles!,
                 dicsCompleter: dicsCompleter,
                 scrollController: scrollController,
                 showAnotherWord: showAnotherWord),

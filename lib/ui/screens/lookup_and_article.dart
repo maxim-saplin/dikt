@@ -17,9 +17,18 @@ class LookupAndArticle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var word = ModalRoute.of(context)!.settings.arguments;
+    var route = ModalRoute.of(context)!.settings;
+
+    // if (!(route.name == Routes.showArticle ||
+    //     route.name == Routes.showArticleWide)) {
+    //   return const SizedBox();
+    // }
+
+    var word = (route.arguments ?? '') as String;
     var dictionary = Provider.of<MasterDictionary>(context);
     var manager = Provider.of<DictionaryManager>(context);
+    Future<List<Article>>? articles =
+        word.isEmpty ? null : getArticles(context, word);
 
     return Stack(children: [
       Row(children: [
@@ -33,7 +42,7 @@ class LookupAndArticle extends StatelessWidget {
                 color: Theme.of(context).cardColor,
                 child: Stack(children: [
                   const DictionaryIndexing(),
-                  ((word == null || word == '')
+                  ((word.isEmpty)
                       ? Center(
                           child: Text(
                               dictionary.isPartiallyLoaded
@@ -44,8 +53,7 @@ class LookupAndArticle extends StatelessWidget {
                           child: Padding(
                               padding: const EdgeInsets.fromLTRB(0, 38, 0, 0),
                               child: WordArticles(
-                                  articles: getArticlesAndUpdateHistory(
-                                      context, word as String),
+                                  articles: articles,
                                   word: word,
                                   showAnotherWord: (word) =>
                                       showArticle(context, word, false))))),

@@ -75,19 +75,17 @@ class MasterDictionary extends ChangeNotifier {
     }
   }
 
-  String? _selectedWord;
+  String _selectedWord = '';
 
-  set selectedWord(String? value) {
-    if (value == '' || value == null) {
-      _selectedWord = '';
-    } else {
-      value = value.toLowerCase();
+  set selectedWord(String value) {
+    value = value.toLowerCase();
+    if (value != _selectedWord) {
       _selectedWord = value;
+      notifyListeners();
     }
-    //notifyListeners();
   }
 
-  String? get selectedWord {
+  String get selectedWord {
     return _selectedWord;
   }
 

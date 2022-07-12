@@ -33,8 +33,6 @@ class LookupState extends State<Lookup> with WidgetsBindingObserver {
   late TextEditingController _searchBarController;
   late FocusNode _searchBarFocusNode;
 
-  //late AppLifecycleState _notification;
-
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
@@ -273,7 +271,6 @@ class _SearchBar extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         child: Stack(alignment: Alignment.bottomRight, children: [
           TextField(
-            //key: _SearchBar._key,
             controller: controller,
             autofocus: true,
             focusNode: focusNode,
@@ -289,33 +286,8 @@ class _SearchBar extends StatelessWidget {
             decoration: InputDecoration(
                 border: InputBorder.none,
                 hintText: 'Search'.i18n,
-                suffix: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text((dictionary.isLookupWordEmpty
-                          ? ''
-                          : (dictionary.matchesCount >= dictionary.maxResults
-                              ? '${dictionary.maxResults}+'
-                              : dictionary.matchesCount.toString()))),
-                      if (!dictionary.isLookupWordEmpty)
-                        MouseRegion(
-                            cursor: SystemMouseCursors.click,
-                            child: GestureDetector(
-                                child: const SizedBox(
-                                  height: 32,
-                                  width: 36,
-                                  child: Icon(
-                                    Icons.backspace_rounded,
-                                    size: 24,
-                                  ),
-                                ),
-                                onTap: () {
-                                  dictionary.lookupWord = '';
-                                  controller.clear();
-                                }))
-                    ])),
+                suffix: _SearchBarSuffix(
+                    dictionary: dictionary, controller: controller)),
           ),
           Opacity(
               opacity: 0.2,
@@ -327,10 +299,50 @@ class _SearchBar extends StatelessWidget {
   }
 }
 
-Future<List<Article>> getArticlesAndUpdateHistory(
-    BuildContext context, String word) async {
+class _SearchBarSuffix extends StatelessWidget {
+  const _SearchBarSuffix({
+    Key? key,
+    required this.dictionary,
+    required this.controller,
+  }) : super(key: key);
+
+  final MasterDictionary dictionary;
+  final TextEditingController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text((dictionary.isLookupWordEmpty
+              ? ''
+              : (dictionary.matchesCount >= dictionary.maxResults
+                  ? '${dictionary.maxResults}+'
+                  : dictionary.matchesCount.toString()))),
+          if (!dictionary.isLookupWordEmpty)
+            MouseRegion(
+                cursor: SystemMouseCursors.click,
+                child: GestureDetector(
+                    child: const SizedBox(
+                      height: 32,
+                      width: 36,
+                      child: Icon(
+                        Icons.backspace_rounded,
+                        size: 24,
+                      ),
+                    ),
+                    onTap: () {
+                      dictionary.lookupWord = '';
+                      controller.clear();
+                    }))
+        ]);
+  }
+}
+
+Future<List<Article>> getArticles(BuildContext context, String word) async {
   var dictionary = Provider.of<MasterDictionary>(context, listen: false);
-  var history = Provider.of<History>(context, listen: false);
 
   List<Article> articles;
   if (dictionary.isLookupWordEmpty) {
@@ -338,25 +350,26 @@ Future<List<Article>> getArticlesAndUpdateHistory(
     if (articles.isEmpty) {
       articles = <Article>[Article('N/A', 'N/A', 'N/A')];
     }
-    //history.removeWord(word);
   } else {
     articles = await dictionary.getArticles(word);
-    history.addWord(word);
   }
-
-  dictionary.selectedWord = word;
 
   return articles;
 }
 
 void showArticle(BuildContext context, String word, bool useDialog) {
+  var history = Provider.of<History>(context, listen: false);
+  history.addWord(word);
+  var dictionary = Provider.of<MasterDictionary>(context, listen: false);
+  dictionary.selectedWord = word;
+
   if (useDialog) {
     showDialog(
         context: context,
         barrierColor: !kIsWeb ? Colors.transparent : Colors.black54,
         routeSettings: RouteSettings(name: Routes.showArticle, arguments: word),
         builder: (BuildContext context) {
-          var articles = getArticlesAndUpdateHistory(context, word);
+          var articles = getArticles(context, word);
 
           return SimpleSimpleDialog(
               backgroundColor: Theme.of(context).cardColor,
