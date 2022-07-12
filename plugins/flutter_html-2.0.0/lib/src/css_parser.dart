@@ -8,7 +8,7 @@ import 'package:flutter_html/src/utils.dart';
 import 'package:flutter_html/style.dart';
 
 Style declarationsToStyle(Map<String?, List<css.Expression>> declarations) {
-  Style style = new Style();
+  Style style = Style();
   declarations.forEach((property, value) {
     if (value.isNotEmpty) {
       switch (property) {
@@ -27,11 +27,11 @@ Style declarationsToStyle(Map<String?, List<css.Expression>> declarations) {
               element.text != "thin" &&
               element.text != "medium" &&
               element.text != "thick" &&
-              !(element is css.LengthTerm) &&
-              !(element is css.PercentageTerm) &&
-              !(element is css.EmTerm) &&
-              !(element is css.RemTerm) &&
-              !(element is css.NumberTerm));
+              element is! css.LengthTerm &&
+              element is! css.PercentageTerm &&
+              element is! css.EmTerm &&
+              element is! css.RemTerm &&
+              element is! css.NumberTerm);
           List<css.Expression?>? borderColors = value
               .where((element) =>
                   ExpressionMapping.expressionToColor(element) != null)
@@ -132,14 +132,16 @@ Style declarationsToStyle(Map<String?, List<css.Expression>> declarations) {
           style.textDecoration =
               ExpressionMapping.expressionToTextDecorationLine(
                   textDecorationList);
-          if (textDecorationColor != null)
+          if (textDecorationColor != null) {
             style.textDecorationColor =
                 ExpressionMapping.expressionToColor(textDecorationColor) ??
                     style.textDecorationColor;
-          if (textDecorationStyle != null)
+          }
+          if (textDecorationStyle != null) {
             style.textDecorationStyle =
                 ExpressionMapping.expressionToTextDecorationStyle(
                     textDecorationStyle);
+          }
           break;
         case 'text-decoration-color':
           style.textDecorationColor =
@@ -178,7 +180,7 @@ class DeclarationVisitor extends css.Visitor {
   String? _currentProperty;
 
   Map<String?, List<css.Expression>>? getDeclarations(css.StyleSheet sheet) {
-    _result = new Map<String?, List<css.Expression>>();
+    _result = <String?, List<css.Expression>>{};
     sheet.visit(this);
     return _result;
   }
@@ -192,9 +194,9 @@ class DeclarationVisitor extends css.Visitor {
 
   @override
   void visitExpressions(css.Expressions node) {
-    node.expressions.forEach((expression) {
+    for (var expression in node.expressions) {
       _result![_currentProperty]!.add(expression);
-    });
+    }
   }
 }
 
@@ -307,7 +309,7 @@ class ExpressionMapping {
       return double.tryParse(value.text) ?? 1.0;
     } else if (value is css.LengthTerm) {
       return double.tryParse(
-              value.text.replaceAll(new RegExp(r'\s+(\d+\.\d+)\s+'), '')) ??
+              value.text.replaceAll(RegExp(r'\s+(\d+\.\d+)\s+'), '')) ??
           1.0;
     } else if (value is css.LiteralTerm) {
       switch (value.text) {
@@ -362,18 +364,18 @@ class ExpressionMapping {
     if (value is css.LiteralTerm) {
       switch (value.text) {
         case 'block':
-          return Display.BLOCK;
+          return Display.block;
         case 'inline-block':
-          return Display.INLINE_BLOCK;
+          return Display.inlineBlock;
         case 'inline':
-          return Display.INLINE;
+          return Display.inline;
         case 'list-item':
-          return Display.LIST_ITEM;
+          return Display.listItem;
         case 'none':
-          return Display.NONE;
+          return Display.none;
       }
     }
-    return Display.INLINE;
+    return Display.inline;
   }
 
   static List<FontFeature> expressionToFontFeatureSettings(
@@ -419,7 +421,7 @@ class ExpressionMapping {
       return FontSize.rem(double.tryParse(value.text)!);
     } else if (value is css.LengthTerm) {
       return FontSize(double.tryParse(
-          value.text.replaceAll(new RegExp(r'\s+(\d+\.\d+)\s+'), '')));
+          value.text.replaceAll(RegExp(r'\s+(\d+\.\d+)\s+'), '')));
     } else if (value is css.LiteralTerm) {
       switch (value.text) {
         case "xx-small":
@@ -506,7 +508,7 @@ class ExpressionMapping {
     } else if (value is css.LengthTerm) {
       return LineHeight(
           double.tryParse(
-              value.text.replaceAll(new RegExp(r'\s+(\d+\.\d+)\s+'), '')),
+              value.text.replaceAll(RegExp(r'\s+(\d+\.\d+)\s+'), '')),
           units: "length");
     }
     return LineHeight.normal;
@@ -553,8 +555,9 @@ class ExpressionMapping {
         }
       }
     }
-    if (decorationList.contains(TextDecoration.none))
+    if (decorationList.contains(TextDecoration.none)) {
       decorationList = [TextDecoration.none];
+    }
     return TextDecoration.combine(decorationList);
   }
 
@@ -634,17 +637,18 @@ class ExpressionMapping {
     return finalShadows;
   }
 
-  static Color stringToColor(String _text) {
-    var text = _text.replaceFirst('#', '');
-    if (text.length == 3)
+  static Color stringToColor(String text) {
+    text = text.replaceFirst('#', '');
+    if (text.length == 3) {
       text = text.replaceAllMapped(
           RegExp(r"[a-f]|\d"), (match) => '${match.group(0)}${match.group(0)}');
+    }
     int color = int.parse(text, radix: 16);
 
     if (color <= 0xffffff) {
-      return new Color(color).withAlpha(255);
+      return Color(color).withAlpha(255);
     } else {
-      return new Color(color);
+      return Color(color);
     }
   }
 
@@ -678,7 +682,7 @@ class ExpressionMapping {
     final hslText = text.replaceAll(')', '').replaceAll(' ', '');
     final hslValues = hslText.split(',').toList();
     List<double?> parsedHsl = [];
-    hslValues.forEach((element) {
+    for (var element in hslValues) {
       if (element.contains("%") &&
           double.tryParse(element.replaceAll("%", "")) != null) {
         parsedHsl.add(double.tryParse(element.replaceAll("%", ""))! * 0.01);
@@ -691,7 +695,7 @@ class ExpressionMapping {
           parsedHsl.add(double.tryParse(element));
         }
       }
-    });
+    }
     if (parsedHsl.length == 4 && !parsedHsl.contains(null)) {
       return HSLColor.fromAHSL(
               parsedHsl.last!, parsedHsl.first!, parsedHsl[1]!, parsedHsl[2]!)
@@ -700,8 +704,9 @@ class ExpressionMapping {
       return HSLColor.fromAHSL(
               1.0, parsedHsl.first!, parsedHsl[1]!, parsedHsl.last!)
           .toColor();
-    } else
+    } else {
       return Colors.black;
+    }
   }
 
   static Color? namedColorToColor(String text) {
@@ -710,7 +715,8 @@ class ExpressionMapping {
         orElse: () => "");
     if (namedColor != "") {
       return stringToColor(namedColors[namedColor]!);
-    } else
+    } else {
       return null;
+    }
   }
 }

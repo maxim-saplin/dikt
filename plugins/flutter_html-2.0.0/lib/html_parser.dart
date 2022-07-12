@@ -17,7 +17,7 @@ typedef OnTap = void Function(
   String? url,
 );
 
-class _TapHandler {
+class TapHandler {
   OnTap? _onLinkTapHandler;
 
   void onLinkTap(String? s) {
@@ -36,7 +36,7 @@ class HtmlParser {
   HtmlParser(
       {required this.shrinkWrap, required this.style, required this.tagsList});
 
-  var tapHandler = _TapHandler();
+  var tapHandler = TapHandler();
 
   StyledText parse(dom.Document html) {
     StyledElement lexedTree = lexDomTree(
@@ -93,12 +93,12 @@ class HtmlParser {
       style: Style(),
     );
 
-    html.nodes.forEach((node) {
+    for (var node in html.nodes) {
       tree.children.add(_recursiveLexer(
         node,
         tagsList,
       ));
-    });
+    }
 
     return tree;
   }
@@ -113,12 +113,12 @@ class HtmlParser {
   ) {
     List<StyledElement> children = <StyledElement>[];
 
-    node.nodes.forEach((childNode) {
+    for (var childNode in node.nodes) {
       children.add(_recursiveLexer(
         childNode,
         tagsList,
       ));
-    });
+    }
 
     //(Sub6Resources): There's probably a more efficient way to look this up.
     // Maxim - replaced Lists with Sets, should be quicker
@@ -126,17 +126,17 @@ class HtmlParser {
       if (!tagsList.contains(node.localName)) {
         return EmptyContentElement();
       }
-      if (STYLED_ELEMENTS.contains(node.localName)) {
+      if (styledElements.contains(node.localName)) {
         return parseStyledElement(node, children);
-      } else if (INTERACTABLE_ELEMENTS.contains(node.localName)) {
+      } else if (interactableElements.contains(node.localName)) {
         return parseInteractableElement(node, children);
-      } else if (REPLACED_ELEMENTS.contains(node.localName)) {
+      } else if (replacedElements.contains(node.localName)) {
         return parseReplacedElement(node);
-      } else if (LAYOUT_ELEMENTS.contains(node.localName)) {
+      } else if (layoutElements.contains(node.localName)) {
         return parseLayoutElement(node, children);
-      } else if (TABLE_CELL_ELEMENTS.contains(node.localName)) {
+      } else if (tableCellElements.contains(node.localName)) {
         return parseTableCellElement(node, children);
-      } else if (TABLE_DEFINITION_ELEMENTS.contains(node.localName)) {
+      } else if (tableDefinitionElements.contains(node.localName)) {
         return parseTableDefinitionElement(node, children);
       } else {
         return EmptyContentElement();
@@ -174,10 +174,10 @@ class HtmlParser {
   /// [_cascadeStyles] cascades all of the inherited styles down the tree, applying them to each
   /// child that doesn't specify a different style.
   StyledElement _cascadeStyles(StyledElement tree) {
-    tree.children.forEach((child) {
+    for (var child in tree.children) {
       child.style = tree.style.copyOnlyInherited(child.style);
       _cascadeStyles(child);
-    });
+    }
 
     return tree;
   }
@@ -201,7 +201,7 @@ class HtmlParser {
   /// [parseTree] is responsible for handling the [customRender] parameter and
   /// deciding what different `Style.display` options look like as Widgets.
   InlineSpan parseTree(
-      RenderContext context, StyledElement tree, _TapHandler? handler) {
+      RenderContext context, StyledElement tree, TapHandler? handler) {
     // Merge this element's style into the context so that children
     // inherit the correct style
 
@@ -223,7 +223,7 @@ class HtmlParser {
       return TextSpan(
         style: newContextStyle,
         recognizer:
-            handler == null ? null : new _HrefTap(handler.onLinkTap, tree.href),
+            handler == null ? null : _HrefTap(handler.onLinkTap, tree.href),
         text: tc.text,
       );
     } else {
@@ -232,7 +232,7 @@ class HtmlParser {
       ///[tree] is an inline element.
       var span = TextSpan(
         style: newContextStyle,
-        text: tree.style.display == Display.BLOCK &&
+        text: tree.style.display == Display.block &&
                 tree.name != 'html' &&
                 tree.name != 'body' &&
                 !_firstDiv
@@ -269,7 +269,7 @@ class HtmlParser {
   /// at https://www.w3.org/TR/css-text-3/
   /// and summarized at https://medium.com/@patrickbrosset/when-does-white-space-matter-in-html-b90e8a7cdd33
   static StyledElement _processInternalWhitespace(StyledElement tree) {
-    if ((tree.style.whiteSpace ?? WhiteSpace.NORMAL) == WhiteSpace.PRE) {
+    if ((tree.style.whiteSpace ?? WhiteSpace.normal) == WhiteSpace.pre) {
       // Preserve this whitespace
     } else if (tree is TextContentElement) {
       tree.text = _removeUnnecessaryWhitespace(tree.text!);
@@ -295,7 +295,7 @@ class HtmlParser {
     StyledElement tree,
     Context<bool> wpc,
   ) {
-    if (tree.style.display == Display.BLOCK) {
+    if (tree.style.display == Display.block) {
       wpc.data = false;
     }
 
@@ -322,7 +322,9 @@ class HtmlParser {
       }
     }
 
-    tree.children.forEach((e) => _processInlineWhitespaceRecursive(e, wpc));
+    for (var e in tree.children) {
+      _processInlineWhitespaceRecursive(e, wpc);
+    }
 
     return tree;
   }
@@ -336,8 +338,8 @@ class HtmlParser {
   /// (4) Replace any instances of two or more spaces with a single space.
   static String _removeUnnecessaryWhitespace(String text) {
     return text
-        .replaceAll(RegExp("\ *(?=\n)"), "\n")
-        .replaceAll(RegExp("(?:\n)\ *"), "\n")
+        .replaceAll(RegExp(" *(?=\n)"), "\n")
+        .replaceAll(RegExp("(?:\n) *"), "\n")
         .replaceAll("\n", " ")
         .replaceAll("\t", " ")
         .replaceAll(RegExp(" {2,}"), " ");
@@ -361,13 +363,13 @@ class HtmlParser {
               ? int.tryParse(tree.attributes['start'] ?? "") ?? 1
               : 1) -
           1));
-    } else if (tree.style.display == Display.LIST_ITEM &&
+    } else if (tree.style.display == Display.listItem &&
         tree.style.listStyleType != null) {
       switch (tree.style.listStyleType!) {
-        case ListStyleType.DISC:
+        case ListStyleType.disc:
           tree.style.markerContent = '•';
           break;
-        case ListStyleType.DECIMAL:
+        case ListStyleType.decimal:
           if (olStack.isEmpty) {
             olStack.add(Context((tree.attributes['start'] != null
                     ? int.tryParse(tree.attributes['start'] ?? "") ?? 1
@@ -380,7 +382,9 @@ class HtmlParser {
       }
     }
 
-    tree.children.forEach((e) => _processListCharactersRecursive(e, olStack));
+    for (var e in tree.children) {
+      _processListCharactersRecursive(e, olStack);
+    }
 
     if (tree.name == 'ol') {
       olStack.removeLast();
@@ -399,13 +403,13 @@ class HtmlParser {
           TextContentElement(
               text: tree.style.before,
               style: tree.style
-                  .copyWith(beforeAfterNull: true, display: Display.INLINE)));
+                  .copyWith(beforeAfterNull: true, display: Display.inline)));
     }
     if (tree.style.after != null) {
       tree.children.add(TextContentElement(
           text: tree.style.after,
           style: tree.style
-              .copyWith(beforeAfterNull: true, display: Display.INLINE)));
+              .copyWith(beforeAfterNull: true, display: Display.inline)));
     }
 
     tree.children.forEach(_processBeforesAndAfters);
@@ -525,28 +529,28 @@ class HtmlParser {
   static StyledElement _removeEmptyElements(StyledElement tree) {
     List<StyledElement> toRemove = <StyledElement>[];
     bool lastChildBlock = true;
-    tree.children.forEach((child) {
+    for (var child in tree.children) {
       if (child is EmptyContentElement || child is EmptyLayoutElement) {
         toRemove.add(child);
       } else if (child is TextContentElement && (child.text!.isEmpty)) {
         toRemove.add(child);
       } else if (child is TextContentElement &&
-          child.style.whiteSpace != WhiteSpace.PRE &&
-          tree.style.display == Display.BLOCK &&
+          child.style.whiteSpace != WhiteSpace.pre &&
+          tree.style.display == Display.block &&
           child.text!.trim().isEmpty &&
           lastChildBlock) {
         toRemove.add(child);
-      } else if (child.style.display == Display.NONE) {
+      } else if (child.style.display == Display.none) {
         toRemove.add(child);
       } else {
         _removeEmptyElements(child);
       }
 
       // This is used above to check if the previous element is a block element or a line break.
-      lastChildBlock = (child.style.display == Display.BLOCK ||
-          child.style.display == Display.LIST_ITEM ||
+      lastChildBlock = (child.style.display == Display.block ||
+          child.style.display == Display.listItem ||
           (child is TextContentElement && child.text == '\n'));
-    });
+    }
     tree.children.removeWhere((element) => toRemove.contains(element));
 
     return tree;
@@ -557,14 +561,14 @@ class HtmlParser {
   static StyledElement _processFontSize(StyledElement tree) {
     double? parentFontSize = tree.style.fontSize?.size ?? FontSize.medium.size;
 
-    tree.children.forEach((child) {
+    for (var child in tree.children) {
       if ((child.style.fontSize?.size ?? parentFontSize)! < 0) {
         child.style.fontSize =
             FontSize(parentFontSize! * -child.style.fontSize!.size!);
       }
 
       _processFontSize(child);
-    });
+    }
     return tree;
   }
 }
@@ -590,6 +594,7 @@ class RenderContext {
 /// A [ContainerSpan] can have a border, background color, height, width, padding, and margin
 /// and can represent either an INLINE or BLOCK-level element.
 class ContainerSpan extends StatelessWidget {
+  @override
   final AnchorKey? key;
   final Widget? child;
   final List<InlineSpan>? children;
@@ -598,7 +603,7 @@ class ContainerSpan extends StatelessWidget {
   final bool shrinkWrap;
   final TextSelectionControls? Function() selectionControlsCallback;
 
-  ContainerSpan(
+  const ContainerSpan(
       {this.key,
       this.child,
       this.children,
@@ -609,7 +614,7 @@ class ContainerSpan extends StatelessWidget {
       : super(key: key);
 
   @override
-  Widget build(BuildContext _) {
+  Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
         border: style.border,
@@ -638,8 +643,9 @@ class StyledText extends StatelessWidget {
   final Style style;
   final double textScaleFactor;
   final RenderContext? renderContext;
+  @override
   final AnchorKey? key;
-  final _TapHandler? _tapHandler;
+  final TapHandler? _tapHandler;
   TextSelectionControls? Function() selectionControlsCallback = () => null;
 
   // Workaround for closures which are not allowed
@@ -655,9 +661,9 @@ class StyledText extends StatelessWidget {
       required this.style,
       this.textScaleFactor = 1.0,
       this.renderContext,
-      _TapHandler? tapHandler,
+      TapHandler? tapHandler,
       this.key})
-      : this._tapHandler = tapHandler,
+      : _tapHandler = tapHandler,
         super(key: key);
 
   @override
@@ -686,7 +692,7 @@ class _HrefTap extends TapGestureRecognizer {
   }
 
   void _onTap() {
-    print('_onTap');
+    debugPrint('_onTap');
     if (linkTap != null && href != null) linkTap!(href);
   }
 

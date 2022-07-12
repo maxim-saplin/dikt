@@ -66,20 +66,20 @@ class TableLayoutElement extends LayoutElement {
                 if (colWidth != null && colWidth.endsWith("%")) {
                   if (!constraints.hasBoundedWidth) {
                     // In a horizontally unbounded container; always wrap content instead of applying flex
-                    return IntrinsicContentTrackSize();
+                    return const IntrinsicContentTrackSize();
                   }
                   final percentageSize = double.tryParse(
                       colWidth.substring(0, colWidth.length - 1));
                   return percentageSize != null && !percentageSize.isNaN
                       ? FlexibleTrackSize(percentageSize * 0.01)
-                      : IntrinsicContentTrackSize();
+                      : const IntrinsicContentTrackSize();
                 } else if (colWidth != null) {
                   final fixedPxSize = double.tryParse(colWidth);
                   return fixedPxSize != null
                       ? FixedTrackSize(fixedPxSize)
-                      : IntrinsicContentTrackSize();
+                      : const IntrinsicContentTrackSize();
                 } else {
-                  return IntrinsicContentTrackSize();
+                  return const IntrinsicContentTrackSize();
                 }
               });
             })
@@ -94,7 +94,7 @@ class TableLayoutElement extends LayoutElement {
 
     // All table rows have a height intrinsic to their (spanned) contents
     final rowSizes =
-        List.generate(rows.length, (_) => IntrinsicContentTrackSize());
+        List.generate(rows.length, (_) => const IntrinsicContentTrackSize());
 
     // Calculate column bounds
     int columnMax = rows
@@ -116,6 +116,10 @@ class TableLayoutElement extends LayoutElement {
         }
         if (child is TableCellElement) {
           cells.add(GridPlacement(
+            columnStart: columni,
+            columnSpan: child.colspan,
+            rowStart: rowi,
+            rowSpan: child.rowspan,
             child: Container(
               width: double.infinity,
               padding: child.style.padding ?? row.style.padding,
@@ -136,10 +140,6 @@ class TableLayoutElement extends LayoutElement {
                 ),
               ),
             ),
-            columnStart: columni,
-            columnSpan: child.colspan,
-            rowStart: rowi,
-            rowSpan: child.rowspan,
           ));
           columnRowOffset[columni] = child.rowspan - 1;
           columni += child.colspan;
@@ -152,7 +152,7 @@ class TableLayoutElement extends LayoutElement {
     List<TrackSize> finalColumnSizes = columnSizes.take(columnMax).toList();
     finalColumnSizes += List.generate(
         max(0, columnMax - finalColumnSizes.length),
-        (_) => IntrinsicContentTrackSize());
+        (_) => const IntrinsicContentTrackSize());
 
     return LayoutGrid(
       gridFit: GridFit.loose,
@@ -172,7 +172,7 @@ class TableSectionLayoutElement extends LayoutElement {
   @override
   Widget toWidget(RenderContext context) {
     // Not rendered; TableLayoutElement will instead consume its children
-    return Container(child: Text("TABLE SECTION"));
+    return const Text("TABLE SECTION");
   }
 }
 
@@ -186,7 +186,7 @@ class TableRowLayoutElement extends LayoutElement {
   @override
   Widget toWidget(RenderContext context) {
     // Not rendered; TableLayoutElement will instead consume its children
-    return Container(child: Text("TABLE ROW"));
+    return const Text("TABLE ROW");
   }
 }
 
@@ -311,7 +311,7 @@ class DetailsContentElement extends LayoutElement {
                 style: style,
                 renderContext: context,
               )
-            : Text("Details"),
+            : const Text("Details"),
         children: [
           StyledText(
             textSpan: TextSpan(
@@ -340,7 +340,7 @@ class EmptyLayoutElement extends LayoutElement {
   EmptyLayoutElement({required String name}) : super(name: name, children: []);
 
   @override
-  Widget? toWidget(_) => null;
+  Widget? toWidget(context) => null;
 }
 
 LayoutElement parseLayoutElement(

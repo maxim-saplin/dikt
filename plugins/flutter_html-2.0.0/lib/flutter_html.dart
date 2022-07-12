@@ -76,10 +76,10 @@ class Html extends StatelessWidget {
   /// useIsolate == true, isolatePool != null - run as PooledJob in the provided pool
   final IsolatePool? isolatePool;
 
-  static Set<String> get tags => new Set<String>.from(STYLED_ELEMENTS)
-    ..addAll(INTERACTABLE_ELEMENTS)
-    ..addAll(REPLACED_ELEMENTS)
-    ..addAll(LAYOUT_ELEMENTS);
+  static Set<String> get tags => Set<String>.from(styledElements)
+    ..addAll(interactableElements)
+    ..addAll(replacedElements)
+    ..addAll(layoutElements);
   //..addAll(TABLE_CELL_ELEMENTS)
   //..addAll(TABLE_DEFINITION_ELEMENTS);
 
@@ -162,7 +162,7 @@ class _FuturedHtml extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
         width: width,
         child: FutureBuilder<StyledText>(
           future: text,
@@ -180,7 +180,7 @@ class _FuturedHtml extends StatelessWidget {
 
               return _FuturedBody(s.data!, onBuilt, onLaidOut);
             } else {
-              return SizedBox();
+              return const SizedBox();
             }
           },
         ));
@@ -188,7 +188,7 @@ class _FuturedHtml extends StatelessWidget {
 }
 
 class _FuturedBody extends StatefulWidget {
-  _FuturedBody(this.richText, this.onBuilt, this.onLaidOut);
+  const _FuturedBody(this.richText, this.onBuilt, this.onLaidOut);
 
   final StyledText richText;
   final Function? onBuilt;

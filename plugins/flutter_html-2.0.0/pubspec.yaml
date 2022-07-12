@@ -5,30 +5,26 @@ homepage: https://github.com/Sub6Resources/flutter_html
 publish_to: none
 
 environment:
-  sdk: '>=2.12.0 <3.0.0'
+  sdk: '>=2.17.0 <3.0.0'
 
 dependencies:
+  flutter:
+    sdk: flutter
   # Plugin for parsing html
   html: 
-
   # Plugins for parsing css
   csslib: 
-
   # Plugins for rendering the <table> tag.
   flutter_layout_grid:
-
   # Plugins for rendering the <svg> tag.
   flutter_svg: 
-
   # Plugin for rendering MathML
   flutter_math_fork: 
-
   # plugin for firstWhereOrNull extension on lists
   collection: 
-
   after_layout: ^1.1.0  
   ikvpack:
     git: https://github.com/maxim-saplin/ikvpack
 
-  flutter:
-    sdk: flutter
+dev_dependencies:
+  flutter_lints:

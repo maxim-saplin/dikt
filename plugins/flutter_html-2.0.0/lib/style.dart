@@ -203,7 +203,7 @@ class Style {
     this.lineHeight,
     this.letterSpacing,
     this.listStyleType,
-    this.listStylePosition = ListStylePosition.OUTSIDE,
+    this.listStylePosition = ListStylePosition.outside,
     this.padding,
     this.margin,
     this.textAlign,
@@ -224,9 +224,9 @@ class Style {
     this.maxLines,
     this.textOverflow,
   }) {
-    if (this.alignment == null &&
-        (display == Display.BLOCK || display == Display.LIST_ITEM)) {
-      this.alignment = Alignment.centerLeft;
+    if (alignment == null &&
+        (display == Display.block || display == Display.listItem)) {
+      alignment = Alignment.centerLeft;
     }
   }
 
@@ -334,7 +334,7 @@ class Style {
           : backgroundColor,
       color: child.color ?? color,
       direction: child.direction ?? direction,
-      display: display == Display.NONE ? display : child.display,
+      display: display == Display.none ? display : child.display,
       fontFamily: child.fontFamily ?? fontFamily,
       fontFeatureSettings: child.fontFeatureSettings ?? fontFeatureSettings,
       fontSize: finalFontSize,
@@ -432,30 +432,30 @@ class Style {
   }
 
   Style.fromTextStyle(TextStyle textStyle) {
-    this.backgroundColor = textStyle.backgroundColor;
-    this.color = textStyle.color;
-    this.textDecoration = textStyle.decoration;
-    this.textDecorationColor = textStyle.decorationColor;
-    this.textDecorationStyle = textStyle.decorationStyle;
-    this.textDecorationThickness = textStyle.decorationThickness;
-    this.fontFamily = textStyle.fontFamily;
-    this.fontFeatureSettings = textStyle.fontFeatures;
-    this.fontSize = FontSize(textStyle.fontSize);
-    this.fontStyle = textStyle.fontStyle;
-    this.fontWeight = textStyle.fontWeight;
-    this.letterSpacing = textStyle.letterSpacing;
-    this.textShadow = textStyle.shadows;
-    this.wordSpacing = textStyle.wordSpacing;
-    this.lineHeight = LineHeight(textStyle.height ?? 1.2);
+    backgroundColor = textStyle.backgroundColor;
+    color = textStyle.color;
+    textDecoration = textStyle.decoration;
+    textDecorationColor = textStyle.decorationColor;
+    textDecorationStyle = textStyle.decorationStyle;
+    textDecorationThickness = textStyle.decorationThickness;
+    fontFamily = textStyle.fontFamily;
+    fontFeatureSettings = textStyle.fontFeatures;
+    fontSize = FontSize(textStyle.fontSize);
+    fontStyle = textStyle.fontStyle;
+    fontWeight = textStyle.fontWeight;
+    letterSpacing = textStyle.letterSpacing;
+    textShadow = textStyle.shadows;
+    wordSpacing = textStyle.wordSpacing;
+    lineHeight = LineHeight(textStyle.height ?? 1.2);
   }
 }
 
 enum Display {
-  BLOCK,
-  INLINE,
-  INLINE_BLOCK,
-  LIST_ITEM,
-  NONE,
+  block,
+  inline,
+  inlineBlock,
+  listItem,
+  none,
 }
 
 class FontSize {
@@ -520,22 +520,22 @@ class LineHeight {
 }
 
 enum ListStyleType {
-  DISC,
-  DECIMAL,
+  disc,
+  decimal,
 }
 
 enum ListStylePosition {
-  OUTSIDE,
-  INSIDE,
+  outside,
+  inside,
 }
 
 enum VerticalAlign {
-  BASELINE,
-  SUB,
-  SUPER,
+  baseline,
+  sub,
+  super1, // can't use super as it's a keyword
 }
 
 enum WhiteSpace {
-  NORMAL,
-  PRE,
+  normal,
+  pre,
 }

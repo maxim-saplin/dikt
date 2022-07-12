@@ -61,7 +61,7 @@ class TextContentElement extends ReplacedElement {
   }
 
   @override
-  Widget? toWidget(_) => null;
+  Widget? toWidget(context) => null;
 }
 
 /// [SvgContentElement] is a [ReplacedElement] with an SVG as its contents.
@@ -94,10 +94,11 @@ class EmptyContentElement extends ReplacedElement {
       : super(name: name, style: Style(), elementId: "[[No ID]]");
 
   @override
-  Widget? toWidget(_) => null;
+  Widget? toWidget(context) => null;
 }
 
 class RubyElement extends ReplacedElement {
+  @override
   dom.Element element;
 
   RubyElement({required this.element, String name = "ruby"})
@@ -114,7 +115,7 @@ class RubyElement extends ReplacedElement {
     //TODO calculate based off of parent font size.
     final rubySize = max(9.0, context.style.fontSize!.size! / 2);
     final rubyYPos = rubySize + rubySize / 2;
-    element.nodes.forEach((c) {
+    for (var c in element.nodes) {
       if (c.nodeType == dom.Node.TEXT_NODE) {
         textNode = c;
       }
@@ -133,15 +134,14 @@ class RubyElement extends ReplacedElement {
                               style: context.style
                                   .generateTextStyle()
                                   .copyWith(fontSize: rubySize))))),
-              Container(
-                  child: Text(textNode!.text!.trim(),
-                      style: context.style.generateTextStyle())),
+              Text(textNode.text!.trim(),
+                  style: context.style.generateTextStyle()),
             ],
           );
           widgets.add(widget);
         }
       }
-    });
+    }
     return Row(
       key: AnchorKey.of(null, this),
       crossAxisAlignment: CrossAxisAlignment.end,
@@ -157,7 +157,7 @@ ReplacedElement parseReplacedElement(dom.Element element) {
     case "br":
       return TextContentElement(
           text: "\n",
-          style: Style(whiteSpace: WhiteSpace.PRE),
+          style: Style(whiteSpace: WhiteSpace.pre),
           element: element,
           node: element);
     case "svg":

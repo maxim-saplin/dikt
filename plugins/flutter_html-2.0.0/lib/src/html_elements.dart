@@ -2,7 +2,7 @@ export 'styled_element.dart';
 export 'interactable_element.dart';
 export 'replaced_element.dart';
 
-const STYLED_ELEMENTS = {
+const styledElements = {
   "abbr",
   "acronym",
   "address",
@@ -70,11 +70,11 @@ const STYLED_ELEMENTS = {
   "ul",
 };
 
-const INTERACTABLE_ELEMENTS = {
+const interactableElements = {
   "a",
 };
 
-const REPLACED_ELEMENTS = {
+const replacedElements = {
   "audio",
   "br",
   "head",
@@ -89,7 +89,7 @@ const REPLACED_ELEMENTS = {
   "math",
 };
 
-const LAYOUT_ELEMENTS = {
+const layoutElements = {
   "details",
   "table",
   "tr",
@@ -98,9 +98,9 @@ const LAYOUT_ELEMENTS = {
   "thead",
 };
 
-const TABLE_CELL_ELEMENTS = {"th", "td"};
+const tableCellElements = {"th", "td"};
 
-const TABLE_DEFINITION_ELEMENTS = {"col", "colgroup"};
+const tableDefinitionElements = {"col", "colgroup"};
 
 /**
   Here is a list of elements with planned support:
