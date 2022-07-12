@@ -13,7 +13,7 @@ import '../../common/i18n.dart';
 class LookupAndArticle extends StatelessWidget {
   final String? word;
 
-  LookupAndArticle(this.word);
+  const LookupAndArticle({Key? key, this.word}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -23,49 +23,36 @@ class LookupAndArticle extends StatelessWidget {
 
     return Stack(children: [
       Row(children: [
-        Expanded(
-          child: Lookup(false),
+        const Expanded(
           flex: 1,
+          child: Lookup(narrow: false),
         ),
         Expanded(
+            flex: 2,
             child: Container(
                 color: Theme.of(context).cardColor,
                 child: Stack(children: [
-                  DictionaryIndexing(),
+                  const DictionaryIndexing(),
                   ((word == null || word == '')
                       ? Center(
                           child: Text(
                               dictionary.isPartiallyLoaded
-                                  ? ((dictionary.totalEntries == 0
-                                          ? '↗↗↗\n' +
-                                              'Try adding dictionaries'.i18n +
-                                              '\n\n'
-                                          : manager.dictionariesEnabled
-                                                  .where((d) => d.isLoaded)
-                                                  .length
-                                                  .toString() +
-                                              ' ' +
-                                              'dictionaries'.i18n +
-                                              '\n\n') +
-                                      dictionary.totalEntries.toString() +
-                                      ' ' +
-                                      'entries'.i18n)
+                                  ? ('${dictionary.totalEntries == 0 ? '↗↗↗\n${'Try adding dictionaries'.i18n}\n\n' : '${manager.dictionariesEnabled.where((d) => d.isLoaded).length} ${'dictionaries'.i18n}\n\n'}${dictionary.totalEntries} ${'entries'.i18n}')
                                   : '',
                               textAlign: TextAlign.center))
                       : Center(
                           child: Padding(
-                              padding: EdgeInsets.fromLTRB(0, 38, 0, 0),
+                              padding: const EdgeInsets.fromLTRB(0, 38, 0, 0),
                               child: WordArticles(
                                   articles: getArticlesAndUpdateHistory(
                                       context, word as String),
                                   word: word,
                                   showAnotherWord: (word) =>
                                       showArticle(context, word, false))))),
-                  TopButtons()
-                ])),
-            flex: 2)
+                  const TopButtons()
+                ])))
       ]),
-      DictionaryLoading()
+      const DictionaryLoading()
     ]);
   }
 }

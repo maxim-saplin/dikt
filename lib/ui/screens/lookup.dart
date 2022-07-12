@@ -19,7 +19,7 @@ import '../routes.dart';
 class Lookup extends StatefulWidget {
   final bool narrow;
 
-  Lookup(this.narrow);
+  const Lookup({Key? key, this.narrow = false}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => LookupState();
@@ -46,8 +46,8 @@ class LookupState extends State<Lookup> with WidgetsBindingObserver {
 
   void _showKeyboard() {
     _searchBarFocusNode.unfocus();
-    Future.delayed(
-        Duration(milliseconds: 100), () => _searchBarFocusNode.requestFocus());
+    Future.delayed(const Duration(milliseconds: 100),
+        () => _searchBarFocusNode.requestFocus());
   }
 
   @override
@@ -86,7 +86,7 @@ class LookupState extends State<Lookup> with WidgetsBindingObserver {
     }
 
     if (dictionary.isFullyLoaded && !_fullyLoaded) {
-      print('Dictionaries loaded, lookup view ready');
+      debugPrint('Dictionaries loaded, lookup view ready');
       _fullyLoaded = true;
       var v = _searchBarController.value;
       if (v.text.isNotEmpty) {
@@ -97,32 +97,22 @@ class LookupState extends State<Lookup> with WidgetsBindingObserver {
     }
 
     return Stack(children: [
-      widget.narrow ? DictionaryIndexingOrLoading() : Text(''),
+      widget.narrow ? const DictionaryIndexingOrLoading() : const Text(''),
       Column(children: [
         !dictionary.isPartiallyLoaded
-            ? Expanded(child: Text(''))
+            ? const Expanded(child: Text(''))
             : ((dictionary.isLookupWordEmpty && history.wordsCount < 1) ||
                     dictionary.totalEntries == 0
                 ? Expanded(
                     child: Center(
                         child: Padding(
-                            padding: EdgeInsets.fromLTRB(0, 100, 0, 0),
+                            padding: const EdgeInsets.fromLTRB(0, 100, 0, 0),
                             child: Text(
                               (widget.narrow
-                                      ? ((dictionary.totalEntries == 0
-                                              ? '↑↑↑\n' +
-                                                  'Try adding dictionaries'
-                                                      .i18n +
-                                                  '\n\n'
-                                              : '') +
-                                          dictionary.totalEntries.toString() +
-                                          ' ' +
-                                          'entries'.i18n)
+                                      ? ('${dictionary.totalEntries == 0 ? '↑↑↑\n${'Try adding dictionaries'.i18n}\n\n' : ''}${dictionary.totalEntries} ${'entries'.i18n}')
                                       : '') +
                                   (dictionary.totalEntries > 0
-                                      ? '\n\n' +
-                                          'Type-in text below'.i18n +
-                                          '\n↓ ↓ ↓'
+                                      ? '\n\n${'Type-in text below'.i18n}\n↓ ↓ ↓'
                                       : ''),
                               textAlign: TextAlign.center,
                             ))))
@@ -135,7 +125,7 @@ class LookupState extends State<Lookup> with WidgetsBindingObserver {
                   )),
         _SearchBar(widget.narrow, _searchBarController, _searchBarFocusNode)
       ]),
-      widget.narrow ? TopButtons() : Text(''),
+      widget.narrow ? const TopButtons() : const Text(''),
     ]);
   }
 }
@@ -153,13 +143,14 @@ class _WordsList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Widget sv = CustomScrollView(
-      physics: BouncingScrollPhysics(),
+      physics: const BouncingScrollPhysics(),
       slivers: [
         SliverList(
           delegate: SliverChildBuilderDelegate((context, index) {
             Widget x = _Entry(index, dictionary, history, narrow);
             if (index == 0) {
-              x = Padding(padding: EdgeInsets.fromLTRB(0, 0, 0, 10), child: x);
+              x = Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 0, 0, 10), child: x);
             }
 
             return x;
@@ -178,7 +169,7 @@ class _WordsList extends StatelessWidget {
     if (!kIsWeb) {
       sv = ShaderMask(
           shaderCallback: (rect) {
-            return LinearGradient(
+            return const LinearGradient(
               begin: Alignment.bottomCenter,
               end: Alignment.topCenter,
               colors: [Colors.transparent, Colors.black],
@@ -188,7 +179,7 @@ class _WordsList extends StatelessWidget {
           blendMode: BlendMode.dstIn,
           child: ShaderMask(
               shaderCallback: (rect) {
-                return LinearGradient(
+                return const LinearGradient(
                   begin: Alignment.bottomCenter,
                   end: Alignment.topCenter,
                   colors: [Colors.black, Colors.transparent],
@@ -211,7 +202,8 @@ class _Entry extends StatelessWidget {
   final History history;
   final bool narrow;
 
-  _Entry(this.index, this.dictionary, this.history, this.narrow, {Key? key})
+  const _Entry(this.index, this.dictionary, this.history, this.narrow,
+      {Key? key})
       : super(key: key);
 
   @override
@@ -266,7 +258,7 @@ class _SearchBar extends StatelessWidget {
   final FocusNode focusNode;
   //static GlobalKey _key = GlobalKey();
 
-  _SearchBar(this.narrow, this.controller, this.focusNode);
+  const _SearchBar(this.narrow, this.controller, this.focusNode);
 
   @override
   Widget build(BuildContext context) {
@@ -276,8 +268,8 @@ class _SearchBar extends StatelessWidget {
         decoration: BoxDecoration(
             color: Theme.of(context).canvasColor,
             borderRadius: BorderRadius.only(
-                topLeft: narrow ? Radius.circular(12) : Radius.zero,
-                topRight: narrow ? Radius.circular(12) : Radius.zero)),
+                topLeft: narrow ? const Radius.circular(12) : Radius.zero,
+                topRight: narrow ? const Radius.circular(12) : Radius.zero)),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         child: Stack(alignment: Alignment.bottomRight, children: [
           TextField(
@@ -293,7 +285,7 @@ class _SearchBar extends StatelessWidget {
                 showArticle(context, dictionary.getMatch(0), narrow);
               }
             },
-            style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
+            style: const TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
             decoration: InputDecoration(
                 border: InputBorder.none,
                 hintText: 'Search'.i18n,
@@ -305,13 +297,13 @@ class _SearchBar extends StatelessWidget {
                       Text((dictionary.isLookupWordEmpty
                           ? ''
                           : (dictionary.matchesCount >= dictionary.maxResults
-                              ? dictionary.maxResults.toString() + '+'
+                              ? '${dictionary.maxResults}+'
                               : dictionary.matchesCount.toString()))),
                       if (!dictionary.isLookupWordEmpty)
                         MouseRegion(
                             cursor: SystemMouseCursors.click,
                             child: GestureDetector(
-                                child: Container(
+                                child: const SizedBox(
                                   height: 32,
                                   width: 36,
                                   child: Icon(
@@ -343,8 +335,10 @@ Future<List<Article>> getArticlesAndUpdateHistory(
   List<Article> articles;
   if (dictionary.isLookupWordEmpty) {
     articles = await dictionary.getArticles(word);
-    if (articles.isEmpty) articles = <Article>[Article('N/A', 'N/A', 'N/A')];
-    history.removeWord(word);
+    if (articles.isEmpty) {
+      articles = <Article>[Article('N/A', 'N/A', 'N/A')];
+    }
+    //history.removeWord(word);
   } else {
     articles = await dictionary.getArticles(word);
     history.addWord(word);
@@ -372,10 +366,10 @@ void showArticle(BuildContext context, String word, bool useDialog) {
               children: [
                 KeyboardVisibilityBuilder(
                     builder: (c, iv) => iv
-                        ? SizedBox()
+                        ? const SizedBox()
                         : FutureBuilder(
                             future: Future.delayed(
-                                Duration(milliseconds: 80), () => true),
+                                const Duration(milliseconds: 80), () => true),
                             builder: (c, s) => s.hasData
                                 ? WordArticles(
                                     articles: articles,
@@ -383,7 +377,7 @@ void showArticle(BuildContext context, String word, bool useDialog) {
                                     showAnotherWord: (word) =>
                                         showArticle(context, word, useDialog),
                                   )
-                                : SizedBox()))
+                                : const SizedBox()))
               ]);
         });
   } else {

@@ -39,7 +39,7 @@ class FlutterSelectionControls extends MaterialTextSelectionControls {
       this.horizontalPadding = 16,
       this.verticalPadding = 10,
       this.popupBackgroundColor})
-      : assert(toolBarItems.length > 0);
+      : assert(toolBarItems.isNotEmpty);
 
   final List<ToolBarItem> toolBarItems;
 
@@ -112,7 +112,7 @@ class FlutterSelectionControls extends MaterialTextSelectionControls {
       SelectionChangedCause.toolbar,
     );
     delegate.hideToolbar();
-    return item.onItemPressed!(
+    item.onItemPressed!(
         highlighted, value.selection.start, value.selection.end);
   }
 
@@ -225,10 +225,11 @@ class _SelectionToolBar extends StatefulWidget {
 
 class __SelectionToolBarState extends State<_SelectionToolBar> {
   void _onChangedClipboardStatus() {
-    if (mounted)
+    if (mounted) {
       setState(() {
         // Inform the widget that the value of clipboardStatus has changed.
       });
+    }
   }
 
   @override
@@ -277,14 +278,17 @@ class __SelectionToolBarState extends State<_SelectionToolBar> {
         },
         children: widget.toolBarItems.map((item) {
           if (item.itemControl != null) {
-            if (item.itemControl == ToolBarItemControl.copy && !widget.canCopy)
-              return SizedBox();
-            if (item.itemControl == ToolBarItemControl.cut && !widget.canCut)
-              return SizedBox();
+            if (item.itemControl == ToolBarItemControl.copy &&
+                !widget.canCopy) {
+              return const SizedBox();
+            }
+            if (item.itemControl == ToolBarItemControl.cut && !widget.canCut) {
+              return const SizedBox();
+            }
             if (item.itemControl == ToolBarItemControl.paste &&
-                !widget.canPaste) return SizedBox();
+                !widget.canPaste) return const SizedBox();
             if (item.itemControl == ToolBarItemControl.selectAll &&
-                !widget.canSelectAll) return SizedBox();
+                !widget.canSelectAll) return const SizedBox();
           }
 
           return itemButton(

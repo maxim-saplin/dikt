@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_interpolation_to_compose_strings
+
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
@@ -25,7 +27,7 @@ class IndexedDictionary extends HiveObject {
   String hash = '';
 
   bool isError = false;
-  bool _isLoaded = false;
+  bool isLoaded = false;
   bool isLoading = false;
   bool isBundled = false;
 
@@ -70,27 +72,16 @@ class IndexedDictionary extends HiveObject {
     return paths;
   }
 
-  bool get isLoaded => _isLoaded;
-  set isLoaded(bool v) => _isLoaded = v;
-
   bool get isMultiPart =>
       RegExp(r'(\.part\d+.dikt)').allMatches(ikvPath).isNotEmpty;
 
-  List<IkvPack> _ikvs = [];
-
-  List<IkvPack> get ikvs {
-    return _ikvs;
-  }
-
-  set ikvs(List<IkvPack> ikvs) {
-    _ikvs = ikvs;
-  }
+  List<IkvPack> ikvs = [];
 
   Future<List<IkvPack>> openIkvs([IsolatePool? pool]) async {
     var completer = Completer<List<IkvPack>>();
     var futures = <Future<IkvPack>>[];
 
-    if (!_isLoaded) {
+    if (!isLoaded) {
       isLoading = true;
       var partsPaths = getPartsPaths(ikvPath);
 
@@ -111,12 +102,12 @@ class IndexedDictionary extends HiveObject {
       }
 
       Future.wait(futures).then((value) {
-        _ikvs = value;
-        _isLoaded = true;
+        ikvs = value;
+        isLoaded = true;
         isLoading = false;
-        completer.complete(_ikvs);
+        completer.complete(ikvs);
       }).catchError((e) {
-        print('Error loaiding IkvPack.\n' + e.toString());
+        debugPrint('Error loaiding IkvPack.\n' + e.toString());
         isLoading = false;
         completer.completeError(e);
       });

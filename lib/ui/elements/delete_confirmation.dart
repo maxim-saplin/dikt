@@ -23,9 +23,9 @@ void confirmAndDelete(BuildContext context, String? name, Function onDelete) {
   showDialog(
       context: context,
       barrierColor: !kIsWeb ? Colors.transparent : Colors.black54,
-      routeSettings: RouteSettings(name: '/delete_dic'),
+      routeSettings: const RouteSettings(name: '/delete_dic'),
       builder: (context) => AlertDialog(
-            insetPadding: EdgeInsets.all(10),
+            insetPadding: const EdgeInsets.all(10),
             content: Text('Delete_dic'.i18n.fill([name!])),
             actions: [
               TextButton(

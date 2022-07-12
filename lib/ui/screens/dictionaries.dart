@@ -17,23 +17,24 @@ class _SwitchedToOnline {
 
 class Dictionaries extends HookWidget {
   static bool toastShown = false;
-  final bool _offline;
+  final bool offline;
 
-  Dictionaries(bool offline) : _offline = offline;
+  const Dictionaries({Key? key, this.offline = false}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     if (!toastShown) {
       var fToast = FToast();
-      Timer(Duration(seconds: 1), () {
+      Timer(const Duration(seconds: 1), () {
         try {
           fToast.showToast(
               child: Container(
-                child: Text('Tap and hold to move'.i18n),
                 color: Colors.grey,
-                padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                child: Text('Tap and hold to move'.i18n),
               ),
-              toastDuration: Duration(seconds: 3));
+              toastDuration: const Duration(seconds: 3));
         } catch (_) {}
       });
       toastShown = true;
@@ -41,16 +42,16 @@ class Dictionaries extends HookWidget {
 
     final switchedToOnline = useMemoized(() => _SwitchedToOnline());
 
-    if (!_offline)
+    if (!offline) {
       switchedToOnline.yes = false;
-    else {
+    } else {
       if (!switchedToOnline.yes) {
         Provider.of<OnlineDictionaryManager>(context).cleanUp();
         switchedToOnline.yes = true;
       }
     }
 
-    return new WillPopScope(
+    return WillPopScope(
         onWillPop: () async {
           var manager = Provider.of<DictionaryManager>(context, listen: false);
           if (manager.isRunning) {
@@ -59,10 +60,12 @@ class Dictionaries extends HookWidget {
           return true;
         },
         child: Stack(children: [
-          Title(),
+          const Title(),
           Padding(
-              padding: EdgeInsets.fromLTRB(12, 50, 12, 12),
-              child: _offline ? OfflineDictionaries() : OnlineDictionaries())
+              padding: const EdgeInsets.fromLTRB(12, 50, 12, 12),
+              child: offline
+                  ? const OfflineDictionaries()
+                  : const OnlineDictionaries())
         ]));
   }
 }
@@ -76,7 +79,7 @@ class Title extends StatelessWidget {
   Widget build(BuildContext context) {
     var manager = Provider.of<DictionaryManager>(context, listen: true);
     return Container(
-        padding: EdgeInsets.fromLTRB(12, 12, 12, 12),
+        padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
         height: 50.0,
         child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -86,7 +89,7 @@ class Title extends StatelessWidget {
                 'Dictionaries'.i18n,
                 style: Theme.of(context).textTheme.headline6,
               ),
-              Text(' ' + manager.totalDictionaries.toString(),
+              Text(' ${manager.totalDictionaries}',
                   style: Theme.of(context).textTheme.overline)
             ]));
   }

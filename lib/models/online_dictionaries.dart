@@ -26,8 +26,9 @@ class OnlineDictionaryManager extends ChangeNotifier with Debounce {
   }
 
   String get repoUrl {
-    if (_repoUrl.isEmpty)
+    if (_repoUrl.isEmpty) {
       _repoUrl = PreferencesSingleton.sp!.getString(repoUrlParam) ?? '';
+    }
     if (_repoUrl.isEmpty) {
       return defaultUrl;
     }

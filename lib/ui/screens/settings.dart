@@ -8,16 +8,18 @@ import '../../models/history.dart';
 import '../../models/master_dictionary.dart';
 
 class Settings extends StatelessWidget {
+  const Settings({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     var model = Provider.of<Preferences>(context);
     var history = Provider.of<History>(context);
     return SingleChildScrollView(
-        padding: EdgeInsets.fromLTRB(24, 24, 24, 16),
+        padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            Container(
+            SizedBox(
                 height: 50.0,
                 child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -36,8 +38,7 @@ class Settings extends StatelessWidget {
                                 style: Theme.of(context).textTheme.overline,
                               );
                             }
-                            ;
-                            return SizedBox();
+                            return const SizedBox();
                           })
                     ])),
             Row(
@@ -50,7 +51,7 @@ class Settings extends StatelessWidget {
                 )
               ],
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
               Text('Language'.i18n),
               OutlinedButton(
@@ -58,7 +59,7 @@ class Settings extends StatelessWidget {
                 onPressed: () => model.circleLocale(),
               )
             ]),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
               Text('Analytics'.i18n),
               OutlinedButton(
@@ -66,7 +67,7 @@ class Settings extends StatelessWidget {
                 onPressed: () => model.circleAnalyticsEnabled(),
               )
             ]),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 crossAxisAlignment: CrossAxisAlignment.start,

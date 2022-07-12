@@ -141,8 +141,8 @@ class SimpleSimpleDialog extends StatelessWidget {
       insetPadding: insetPadding,
       elevation: elevation,
       shape: shape,
-      child: dialogChild,
       alignment: alignment,
+      child: dialogChild,
     );
 
     Widget completeDialog = dialog;

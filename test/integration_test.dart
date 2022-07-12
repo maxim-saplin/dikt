@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'dart:async';
 import 'dart:io';
 
@@ -57,7 +59,7 @@ void main() {
         expect(dicManager.dictionariesBeingProcessed[0].state,
             DictionaryBeingProcessedState.error);
       }
-    }, timeout: Timeout(Duration(milliseconds: 800)));
+    }, timeout: const Timeout(Duration(milliseconds: 800)));
 
     test(
         'DictionaryManager - fine JSON and IKV dictionaries are properlly handled',

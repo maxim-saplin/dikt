@@ -13,8 +13,9 @@ class Preferences extends ChangeNotifier {
       } catch (_) {}
       if (v == null) {
         _themeMode = ThemeMode.system;
-      } else
+      } else {
         _themeMode = ThemeMode.values[v];
+      }
     }
     return _themeMode;
   }
@@ -34,12 +35,13 @@ class Preferences extends ChangeNotifier {
   }
 
   void circleThemeMode() {
-    if (themeMode == ThemeMode.dark)
+    if (themeMode == ThemeMode.dark) {
       themeMode = ThemeMode.light;
-    else if (themeMode == ThemeMode.light)
+    } else if (themeMode == ThemeMode.light) {
       themeMode = ThemeMode.system;
-    else
+    } else {
       themeMode = ThemeMode.dark;
+    }
   }
 
   static const String _localeParam = 'locale';
@@ -49,9 +51,10 @@ class Preferences extends ChangeNotifier {
     if (_locale == null) {
       var v = PreferencesSingleton.sp!.getString(_localeParam);
       if (v == null) {
-        _locale = Locale('en', '');
-      } else
+        _locale = const Locale('en', '');
+      } else {
         _locale = Locale(v, '');
+      }
     }
     return _locale;
   }
@@ -69,12 +72,13 @@ class Preferences extends ChangeNotifier {
   }
 
   void circleLocale() {
-    if (_locale!.languageCode == 'en')
-      locale = Locale('be', '');
-    else if (_locale!.languageCode == 'be')
-      locale = Locale('ru', '');
-    else
-      locale = Locale('en', '');
+    if (_locale!.languageCode == 'en') {
+      locale = const Locale('be', '');
+    } else if (_locale!.languageCode == 'be') {
+      locale = const Locale('ru', '');
+    } else {
+      locale = const Locale('en', '');
+    }
   }
 
   static const String _analyticsParam = 'analytics';
@@ -88,8 +92,9 @@ class Preferences extends ChangeNotifier {
       } catch (_) {}
       if (v == null) {
         _isAnalyticsEnabled = true;
-      } else
+      } else {
         _isAnalyticsEnabled = v;
+      }
     }
     return _isAnalyticsEnabled;
   }

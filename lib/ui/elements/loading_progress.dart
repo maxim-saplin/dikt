@@ -7,6 +7,8 @@ import '../../models/dictionary_manager.dart';
 import '../../common/i18n.dart';
 
 class DictionaryIndexingOrLoading extends StatelessWidget {
+  const DictionaryIndexingOrLoading({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     if (!fadeShown) {
@@ -15,34 +17,39 @@ class DictionaryIndexingOrLoading extends StatelessWidget {
         // case ManagerCurrentOperation.loading:
         //   return DictionaryLoading();
         case ManagerCurrentOperation.indexing:
-          return Padding(padding: EdgeInsets.all(12), child: ManagerState());
+          return const Padding(
+              padding: EdgeInsets.all(12), child: ManagerState());
         default:
-          return DictionaryLoading();
+          return const DictionaryLoading();
       }
     }
 
-    return SizedBox();
+    return const SizedBox();
   }
 }
 
 class DictionaryIndexing extends StatelessWidget {
+  const DictionaryIndexing({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     if (!fadeShown) {
       var manager = Provider.of<DictionaryManager>(context);
       return manager.currentOperation == ManagerCurrentOperation.indexing
-          ? Padding(padding: EdgeInsets.all(12), child: ManagerState())
-          : Text('');
+          ? const Padding(padding: EdgeInsets.all(12), child: ManagerState())
+          : const Text('');
     }
 
-    return SizedBox();
+    return const SizedBox();
   }
 }
 
 class DictionaryLoading extends StatelessWidget {
+  const DictionaryLoading({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
-    return Align(
+    return const Align(
         alignment: Alignment.topCenter,
         child: Padding(
             padding: EdgeInsets.fromLTRB(0, 120, 0, 0),
@@ -53,6 +60,8 @@ class DictionaryLoading extends StatelessWidget {
 bool fadeShown = false;
 
 class DictionaryLoadingNoAlign extends HookWidget {
+  const DictionaryLoadingNoAlign({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     var manager = Provider.of<DictionaryManager>(context);
@@ -63,7 +72,7 @@ class DictionaryLoadingNoAlign extends HookWidget {
             previousValue +
             (element.state == DictionaryBeingProcessedState.success ? 1 : 0));
 
-    var ui = (String time) => Stack(alignment: Alignment.centerLeft, children: [
+    Widget ui(String time) => Stack(alignment: Alignment.centerLeft, children: [
           Stack(alignment: Alignment.bottomRight, children: [
             Container(
                 width: 244,
@@ -72,27 +81,22 @@ class DictionaryLoadingNoAlign extends HookWidget {
                 child: Align(
                     alignment: Alignment.centerLeft,
                     child: Padding(
-                        padding: EdgeInsets.fromLTRB(9, 0, 0, 0),
+                        padding: const EdgeInsets.fromLTRB(9, 0, 0, 0),
                         child: Text(
-                          'Loading dictionaries: '.i18n +
-                              '\n' +
-                              count.toString() +
-                              ' / ' +
-                              manager.dictionariesBeingProcessed.length
-                                  .toString(),
-                          style: TextStyle(fontSize: 18),
+                          '${'Loading dictionaries: '.i18n}\n$count / ${manager.dictionariesBeingProcessed.length}',
+                          style: const TextStyle(fontSize: 18),
                         )))),
             Text(time, style: Theme.of(context).textTheme.overline)
           ]),
           Container(
-            child: SizedBox(),
             color: Colors.grey,
             width: 4,
             height: 48,
+            child: const SizedBox(),
           ),
         ]);
 
-    Widget fade = SizedBox();
+    Widget fade = const SizedBox();
 
     if (!manager.isRunning &&
         manager.currentOperation == ManagerCurrentOperation.idle &&
@@ -100,9 +104,9 @@ class DictionaryLoadingNoAlign extends HookWidget {
       fadeShown = true;
       var master = Provider.of<MasterDictionary>(context);
       fade = FadeTransition(
-          child: ui((master.loadTimeSec.toStringAsFixed(1))),
-          opacity: useAnimationController(duration: Duration(seconds: 3))
-            ..reverse(from: 0.6));
+          opacity: useAnimationController(duration: const Duration(seconds: 3))
+            ..reverse(from: 0.6),
+          child: ui((master.loadTimeSec.toStringAsFixed(1))));
     }
 
     return manager.currentOperation == ManagerCurrentOperation.loading &&

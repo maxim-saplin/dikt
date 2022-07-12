@@ -3,6 +3,8 @@ import 'dart:math';
 import 'dart:typed_data';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
+
 const int _blockSize = 64 * 1024;
 
 // Created this fork of darts FileStream to allow shgowing progress when reading JSON file
@@ -31,13 +33,14 @@ class FileStream extends Stream<List<int>> {
     //_openedFile = RandomAccessFile()
   }
 
-  StreamSubscription<Uint8List> listen(void onData(Uint8List event)?,
-      {Function? onError, void onDone()?, bool? cancelOnError}) {
-    _controller = new StreamController<Uint8List>(
+  @override
+  StreamSubscription<Uint8List> listen(void Function(Uint8List event)? onData,
+      {Function? onError, void Function()? onDone, bool? cancelOnError}) {
+    _controller = StreamController<Uint8List>(
         sync: true,
         onListen: _start,
         onResume: _readBlock,
-        onCancel: () {
+        onCancel: () async {
           _unsubscribed = true;
           return _closeFile();
         });
@@ -75,7 +78,7 @@ class FileStream extends Stream<List<int>> {
       if (readBytes < 0) {
         _readInProgress = false;
         if (!_unsubscribed) {
-          _controller.addError(new RangeError("Bad end position: $end"));
+          _controller.addError(RangeError("Bad end position: $end"));
           _closeFile();
           _unsubscribed = true;
         }
@@ -98,7 +101,9 @@ class FileStream extends Stream<List<int>> {
       try {
         _controller.add(block);
       } catch (err) {
-        print(err);
+        if (kDebugMode) {
+          print(err);
+        }
       }
       if (_atEnd) {
         _closeFile();
@@ -114,7 +119,7 @@ class FileStream extends Stream<List<int>> {
 
   void _start() {
     if (_position < 0) {
-      _controller.addError(new RangeError("Bad start position: $_position"));
+      _controller.addError(RangeError("Bad start position: $_position"));
       _controller.close();
       _closeCompleter.complete();
       return;

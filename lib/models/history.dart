@@ -26,7 +26,9 @@ class History extends ChangeNotifier {
 
   void addWord(String word) {
     word = word.toLowerCase();
-    if (_words.contains(word)) _words.remove(word);
+    if (_words.contains(word)) {
+      _words.remove(word);
+    }
 
     if (_words.length > maxWords) {
       _words.removeAt(0);
@@ -44,6 +46,8 @@ class History extends ChangeNotifier {
 
   void removeWord(String word) {
     word = word.toLowerCase();
-    if (_words.contains(word)) _words.remove(word);
+    if (_words.contains(word)) {
+      _words.remove(word);
+    }
   }
 }

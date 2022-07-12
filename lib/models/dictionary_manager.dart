@@ -18,12 +18,13 @@ import 'indexed_dictionary.dart';
 import '../common/file_stream.dart';
 
 String nameToIkvPath(String name) {
-  var fileName = 'dik_' + name.replaceAll(' ', '_').toLowerCase();
+  var fileName = 'dik_${name.replaceAll(' ', '_').toLowerCase()}';
 
-  if (fileName.length > 127)
+  if (fileName.length > 127) {
     fileName = fileName.substring(0, min(127, fileName.length));
+  }
 
-  return DictionaryManager.homePath + '/' + fileName + '.dikt';
+  return '${DictionaryManager.homePath}/$fileName.dikt';
 }
 
 class BundledBinaryDictionary {
@@ -52,17 +53,17 @@ class DictionaryBeingProcessed {
 
   DictionaryBeingProcessed.bundledBinary(
       BundledBinaryDictionary this.bundledBinaryDictionary)
-      : this.name = bundledBinaryDictionary.name,
-        this.file = null,
-        this.indexedDictionary = null;
+      : name = bundledBinaryDictionary.name,
+        file = null,
+        indexedDictionary = null;
 
   DictionaryBeingProcessed.indexed(IndexedDictionary this.indexedDictionary)
-      : this.name = indexedDictionary.name,
-        this.file = null,
-        this.bundledBinaryDictionary = null;
+      : name = indexedDictionary.name,
+        file = null,
+        bundledBinaryDictionary = null;
 
   DictionaryBeingProcessed.file(PlatformFile this.file)
-      : this.name = (file.path ?? file.name)
+      : name = (file.path ?? file.name)
             .split('/')
             .last
             .split('\\')
@@ -70,8 +71,8 @@ class DictionaryBeingProcessed {
             .replaceFirst('.json', '')
             .replaceFirst('.dikt', '')
             .replaceFirst('.mdikt', ''),
-        this.indexedDictionary = null,
-        this.bundledBinaryDictionary = null;
+        indexedDictionary = null,
+        bundledBinaryDictionary = null;
 
   DictionaryBeingProcessedState _state = DictionaryBeingProcessedState.pending;
 
@@ -112,9 +113,11 @@ class DictionaryManager extends ChangeNotifier with Debounce {
     if (testPath == null) {
       homePath =
           kIsWeb ? '/webhome' : (await getApplicationDocumentsDirectory()).path;
-      if (!kIsWeb && Platform.isWindows)
+      if (!kIsWeb && Platform.isWindows) {
         homePath += '\\dikt';
-      else if (!kIsWeb && Platform.isLinux) homePath += '/dikt';
+      } else if (!kIsWeb && Platform.isLinux) {
+        homePath += '/dikt';
+      }
       Hive.init(homePath);
       try {
         var oldHive = Directory(homePath)
@@ -124,10 +127,11 @@ class DictionaryManager extends ChangeNotifier with Debounce {
                 !f.path.contains(dictionairesBoxName) &&
                 !f.path.contains('.lock'))
             .toList();
-        if (oldHive.length > 0)
-          oldHive.forEach((f) {
+        if (oldHive.isNotEmpty) {
+          for (var f in oldHive) {
             f.deleteSync();
-          });
+          }
+        }
       } catch (_) {}
     } else {
       Hive.init(testPath); // autotests
@@ -231,7 +235,7 @@ class DictionaryManager extends ChangeNotifier with Debounce {
         _dictionaries.deleteAt(i);
       }
     } catch (e) {
-      print('Error cleaning junk dictionaries\n' + e.toString());
+      debugPrint('Error cleaning junk dictionaries\n$e');
     }
   }
 
@@ -240,12 +244,13 @@ class DictionaryManager extends ChangeNotifier with Debounce {
 
     for (var i = 0; i < _dictionaries.length; i++) {
       var d = _dictionaries.getAt(i)!;
-      if (d.isReadyToUse && d.isEnabled)
+      if (d.isReadyToUse && d.isEnabled) {
         _dictionariesBeingProcessed
             .add(DictionaryBeingProcessed.indexed(_dictionaries.getAt(i)!));
+      }
     }
 
-    if (_dictionariesBeingProcessed.length > 0) {
+    if (_dictionariesBeingProcessed.isNotEmpty) {
       notifyListeners();
       List<Future<List<IkvPack>>> futures = [];
 
@@ -263,10 +268,8 @@ class DictionaryManager extends ChangeNotifier with Debounce {
           if (!_partiallyLoaded!.isCompleted) _partiallyLoaded!.complete();
           notifyListeners();
         }).catchError((err) {
-          print("Error loading IkvPack: " +
-              i.indexedDictionary!.ikvPath +
-              "\n" +
-              err.toString());
+          debugPrint(
+              "Error loading IkvPack: ${i.indexedDictionary!.ikvPath}\n$err");
 
           i.state = DictionaryBeingProcessedState.error;
           i.indexedDictionary!.isError = true;
@@ -289,8 +292,9 @@ class DictionaryManager extends ChangeNotifier with Debounce {
       if (d != null && d.ikvPath == ikvPath) return i;
     }
 
-    if (throwIfNotFound)
+    if (throwIfNotFound) {
       throw 'Dictionary with path $ikvPath not found in Hive DB';
+    }
 
     return -1;
   }
@@ -313,7 +317,7 @@ class DictionaryManager extends ChangeNotifier with Debounce {
       }
     }
 
-    if (_dictionariesBeingProcessed.length > 0) {
+    if (_dictionariesBeingProcessed.isNotEmpty) {
       _currentOperation = ManagerCurrentOperation.indexing;
       await _indexBundledDictionaries(_dictionariesBeingProcessed);
     }
@@ -330,7 +334,7 @@ class DictionaryManager extends ChangeNotifier with Debounce {
       });
     }
 
-    print('Extracing bundled dictionaries: ' + DateTime.now().toString());
+    debugPrint('Extracing bundled dictionaries: ${DateTime.now()}');
     await _runIndexer(bds, getIndexer);
   }
 
@@ -338,8 +342,9 @@ class DictionaryManager extends ChangeNotifier with Debounce {
 
   Future _runIndexer(
       List<DictionaryBeingProcessed> dictionariesProcessed,
-      Indexer getIndexer(
-          DictionaryBeingProcessed dictionaryProcessed, String? ikvPath),
+      Indexer Function(
+              DictionaryBeingProcessed dictionaryProcessed, String? ikvPath)
+          getIndexer,
       {int startOrderAt = 0,
       Completer? finished}) async {
     for (var i = 0; i < dictionariesProcessed.length; i++) {
@@ -351,7 +356,7 @@ class DictionaryManager extends ChangeNotifier with Debounce {
       }
       d.name = dictionariesProcessed[i].name;
 
-      print('  /Dictionary: ' + d.name);
+      debugPrint('  /Dictionary: ${d.name}');
 
       dictionariesProcessed[i].state = DictionaryBeingProcessedState.inprogress;
       notifyListeners();
@@ -367,7 +372,7 @@ class DictionaryManager extends ChangeNotifier with Debounce {
         var ikvs = await _curIndexer!.run();
         if (ikvs.length > 1) {
           d.ikvPath = d.ikvPath.substring(0, d.ikvPath.length - 5);
-          d.ikvPath = d.ikvPath + '.part${ikvs.length}.dikt';
+          d.ikvPath = '${d.ikvPath}.part${ikvs.length}.dikt';
         }
 
         if (!_curIndexer!.canceled) {
@@ -378,14 +383,15 @@ class DictionaryManager extends ChangeNotifier with Debounce {
           d.ikvs = ikvs;
           d.save();
         } else if (!d.isBundled) {
-          print("Canceling box indexing: " + d.ikvPath);
+          debugPrint("Canceling box indexing: ${d.ikvPath}");
           d.delete();
           IkvPack.delete(d.ikvPath);
         }
         dictionariesProcessed[i].state = DictionaryBeingProcessedState.success;
         notifyListeners();
-        if (i == dictionariesProcessed.length - 1 && finished != null)
+        if (i == dictionariesProcessed.length - 1 && finished != null) {
           finished.complete();
+        }
       } catch (err) {
         d.isError = true;
 
@@ -396,11 +402,12 @@ class DictionaryManager extends ChangeNotifier with Debounce {
           if (i > -1) _dictionaries.delete(i);
         }
 
-        print("Error indexing IkvPack: " + d.ikvPath + "\n" + err.toString());
+        debugPrint("Error indexing IkvPack: ${d.ikvPath}\n$err");
         dictionariesProcessed[i].state = DictionaryBeingProcessedState.error;
         notifyListeners();
-        if (i == dictionariesProcessed.length - 1 && finished != null)
+        if (i == dictionariesProcessed.length - 1 && finished != null) {
           finished.completeError(err);
+        }
       }
     }
   }
@@ -414,7 +421,7 @@ class DictionaryManager extends ChangeNotifier with Debounce {
     _currentOperation = ManagerCurrentOperation.preparing;
     notifyListeners();
 
-    print('Processing JSON/DIKT files: ' + DateTime.now().toString());
+    debugPrint('Processing JSON/DIKT files: ${DateTime.now()}');
 
     for (var f in files) {
       _dictionariesBeingProcessed.add(DictionaryBeingProcessed.file(f));
@@ -424,10 +431,10 @@ class DictionaryManager extends ChangeNotifier with Debounce {
 
     Indexer getIndexer(
         DictionaryBeingProcessed dictionaryProcessed, String? ikvPath) {
-      var progress = (progress) {
+      void progress(progress) {
         dictionaryProcessed.progressPercent = progress;
         notifyListeners();
-      };
+      }
 
       return dictionaryProcessed.file!.name.endsWith('.dikt') ||
               dictionaryProcessed.file!.name.endsWith('.mdikt')
@@ -435,8 +442,8 @@ class DictionaryManager extends ChangeNotifier with Debounce {
           : JsonFileIndexer(dictionaryProcessed.file, ikvPath, progress);
     }
 
-    print('Indexing JSON/DIKT files and packing to IkvPack: ' +
-        DateTime.now().toString());
+    debugPrint(
+        'Indexing JSON/DIKT files and packing to IkvPack: ${DateTime.now()}');
     await _runIndexer(_dictionariesBeingProcessed, getIndexer,
         startOrderAt: 0 - files.length,
         finished: completer); // put dictionaries at the top
@@ -452,6 +459,7 @@ class DictionaryManager extends ChangeNotifier with Debounce {
 
   bool _canceled = false;
 
+  @override
   void cancel() {
     _curIndexer?.cancel();
     _canceled = true;
@@ -486,15 +494,17 @@ class DictionaryManager extends ChangeNotifier with Debounce {
   void reorder(int oldIndex, int newIndex) {
     for (var i = 0; i < _dictionariesReadyList.length; i++) {
       if (newIndex < oldIndex) {
-        if (i < newIndex)
+        if (i < newIndex) {
           _dictionariesReadyList[i].order--;
-        else
+        } else {
           _dictionariesReadyList[i].order++;
+        }
       } else {
-        if (i <= newIndex)
+        if (i <= newIndex) {
           _dictionariesReadyList[i].order--;
-        else
+        } else {
           _dictionariesReadyList[i].order++;
+        }
       }
     }
 
@@ -525,7 +535,9 @@ class DictionaryManager extends ChangeNotifier with Debounce {
           IkvPack.delete(p);
         }
       }
-    } catch (e) {}
+    } catch (e) {
+      debugPrint('Error while deleting dictionary $ikvPath, $e');
+    }
     if (bundledBinaryDictionaries.any((e) => e.ikvPath == d.ikvPath)) {
       d.isReadyToUse = false;
       d.save();
@@ -616,7 +628,7 @@ class DictionaryManager extends ChangeNotifier with Debounce {
       keysCount += d.ikvs.fold(0, (prev, curr) => prev + curr.length);
     }
     sw.stop();
-    print('Non-Unique keys ${keysCount} [${sw.elapsedMilliseconds}ms]');
+    debugPrint('Non-Unique keys $keysCount [${sw.elapsedMilliseconds}ms]');
 
     List<String?> keys = [];
 
@@ -638,8 +650,8 @@ class DictionaryManager extends ChangeNotifier with Debounce {
     }
     sw.stop();
 
-    print(
-        'Size in bytes of non-unique keys ${bytes}, total characters ${totalLength}, bytes/char ${(bytes / totalLength).toStringAsFixed(2)} [${sw.elapsedMilliseconds}ms]');
+    debugPrint(
+        'Size in bytes of non-unique keys $bytes, total characters $totalLength, bytes/char ${(bytes / totalLength).toStringAsFixed(2)} [${sw.elapsedMilliseconds}ms]');
 
     sw.start();
     sw.reset();
@@ -653,17 +665,18 @@ class DictionaryManager extends ChangeNotifier with Debounce {
     }
     keys.sort();
     var key = keys[0];
-    for (var i = 1; i < keys.length; i++)
+    for (var i = 1; i < keys.length; i++) {
       if (keys[i] == key) {
         keys[i] = null;
       } else {
         key = keys[i];
       }
+    }
 
     keys = keys.where((k) => k != null).toList();
 
     sw.stop();
-    print('Unique keys ${keys.length} [${sw.elapsedMilliseconds}ms]');
+    debugPrint('Unique keys ${keys.length} [${sw.elapsedMilliseconds}ms]');
 
     sw.reset();
     sw.start();
@@ -679,8 +692,8 @@ class DictionaryManager extends ChangeNotifier with Debounce {
     }
     sw.stop();
 
-    print(
-        'Size in bytes of unique keys ${bytes}, total characters ${totalLength}, bytes/char ${(bytes / totalLength).toStringAsFixed(2)} [${sw.elapsedMilliseconds}ms]');
+    debugPrint(
+        'Size in bytes of unique keys $bytes, total characters $totalLength, bytes/char ${(bytes / totalLength).toStringAsFixed(2)} [${sw.elapsedMilliseconds}ms]');
   }
 }
 
@@ -709,7 +722,7 @@ abstract class Indexer {
         File(p).delete();
       }
     } catch (e) {
-      print('DiktFileIndexer, error deleting files\n $e');
+      debugPrint('DiktFileIndexer, error deleting files\n $e');
     }
   }
 }
@@ -731,16 +744,16 @@ class DiktFileIndexer extends Indexer {
   }
 
   // TODO test cleanup of file when dictionary indexing faling midway
+  @override
   Future<List<IkvPack>> run() async {
-    var sourceFilePath = this.file!.path ?? this.file!.name;
+    var sourceFilePath = file!.path ?? file!.name;
     var multipart = sourceFilePath.toLowerCase().endsWith('.mdikt');
-    print(sourceFilePath + '\n');
+    debugPrint('$sourceFilePath\n');
 
     var sw = Stopwatch();
 
-    print(
-        'Saving DIKT binary dictionary (${multipart ? 'multi-part' : 'single-part'}): ' +
-            sourceFilePath);
+    debugPrint(
+        'Saving DIKT binary dictionary (${multipart ? 'multi-part' : 'single-part'}): $sourceFilePath');
     sw.start();
     updateProgress(3);
     if (_canceled) {
@@ -821,7 +834,7 @@ class DiktFileIndexer extends Indexer {
         }
       }
 
-      print('Indexing done(ms): ' + sw.elapsedMilliseconds.toString());
+      debugPrint('Indexing done(ms): ${sw.elapsedMilliseconds}');
     } catch (err) {
       _deleteFiles(cleanupPaths);
       runCompleter.completeError(err);
@@ -839,6 +852,7 @@ class JsonFileIndexer extends Indexer {
 
   JsonFileIndexer(this.file, this.ikvPath, this.updateProgress);
 
+  @override
   Future<List<IkvPack>> run() async {
     return kIsWeb ? _runWeb() : _runVm();
   }
@@ -853,7 +867,7 @@ class JsonFileIndexer extends Indexer {
 
   // TODO, add cleanup of canceled/errored dictionaries, remove data from Indexed DB
   Future<List<IkvPack>> _runWeb() async {
-    print(file!.path ?? file!.name + '\n');
+    debugPrint(file!.path ?? '${file!.name}\n');
     // Chunked json decoding isn't available in web
     // var inSink = converterJson.startChunkedConversion(outSink);
 
@@ -871,7 +885,7 @@ class JsonFileIndexer extends Indexer {
       // Let UI pick up the update from microtask que
       await Future(() {
         s = utf8.decode(file!.bytes!);
-        print('JSON read (ms): ' + sw.elapsedMilliseconds.toString());
+        debugPrint('JSON read (ms): ${sw.elapsedMilliseconds}');
       });
 
       if (_canceled) {
@@ -885,7 +899,7 @@ class JsonFileIndexer extends Indexer {
       await Future(() {
         Map mm = json.decode(s);
         m = mm.cast<String, String>();
-        print('JSON decoded (ms): ' + sw.elapsedMilliseconds.toString());
+        debugPrint('JSON decoded (ms): ${sw.elapsedMilliseconds}');
       });
 
       var ikv = await IkvPack.buildFromMapAsync(m, true, (progress) async {
@@ -915,7 +929,7 @@ class JsonFileIndexer extends Indexer {
       ikv = await IkvPack.load(ikvPath!);
       updateProgress(100);
 
-      print('Indexing done(ms): ' + sw.elapsedMilliseconds.toString());
+      debugPrint('Indexing done(ms): ${sw.elapsedMilliseconds}');
       runCompleter.complete([ikv]);
     } catch (err) {
       _canceled = true;
@@ -927,14 +941,14 @@ class JsonFileIndexer extends Indexer {
 
   Future<List<IkvPack>> _runVm() async {
     var path = this.file!.path ?? this.file!.name;
-    print(path + '\n');
+    debugPrint('$path\n');
     var file = File(path);
     var s = FileStream(path, null, null);
     var length = await file.length();
 
     var sw = Stopwatch();
 
-    var converterJson = JsonDecoder();
+    var converterJson = const JsonDecoder();
 
     // Dart doesn't support chunked JSON decoding, entire map of decoded values
     // comes in as a single chunk
@@ -956,7 +970,7 @@ class JsonFileIndexer extends Indexer {
         updateProgress(100);
         sw.stop();
         runCompleter.complete([ikv]);
-        print('ELAPSED (ms): ' + sw.elapsedMilliseconds.toString());
+        debugPrint('ELAPSED (ms): ${sw.elapsedMilliseconds}');
       } catch (err) {
         _canceled = true;
         _deleteFiles([ikvPath!]);
@@ -1019,8 +1033,9 @@ class BundledIndexer extends Indexer {
     });
   }
 
+  @override
   Future<List<IkvPack>> run() async {
-    print('Indexing bundled bianry dictionary: ' + this.assetName);
+    debugPrint('Indexing bundled bianry dictionary: $assetName');
     var sw = Stopwatch();
     sw.start();
     updateProgress(0);
@@ -1052,7 +1067,7 @@ class BundledIndexer extends Indexer {
         runCompleter.complete([]);
       }
 
-      print('Indexing done(ms): ' + sw.elapsedMilliseconds.toString());
+      debugPrint('Indexing done(ms): ${sw.elapsedMilliseconds}');
     } catch (err) {
       runCompleter.completeError(err);
     }

@@ -20,26 +20,28 @@ import '../../models/indexed_dictionary.dart';
 import '../elements/delete_confirmation.dart';
 
 class OfflineDictionaries extends StatefulWidget {
+  const OfflineDictionaries({Key? key}) : super(key: key);
+
   @override
-  _OfflineDictionariesState createState() => _OfflineDictionariesState();
+  OfflineDictionariesState createState() => OfflineDictionariesState();
 }
 
-class _OfflineDictionariesState extends State<OfflineDictionaries> {
+class OfflineDictionariesState extends State<OfflineDictionaries> {
   int? _draggingIndex;
   bool _cancelReorder = false;
 
   @override
   Widget build(BuildContext context) {
-    ScrollController _scrollController =
+    ScrollController scrollController =
         PrimaryScrollController.of(context) ?? ScrollController();
 
     var manager = Provider.of<DictionaryManager>(context);
     var dictionaries = manager.dictionariesAll;
 
     void _onReorder(int oldIndex, int newIndex) {
-      if (!_cancelReorder)
-        manager.reorder(
-            oldIndex, newIndex); // if reorder happens due to moving to Delete
+      if (!_cancelReorder) {
+        manager.reorder(oldIndex, newIndex);
+      } // if reorder happens due to moving to Delete
       setState(() {
         _draggingIndex = null;
       });
@@ -101,7 +103,7 @@ class _OfflineDictionariesState extends State<OfflineDictionaries> {
 
       manager.gettingFileList = false;
 
-      if (files != null && files.length > 0) {
+      if (files != null && files.isNotEmpty) {
         manager
             .indexAndLoadJsonOrDiktFiles(files)
             .whenComplete(() =>
@@ -110,13 +112,14 @@ class _OfflineDictionariesState extends State<OfflineDictionaries> {
           showDialog(
               context: context,
               barrierColor: !kIsWeb ? Colors.transparent : Colors.black54,
-              routeSettings: RouteSettings(name: '/dic_import_error'),
+              routeSettings: const RouteSettings(name: '/dic_import_error'),
               builder: (context) => AlertDialog(
                     title: Text('There\'re issues...'.i18n),
-                    content: SingleChildScrollView(child: ManagerState(true)),
+                    content: const SingleChildScrollView(
+                        child: ManagerState(onlyErrors: true)),
                     actions: [
                       TextButton(
-                          child: Text('OK'),
+                          child: const Text('OK'),
                           onPressed: () {
                             Navigator.of(context).pop();
                           }),
@@ -126,7 +129,7 @@ class _OfflineDictionariesState extends State<OfflineDictionaries> {
       }
     }
 
-    return Container(
+    return SizedBox(
         width: 450,
         child: Stack(alignment: AlignmentDirectional.bottomCenter, children: [
           DragTarget<int>(onAccept: (index) {
@@ -139,9 +142,9 @@ class _OfflineDictionariesState extends State<OfflineDictionaries> {
             return true;
           }, builder: (context, List<int?> candidateData, rejectedData) {
             return Container(
-              padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
+              padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
               height: 40,
-              color: candidateData.length > 0
+              color: candidateData.isNotEmpty
                   ? Colors.red.withAlpha(128)
                   : Colors.transparent,
               child: _draggingIndex == null
@@ -156,28 +159,28 @@ class _OfflineDictionariesState extends State<OfflineDictionaries> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                               OutlinedButton(
+                                onPressed: _importJsonOrDikt,
                                 child: SizedBox(
-                                  child: Center(child: Text('+ FILE'.i18n)),
                                   width: 85,
                                   height: 30,
+                                  child: Center(child: Text('+ FILE'.i18n)),
                                 ),
-                                onPressed: _importJsonOrDikt,
                               ),
-                              SizedBox(
+                              const SizedBox(
                                 width: 10,
                               ),
                               kReleaseMode
-                                  ? SizedBox()
+                                  ? const SizedBox()
                                   : OutlinedButton(
                                       style: ButtonStyle(
                                           backgroundColor:
                                               MaterialStateProperty.all<Color>(
                                                   Colors.red.withAlpha(128))),
                                       child: SizedBox(
-                                        child: Center(
-                                            child: Text('Online →'.i18n)),
                                         width: 85,
                                         height: 30,
+                                        child: Center(
+                                            child: Text('Online →'.i18n)),
                                       ),
                                       onPressed: () async {
                                         Routes.showOnlineDictionaries(context);
@@ -187,14 +190,14 @@ class _OfflineDictionariesState extends State<OfflineDictionaries> {
             );
           }),
           manager.isRunning
-              ? Padding(
+              ? const Padding(
                   padding: EdgeInsets.fromLTRB(0, 0, 0, 48),
                   child: SingleChildScrollView(child: ManagerState()),
                 )
               : Padding(
-                  padding: EdgeInsets.fromLTRB(0, 0, 0, 40),
+                  padding: const EdgeInsets.fromLTRB(0, 0, 0, 40),
                   child: CustomScrollView(
-                    controller: _scrollController,
+                    controller: scrollController,
                     shrinkWrap: true,
                     slivers: <Widget>[
                       ReorderableSliverList(
@@ -215,7 +218,7 @@ class _OfflineDictionariesState extends State<OfflineDictionaries> {
                   child: ColoredBox(
                       color: Theme.of(context).cardColor.withAlpha(196),
                       child: Center(child: Text('Loading...'.i18n))))
-              : SizedBox()
+              : const SizedBox()
         ]));
   }
 }
@@ -226,7 +229,7 @@ class _LoadAndEnabledButton extends HookWidget {
   final IndexedDictionary dictionary;
   final DictionaryManager manager;
 
-  _LoadAndEnabledButton(this.dictionary, this.manager);
+  const _LoadAndEnabledButton(this.dictionary, this.manager);
 
   void _swithcEnabled(BuildContext context) {
     manager.switchIsEnabled(dictionary);
@@ -241,7 +244,7 @@ class _LoadAndEnabledButton extends HookWidget {
     if (state.value == _TileState.loaded) {
       return TextButton(
           child: Padding(
-              padding: EdgeInsets.all(3),
+              padding: const EdgeInsets.all(3),
               child: Text('↓', style: Theme.of(context).textTheme.caption)),
           onPressed: () {
             if (dictionary.isError) return;
@@ -250,18 +253,18 @@ class _LoadAndEnabledButton extends HookWidget {
     } else if (state.value == _TileState.loading) {
       return Center(
           child: SizedBox(
-              child: FadeTransition(
-                  child: CircularProgressIndicator(strokeWidth: 5),
-                  opacity:
-                      useAnimationController(duration: Duration(seconds: 2))
-                        ..forward(from: 0.0)),
               width: 22,
-              height: 22));
+              height: 22,
+              child: FadeTransition(
+                  opacity: useAnimationController(
+                      duration: const Duration(seconds: 2))
+                    ..forward(from: 0.0),
+                  child: const CircularProgressIndicator(strokeWidth: 5))));
     }
 
     return TextButton(
         child: Padding(
-            padding: EdgeInsets.all(3),
+            padding: const EdgeInsets.all(3),
             child: Text('↓', style: Theme.of(context).textTheme.caption)),
         onPressed: () {
           dictionary.openIkvs(pool).then((value) {
@@ -289,13 +292,13 @@ class OfflineDictionaryTile extends StatelessWidget {
             mainAxisSize: MainAxisSize.max,
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              Container(
+              SizedBox(
                   width: 30,
                   height: 50,
                   child: !dictionary.isReadyToUse && dictionary.isBundled
                       ? TextButton(
                           child: Padding(
-                              padding: EdgeInsets.all(3),
+                              padding: const EdgeInsets.all(3),
                               child: Text('↻',
                                   style: Theme.of(context).textTheme.caption)),
                           onPressed: () {
@@ -306,7 +309,7 @@ class OfflineDictionaryTile extends StatelessWidget {
                       : (dictionary.isEnabled
                           ? TextButton(
                               child: Padding(
-                                  padding: EdgeInsets.all(3),
+                                  padding: const EdgeInsets.all(3),
                                   child: Text('↘',
                                       style:
                                           Theme.of(context).textTheme.caption)),
@@ -320,7 +323,7 @@ class OfflineDictionaryTile extends StatelessWidget {
                           : _LoadAndEnabledButton(dictionary, manager))),
               Flexible(
                   child: Container(
-                      padding: EdgeInsets.fromLTRB(6, 0, 0, 0),
+                      padding: const EdgeInsets.fromLTRB(6, 0, 0, 0),
                       height: 55,
                       child: Column(
                           mainAxisSize: MainAxisSize.min,
@@ -331,7 +334,7 @@ class OfflineDictionaryTile extends StatelessWidget {
                                 overflow: TextOverflow.ellipsis,
                                 style: Theme.of(context).textTheme.caption),
                             dictionary.isError
-                                ? Text('error',
+                                ? const Text('error',
                                     style: TextStyle(color: Colors.red))
                                 : FutureBuilder(
                                     future:
@@ -347,24 +350,14 @@ class OfflineDictionaryTile extends StatelessWidget {
                                         }); // let Lookup update (e.g. no history and number of entries shown) if a new dictionary is imported
                                         var info = snapshot.data as IkvInfo;
                                         return Text(
-                                          info.count.toString() +
-                                              ' ' +
-                                              'entries'.i18n +
-                                              (!kIsWeb
-                                                  ? ', ' +
-                                                      (info.sizeBytes /
-                                                              1024 /
-                                                              1024)
-                                                          .toStringAsFixed(1) +
-                                                      "MB"
-                                                  : ''),
+                                          '${info.count} ${'entries'.i18n}${!kIsWeb ? ', ${(info.sizeBytes / 1024 / 1024).toStringAsFixed(1)}MB' : ''}',
                                           overflow: TextOverflow.ellipsis,
                                           style: Theme.of(context)
                                               .textTheme
                                               .subtitle2,
                                         );
                                       } else {
-                                        return Text('...');
+                                        return const Text('...');
                                       }
                                     })
                           ]))),

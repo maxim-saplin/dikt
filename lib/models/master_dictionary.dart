@@ -23,16 +23,14 @@ class MasterDictionary extends ChangeNotifier {
   double get loadTimeSec => _loadTimeSec;
 
   void init() {
-    print('Master dictionary init started: ' + DateTime.now().toString());
+    debugPrint('Master dictionary init started: ${DateTime.now()}');
     var sw = Stopwatch()..start();
     dictionaryManager.indexAndLoadDictionaries().then((value) {
       isFullyLoaded = true;
       isPartiallyLoaded = true;
       sw.stop();
-      print('Master dictionary init completed: ' +
-          DateTime.now().toString() +
-          ' DURATION(MS): ' +
-          sw.elapsedMilliseconds.toString());
+      debugPrint(
+          'Master dictionary init completed: ${DateTime.now()} DURATION(MS): ${sw.elapsedMilliseconds}');
       _loadTimeSec = sw.elapsed.inMilliseconds / 1000;
     });
     dictionaryManager.partiallyLoaded!
@@ -47,10 +45,11 @@ class MasterDictionary extends ChangeNotifier {
 
   int get totalEntries {
     var c = 0;
-    for (var i in dictionaryManager.dictionariesEnabled)
+    for (var i in dictionaryManager.dictionariesEnabled) {
       for (var ikv in i.ikvs) {
         c += ikv.length;
       }
+    }
     return c;
   }
 
@@ -128,7 +127,7 @@ class MasterDictionary extends ChangeNotifier {
           var ss = (await ikv.getValues(word)).fold<String>(
               '',
               (previousValue, element) => previousValue.isNotEmpty
-                  ? previousValue + '</br></br>' + element
+                  ? '$previousValue</br></br>$element'
                   : element);
 
           if (s.isNotEmpty && ss.isNotEmpty) {
@@ -138,10 +137,10 @@ class MasterDictionary extends ChangeNotifier {
           s += ss;
         }
 
-        if (!s.isEmpty) articles.add(Article(word, s, d.name));
+        if (s.isNotEmpty) articles.add(Article(word, s, d.name));
       } catch (e) {
-        print('Cant decode value for ${word}, dictionary ${d.ikvPath}');
-        print(e);
+        debugPrint('Cant decode value for $word, dictionary ${d.ikvPath}');
+        debugPrint(e.toString());
       }
     }
 
@@ -188,20 +187,21 @@ class IsolateParams {
 }
 
 Map<String, Uint8List>? isolateBody(IsolateParams params) {
-  print('  JSON loading IN ISOLATE, file ' + params.file.toString());
+  debugPrint('  JSON loading IN ISOLATE, file ${params.file}');
   //WidgetsFlutterBinding.ensureInitialized();
   var i = 0;
-  var zlib = ZLibEncoder();
+  var zlib = const ZLibEncoder();
   var words = jsonDecode(params.assetValue, reviver: (k, v) {
-    if (i % 1000 == 0) print('  JSON decoded objects: ' + i.toString());
+    if (i % 1000 == 0) debugPrint('  JSON decoded objects: $i');
     i++;
     if (v is String) {
       var bytes = utf8.encode(v);
       var zlibBytes = zlib.encode(bytes);
       var b = Uint8List.fromList(zlibBytes);
       return b;
-    } else
+    } else {
       return v;
+    }
   });
   return words.cast<String, Uint8List>();
 }

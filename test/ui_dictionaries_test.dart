@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'dart:io';
 
 import 'package:dikt/common/isolate_pool.dart';
@@ -73,7 +75,7 @@ void main() {
       await tester.enterText(field, '');
 
       //await tester.pumpAndSettle();
-      await tester.pumpAndSettle(Duration(milliseconds: 800));
+      await tester.pumpAndSettle(const Duration(milliseconds: 800));
 
       // peek into what text is visible
       // var d = find.byType(OnlineDictionaries);
@@ -103,7 +105,7 @@ void main() {
       expect(field, findsOneWidget);
       await tester.enterText(
           find.byType(TextFormField), FakeOnlineRepo.secondUrl);
-      await tester.pumpAndSettle(Duration(milliseconds: 800));
+      await tester.pumpAndSettle(const Duration(milliseconds: 800));
 
       expect(find.byType(OnlineDictionaryTile), findsNWidgets(5));
     });
@@ -154,13 +156,13 @@ void main() {
       var t = d.byChildText('+').hitTestable();
       expect(t, findsOneWidget);
       await tester.tap(t);
-      await tester.pump(Duration(milliseconds: 10));
+      await tester.pump(const Duration(milliseconds: 10));
 
       var d7 = find.byType(OnlineDictionaryTile).at(6);
       var t7 = d7.byChildText('+').hitTestable();
       expect(t7, findsOneWidget);
       await tester.tap(t7);
-      await tester.pump(Duration(milliseconds: 10));
+      await tester.pump(const Duration(milliseconds: 10));
 
       expect(d.byChildType(LinearProgressIndicator), findsOneWidget);
       expect(d.byChildText('■'), findsOneWidget);
@@ -223,7 +225,7 @@ void main() {
       await tester.tap(t);
       await tester.pump(); // Downloading...
       expect(d.byChildText('Downloading'), findsOneWidget);
-      await tester.pump(Duration(seconds: 3)); // Indexing...
+      await tester.pump(const Duration(seconds: 3)); // Indexing...
 
       expect(d.byChildText('Indexing'), findsOneWidget);
       await tester.pumpAndSettle();
@@ -240,7 +242,7 @@ void main() {
 
       expect(t, findsOneWidget);
       await tester.tap(t);
-      await tester.pump(Duration(milliseconds: 100)); // Downloading...
+      await tester.pump(const Duration(milliseconds: 100)); // Downloading...
       // peek into what text is visible
       //var w = tester.widgetList(d.byChildType(Text)).toList();
 
@@ -285,10 +287,10 @@ void main() {
 
       expect(t, findsOneWidget);
       await tester.tap(t);
-      await tester.pump(Duration(milliseconds: 100)); // Downloading...
+      await tester.pump(const Duration(milliseconds: 100)); // Downloading...
 
       expect(d.byChildText('Downloading'), findsOneWidget);
-      await tester.pump(Duration(seconds: 3)); // Indexing...
+      await tester.pump(const Duration(seconds: 3)); // Indexing...
       expect(d.byChildText('Indexing'), findsOneWidget);
 
       t = d.byChildText('■').hitTestable();
@@ -315,7 +317,7 @@ void main() {
       var field = find.byType(TextFormField);
       expect(field, findsOneWidget);
       await tester.enterText(find.byType(TextFormField), 'htts://');
-      await tester.pumpAndSettle(Duration(milliseconds: 800));
+      await tester.pumpAndSettle(const Duration(milliseconds: 800));
 
       expect(find.text('Invalid URL'), findsOneWidget);
     });
@@ -327,7 +329,7 @@ void main() {
       var field = find.byType(TextFormField);
       expect(field, findsOneWidget);
       await tester.enterText(find.byType(TextFormField), 'https://ipfs.com');
-      await tester.pumpAndSettle(Duration(milliseconds: 800));
+      await tester.pumpAndSettle(const Duration(milliseconds: 800));
 
       expect(find.text('Repository not available'), findsOneWidget);
     });
@@ -370,7 +372,7 @@ void main() {
         expect(d.byChildText('↘'), findsOneWidget);
 
         // Let isolates finish work
-        await Future.delayed(Duration(
+        await Future.delayed(const Duration(
             milliseconds: 100)); // !! Might need to increase if test fails
         await tester.pumpAndSettle();
 
@@ -379,7 +381,7 @@ void main() {
         expect(d.byChildText('entries'), findsOneWidget);
 
         // Adding this await to allow complete another timer and avoid exception in test logs
-        await Future.delayed(Duration(milliseconds: 10));
+        await Future.delayed(const Duration(milliseconds: 10));
         await tester.pumpAndSettle();
       });
     });
@@ -418,14 +420,14 @@ void main() {
         // Upd. Wrapping in tester.runAsync and addinf Future.delayed wait helped
 
         // Let isolates finish work
-        await Future.delayed(Duration(
+        await Future.delayed(const Duration(
             milliseconds: 100)); // !! Might need to increase if test fails
         await tester.pumpAndSettle();
 
         expect(b.byChildText('↘'), findsOneWidget);
 
         // Adding this await to allow complete another timer and avoid exception in test logs
-        await Future.delayed(Duration(milliseconds: 10));
+        await Future.delayed(const Duration(milliseconds: 10));
         await tester.pumpAndSettle();
       });
     });
@@ -449,26 +451,25 @@ void main() {
 
       var firstLocation = tester.getCenter(d);
       var gesture = await tester.startGesture(firstLocation, pointer: 7);
-      await tester.pumpAndSettle(Duration(milliseconds: 1000));
-      await tester.pumpAndSettle(Duration(milliseconds: 1000));
+      await tester.pumpAndSettle(const Duration(milliseconds: 1000));
+      await tester.pumpAndSettle(const Duration(milliseconds: 1000));
 
       var delete = find.text('DELETE');
       expect(delete, findsOneWidget);
 
       var secondLocation = tester.getCenter(delete);
       await gesture.moveTo(secondLocation);
-      await tester.pumpAndSettle(Duration(milliseconds: 1000));
-      await tester.pumpAndSettle(Duration(milliseconds: 1000));
+      await tester.pumpAndSettle(const Duration(milliseconds: 1000));
+      await tester.pumpAndSettle(const Duration(milliseconds: 1000));
       await gesture.up();
-      await tester.pumpAndSettle(Duration(milliseconds: 1000));
-      await tester.pumpAndSettle(Duration(milliseconds: 1000));
+      await tester.pumpAndSettle(const Duration(milliseconds: 1000));
+      await tester.pumpAndSettle(const Duration(milliseconds: 1000));
 
       expect(find.byType(AlertDialog), findsOneWidget);
 
       return name.data;
     }
 
-    ;
     testWidgets('Dictionary can be dragged to DELETE area', dragToDelete);
 
     testWidgets('Dictionary can be DELETED', (WidgetTester tester) async {
@@ -481,8 +482,8 @@ void main() {
       var delete = find.text('Delete');
       expect(delete, findsOneWidget);
       await tester.tap(delete);
-      await tester.pumpAndSettle(Duration(milliseconds: 1000));
-      await tester.pumpAndSettle(Duration(milliseconds: 1000));
+      await tester.pumpAndSettle(const Duration(milliseconds: 1000));
+      await tester.pumpAndSettle(const Duration(milliseconds: 1000));
       expect(find.byType(AlertDialog), findsNothing);
 
       expect(find.byType(OfflineDictionaryTile), findsNWidgets(2));
@@ -502,11 +503,11 @@ class MockSharedPrefferences extends Mock implements SharedPreferences {
 }
 
 Future _createOnlineDictionaries(WidgetTester tester) async {
-  await _createAndWrapWidget(tester, OnlineDictionaries());
+  await _createAndWrapWidget(tester, const OnlineDictionaries());
 }
 
 Future _createOfflineDictionaries(WidgetTester tester) async {
-  await _createAndWrapWidget(tester, OfflineDictionaries());
+  await _createAndWrapWidget(tester, const OfflineDictionaries());
 }
 
 Future _createAndWrapWidget(WidgetTester tester, Widget widget) async {
@@ -532,15 +533,15 @@ Future _createAndWrapWidget(WidgetTester tester, Widget widget) async {
         })
       ],
       child: MaterialApp(
-        localizationsDelegates: [
+        localizationsDelegates: const [
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,
         ],
-        supportedLocales: [
-          const Locale('en', ''),
-          const Locale('be', ''),
-          const Locale('ru', ''),
+        supportedLocales: const [
+          Locale('en', ''),
+          Locale('be', ''),
+          Locale('ru', ''),
         ],
         initialRoute: '/',
         routes: {'/': (context) => Scaffold(body: widget)},
@@ -553,7 +554,7 @@ Future _openOnlineDictionariesAndWaitToLoad(WidgetTester tester) async {
   await _createOnlineDictionaries(tester);
 
   await tester
-      .pump(Duration(milliseconds: 10)); // let progress indicator appear
+      .pump(const Duration(milliseconds: 10)); // let progress indicator appear
 
   expect(find.byType(LinearProgressIndicator), findsOneWidget);
 

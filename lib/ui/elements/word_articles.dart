@@ -37,7 +37,7 @@ class WordArticles extends StatelessWidget {
 
     var w = Stack(children: [
       ClipRRect(
-          borderRadius: BorderRadius.all(Radius.circular(10)),
+          borderRadius: const BorderRadius.all(Radius.circular(10)),
           child: Stack(children: [
             // Article list
             _FuturedArticles(
@@ -47,7 +47,7 @@ class WordArticles extends StatelessWidget {
                 showAnotherWord: showAnotherWord),
             // Title with selectable text - word
             Container(
-                padding: EdgeInsets.fromLTRB(18, 15, 18, 0),
+                padding: const EdgeInsets.fromLTRB(18, 15, 18, 0),
                 color: Theme.of(context).cardColor,
                 height: 39.0,
                 width: 1000,
@@ -58,6 +58,10 @@ class WordArticles extends StatelessWidget {
           ])),
       // Bottom buttons
       Positioned(
+        bottom: 0.0,
+        left: 0.0,
+        right: 0.0,
+        height: 50,
         child: Container(
             color: Theme.of(context).cardColor,
             child: Flex(
@@ -82,7 +86,7 @@ class WordArticles extends StatelessWidget {
                   Expanded(
                       flex: 1,
                       child: Stack(alignment: Alignment.center, children: [
-                        Icon(
+                        const Icon(
                           Icons.launch_rounded,
                           size: 20,
                         ),
@@ -103,13 +107,9 @@ class WordArticles extends StatelessWidget {
                                             dicsToKeys: s.data!.value2,
                                             scrollController:
                                                 scrollController)))
-                                : SizedBox())
+                                : const SizedBox())
                       ])),
                 ])),
-        bottom: 0.0,
-        left: 0.0,
-        right: 0.0,
-        height: 50,
       )
     ]);
 
@@ -134,6 +134,7 @@ class _FuturedArticles extends StatelessWidget {
   final ScrollController scrollController;
   final Function(String word)? showAnotherWord;
 
+  @override
   Widget build(BuildContext context) {
     var w = FutureBuilder(
       future: articles,
@@ -142,11 +143,11 @@ class _FuturedArticles extends StatelessWidget {
           return _FuturedArticleBody(
               snapshot, dicsCompleter, scrollController, showAnotherWord);
         }
-        return _Empty();
+        return const _Empty();
       },
     );
 
-    //print('_FuturedArticle built ${sw.elapsedMilliseconds}ms');
+    //debugPrint('_FuturedArticle built ${sw.elapsedMilliseconds}ms');
     return w;
   }
 }
@@ -164,13 +165,13 @@ class _Empty extends StatelessWidget {
             color: Theme.of(context).cardColor,
             width: 10000,
             height: 40,
-            child: SizedBox()));
+            child: const SizedBox()));
   }
 }
 
 class _FuturedArticleBody extends StatefulWidget {
-  _FuturedArticleBody(this.snapshot, this.dicsCompleter, this.scrollController,
-      this.showAnotherWord);
+  const _FuturedArticleBody(this.snapshot, this.dicsCompleter,
+      this.scrollController, this.showAnotherWord);
   final AsyncSnapshot<Object?> snapshot;
   final Completer<
       Tuple<List<DropdownMenuItem<String>>,
@@ -188,13 +189,13 @@ class _FuturedArticleBodyState extends State<_FuturedArticleBody>
 
   @override
   void afterFirstLayout(BuildContext context) {
-    print(
+    debugPrint(
         '_FuturedArticleBody laidout ${sw.elapsedMilliseconds}ms, total ${globalSw.elapsedMilliseconds}');
   }
 
   UniqueKey scrollKey = UniqueKey();
 
-  var _offstageCompleter = Completer();
+  final _offstageCompleter = Completer();
 
   @override
   Widget build(BuildContext context) {
@@ -205,14 +206,14 @@ class _FuturedArticleBodyState extends State<_FuturedArticleBody>
     var dictionaries = list
         .map((a) => DropdownMenuItem<String>(
             alignment: Alignment.centerRight,
+            value: a.dictionaryName,
             child: Text(
               a.dictionaryName,
               style: Theme.of(context).textTheme.subtitle2,
-            ),
-            value: a.dictionaryName))
+            )))
         .toList();
 
-    var dicsToKeys = Map<String, GlobalKey>();
+    var dicsToKeys = <String, GlobalKey>{};
 
     if (!widget.dicsCompleter.isCompleted) {
       widget.dicsCompleter.complete(Tuple(dictionaries, dicsToKeys));
@@ -228,7 +229,7 @@ class _FuturedArticleBodyState extends State<_FuturedArticleBody>
             controller: widget.scrollController,
             child: Scrollbar(
                 child: CustomScrollView(
-              physics: BouncingScrollPhysics(),
+              physics: const BouncingScrollPhysics(),
               semanticChildCount: list.length,
               scrollDirection: Axis.vertical,
               shrinkWrap: true,
@@ -238,14 +239,14 @@ class _FuturedArticleBodyState extends State<_FuturedArticleBody>
                 return SliverStickyHeader(
                   key: key,
                   header: Container(
-                      padding: EdgeInsets.fromLTRB(18, 0, 18, 0),
+                      padding: const EdgeInsets.fromLTRB(18, 0, 18, 0),
                       height: 30.0,
                       decoration: BoxDecoration(
                           backgroundBlendMode: BlendMode.srcOver,
                           gradient: LinearGradient(
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,
-                            stops: [0.6, 1],
+                            stops: const [0.6, 1],
                             colors: [
                               Theme.of(context).cardColor,
                               Theme.of(context).cardColor.withAlpha(0)
@@ -260,7 +261,7 @@ class _FuturedArticleBodyState extends State<_FuturedArticleBody>
                   sliver: SliverToBoxAdapter(
                       child: Container(
                     color: Theme.of(context).cardColor,
-                    padding: EdgeInsets.fromLTRB(18, 0, 18, 10),
+                    padding: const EdgeInsets.fromLTRB(18, 0, 18, 10),
                     child: Html(
                       //sw: globalSw,
                       selectionControls: FlutterSelectionControls(
@@ -268,15 +269,15 @@ class _FuturedArticleBodyState extends State<_FuturedArticleBody>
                               ownTheme(context).textSelectionPopupColor,
                           toolBarItems: <ToolBarItem>[
                             ToolBarItem(
-                                item: Icon(Icons.copy),
+                                item: const Icon(Icons.copy),
                                 itemControl: ToolBarItemControl.copy),
                             ToolBarItem(
-                                item: Icon(Icons.select_all_rounded),
+                                item: const Icon(Icons.select_all_rounded),
                                 itemControl: ToolBarItemControl.selectAll),
                             ToolBarItem(
-                                item: SizedBox(
-                                  child: Icon(Icons.search),
+                                item: const SizedBox(
                                   width: 50,
+                                  child: Icon(Icons.search),
                                 ),
                                 onItemPressed: (highlightedText, s, e) {
                                   if (highlightedText.isNotEmpty) {
@@ -294,55 +295,58 @@ class _FuturedArticleBodyState extends State<_FuturedArticleBody>
                         }
                       },
                       onBuilt: () => dicsToKeys.length == ++builtCounter
-                          ? print(
-                              'Html.built, # ${builtCounter}, ${globalSw.elapsedMilliseconds}ms')
+                          ? debugPrint(
+                              'Html.built, # $builtCounter, ${globalSw.elapsedMilliseconds}ms')
                           : {},
                       onLaidOut: () {
                         if (dicsToKeys.length == ++laidoutCounter &&
                             !_offstageCompleter.isCompleted) {
-                          print(
-                              'Html.laidout, # ${laidoutCounter}, ${globalSw.elapsedMilliseconds}ms');
+                          debugPrint(
+                              'Html.laidout, # $laidoutCounter, ${globalSw.elapsedMilliseconds}ms');
                           _offstageCompleter.complete(true);
                         }
                       },
                       style: {
                         'a': Style(
                           color: Theme.of(context).colorScheme.secondary,
-                          fontSize: FontSize(20),
+                          fontSize: const FontSize(20),
                           fontStyle: FontStyle.italic,
                           fontFamily: "Tinos",
                         ),
                         'i': Style(
                           //color: Colors.teal[100],
-                          fontSize: FontSize(20),
+                          fontSize: const FontSize(20),
                           fontStyle: FontStyle.italic,
                           fontFamily: "Tinos",
                         ),
                         'span': Style(
                           color: ownTheme(context).spanColor,
-                          fontSize: FontSize(20),
+                          fontSize: const FontSize(20),
                           fontFamily: "Tinos",
                           fontStyle: FontStyle.italic,
                         ),
                         'div': Style(
-                            padding: EdgeInsets.all(0),
+                            padding: const EdgeInsets.all(0),
                             fontFamily: "Tinos",
-                            fontSize: FontSize(20)),
+                            fontSize: const FontSize(20)),
                       },
                     ),
                   )),
                 );
               }).toList(),
             ))));
-    // print(
+    // debugPrint(
     //     '_FuturedArticleBody built ${sw.elapsedMilliseconds}ms, total ${globalSw.elapsedMilliseconds}');
 
     return FutureBuilder(
         future: _offstageCompleter.future,
         builder: (c, s) => !s.hasData
-            ? Stack(children: [Offstage(child: w, offstage: true), _Empty()])
+            ? Stack(
+                children: [Offstage(offstage: true, child: w), const _Empty()])
             : AnimatedScale(
-                duration: Duration(milliseconds: 2660), scale: 1.0, child: w));
+                duration: const Duration(milliseconds: 2660),
+                scale: 1.0,
+                child: w));
   }
 }
 
@@ -363,19 +367,19 @@ class _DictionarySelector extends StatelessWidget {
     Widget w = DropdownButton(
       dropdownColor: Theme.of(context).scaffoldBackgroundColor,
       iconSize: 0,
-      underline: SizedBox(),
+      underline: const SizedBox(),
       iconEnabledColor: Theme.of(context).iconTheme.color,
       alignment: Alignment.centerRight,
       isDense: true,
       items: dictionaries,
       value: dictionary,
-      borderRadius: BorderRadius.all(Radius.circular(8)),
+      borderRadius: const BorderRadius.all(Radius.circular(8)),
       onChanged: (v) {
         var key = dicsToKeys[v];
         if (key != null) {
           scrollController.position.ensureVisible(
               key.currentContext!.findRenderObject()!,
-              duration: Duration(milliseconds: 300));
+              duration: const Duration(milliseconds: 300));
         }
       },
     );
@@ -383,9 +387,9 @@ class _DictionarySelector extends StatelessWidget {
     // Don't highlisght first item when clicking dropdown in the bottom
     if (dictionary == null) {
       w = Theme(
-          child: w,
           data: Theme.of(context)
-              .copyWith(focusColor: Theme.of(context).scaffoldBackgroundColor));
+              .copyWith(focusColor: Theme.of(context).scaffoldBackgroundColor),
+          child: w);
     }
 
     return w;

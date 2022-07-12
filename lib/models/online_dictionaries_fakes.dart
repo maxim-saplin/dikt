@@ -12,8 +12,9 @@ class OnlineToOfflineFake extends OnlineToOffline {
     if (scs.containsKey(hash)) {
       scs[hash]!.close();
       scs.remove(hash);
-    } else
+    } else {
       downloadedHashes.remove(hash);
+    }
   }
 
   bool _throw = false;
@@ -25,7 +26,7 @@ class OnlineToOfflineFake extends OnlineToOffline {
 
     sink.done.whenComplete(() => sinkClosed = true);
     void f() {
-      Future.delayed(Duration(milliseconds: 50)).whenComplete(() {
+      Future.delayed(const Duration(milliseconds: 50)).whenComplete(() {
         if (sinkClosed) return;
 
         if (i == 50 && _throw) {
@@ -37,8 +38,9 @@ class OnlineToOfflineFake extends OnlineToOffline {
         sink.add(i++);
         if (i < 100) {
           callback();
-        } else
+        } else {
           sink.close();
+        }
       });
     }
 
@@ -80,10 +82,11 @@ class FakeRepoDownloader extends RepoDownloader {
   FakeRepoDownloader(int length, this.throwError) : super(length) {
     var l = length;
 
-    if (length == -1)
-      l = 128000; // imitate downloaded of stream with unknown length
+    if (length == -1) {
+      l = 128000;
+    } // imitate downloaded of stream with unknown length
 
-    this.bytes = getBytes(l);
+    bytes = getBytes(l);
   }
 
   Stream<Uint8List> getBytes(int lengthBytes) async* {
@@ -143,13 +146,15 @@ class FakeOnlineRepo extends OnlineRepo {
   @override
   Future<List<RepoDictionary>> getDictionariesList(String? url) {
     if (url == null) throw 'URL not set';
-    if (url == defaultUrl)
+    if (url == defaultUrl) {
       return Future<List<RepoDictionary>>.delayed(
           _timeoutMs, () => dictionaries.toList());
+    }
 
-    if (url == secondUrl)
+    if (url == secondUrl) {
       return Future<List<RepoDictionary>>.delayed(
           _timeoutMs, () => dictionaries.reversed.take(5).toList());
+    }
 
     return Future<List<RepoDictionary>>.delayed(
         _timeoutMs, (() => throw 'Repository not available'));
@@ -181,9 +186,9 @@ class FakeOnlineRepo extends OnlineRepo {
       fifthError = !fifthError;
     }
 
-    if (i != 2)
+    if (i != 2) {
       thirdError = false;
-    else if (i == 2 && thirdError) {
+    } else if (i == 2 && thirdError) {
       thirdError = !thirdError;
     } else if (i == 2 && !thirdError) {
       thirdError = !thirdError;

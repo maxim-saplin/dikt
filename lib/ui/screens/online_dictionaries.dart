@@ -10,6 +10,8 @@ import '../../models/online_dictionaries.dart';
 import '../elements/delete_confirmation.dart';
 
 class OnlineDictionaries extends StatelessWidget {
+  const OnlineDictionaries({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     var odm = Provider.of<OnlineDictionaryManager>(context);
@@ -17,8 +19,8 @@ class OnlineDictionaries extends StatelessWidget {
 
     return Column(mainAxisSize: MainAxisSize.min, children: [
       Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-        Text('IFPS Repo'),
-        SizedBox(width: 10),
+        const Text('IFPS Repo'),
+        const SizedBox(width: 10),
         Expanded(
             child: TextFormField(
                 onChanged: (value) {
@@ -34,12 +36,12 @@ class OnlineDictionaries extends StatelessWidget {
                 initialValue: odm.repoUrl)),
       ]),
       odm.loading
-          ? Padding(
+          ? const Padding(
               padding: EdgeInsets.fromLTRB(0, 0, 0, 6),
               child: LinearProgressIndicator(
                 minHeight: 4,
               ))
-          : SizedBox(
+          : const SizedBox(
               height: 10,
             ),
       Flexible(
@@ -52,8 +54,8 @@ class OnlineDictionaries extends StatelessWidget {
                   child: Column(children: [
                 (odm.repoError != null
                     ? Text(odm.repoError!)
-                    : (odm.dictionaries.isEmpty == 0
-                        ? Text('No dictonaries in the repository')
+                    : (odm.dictionaries.isEmpty
+                        ? const Text('No dictonaries in the repository')
                         : LayoutBuilder(
                             builder: (context, constraints) => Wrap(
                                   clipBehavior: Clip.hardEdge,
@@ -69,11 +71,11 @@ class OnlineDictionaries extends StatelessWidget {
                                       .toList(),
                                 ))))
               ]))),
-          !odm.loading ? SizedBox() : Text('Loading...'),
+          !odm.loading ? const SizedBox() : const Text('Loading...'),
         ],
       )),
       Container(
-          padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
+          padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
           height: 50,
           child: Align(
               alignment: Alignment.center,
@@ -82,8 +84,8 @@ class OnlineDictionaries extends StatelessWidget {
                       backgroundColor: MaterialStateProperty.all<Color>(
                           Colors.red.withAlpha(128))),
                   child: SizedBox(
-                    child: Text('← Offline'.i18n),
                     width: 85,
+                    child: Text('← Offline'.i18n),
                   ),
                   onPressed: () async {
                     Routes.showOfflineDictionaries(context);
@@ -94,7 +96,7 @@ class OnlineDictionaries extends StatelessWidget {
 
 class OnlineDictionaryTile extends HookWidget {
   const OnlineDictionaryTile(this.dictionary, this.dicHeight, this.dicWidth,
-      {Key? key = null})
+      {Key? key})
       : super(
           key: key,
         );
@@ -108,7 +110,7 @@ class OnlineDictionaryTile extends HookWidget {
     var data = useListenable(dictionary);
 
     Widget icon;
-    var style = TextStyle(fontSize: 22);
+    var style = const TextStyle(fontSize: 22);
     Function onPressed;
 
     switch (data.state) {
@@ -120,7 +122,7 @@ class OnlineDictionaryTile extends HookWidget {
         };
         break;
       case OnlineDictionaryState.downloaded:
-        icon = Text('×',
+        icon = const Text('×',
             style: TextStyle(
                 fontSize: 24, fontWeight: FontWeight.bold)); //Icons.delete;
         onPressed = () {
@@ -147,7 +149,7 @@ class OnlineDictionaryTile extends HookWidget {
             .withAlpha(data.state == OnlineDictionaryState.downloaded ? 40 : 0),
         width: 1);
 
-    return Container(
+    return SizedBox(
         height: dicHeight,
         width: dicWidth,
         //color: Colors.yellow,
@@ -180,20 +182,20 @@ class OnlineDictionaryTile extends HookWidget {
                             height: 40,
                             color: Theme.of(context).colorScheme.secondary)
                         : LinearProgressIndicator(minHeight: dicHeight))
-                    : SizedBox(),
+                    : const SizedBox(),
                 TextButton(
+                    onPressed: onPressed as void Function()?,
                     child: SizedBox(
-                      child: MouseRegion(
-                          child: Center(child: icon),
-                          cursor: SystemMouseCursors.click),
                       height: dicHeight,
-                    ),
-                    onPressed: onPressed as void Function()?)
+                      child: MouseRegion(
+                          cursor: SystemMouseCursors.click,
+                          child: Center(child: icon)),
+                    ))
               ])),
           Expanded(
               child: Stack(children: [
             Container(
-                padding: EdgeInsets.only(left: 8),
+                padding: const EdgeInsets.only(left: 8),
                 decoration: BoxDecoration(
                     border: Border(
                         bottom: horizontalBorder, top: horizontalBorder)),
@@ -203,7 +205,7 @@ class OnlineDictionaryTile extends HookWidget {
                     children: [
                       Tooltip(
                           message: data.repoDictionary.name,
-                          waitDuration: Duration(seconds: 1),
+                          waitDuration: const Duration(seconds: 1),
                           child: Row(
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: [
@@ -215,21 +217,22 @@ class OnlineDictionaryTile extends HookWidget {
                                               BorderRadius.circular(28),
                                         ),
                                         child: Padding(
-                                            padding: EdgeInsets.only(
+                                            padding: const EdgeInsets.only(
                                                 left: 4, right: 4),
                                             child: Text(data.nameHighlighted,
-                                                style:
-                                                    TextStyle(fontSize: 16))))
-                                    : SizedBox(),
+                                                style: const TextStyle(
+                                                    fontSize: 16))))
+                                    : const SizedBox(),
                                 // Clip large text
                                 Flexible(
                                     child: Padding(
-                                        padding: EdgeInsets.only(left: 3),
+                                        padding: const EdgeInsets.only(left: 3),
                                         child: Text(data.nameNotHighlighted,
                                             softWrap: false,
                                             maxLines: 1,
                                             overflow: TextOverflow.clip,
-                                            style: TextStyle(fontSize: 16))))
+                                            style:
+                                                const TextStyle(fontSize: 16))))
                               ])),
                       Text(
                           data.state == OnlineDictionaryState.downloading
@@ -242,25 +245,18 @@ class OnlineDictionaryTile extends HookWidget {
                                       (data.progressPercent > -1
                                           ? ' ${data.progressPercent}%'
                                           : '')
-                                  : (dictionary.repoDictionary.words
-                                          .toString() +
-                                      ' words, ' +
-                                      (dictionary.repoDictionary.sizeBytes /
-                                              1024 /
-                                              1024)
-                                          .toStringAsFixed(1) +
-                                      'Mb'),
+                                  : ('${dictionary.repoDictionary.words} words, ${(dictionary.repoDictionary.sizeBytes / 1024 / 1024).toStringAsFixed(1)}Mb'),
                           softWrap: false,
                           maxLines: 1,
                           style: Theme.of(context).textTheme.subtitle2)
                     ])),
             data.state != OnlineDictionaryState.error
-                ? SizedBox()
+                ? const SizedBox()
                 : Container(
                     color: ownTheme(context).errorShade,
                     child: Center(
                         child: Text(
-                            data.error! + ' - ' + data.repoDictionary.name,
+                            '${data.error!} - ${data.repoDictionary.name}',
                             maxLines: 2,
                             overflow: TextOverflow.clip,
                             style: Theme.of(context).textTheme.overline)))

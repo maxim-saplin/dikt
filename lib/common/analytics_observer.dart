@@ -9,7 +9,7 @@ class AnalyticsObserver extends RouteObserver {
   void _sendScreenView(Route<dynamic> route) {
     final String screenName = route.settings.name! +
         (route.settings.arguments != null
-            ? '/' + (route.settings.arguments as String)
+            ? '/${route.settings.arguments as String}'
             : '');
 
     //print('Setting screen to ' + screenName);

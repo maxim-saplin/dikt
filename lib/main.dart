@@ -35,8 +35,9 @@ void main() async {
   if (!kIsWeb) initIsolatePool();
   WidgetsFlutterBinding.ensureInitialized();
   try {
-    if (kIsWeb || Platform.isAndroid || Platform.isIOS)
+    if (kIsWeb || Platform.isAndroid || Platform.isIOS) {
       await Firebase.initializeApp();
+    }
   } catch (_) {
     _firebaseError = true;
   }
@@ -49,7 +50,7 @@ void main() async {
 class MyApp extends StatelessWidget {
   static FirebaseAnalytics? analytics;
 
-  MyApp() {
+  MyApp({Key? key}) : super(key: key) {
     if (!_firebaseError && analytics == null) {
       try {
         analytics = FirebaseAnalytics.instance;
@@ -96,15 +97,15 @@ class MyApp extends StatelessWidget {
         child: Consumer<Preferences>(
             builder: (context, preferences, child) => I18n(
                     child: MaterialApp(
-                  localizationsDelegates: [
+                  localizationsDelegates: const [
                     GlobalMaterialLocalizations.delegate,
                     GlobalWidgetsLocalizations.delegate,
                     GlobalCupertinoLocalizations.delegate,
                   ],
-                  supportedLocales: [
-                    const Locale('en', ''),
-                    const Locale('be', ''),
-                    const Locale('ru', ''),
+                  supportedLocales: const [
+                    Locale('en', ''),
+                    Locale('be', ''),
+                    Locale('ru', ''),
                   ],
                   navigatorKey: Routes.navigator,
                   navigatorObservers: preferences.isAnalyticsEnabled! &&
@@ -145,14 +146,14 @@ class MyApp extends StatelessWidget {
                         return PageTransition(
                             settings: settings,
                             child: narrow
-                                ? _getScaffold(Lookup(true))
-                                : _getScaffold(LookupAndArticle(null)),
+                                ? _getScaffold(const Lookup(narrow: true))
+                                : _getScaffold(const LookupAndArticle()),
                             type: PageTransitionType.fade);
                       case Routes.showArticleWide:
                         return PageTransition(
                             settings: settings,
                             child: _getScaffold(LookupAndArticle(
-                                settings.arguments as String?)),
+                                word: settings.arguments as String?)),
                             type: PageTransitionType.fade);
                       default:
                         return null;
@@ -171,7 +172,7 @@ class MyApp extends StatelessWidget {
     } else {
       if ((_wide! && !wide) || (!_wide! && wide)) {
         _wide = !_wide!;
-        Timer(Duration(microseconds: 10), () {
+        Timer(const Duration(microseconds: 10), () {
           Routes.navigator.currentState!.pushNamedAndRemoveUntil(Routes.home,
               (r) => r.settings.name == Routes.home || r.settings.name == null);
         });

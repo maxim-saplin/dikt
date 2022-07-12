@@ -9,18 +9,22 @@ import 'package:dikt/ui/screens/dictionaries.dart';
 import 'package:dikt/models/master_dictionary.dart';
 
 class TopButtons extends StatelessWidget {
+  const TopButtons({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     var dictionary = Provider.of<MasterDictionary>(context);
     return !dictionary.isFullyLoaded
-        ? Text('')
-        : SafeArea(
-            minimum: const EdgeInsets.all(20),
+        ? const Text('')
+        : const SafeArea(
+            minimum: EdgeInsets.all(20),
             child: Align(alignment: Alignment.topRight, child: MenuButtons()));
   }
 }
 
 class MenuButtons extends StatelessWidget {
+  const MenuButtons({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -28,22 +32,22 @@ class MenuButtons extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           IconButton(
-              icon: Icon(Icons.view_list_rounded, size: 30),
+              icon: const Icon(Icons.view_list_rounded, size: 30),
               onPressed: () {
                 showDialog(
                     context: context,
                     barrierColor: !kIsWeb ? Colors.transparent : Colors.black54,
                     routeSettings:
-                        RouteSettings(name: Routes.dictionariesOffline),
+                        const RouteSettings(name: Routes.dictionariesOffline),
                     builder: (BuildContext context) {
-                      return SimpleSimpleDialog(
+                      return const SimpleSimpleDialog(
                           maxWidth: 800,
                           alignment: Alignment.center,
-                          children: [Dictionaries(true)]);
+                          children: [Dictionaries(offline: true)]);
                     });
               }),
           IconButton(
-            icon: Icon(
+            icon: const Icon(
               Icons.space_dashboard_rounded,
               size: 30,
             ),
@@ -51,9 +55,9 @@ class MenuButtons extends StatelessWidget {
               showDialog(
                   context: context,
                   barrierColor: !kIsWeb ? Colors.transparent : Colors.black54,
-                  routeSettings: RouteSettings(name: '/settings'),
+                  routeSettings: const RouteSettings(name: '/settings'),
                   builder: (BuildContext context) {
-                    return SimpleSimpleDialog(
+                    return const SimpleSimpleDialog(
                         maxWidth: 320,
                         alignment: Alignment.center,
                         children: [Settings()]);
