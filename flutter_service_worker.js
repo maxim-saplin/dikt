@@ -4,21 +4,22 @@ const TEMP = 'flutter-temp-cache';
 const CACHE_NAME = 'flutter-app-cache';
 const RESOURCES = {
   "favicon-16x16.png": "bf1226cecab720ba72e8b246d2e546e0",
-"version.json": "f7645c7ff8c2843bce01d4e94f92cb9c",
+"version.json": "486504eb902e81a5fbb600f231ed6a06",
 "safari-pinned-tab.svg": "18c2323dc206485b1a6b605dcd85a060",
 "favicon.ico": "15e2c6f2450e58170b031b92060516f8",
-"index.html": "b40b914527d40bced71b5b66118bc690",
-"/": "b40b914527d40bced71b5b66118bc690",
-"main.dart.js": "066f4b6cf55ace184d44c5ec7466e2bd",
+"index.html": "23bf0602271e5775e16bb9092bf772eb",
+"": "23bf0602271e5775e16bb9092bf772eb",
+"main.dart.js": "00c001bb2134e0fee5a20c6e5e7f1ddc",
 "bulk_insert.js": "d12bff14269f43afd5c71f0fb86bbcb1",
+"flutter.js": "eb2682e33f25cd8f1fc59011497c35f8",
 "favicon.png": "302656b026f50a0133a589e64d215d94",
 "icons/Icon-192.png": "1b5217319f6273332d14ecca59672b05",
 "icons/Icon-512.png": "78f84e30d8e1dc7fc37165a33c7079c9",
 "manifest.json": "b110ab44c870fcc8610f75c139fe4863",
 "mstile-150x150.png": "ed9534a49ae5a4dafe934e20594b2032",
-"assets/AssetManifest.json": "a79f5b47a897ee4919950b8bdc25fd23",
-"assets/NOTICES": "b012a71a10a065ad8cb5c19917533b19",
-"assets/FontManifest.json": "93bcd8dc537473d09676a47d2683b0bd",
+"assets/AssetManifest.json": "4bc7076769ec9c9c5fa418597ca66670",
+"assets/NOTICES": "3102f47e08ad87e97a3e18ca07f73674",
+"assets/FontManifest.json": "95f3b616d0737cebfa7b9e55fdf5f2d3",
 "assets/packages/flutter_math_fork/lib/katex_fonts/fonts/KaTeX_AMS-Regular.ttf": "657a5353a553777e270827bd1630e467",
 "assets/packages/flutter_math_fork/lib/katex_fonts/fonts/KaTeX_Script-Regular.ttf": "55d2dcd4778875a53ff09320a85a5296",
 "assets/packages/flutter_math_fork/lib/katex_fonts/fonts/KaTeX_Size3-Regular.ttf": "e87212c26bb86c21eb028aba2ac53ec3",
@@ -41,27 +42,26 @@ const RESOURCES = {
 "assets/packages/flutter_math_fork/lib/katex_fonts/fonts/KaTeX_Math-BoldItalic.ttf": "946a26954ab7fbd7ea78df07795a6cbc",
 "assets/packages/fluttertoast/assets/toastify.js": "e7006a0a033d834ef9414d48db3be6fc",
 "assets/packages/fluttertoast/assets/toastify.css": "a85675050054f179444bc5ad70ffc635",
-"assets/fonts/MaterialIcons-Regular.otf": "4e6447691c9509f7acdbf8a931a85ca1",
+"assets/fonts/MaterialIcons-Regular.otf": "95db9098c58fd6db106f1116bae85a0b",
+"assets/assets/Tinos-Regular.ttf": "ab6e588664f8a737a06746ef7f2492ff",
+"assets/assets/Tinos-Italic.ttf": "5f9ab1804b203a7c8ba6e147293a17aa",
 "assets/assets/Montserrat-Bold.ttf": "ade91f473255991f410f61857696434b",
-"assets/assets/OpenSans-Italic.ttf": "07cd1acf656521af831f0a37e304c5bb",
-"assets/assets/OpenSans-Bold.ttf": "5bc6b8360236a197d59e55f72b02d4bf",
+"assets/assets/Tinos-Bold.ttf": "8174eb9874aea067806fb6552cd5861a",
 "assets/assets/Montserrat-Regular.ttf": "ee6539921d713482b8ccd4d0d23961bb",
 "assets/assets/dictionaries/dik_enenwordnet3.dikt": "3ca2ee474bedb3403934d983312a9934",
 "assets/assets/Montserrat-Italic.ttf": "a7063e0c0f0cb546ad45e9e24b27bd3b",
-"assets/assets/OpenSans-Regular.ttf": "3eb5459d91a5743e0deaf2c7d7896b08",
 "browserconfig.xml": "a493ba0aa0b8ec8068d786d7248bb92c",
 "favicon-32x32.png": "302656b026f50a0133a589e64d215d94",
-"canvaskit/canvaskit.js": "62b9906717d7215a6ff4cc24efbd1b5c",
-"canvaskit/profiling/canvaskit.js": "3783918f48ef691e230156c251169480",
-"canvaskit/profiling/canvaskit.wasm": "6d1b0fc1ec88c3110db88caa3393c580",
-"canvaskit/canvaskit.wasm": "b179ba02b7a9f61ebc108f82c5a1ecdb"
+"canvaskit/canvaskit.js": "c2b4e5f3d7a3d82aed024e7249a78487",
+"canvaskit/profiling/canvaskit.js": "ae2949af4efc61d28a4a80fffa1db900",
+"canvaskit/profiling/canvaskit.wasm": "95e736ab31147d1b2c7b25f11d4c32cd",
+"canvaskit/canvaskit.wasm": "4b83d89d9fecbea8ca46f2f760c5a9ba"
 };
 
 // The application shell files that are downloaded before a service worker can
 // start.
 const CORE = [
-  "/",
-"main.dart.js",
+  "main.dart.js",
 "index.html",
 "assets/NOTICES",
 "assets/AssetManifest.json",
@@ -105,7 +105,7 @@ self.addEventListener("activate", function(event) {
       for (var request of await contentCache.keys()) {
         var key = request.url.substring(origin.length + 1);
         if (key == "") {
-          key = "/";
+          key = "";
         }
         // If a resource from the old manifest is not in the new cache, or if
         // the MD5 sum has changed, delete it. Otherwise the resource is left
@@ -194,7 +194,7 @@ async function downloadOffline() {
   for (var request of await contentCache.keys()) {
     var key = request.url.substring(origin.length + 1);
     if (key == "") {
-      key = "/";
+      key = "";
     }
     currentContent[key] = true;
   }
