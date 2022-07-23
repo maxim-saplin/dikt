@@ -46347,10 +46347,9 @@ if(a>r-1)return""
 return s[r-a-1]},
 aeY(a){var s,r=this
 a=a.toLowerCase()
-if(B.b.u(r.b,a))B.b.v(r.b,a)
+if(!B.b.u(r.b,a))B.b.F(r.b,a)
 s=r.b
 if(s.length>100)B.b.hL(s,0)
-B.b.F(r.b,a)
 A.c4(B.z,new A.a9Q(r))}}
 A.a9Q.prototype={
 $0(){return $.iJ.rw("StringList","history",this.a.b)},
