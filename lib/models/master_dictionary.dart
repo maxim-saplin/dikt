@@ -1,9 +1,7 @@
 import 'dart:async' show Future;
-import 'dart:typed_data';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:archive/archive.dart';
-import 'package:flutter/material.dart';
 import 'package:ikvpack/ikvpack.dart';
 
 import 'dictionary_manager.dart';

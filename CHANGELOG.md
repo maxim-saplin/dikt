@@ -1,3 +1,4 @@
+- 2.1.0+19 - fixed jumping search bar on Android when first letter is typed in, hopefully fixed focus issues with disappearing text when starting typing while dictionaries' loading is in-progress, Android SDK 33, fixed few warning after 3.3.8 upgrade
 - 2.1.0+18 - history, do not move up the word already in history when clicking it
 - 2.1.0+17 - selecting text in article shows lookup option in popup
 - 2.1.0+16 - showing soft keyboard when started and when minimizing/resuming

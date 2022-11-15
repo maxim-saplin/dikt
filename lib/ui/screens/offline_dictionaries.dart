@@ -38,7 +38,7 @@ class OfflineDictionariesState extends State<OfflineDictionaries> {
     var manager = Provider.of<DictionaryManager>(context);
     var dictionaries = manager.dictionariesAll;
 
-    void _onReorder(int oldIndex, int newIndex) {
+    void onReorder(int oldIndex, int newIndex) {
       if (!_cancelReorder) {
         manager.reorder(oldIndex, newIndex);
       } // if reorder happens due to moving to Delete
@@ -47,20 +47,20 @@ class OfflineDictionariesState extends State<OfflineDictionaries> {
       });
     }
 
-    void _onDragging(int index) {
+    void onDragging(int index) {
       setState(() {
         _cancelReorder = false;
         _draggingIndex = index;
       });
     }
 
-    void _onCancel(int index) {
+    void onCancel(int index) {
       setState(() {
         _draggingIndex = null;
       });
     }
 
-    void _importJsonOrDikt() async {
+    void importJsonOrDikt() async {
       List<PlatformFile>? files = [];
 
       manager.gettingFileList = true;
@@ -68,7 +68,7 @@ class OfflineDictionariesState extends State<OfflineDictionaries> {
       // Platform class is not implemented in Web
       if (!kIsWeb &&
           (Platform.isMacOS || Platform.isWindows || Platform.isLinux)) {
-        final XTypeGroup jsonOrDiktTypeGroup = XTypeGroup(
+        const XTypeGroup jsonOrDiktTypeGroup = XTypeGroup(
           // ODO - return back to normal
           label: 'JSON or DIKT/MDIKT',
           extensions: ['json', 'dikt', 'mdikt'],
@@ -159,7 +159,7 @@ class OfflineDictionariesState extends State<OfflineDictionaries> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                               OutlinedButton(
-                                onPressed: _importJsonOrDikt,
+                                onPressed: importJsonOrDikt,
                                 child: SizedBox(
                                   width: 85,
                                   height: 30,
@@ -207,9 +207,9 @@ class OfflineDictionariesState extends State<OfflineDictionaries> {
                                 .map((e) => OfflineDictionaryTile(
                                     manager: manager, dictionary: e))
                                 .toList()),
-                        onReorder: _onReorder,
-                        onDragging: _onDragging,
-                        onNoReorder: _onCancel,
+                        onReorder: onReorder,
+                        onDragging: onDragging,
+                        onNoReorder: onCancel,
                       )
                     ],
                   )),

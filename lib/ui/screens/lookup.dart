@@ -71,12 +71,8 @@ class LookupState extends State<Lookup> with WidgetsBindingObserver {
     var dictionary = Provider.of<MasterDictionary>(context);
     var history = Provider.of<History>(context, listen: false);
 
-    if (_firstBuild) {
+    if (_firstBuild || _resumed) {
       _firstBuild = false;
-      Future.delayed(Duration.zero, () => _showKeyboard());
-    }
-
-    if (_resumed) {
       _resumed = false;
       if (_searchBarFocusNode.hasFocus) {
         Future.delayed(Duration.zero, () => _showKeyboard());
@@ -326,7 +322,7 @@ class _SearchBarSuffix extends StatelessWidget {
                 cursor: SystemMouseCursors.click,
                 child: GestureDetector(
                     child: const SizedBox(
-                      height: 32,
+                      height: 24,
                       width: 36,
                       child: Icon(
                         Icons.backspace_rounded,
