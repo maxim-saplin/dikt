@@ -74,9 +74,9 @@ class LookupState extends State<Lookup> with WidgetsBindingObserver {
     if (_firstBuild || _resumed) {
       _firstBuild = false;
       _resumed = false;
-      if (_searchBarFocusNode.hasFocus) {
-        Future.delayed(Duration.zero, () => _showKeyboard());
-      }
+      //if (_searchBarFocusNode.hasFocus) {
+      Future.delayed(Duration.zero, () => _showKeyboard());
+      //}
     }
 
     if (dictionary.isFullyLoaded && !_fullyLoaded) {
