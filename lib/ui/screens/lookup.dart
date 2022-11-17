@@ -280,16 +280,49 @@ class _SearchBar extends StatelessWidget {
             decoration: InputDecoration(
                 border: InputBorder.none,
                 hintText: 'Search'.i18n,
-                suffix: _SearchBarSuffix(
-                    dictionary: dictionary, controller: controller)),
+                suffix: _SearchBarSuffix(dictionary: dictionary)),
           ),
           Opacity(
               opacity: 0.2,
               child: Text(
                   (dictionary.lookupSw.elapsedMicroseconds / 1000)
                       .toStringAsFixed(1),
-                  style: Theme.of(context).textTheme.overline))
+                  style: Theme.of(context).textTheme.overline)),
+          if (!dictionary.isLookupWordEmpty)
+            _ClearInvisibleButton(
+                dictionary: dictionary,
+                controller: controller,
+                focusNode: focusNode)
         ]));
+  }
+}
+
+class _ClearInvisibleButton extends StatelessWidget {
+  const _ClearInvisibleButton({
+    Key? key,
+    required this.dictionary,
+    required this.controller,
+    required this.focusNode,
+  }) : super(key: key);
+
+  final MasterDictionary dictionary;
+  final TextEditingController controller;
+  final FocusNode focusNode;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+        child: const MouseRegion(
+            cursor: SystemMouseCursors.click,
+            child: SizedBox(
+              height: 48,
+              width: 48,
+            )),
+        onTap: () {
+          dictionary.lookupWord = '';
+          controller.clear();
+          focusNode.requestFocus();
+        });
   }
 }
 
@@ -297,11 +330,9 @@ class _SearchBarSuffix extends StatelessWidget {
   const _SearchBarSuffix({
     Key? key,
     required this.dictionary,
-    required this.controller,
   }) : super(key: key);
 
   final MasterDictionary dictionary;
-  final TextEditingController controller;
 
   @override
   Widget build(BuildContext context) {
@@ -316,21 +347,14 @@ class _SearchBarSuffix extends StatelessWidget {
                   ? '${dictionary.maxResults}+'
                   : dictionary.matchesCount.toString()))),
           if (!dictionary.isLookupWordEmpty)
-            MouseRegion(
-                cursor: SystemMouseCursors.click,
-                child: GestureDetector(
-                    child: const SizedBox(
-                      height: 24,
-                      width: 36,
-                      child: Icon(
-                        Icons.backspace_rounded,
-                        size: 24,
-                      ),
-                    ),
-                    onTap: () {
-                      dictionary.lookupWord = '';
-                      controller.clear();
-                    }))
+            const SizedBox(
+              height: 24,
+              width: 36,
+              child: Icon(
+                Icons.backspace_rounded,
+                size: 24,
+              ),
+            ),
         ]);
   }
 }
