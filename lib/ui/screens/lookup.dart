@@ -184,8 +184,6 @@ class _WordsList extends StatelessWidget {
               child: sv));
     }
 
-    sv = Scrollbar(child: sv);
-
     return sv;
   }
 }
