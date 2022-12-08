@@ -11,6 +11,6 @@ void initIsolatePool() {
   pool = IsolatePool(max(Platform.numberOfProcessors - 1,
       2)); // more cores lead to faster dictionary loads yet slower lookups
   // ODO - return pool back to normal
-  //pool = IsolatePool(2);
+  // pool = IsolatePool(1);
   pool!.start();
 }

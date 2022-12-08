@@ -243,6 +243,9 @@ class DictionaryManager extends ChangeNotifier with Debounce {
     _dictionariesBeingProcessed = [];
 
     for (var i = 0; i < _dictionaries.length; i++) {
+      //ODO, remove delay, used for debuging
+      //await Future.delayed(const Duration(seconds: 1));
+
       var d = _dictionaries.getAt(i)!;
       if (d.isReadyToUse && d.isEnabled) {
         _dictionariesBeingProcessed

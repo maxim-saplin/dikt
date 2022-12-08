@@ -71,12 +71,16 @@ class LookupState extends State<Lookup> with WidgetsBindingObserver {
     var dictionary = Provider.of<MasterDictionary>(context);
     var history = Provider.of<History>(context, listen: false);
 
-    if (_firstBuild || _resumed) {
+    if (_firstBuild) {
       _firstBuild = false;
-      _resumed = false;
-      //if (_searchBarFocusNode.hasFocus) {
       Future.delayed(Duration.zero, () => _showKeyboard());
-      //}
+    }
+
+    if (_resumed) {
+      _resumed = false;
+      if (_searchBarFocusNode.hasFocus) {
+        Future.delayed(Duration.zero, () => _showKeyboard());
+      }
     }
 
     if (dictionary.isFullyLoaded && !_fullyLoaded) {

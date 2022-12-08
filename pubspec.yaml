@@ -2,7 +2,7 @@ name: dikt
 description: dikt - bottom-up offline dictionary
 publish_to: 'none'
 
-version: 2.1.0+19
+version: 2.1.0+21
 
 environment:
   sdk: '>=2.17.0 <3.0.0'
