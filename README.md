@@ -2,7 +2,9 @@
 
 One-hand adapted, off-line dictionary with simplistic UI, dark and light themes
 
-WordNet® 3 (large lexical dictionary of English) is bundled with the app. Other dictionaries can be imported from JSON files. How do I get those files? You can use dictionaries available in various formats (DSL, StarDict, etc.) and convert them using PyGlossary free tool (available on GitHub) to JSON.
+WordNet® 3 (large lexical dictionary of English) is bundled with the app. Other dictionaries can be imported from JSON files.
+
+How do I get JSON dictionaris? You can use available dictionaries in various formats (DSL, StarDict, etc.) and convert them using PyGlossary free tool (available on GitHub) to JSON.
 
 ## Try/Download
 
