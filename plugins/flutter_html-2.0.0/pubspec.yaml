@@ -22,9 +22,8 @@ dependencies:
   flutter_math_fork: 
   # plugin for firstWhereOrNull extension on lists
   collection: 
-  after_layout: ^1.1.0  
-  ikvpack:
-    git: https://github.com/maxim-saplin/ikvpack
+  after_layout:
+  isolate_pool_2:
 
 dev_dependencies:
   flutter_lints:

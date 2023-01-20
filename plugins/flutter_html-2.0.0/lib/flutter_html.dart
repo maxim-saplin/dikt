@@ -18,7 +18,7 @@ import 'package:flutter_html/src/html_elements.dart';
 import 'package:flutter_html/style.dart';
 
 import 'package:html/dom.dart' as dom;
-import 'package:ikvpack/ikvpack.dart';
+import 'package:isolate_pool_2/isolate_pool_2.dart';
 
 class Html extends StatelessWidget {
   Html(
