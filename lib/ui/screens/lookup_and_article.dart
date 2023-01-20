@@ -19,11 +19,6 @@ class LookupAndArticle extends StatelessWidget {
   Widget build(BuildContext context) {
     var route = ModalRoute.of(context)!.settings;
 
-    // if (!(route.name == Routes.showArticle ||
-    //     route.name == Routes.showArticleWide)) {
-    //   return const SizedBox();
-    // }
-
     var word = (route.arguments ?? '') as String;
     var dictionary = Provider.of<MasterDictionary>(context);
     var manager = Provider.of<DictionaryManager>(context);

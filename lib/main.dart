@@ -126,7 +126,7 @@ class MyApp extends StatelessWidget {
                     });
 
                     narrow = MediaQuery.of(context).size.width < wideWidth;
-                    resetNavHistoryIfWideModeChanged(!narrow);
+                    //resetNavHistoryIfWideModeChanged(!narrow);
 
                     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
                       systemNavigationBarColor: Theme.of(context)
@@ -149,7 +149,7 @@ class MyApp extends StatelessWidget {
                                 ? _getScaffold(const Lookup(narrow: true))
                                 : _getScaffold(const LookupAndArticle()),
                             type: PageTransitionType.fade);
-                      case Routes.showArticleWide:
+                      case Routes.showArticle:
                         return PageTransition(
                             settings: settings,
                             child: _getScaffold(LookupAndArticle(
@@ -164,21 +164,5 @@ class MyApp extends StatelessWidget {
                   theme: lightTheme,
                   darkTheme: darkTheme,
                 ))));
-  }
-
-  bool resetNavHistoryIfWideModeChanged(bool wide) {
-    if (_wide == null) {
-      _wide = wide; //MediaQuery.of(context).size.width >= wideWidth;
-    } else {
-      if ((_wide! && !wide) || (!_wide! && wide)) {
-        _wide = !_wide!;
-        Timer(const Duration(microseconds: 10), () {
-          Routes.navigator.currentState!.pushNamedAndRemoveUntil(Routes.home,
-              (r) => r.settings.name == Routes.home || r.settings.name == null);
-        });
-        return true;
-      }
-    }
-    return false;
   }
 }

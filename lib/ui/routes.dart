@@ -8,7 +8,6 @@ class Routes {
       GlobalKey<NavigatorState>();
 
   static const String home = '/';
-  static const String showArticleWide = '/lookupAndArticle';
   static const String showArticle = '/article';
   static const String dictionariesOnline = '/dictionariesOnline';
   static const String dictionariesOffline = '/dictionaries';

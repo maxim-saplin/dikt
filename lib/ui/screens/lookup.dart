@@ -1,16 +1,11 @@
 import 'dart:async';
-import 'dart:io';
-
-import 'package:dikt/common/helpers.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
 import '../../models/master_dictionary.dart';
-import '../../common/simple_simple_dialog.dart';
 import '../../common/i18n.dart';
 
-import '../elements/word_articles.dart';
 import '../elements/menu_buttons.dart';
 import '../elements/loading_progress.dart';
 import '../../models/history.dart';
@@ -385,37 +380,5 @@ void showArticle(BuildContext context, String word, bool useDialog) {
   var dictionary = Provider.of<MasterDictionary>(context, listen: false);
   dictionary.selectedWord = word;
 
-  if (useDialog) {
-    showDialog(
-        context: context,
-        barrierColor: !kIsWeb ? Colors.transparent : Colors.black54,
-        routeSettings: RouteSettings(name: Routes.showArticle, arguments: word),
-        builder: (BuildContext context) {
-          var articles = getArticles(context, word);
-
-          return SimpleSimpleDialog(
-              backgroundColor: Theme.of(context).cardColor,
-              elevation: 0,
-              insetPadding: EdgeInsets.fromLTRB(
-                  0, !kIsWeb && Platform.isMacOS ? 28 : 0, 0, 0),
-              children: [
-                KeyboardVisibilityBuilder(
-                    builder: (c, iv) => iv
-                        ? const SizedBox()
-                        : FutureBuilder(
-                            future: Future.delayed(
-                                const Duration(milliseconds: 80), () => true),
-                            builder: (c, s) => s.hasData
-                                ? WordArticles(
-                                    articles: articles,
-                                    word: word,
-                                    showAnotherWord: (word) =>
-                                        showArticle(context, word, useDialog),
-                                  )
-                                : const SizedBox()))
-              ]);
-        });
-  } else {
-    Navigator.of(context).pushNamed(Routes.showArticleWide, arguments: word);
-  }
+  Navigator.of(context).pushNamed(Routes.showArticle, arguments: word);
 }
