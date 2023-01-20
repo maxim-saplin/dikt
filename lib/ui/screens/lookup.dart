@@ -88,9 +88,10 @@ class LookupState extends State<Lookup> with WidgetsBindingObserver {
       _fullyLoaded = true;
       var v = _searchBarController.value;
       if (v.text.isNotEmpty) {
-        // If there's text in search bar, trigger onChange() event to show lookup results
-        _searchBarController.value = TextEditingValue.empty;
-        _searchBarController.value = v;
+        // If there's text in search bar, trigger lookup
+        dictionary.lookupWord = v.text;
+        // _searchBarController.value = TextEditingValue.empty;
+        //_searchBarController.value = v;
       }
     }
 
@@ -271,7 +272,6 @@ class _SearchBar extends StatelessWidget {
           TextField(
             controller: controller,
             autofocus: true,
-            autocorrect: false,
             focusNode: focusNode,
             onChanged: (text) {
               dictionary.lookupWord = text;

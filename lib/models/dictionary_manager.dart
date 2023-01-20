@@ -243,9 +243,6 @@ class DictionaryManager extends ChangeNotifier with Debounce {
     _dictionariesBeingProcessed = [];
 
     for (var i = 0; i < _dictionaries.length; i++) {
-      //ODO, remove delay, used for debuging
-      //await Future.delayed(const Duration(seconds: 1));
-
       var d = _dictionaries.getAt(i)!;
       if (d.isReadyToUse && d.isEnabled) {
         _dictionariesBeingProcessed
@@ -260,6 +257,8 @@ class DictionaryManager extends ChangeNotifier with Debounce {
       if (!kIsWeb) await pool!.started; // JIC wait for pool to finish startup
 
       for (var i in _dictionariesBeingProcessed) {
+        //TDO, remove delay, used for debuging
+        //await Future.delayed(const Duration(seconds: 3));
         i.state = DictionaryBeingProcessedState.inprogress;
         notifyListeners();
 
