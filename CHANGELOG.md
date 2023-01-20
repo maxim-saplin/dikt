@@ -1,4 +1,5 @@
-- 2.1.0+20 - fixed resuming and keyboard pop-up (broken resume with open article)
+- 2.1.0+22 - lookup text input, turned off autocomplete, let's see if it helps with cleared text after load (didn't help)
+- 2.1.0+21 - fixed resuming and keyboard pop-up (broken resume with open article)
 - 2.1.0+20 - larger click area for clear search bar button
 - 2.1.0+19 - fixed jumping search bar on Android when first letter is typed in, hopefully fixed focus issues with disappearing text when starting typing while dictionaries' loading is in-progress, Android SDK 33, fixed few warning after 3.3.8 upgrade
 - 2.1.0+18 - history, do not move up the word already in history when clicking it

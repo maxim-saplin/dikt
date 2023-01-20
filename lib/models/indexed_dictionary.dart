@@ -5,6 +5,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:ikvpack/ikvpack.dart';
+import 'package:isolate_pool_2/isolate_pool_2.dart';
 part 'indexed_dictionary.g.dart';
 
 @HiveType(typeId: 0)

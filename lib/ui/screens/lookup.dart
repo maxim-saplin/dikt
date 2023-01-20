@@ -271,6 +271,7 @@ class _SearchBar extends StatelessWidget {
           TextField(
             controller: controller,
             autofocus: true,
+            autocorrect: false,
             focusNode: focusNode,
             onChanged: (text) {
               dictionary.lookupWord = text;

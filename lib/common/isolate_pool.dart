@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'dart:math';
 
-import 'package:ikvpack/ikvpack.dart';
+import 'package:isolate_pool_2/isolate_pool_2.dart';
 
 IsolatePool? pool;
 
