@@ -29,10 +29,10 @@ dependencies:
   firebase_core: 
   firebase_analytics: 
   page_transition: ^2.0.2
-  file_selector_platform_interface: ^2.0.0
-  file_selector_linux: ^0.9.0+1
-  file_selector_macos: ^0.9.0+3
-  file_selector_windows: ^0.9.1+4
+  file_selector_platform_interface: any
+  file_selector_linux: any
+  file_selector_macos: any
+  file_selector_windows: any
   flutter_hooks: ^0.18.0
   superellipse_shape: ^0.2.0
   ikvpack:
