@@ -5,6 +5,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:provider/provider.dart';
 import '../../models/dictionary_manager.dart';
 import '../../common/i18n.dart';
+import '../../models/history.dart';
 
 class DictionaryIndexingOrLoading extends StatelessWidget {
   const DictionaryIndexingOrLoading({Key? key}) : super(key: key);
@@ -14,11 +15,8 @@ class DictionaryIndexingOrLoading extends StatelessWidget {
     if (!fadeShown) {
       var manager = Provider.of<DictionaryManager>(context);
       switch (manager.currentOperation) {
-        // case ManagerCurrentOperation.loading:
-        //   return DictionaryLoading();
         case ManagerCurrentOperation.indexing:
-          return const Padding(
-              padding: EdgeInsets.all(12), child: ManagerState());
+          return const DictionaryIndexing();
         default:
           return const DictionaryLoading();
       }
@@ -36,7 +34,11 @@ class DictionaryIndexing extends StatelessWidget {
     if (!fadeShown) {
       var manager = Provider.of<DictionaryManager>(context);
       return manager.currentOperation == ManagerCurrentOperation.indexing
-          ? const Padding(padding: EdgeInsets.all(12), child: ManagerState())
+          ? const Align(
+              alignment: Alignment.topCenter,
+              child: Padding(
+                  padding: EdgeInsets.fromLTRB(20, 120, 0, 0),
+                  child: ManagerState()))
           : const Text('');
     }
 
@@ -113,5 +115,39 @@ class DictionaryLoadingNoAlign extends HookWidget {
             manager.isRunning
         ? Opacity(opacity: 0.3, child: ui(''))
         : fade;
+  }
+}
+
+class EmptyHints extends StatelessWidget {
+  const EmptyHints(
+      {super.key,
+      this.showDictionaryStats = false,
+      this.showSearchBarHint = false});
+
+  final bool showDictionaryStats;
+  final bool showSearchBarHint;
+
+  @override
+  Widget build(BuildContext context) {
+    var dictionary = Provider.of<MasterDictionary>(context);
+    var history = Provider.of<History>(context, listen: false);
+
+    return dictionary.isFullyLoaded &&
+            ((dictionary.isLookupWordEmpty && history.wordsCount < 1) ||
+                dictionary.totalEntries == 0)
+        ? Expanded(
+            child: Center(
+                child: Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 100, 0, 0),
+                    child: Text(
+                      (showDictionaryStats
+                              ? ('${dictionary.totalEntries == 0 ? '↑↑↑\n${'Try adding dictionaries'.i18n}\n\n' : ''}${dictionary.totalEntries} ${'entries'.i18n}')
+                              : '') +
+                          (dictionary.totalEntries > 0 && showSearchBarHint
+                              ? '\n\n${'Type-in text below'.i18n}\n↓ ↓ ↓'
+                              : ''),
+                      textAlign: TextAlign.center,
+                    ))))
+        : const SizedBox();
   }
 }

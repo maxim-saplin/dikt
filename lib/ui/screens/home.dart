@@ -2,6 +2,7 @@ import 'package:dikt/ui/adaptive.dart';
 import 'package:dikt/ui/elements/menu_buttons.dart';
 import 'package:flutter/material.dart';
 
+import '../elements/loading_progress.dart';
 import '../panes/lookup.dart';
 
 int wideNarrowThreshold = 500;
@@ -11,12 +12,22 @@ class Home extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(children: [
-      AdaptiveSplitView(
-          ifOnePane: (c, add) => add(const Lookup(searchBarTopRounded: true)),
-          ifTwoPanes: (c, add) => add(const Lookup(searchBarTopRounded: false),
-              const Center(child: Text('Article here')))),
-      const TopButtons()
-    ]);
+    return AdaptiveSplitView(
+        ifOnePane: (c, add) => add(Stack(children: const [
+              Lookup(searchBarTopRounded: true),
+              DictionaryIndexingOrLoading(),
+              EmptyHints(showDictionaryStats: true, showSearchBarHint: true),
+              TopButtons()
+            ])),
+        ifTwoPanes: (c, add) => add(
+            Stack(children: const [
+              Lookup(searchBarTopRounded: false),
+              EmptyHints(showDictionaryStats: false, showSearchBarHint: true)
+            ]),
+            Stack(children: const [
+              DictionaryIndexingOrLoading(),
+              EmptyHints(showDictionaryStats: true, showSearchBarHint: false),
+              TopButtons()
+            ])));
   }
 }

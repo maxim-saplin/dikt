@@ -84,34 +84,13 @@ class LookupState extends State<Lookup> with WidgetsBindingObserver {
       if (v.text.isNotEmpty) {
         // If there's text in search bar, trigger lookup
         dictionary.lookupWord = v.text;
-        // _searchBarController.value = TextEditingValue.empty;
-        //_searchBarController.value = v;
       }
     }
 
     return Column(children: [
       !dictionary.isPartiallyLoaded
           ? const Expanded(child: Text(''))
-          :
-          // TODO, add this part
-          // ((dictionary.isLookupWordEmpty && history.wordsCount < 1) ||
-          //         dictionary.totalEntries == 0
-          //     ? Expanded(
-          //         child: Center(
-          //             child: Padding(
-          //                 padding: const EdgeInsets.fromLTRB(0, 100, 0, 0),
-          //                 child: Text(
-          //                   (widget.narrow
-          //                           ? ('${dictionary.totalEntries == 0 ? '↑↑↑\n${'Try adding dictionaries'.i18n}\n\n' : ''}${dictionary.totalEntries} ${'entries'.i18n}')
-          //                           : '') +
-          //                       (dictionary.totalEntries > 0
-          //                           ? '\n\n${'Type-in text below'.i18n}\n↓ ↓ ↓'
-          //                           : ''),
-          //                   textAlign: TextAlign.center,
-          //                 ))))
-          //     :
-
-          Expanded(
+          : Expanded(
               child: _WordsList(
                 dictionary: dictionary,
                 history: history,
