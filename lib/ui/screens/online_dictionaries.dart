@@ -259,7 +259,7 @@ class OnlineDictionaryTile extends HookWidget {
                             '${data.error!} - ${data.repoDictionary.name}',
                             maxLines: 2,
                             overflow: TextOverflow.clip,
-                            style: Theme.of(context).textTheme.overline)))
+                            style: Theme.of(context).textTheme.labelSmall)))
           ])),
         ]));
   }

@@ -6,15 +6,14 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import '../../models/master_dictionary.dart';
 import '../../common/i18n.dart';
 
-import '../elements/menu_buttons.dart';
-import '../elements/loading_progress.dart';
 import '../../models/history.dart';
 import '../routes.dart';
 
 class Lookup extends StatefulWidget {
-  final bool narrow;
+  const Lookup({Key? key, this.searchBarTopRounded = true}) : super(key: key);
 
-  const Lookup({Key? key, this.narrow = false}) : super(key: key);
+  /// If true, top corners og the searc bar are rounded, otherwise only top left
+  final bool searchBarTopRounded;
 
   @override
   State<StatefulWidget> createState() => LookupState();
@@ -90,47 +89,45 @@ class LookupState extends State<Lookup> with WidgetsBindingObserver {
       }
     }
 
-    return Stack(children: [
-      widget.narrow ? const DictionaryIndexingOrLoading() : const Text(''),
-      Column(children: [
-        !dictionary.isPartiallyLoaded
-            ? const Expanded(child: Text(''))
-            : ((dictionary.isLookupWordEmpty && history.wordsCount < 1) ||
-                    dictionary.totalEntries == 0
-                ? Expanded(
-                    child: Center(
-                        child: Padding(
-                            padding: const EdgeInsets.fromLTRB(0, 100, 0, 0),
-                            child: Text(
-                              (widget.narrow
-                                      ? ('${dictionary.totalEntries == 0 ? '↑↑↑\n${'Try adding dictionaries'.i18n}\n\n' : ''}${dictionary.totalEntries} ${'entries'.i18n}')
-                                      : '') +
-                                  (dictionary.totalEntries > 0
-                                      ? '\n\n${'Type-in text below'.i18n}\n↓ ↓ ↓'
-                                      : ''),
-                              textAlign: TextAlign.center,
-                            ))))
-                : Expanded(
-                    child: _WordsList(
-                      dictionary: dictionary,
-                      history: history,
-                      narrow: widget.narrow,
-                    ),
-                  )),
-        _SearchBar(widget.narrow, _searchBarController, _searchBarFocusNode)
-      ]),
-      widget.narrow ? const TopButtons() : const Text(''),
+    return Column(children: [
+      !dictionary.isPartiallyLoaded
+          ? const Expanded(child: Text(''))
+          :
+          // TODO, add this part
+          // ((dictionary.isLookupWordEmpty && history.wordsCount < 1) ||
+          //         dictionary.totalEntries == 0
+          //     ? Expanded(
+          //         child: Center(
+          //             child: Padding(
+          //                 padding: const EdgeInsets.fromLTRB(0, 100, 0, 0),
+          //                 child: Text(
+          //                   (widget.narrow
+          //                           ? ('${dictionary.totalEntries == 0 ? '↑↑↑\n${'Try adding dictionaries'.i18n}\n\n' : ''}${dictionary.totalEntries} ${'entries'.i18n}')
+          //                           : '') +
+          //                       (dictionary.totalEntries > 0
+          //                           ? '\n\n${'Type-in text below'.i18n}\n↓ ↓ ↓'
+          //                           : ''),
+          //                   textAlign: TextAlign.center,
+          //                 ))))
+          //     :
+
+          Expanded(
+              child: _WordsList(
+                dictionary: dictionary,
+                history: history,
+              ),
+            ),
+      _SearchBar(
+          widget.searchBarTopRounded, _searchBarController, _searchBarFocusNode)
     ]);
   }
 }
 
 class _WordsList extends StatelessWidget {
-  const _WordsList(
-      {required this.dictionary, required this.history, required this.narrow});
+  const _WordsList({required this.dictionary, required this.history});
 
   final MasterDictionary dictionary;
   final History history;
-  final bool narrow;
 
   static const int _emptyEntries = 5; //allow to reach top items
 
@@ -141,7 +138,7 @@ class _WordsList extends StatelessWidget {
       slivers: [
         SliverList(
           delegate: SliverChildBuilderDelegate((context, index) {
-            Widget x = _Entry(index, dictionary, history, narrow);
+            Widget x = _Entry(index, dictionary, history);
             if (index == 0) {
               x = Padding(
                   padding: const EdgeInsets.fromLTRB(0, 0, 0, 10), child: x);
@@ -192,10 +189,8 @@ class _Entry extends StatelessWidget {
   final int index;
   final MasterDictionary dictionary;
   final History history;
-  final bool narrow;
 
-  const _Entry(this.index, this.dictionary, this.history, this.narrow,
-      {Key? key})
+  const _Entry(this.index, this.dictionary, this.history, {Key? key})
       : super(key: key);
 
   @override
@@ -213,7 +208,7 @@ class _Entry extends StatelessWidget {
         child: GestureDetector(
             onTap: () {
               if (word == '') return;
-              showArticle(context, word, narrow);
+              showArticle(context, word);
             },
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -245,12 +240,12 @@ class _Entry extends StatelessWidget {
 }
 
 class _SearchBar extends StatelessWidget {
-  final bool narrow;
+  /// If true, top corners are rounded, otherwise only top left
+  final bool roundedTop;
   final TextEditingController controller;
   final FocusNode focusNode;
-  //static GlobalKey _key = GlobalKey();
 
-  const _SearchBar(this.narrow, this.controller, this.focusNode);
+  const _SearchBar(this.roundedTop, this.controller, this.focusNode);
 
   @override
   Widget build(BuildContext context) {
@@ -260,8 +255,9 @@ class _SearchBar extends StatelessWidget {
         decoration: BoxDecoration(
             color: Theme.of(context).canvasColor,
             borderRadius: BorderRadius.only(
-                topLeft: narrow ? const Radius.circular(12) : Radius.zero,
-                topRight: narrow ? const Radius.circular(12) : Radius.zero)),
+                topLeft: roundedTop ? const Radius.circular(12) : Radius.zero,
+                topRight:
+                    roundedTop ? const Radius.circular(12) : Radius.zero)),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         child: Stack(alignment: Alignment.bottomRight, children: [
           TextField(
@@ -273,7 +269,7 @@ class _SearchBar extends StatelessWidget {
             },
             onSubmitted: (value) {
               if (dictionary.matchesCount > 0) {
-                showArticle(context, dictionary.getMatch(0), narrow);
+                showArticle(context, dictionary.getMatch(0));
               }
             },
             style: const TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
@@ -287,7 +283,7 @@ class _SearchBar extends StatelessWidget {
               child: Text(
                   (dictionary.lookupSw.elapsedMicroseconds / 1000)
                       .toStringAsFixed(1),
-                  style: Theme.of(context).textTheme.overline)),
+                  style: Theme.of(context).textTheme.labelSmall)),
           if (!dictionary.isLookupWordEmpty)
             _ClearInvisibleButton(
                 dictionary: dictionary,
@@ -375,7 +371,8 @@ Future<List<Article>> getArticles(BuildContext context, String word) async {
   return articles;
 }
 
-void showArticle(BuildContext context, String word, bool useDialog) {
+// TODO, article here
+void showArticle(BuildContext context, String word) {
   var history = Provider.of<History>(context, listen: false);
   history.addWord(word);
   var dictionary = Provider.of<MasterDictionary>(context, listen: false);

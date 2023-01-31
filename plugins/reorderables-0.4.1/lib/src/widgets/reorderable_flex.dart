@@ -304,12 +304,11 @@ class _ReorderableFlexContentState extends State<_ReorderableFlexContent>
       _attachedScrollPosition = null;
     }
 
-    _scrollController = widget.scrollController ??
-        PrimaryScrollController.of(context) ??
-        ScrollController();
+    _scrollController =
+        widget.scrollController ?? PrimaryScrollController.of(context);
 
     if (_scrollController.hasClients) {
-      _attachedScrollPosition = Scrollable.of(context)?.position;
+      _attachedScrollPosition = Scrollable.of(context).position;
     } else {
       _attachedScrollPosition = null;
     }
@@ -364,7 +363,7 @@ class _ReorderableFlexContentState extends State<_ReorderableFlexContent>
     if (_scrolling) return;
     final RenderObject contextObject = context.findRenderObject()!;
     final RenderAbstractViewport viewport =
-        RenderAbstractViewport.of(contextObject)!;
+        RenderAbstractViewport.of(contextObject);
     // If and only if the current scroll offset falls in-between the offsets
     // necessary to reveal the selected context at the top or bottom of the
     // screen, then it is already on-screen.
@@ -444,13 +443,10 @@ class _ReorderableFlexContentState extends State<_ReorderableFlexContent>
 
     // Places the value from startIndex one space before the element at endIndex.
     void _reorder(int startIndex, int endIndex) {
-//      debugPrint('startIndex:$startIndex endIndex:$endIndex');
       if (startIndex != endIndex)
         widget.onReorder(startIndex, endIndex);
       else if (widget.onNoReorder != null) widget.onNoReorder!(startIndex);
       // Animates leftover space in the drop area closed.
-      // TODO(djshuckerow): bring the animation in line with the Material
-      // specifications.
       _ghostController.reverse(from: 0.1);
       _entranceController.reverse(from: 0);
 
@@ -458,7 +454,6 @@ class _ReorderableFlexContentState extends State<_ReorderableFlexContent>
     }
 
     void reorder(int startIndex, int endIndex) {
-//      debugPrint('startIndex:$startIndex endIndex:$endIndex');
       setState(() {
         _reorder(startIndex, endIndex);
       });
@@ -466,7 +461,6 @@ class _ReorderableFlexContentState extends State<_ReorderableFlexContent>
 
     // Drops toWrap into the last position it was hovering over.
     void onDragEnded() {
-//      reorder(_dragStartIndex, _currentIndex);
       setState(() {
         _reorder(_dragStartIndex, _currentIndex);
         _dragStartIndex = -1;
@@ -515,8 +509,9 @@ class _ReorderableFlexContentState extends State<_ReorderableFlexContent>
         }
         semanticsActions[CustomSemanticsAction(label: reorderItemAfter)] =
             moveAfter;
-        semanticsActions[CustomSemanticsAction(
-            label: localizations.reorderItemToEnd)] = moveToEnd;
+        semanticsActions[
+                CustomSemanticsAction(label: localizations.reorderItemToEnd)] =
+            moveToEnd;
       }
 
       // We pass toWrap with a GlobalKey into the Draggable so that when a list
@@ -592,39 +587,20 @@ class _ReorderableFlexContentState extends State<_ReorderableFlexContent>
                 axis: widget.direction,
                 data: toWrap.key,
                 ignoringFeedbackSemantics: false,
-                //        feedback: Container(
-                //          alignment: Alignment.topLeft,
-                //          // These constraints will limit the cross axis of the drawn widget.
-                //          constraints: constraints,
-                //          child: Material(
-                //            elevation: 6.0,
-                //            child: IntrinsicWidth(child: toWrapWithSemantics),
-                //          ),
-                //        ),
+
                 feedback: feedbackBuilder,
-                //        feedback: Transform(
-                //          transform: new Matrix4.rotationZ(0),
-                //          alignment: FractionalOffset.topLeft,
-                //          child: Material(
-                //            child: Card(child: ConstrainedBox(constraints: BoxConstraints.tightFor(width: 100), child: toWrapWithSemantics)),
-                //            elevation: 6.0,
-                //            color: Colors.transparent,
-                //            borderRadius: BorderRadius.zero,
-                //          ),
-                //        ),
-                // Wrap toWrapWithSemantics with a widget that supports HitTestBehavior
-                // to make sure the whole toWrapWithSemantics responds to pointer events, i.e. dragging
+
                 child: MetaData(
                     child: toWrapWithSemantics,
                     behavior: HitTestBehavior.opaque),
-                //toWrapWithSemantics,//_dragging == toWrap.key ? const SizedBox() : toWrapWithSemantics,
+
                 childWhenDragging: IgnorePointer(
                     ignoring: true,
                     child: Opacity(
                         opacity: 0,
                         child: Container(width: 0, height: 0, child: toWrap))),
-                //ConstrainedBox(constraints: contentConstraints),//SizedBox(),
-                dragAnchor: DragAnchor.child,
+                //TODO, check if it breaks anything, e.g. ancoring to vertical direction
+                //dragAnchor: DragAnchor.child,
                 onDragStarted: onDragStarted,
                 // When the drag ends inside a DragTarget widget, the drag
                 // succeeds, and we reorder the widget into position appropriately.
@@ -651,7 +627,9 @@ class _ReorderableFlexContentState extends State<_ReorderableFlexContent>
                     child: Opacity(
                         opacity: 0,
                         child: Container(width: 0, height: 0, child: toWrap))),
-                dragAnchor: DragAnchor.child,
+
+                // TODO
+                //dragAnchor: DragAnchor.child,
                 onDragStarted: onDragStarted,
                 // When the drag ends inside a DragTarget widget, the drag
                 // succeeds, and we reorder the widget into position appropriately.
@@ -867,8 +845,7 @@ class _ReorderableFlexContentState extends State<_ReorderableFlexContent>
 //        controller: _scrollController,
 //      );
 
-    if (widget.scrollController != null &&
-        PrimaryScrollController.of(context) == null) {
+    if (widget.scrollController != null) {
       return (widget.buildItemsContainer ?? defaultBuildItemsContainer)(
           context, widget.direction, wrappedChildren);
     } else {

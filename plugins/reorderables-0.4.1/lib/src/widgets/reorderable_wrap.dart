@@ -477,9 +477,8 @@ class _ReorderableWrapContentState extends State<_ReorderableWrapContent>
 
   @override
   void didChangeDependencies() {
-    _scrollController = widget.controller ??
-        PrimaryScrollController.of(context) ??
-        ScrollController();
+    _scrollController =
+        widget.controller ?? PrimaryScrollController.of(context);
     super.didChangeDependencies();
   }
 
@@ -520,7 +519,7 @@ class _ReorderableWrapContentState extends State<_ReorderableWrapContent>
     if (_scrolling) return;
     final RenderObject contextObject = context.findRenderObject()!;
     final RenderAbstractViewport viewport =
-        RenderAbstractViewport.of(contextObject)!;
+        RenderAbstractViewport.of(contextObject);
     // If and only if the current scroll offset falls in-between the offsets
     // necessary to reveal the selected context at the top or bottom of the
     // screen, then it is already on-screen.
@@ -663,17 +662,12 @@ class _ReorderableWrapContentState extends State<_ReorderableWrapContent>
 
     // Places the value from startIndex one space before the element at endIndex.
     void _reorder(int startIndex, int endIndex) {
-//      debugPrint('_reorder: startIndex:$startIndex endIndex:$endIndex');
       if (startIndex != endIndex)
         widget.onReorder(startIndex, endIndex);
       else if (widget.onNoReorder != null) widget.onNoReorder!(startIndex);
       // Animates leftover space in the drop area closed.
-      // TODO(djshuckerow): bring the animation in line with the Material
-      // specifications.
       _ghostController.reverse(from: 0.1);
       _entranceController.reverse(from: 0);
-
-//      _dragging = null;
       _dragStartIndex = -1;
     }
 
@@ -686,7 +680,6 @@ class _ReorderableWrapContentState extends State<_ReorderableWrapContent>
 
     // Drops toWrap into the last position it was hovering over.
     void onDragEnded() {
-//      reorder(_dragStartIndex, _currentIndex);
       setState(() {
         _reorder(_dragStartIndex, _currentDisplayIndex);
         _dragStartIndex = -1;
@@ -827,7 +820,8 @@ class _ReorderableWrapContentState extends State<_ReorderableWrapContent>
                         //child: toWrap,//Container(width: 0, height: 0, child: toWrap)
                         child: _makeAppearingWidget(toWrap))),
                 //ConstrainedBox(constraints: contentConstraints),//SizedBox(),
-                dragAnchor: DragAnchor.child,
+                //TODO
+                //dragAnchor: DragAnchor.child,
                 onDragStarted: onDragStarted,
                 // When the drag ends inside a DragTarget widget, the drag
                 // succeeds, and we reorder the widget into position appropriately.
@@ -854,7 +848,8 @@ class _ReorderableWrapContentState extends State<_ReorderableWrapContent>
                     child: _makeAppearingWidget(toWrap),
                   ),
                 ),
-                dragAnchor: DragAnchor.child,
+                //TODO
+                //: DragAnchor.child,
                 onDragStarted: onDragStarted,
                 onDragCompleted: onDragEnded,
                 onDraggableCanceled: (Velocity velocity, Offset offset) =>
@@ -1205,8 +1200,7 @@ class _ReorderableWrapContentState extends State<_ReorderableWrapContent>
       wrappedChildren.add(widget.footer!);
     }
 
-    if (widget.controller != null &&
-        PrimaryScrollController.of(context) == null) {
+    if (widget.controller != null) {
       return (widget.buildItemsContainer ?? defaultBuildItemsContainer)(
           context, widget.direction, wrappedChildren);
     } else {

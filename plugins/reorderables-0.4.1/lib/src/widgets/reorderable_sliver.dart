@@ -385,12 +385,11 @@ class _ReorderableSliverListState extends State<ReorderableSliverList>
       _attachedScrollPosition = null;
     }
 
-    _scrollController = widget.controller ??
-        PrimaryScrollController.of(context) ??
-        ScrollController();
+    _scrollController =
+        widget.controller ?? PrimaryScrollController.of(context);
 
     _attachedScrollPosition =
-        _scrollController.hasClients ? null : Scrollable.of(context)?.position;
+        _scrollController.hasClients ? null : Scrollable.of(context).position;
 
     if (_attachedScrollPosition != null) {
       _scrollController.attach(_attachedScrollPosition!);
@@ -500,7 +499,7 @@ class _ReorderableSliverListState extends State<ReorderableSliverList>
     if (_scrolling) return;
     final RenderObject contextObject = context.findRenderObject()!;
     final RenderAbstractViewport viewport =
-        RenderAbstractViewport.of(contextObject)!;
+        RenderAbstractViewport.of(contextObject);
 
 //    if (_scrollController.positions.isEmpty) {
 //      debugPrint('${DateTime.now().toString().substring(5, 22)} reorderable_sliver.dart(537) $this._scrollTo: empty pos');
@@ -611,8 +610,6 @@ class _ReorderableSliverListState extends State<ReorderableSliverList>
         widget.onReorder(startIndex, endIndex);
       else if (widget.onNoReorder != null) widget.onNoReorder!(startIndex);
       // Animates leftover space in the drop area closed.
-      // TODO(djshuckerow): bring the animation in line with the Material
-      // specifications.
       _ghostController.reverse(from: 0.1);
       _entranceController.reverse(from: 0);
 
@@ -813,7 +810,8 @@ class _ReorderableSliverListState extends State<ReorderableSliverList>
 //              child: _makeAppearingWidget(toWrap)
                       child: Container(width: 0, height: 0, child: toWrap)))),
           //ConstrainedBox(constraints: contentConstraints),//SizedBox(),
-          dragAnchor: DragAnchor.child,
+          // TODO
+          //dragAnchor: DragAnchor.child,
           onDragStarted: onDragStarted,
           // When the drag ends inside a DragTarget widget, the drag
           // succeeds, and we reorder the widget into position appropriately.

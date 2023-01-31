@@ -3,7 +3,7 @@ import 'package:dikt/models/dictionary_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../ui/screens/lookup.dart';
+import 'home.dart';
 import '../elements/menu_buttons.dart';
 import '../elements/loading_progress.dart';
 import '../elements/word_articles.dart';
@@ -23,13 +23,13 @@ class LookupAndArticle extends StatelessWidget {
     var dictionary = Provider.of<MasterDictionary>(context);
     var manager = Provider.of<DictionaryManager>(context);
     Future<List<Article>>? articles =
-        word.isEmpty ? null : getArticles(context, word);
+        word.isEmpty ? null : null; //getArticles(context, word); // TODO
 
     return Stack(children: [
       Row(children: [
         const Expanded(
           flex: 1,
-          child: Lookup(narrow: false),
+          child: Home(),
         ),
         Expanded(
             flex: 2,
@@ -48,10 +48,11 @@ class LookupAndArticle extends StatelessWidget {
                           child: Padding(
                               padding: const EdgeInsets.fromLTRB(0, 38, 0, 0),
                               child: WordArticles(
-                                  articles: articles,
-                                  word: word,
-                                  showAnotherWord: (word) =>
-                                      showArticle(context, word, false))))),
+                                articles: articles,
+                                word: word,
+                                // showAnotherWord: (word) =>
+                                //     showArticle(context, word, false)
+                              )))),
                   const TopButtons()
                 ])))
       ]),

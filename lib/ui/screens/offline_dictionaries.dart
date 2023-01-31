@@ -32,8 +32,7 @@ class OfflineDictionariesState extends State<OfflineDictionaries> {
 
   @override
   Widget build(BuildContext context) {
-    ScrollController scrollController =
-        PrimaryScrollController.of(context) ?? ScrollController();
+    ScrollController scrollController = PrimaryScrollController.of(context);
 
     var manager = Provider.of<DictionaryManager>(context);
     var dictionaries = manager.dictionariesAll;

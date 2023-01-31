@@ -86,7 +86,7 @@ class DictionaryLoadingNoAlign extends HookWidget {
                           '${'Loading dictionaries: '.i18n}\n$count / ${manager.dictionariesBeingProcessed.length}',
                           style: const TextStyle(fontSize: 18),
                         )))),
-            Text(time, style: Theme.of(context).textTheme.overline)
+            Text(time, style: Theme.of(context).textTheme.labelSmall)
           ]),
           Container(
             color: Colors.grey,

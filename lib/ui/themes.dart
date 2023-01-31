@@ -78,7 +78,7 @@ final ThemeData lightTheme = ThemeData.light().copyWith(
         color: Colors.black.withAlpha(128),
       ),
       // used for dictionary error text in Online dicts
-      overline: const TextStyle(
+      labelSmall: const TextStyle(
           fontSize: 14.0,
           fontFamily: 'Montserrat',
           fontStyle: FontStyle.italic,
@@ -133,7 +133,7 @@ final ThemeData darkTheme = ThemeData.dark().copyWith(
           color: Colors.white.withAlpha(128),
           fontFamilyFallback: const ['Roboto']),
       // used for dictionary error text in Online dicts
-      overline: const TextStyle(
+      labelSmall: const TextStyle(
           fontSize: 14.0,
           fontFamily: 'Montserrat',
           fontStyle: FontStyle.italic,

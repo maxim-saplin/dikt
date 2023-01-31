@@ -18,7 +18,7 @@ import 'package:dikt/ui/themes.dart';
 
 import 'models/master_dictionary.dart';
 import './models/preferences.dart';
-import './ui/screens/lookup.dart';
+import 'ui/screens/home.dart';
 import 'ui/screens/lookup_and_article.dart';
 import './models/history.dart';
 import 'models/dictionary_manager.dart';
@@ -65,13 +65,10 @@ class MyApp extends StatelessWidget {
         body: DoubleBack(message: 'Tap back again to quit'.i18n, child: child));
   }
 
-  static bool? _wide;
   static double wideWidth = 600;
 
   @override
   Widget build(BuildContext context) {
-    var narrow = false;
-
     return MultiProvider(
         providers: [
           ChangeNotifierProvider<DictionaryManager>(
@@ -125,9 +122,6 @@ class MyApp extends StatelessWidget {
                       }
                     });
 
-                    narrow = MediaQuery.of(context).size.width < wideWidth;
-                    //resetNavHistoryIfWideModeChanged(!narrow);
-
                     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
                       systemNavigationBarColor: Theme.of(context)
                           .canvasColor, //  Android navigation bar color
@@ -145,9 +139,7 @@ class MyApp extends StatelessWidget {
                       case Routes.home:
                         return PageTransition(
                             settings: settings,
-                            child: narrow
-                                ? _getScaffold(const Lookup(narrow: true))
-                                : _getScaffold(const LookupAndArticle()),
+                            child: _getScaffold(const Home()),
                             type: PageTransitionType.fade);
                       case Routes.showArticle:
                         return PageTransition(
