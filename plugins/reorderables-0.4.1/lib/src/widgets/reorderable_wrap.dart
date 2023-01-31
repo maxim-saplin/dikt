@@ -820,8 +820,6 @@ class _ReorderableWrapContentState extends State<_ReorderableWrapContent>
                         //child: toWrap,//Container(width: 0, height: 0, child: toWrap)
                         child: _makeAppearingWidget(toWrap))),
                 //ConstrainedBox(constraints: contentConstraints),//SizedBox(),
-                //TODO
-                //dragAnchor: DragAnchor.child,
                 onDragStarted: onDragStarted,
                 // When the drag ends inside a DragTarget widget, the drag
                 // succeeds, and we reorder the widget into position appropriately.
@@ -848,8 +846,6 @@ class _ReorderableWrapContentState extends State<_ReorderableWrapContent>
                     child: _makeAppearingWidget(toWrap),
                   ),
                 ),
-                //TODO
-                //: DragAnchor.child,
                 onDragStarted: onDragStarted,
                 onDragCompleted: onDragEnded,
                 onDraggableCanceled: (Velocity velocity, Offset offset) =>

@@ -810,8 +810,6 @@ class _ReorderableSliverListState extends State<ReorderableSliverList>
 //              child: _makeAppearingWidget(toWrap)
                       child: Container(width: 0, height: 0, child: toWrap)))),
           //ConstrainedBox(constraints: contentConstraints),//SizedBox(),
-          // TODO
-          //dragAnchor: DragAnchor.child,
           onDragStarted: onDragStarted,
           // When the drag ends inside a DragTarget widget, the drag
           // succeeds, and we reorder the widget into position appropriately.

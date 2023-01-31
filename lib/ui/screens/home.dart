@@ -1,4 +1,6 @@
+import 'package:dikt/ui/elements/menu_buttons.dart';
 import 'package:flutter/material.dart';
+import 'package:multi_split_view/multi_split_view.dart';
 
 import '../panes/lookup.dart';
 
@@ -10,13 +12,27 @@ class Home extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraints) {
-      if (constraints.maxWidth >= wideNarrowThreshold) {
-        return Row(children: const [
-          Expanded(flex: 1, child: Lookup(searchBarTopRounded: false)),
-          Expanded(flex: 2, child: Center(child: Text('Article here')))
-        ]);
-      }
-      return const Lookup(searchBarTopRounded: true);
+      Widget x = constraints.maxWidth >= wideNarrowThreshold
+          ? MultiSplitViewTheme(
+              data: MultiSplitViewThemeData(
+                  dividerThickness: 5,
+                  dividerPainter: DividerPainters.background(
+                      highlightedColor:
+                          Theme.of(context).colorScheme.secondary)),
+              child: MultiSplitView(
+                initialAreas: [(Area(weight: 0.35))],
+                children: const [
+                  Lookup(searchBarTopRounded: false),
+                  Center(child: Text('Article here'))
+                ],
+              ))
+          : const Lookup(searchBarTopRounded: true);
+
+      x = Stack(
+        children: [x, const TopButtons()],
+      );
+
+      return x;
     });
   }
 }
