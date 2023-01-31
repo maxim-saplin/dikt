@@ -57,8 +57,6 @@ class SimpleSimpleDialog extends StatelessWidget {
 
   /// Style for the text in the [title] of this [SimpleDialog].
   ///
-  /// If null, [DialogTheme.titleTextStyle] is used, if that's null, defaults to
-  /// [ThemeData.textTheme.headline6].
   final TextStyle? titleTextStyle;
 
   /// The (optional) content of the dialog is displayed in a

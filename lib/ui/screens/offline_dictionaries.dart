@@ -244,7 +244,7 @@ class _LoadAndEnabledButton extends HookWidget {
       return TextButton(
           child: Padding(
               padding: const EdgeInsets.all(3),
-              child: Text('↓', style: Theme.of(context).textTheme.caption)),
+              child: Text('↓', style: Theme.of(context).textTheme.bodySmall)),
           onPressed: () {
             if (dictionary.isError) return;
             _swithcEnabled(context);
@@ -264,7 +264,7 @@ class _LoadAndEnabledButton extends HookWidget {
     return TextButton(
         child: Padding(
             padding: const EdgeInsets.all(3),
-            child: Text('↓', style: Theme.of(context).textTheme.caption)),
+            child: Text('↓', style: Theme.of(context).textTheme.bodySmall)),
         onPressed: () {
           dictionary.openIkvs(pool).then((value) {
             _swithcEnabled(context);
@@ -299,7 +299,8 @@ class OfflineDictionaryTile extends StatelessWidget {
                           child: Padding(
                               padding: const EdgeInsets.all(3),
                               child: Text('↻',
-                                  style: Theme.of(context).textTheme.caption)),
+                                  style:
+                                      Theme.of(context).textTheme.bodySmall)),
                           onPressed: () {
                             //if (dictionary.isError) return;
                             manager
@@ -310,8 +311,9 @@ class OfflineDictionaryTile extends StatelessWidget {
                               child: Padding(
                                   padding: const EdgeInsets.all(3),
                                   child: Text('↘',
-                                      style:
-                                          Theme.of(context).textTheme.caption)),
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodySmall)),
                               onPressed: () {
                                 if (dictionary.isError) return;
                                 manager.switchIsEnabled(dictionary);
@@ -331,7 +333,7 @@ class OfflineDictionaryTile extends StatelessWidget {
                           children: [
                             Text(dictionary.name,
                                 overflow: TextOverflow.ellipsis,
-                                style: Theme.of(context).textTheme.caption),
+                                style: Theme.of(context).textTheme.bodySmall),
                             dictionary.isError
                                 ? const Text('error',
                                     style: TextStyle(color: Colors.red))
@@ -353,7 +355,7 @@ class OfflineDictionaryTile extends StatelessWidget {
                                           overflow: TextOverflow.ellipsis,
                                           style: Theme.of(context)
                                               .textTheme
-                                              .subtitle2,
+                                              .titleSmall,
                                         );
                                       } else {
                                         return const Text('...');

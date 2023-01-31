@@ -48,12 +48,7 @@ class HtmlParser {
     StyledElement cascadedStyledTree = _cascadeStyles(customStyledTree);
     StyledElement cleanedTree = cleanTree(cascadedStyledTree);
     InlineSpan parsedTree = parseTree(
-        RenderContext(
-            parser: this,
-            tree: cleanedTree,
-            style:
-                defaultStyle //Style.fromTextStyle(Theme.of(context).textTheme.bodyText2!),
-            ),
+        RenderContext(parser: this, tree: cleanedTree, style: defaultStyle),
         cleanedTree,
         tapHandler);
 

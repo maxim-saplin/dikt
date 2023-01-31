@@ -230,13 +230,14 @@ class Style {
     }
   }
 
+  // TODO, fix with 2021 text styles from Material 3
   static Map<String, Style> fromThemeData(ThemeData theme) => {
         'h1': Style.fromTextStyle(theme.textTheme.headline1!),
         'h2': Style.fromTextStyle(theme.textTheme.headline2!),
         'h3': Style.fromTextStyle(theme.textTheme.headline3!),
         'h4': Style.fromTextStyle(theme.textTheme.headline4!),
         'h5': Style.fromTextStyle(theme.textTheme.headline5!),
-        'h6': Style.fromTextStyle(theme.textTheme.headline6!),
+        'h6': Style.fromTextStyle(theme.textTheme.headline6!), // ?headlineSmall
         'body': Style.fromTextStyle(theme.textTheme.bodyText2!),
       };
 

@@ -40,12 +40,7 @@ extension ThemeDataExtensions on ThemeData {
 OwnThemeFields ownTheme(BuildContext context) => Theme.of(context).own();
 
 final ThemeData lightTheme = ThemeData.light().copyWith(
-    // cardColor: Color.fromARGB(255, 240, 242, 243),
-    // dialogBackgroundColor: Color.fromARGB(255, 240, 242, 243),
-    backgroundColor: const Color.fromARGB(255, 240, 242, 243),
     canvasColor: const Color.fromARGB(255, 240, 242, 243),
-    // scaffoldBackgroundColor: Color.fromARGB(255, 240, 242, 243),
-    //visualDensity: VisualDensity(horizontal: -4, vertical: -4),
     outlinedButtonTheme: OutlinedButtonThemeData(
         style: ButtonStyle(
             foregroundColor: MaterialStateProperty.all<Color>(Colors.black))),
@@ -54,24 +49,26 @@ final ThemeData lightTheme = ThemeData.light().copyWith(
         border: InputBorder.none,
         labelStyle: TextStyle(
             fontSize: 18, fontFamily: 'Montserrat', color: Colors.red)),
-    colorScheme: const ColorScheme.light()
-        .copyWith(secondary: Colors.grey.withAlpha(128)),
+    // backgroundColor: const Color.fromARGB(255, 240, 242, 243),
+    colorScheme: const ColorScheme.light().copyWith(
+        background: const Color.fromARGB(255, 240, 242, 243),
+        secondary: Colors.grey.withAlpha(128)),
     textTheme: TextTheme(
-      button: const TextStyle(
+      labelLarge: const TextStyle(
           fontSize: 18, fontFamily: 'Montserrat', color: Colors.black),
-      headline6: const TextStyle(
+      headlineSmall: const TextStyle(
         fontSize: 20.0,
         color: Colors.black,
         fontFamily: 'Montserrat',
         fontWeight: FontWeight.bold,
       ),
       // standard TextField()
-      subtitle1: const TextStyle(
+      titleMedium: const TextStyle(
         fontSize: 20.0,
         fontFamily: 'Montserrat',
         color: Colors.black,
       ),
-      subtitle2: TextStyle(
+      titleSmall: TextStyle(
         fontSize: 16.0,
         fontFamily: 'Montserrat',
         fontStyle: FontStyle.italic,
@@ -84,16 +81,16 @@ final ThemeData lightTheme = ThemeData.light().copyWith(
           fontStyle: FontStyle.italic,
           color: Colors.black),
       // standard Text()
-      bodyText2: const TextStyle(
+      bodyMedium: const TextStyle(
           fontSize: 20.0, fontFamily: 'Montserrat', color: Colors.black),
       // italic Text()
-      bodyText1: const TextStyle(
+      bodyLarge: const TextStyle(
           fontSize: 20.0,
           fontFamily: 'Montserrat',
           fontStyle: FontStyle.italic,
           color: Colors.black),
       // Dictionary card, dictionary  name
-      caption: const TextStyle(
+      bodySmall: const TextStyle(
           fontSize: 17.0, fontFamily: 'Montserrat', color: Colors.black),
     ))
   ..addOwn(const OwnThemeFields(
@@ -109,24 +106,26 @@ final ThemeData darkTheme = ThemeData.dark().copyWith(
     outlinedButtonTheme: OutlinedButtonThemeData(
         style: ButtonStyle(
             foregroundColor: MaterialStateProperty.all<Color>(Colors.white))),
-    colorScheme: const ColorScheme.dark().copyWith(secondary: Colors.green),
-    backgroundColor: const Color.fromARGB(255, 32, 35, 36),
+    //backgroundColor: const Color.fromARGB(255, 32, 35, 36),
+    colorScheme: const ColorScheme.dark().copyWith(
+        background: const Color.fromARGB(255, 32, 35, 36),
+        secondary: Colors.green),
     buttonTheme: const ButtonThemeData(
         buttonColor: Colors.white, splashColor: Colors.white),
     textTheme: TextTheme(
-      button: const TextStyle(fontSize: 18, fontFamily: 'Montserrat'),
-      headline6: const TextStyle(
+      labelLarge: const TextStyle(fontSize: 18, fontFamily: 'Montserrat'),
+      headlineSmall: const TextStyle(
           fontSize: 20.0,
           color: Color.fromARGB(255, 240, 240, 240),
           fontFamily: 'Montserrat',
           fontWeight: FontWeight.bold,
           fontFamilyFallback: ['Roboto']),
-      subtitle1: const TextStyle(
+      titleMedium: const TextStyle(
           fontSize: 20.0,
           fontFamily: 'Montserrat',
           color: Colors.white,
           fontFamilyFallback: ['Roboto']),
-      subtitle2: TextStyle(
+      titleSmall: TextStyle(
           fontSize: 16.0,
           fontFamily: 'Montserrat',
           fontStyle: FontStyle.italic,
@@ -139,13 +138,13 @@ final ThemeData darkTheme = ThemeData.dark().copyWith(
           fontStyle: FontStyle.italic,
           color: Colors.white,
           fontFamilyFallback: ['Roboto']),
-      bodyText2: const TextStyle(
+      bodyMedium: const TextStyle(
           fontSize: 20.0,
           fontFamily: 'Montserrat',
           color: Colors.white,
           fontFamilyFallback: ['Roboto']),
       // Dictionary card, dictionary  name
-      caption: const TextStyle(
+      bodySmall: const TextStyle(
           fontSize: 17.0,
           fontFamily: 'Montserrat',
           color: Colors.white,

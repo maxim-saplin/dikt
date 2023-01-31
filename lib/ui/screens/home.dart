@@ -12,8 +12,8 @@ class Home extends StatelessWidget {
     return LayoutBuilder(builder: (context, constraints) {
       if (constraints.maxWidth >= wideNarrowThreshold) {
         return Row(children: const [
-          Lookup(searchBarTopRounded: false),
-          Center(child: Text('Article here'))
+          Expanded(flex: 1, child: Lookup(searchBarTopRounded: false)),
+          Expanded(flex: 2, child: Center(child: Text('Article here')))
         ]);
       }
       return const Lookup(searchBarTopRounded: true);

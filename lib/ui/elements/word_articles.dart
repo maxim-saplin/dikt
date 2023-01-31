@@ -57,7 +57,7 @@ class WordArticles extends StatelessWidget {
                 width: 1000,
                 child: SelectableText(
                   word,
-                  style: Theme.of(context).textTheme.headline6,
+                  style: Theme.of(context).textTheme.headlineSmall,
                 )),
           ])),
       // Bottom buttons
@@ -213,7 +213,7 @@ class _FuturedArticleBodyState extends State<_FuturedArticleBody>
             value: a.dictionaryName,
             child: Text(
               a.dictionaryName,
-              style: Theme.of(context).textTheme.subtitle2,
+              style: Theme.of(context).textTheme.titleSmall,
             )))
         .toList();
 

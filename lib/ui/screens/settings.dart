@@ -27,7 +27,7 @@ class Settings extends StatelessWidget {
                     children: [
                       Text(
                         'Settings'.i18n,
-                        style: Theme.of(context).textTheme.headline6,
+                        style: Theme.of(context).textTheme.headlineSmall,
                       ),
                       FutureBuilder(
                           future: PackageInfo.fromPlatform(),

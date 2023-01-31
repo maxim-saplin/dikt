@@ -30,7 +30,7 @@ class OnlineDictionaries extends StatelessWidget {
                     fontStyle: FontStyle.italic,
                     color: Theme.of(context)
                         .textTheme
-                        .bodyText2!
+                        .bodyMedium!
                         .color!
                         .withAlpha(155)),
                 initialValue: odm.repoUrl)),
@@ -248,7 +248,7 @@ class OnlineDictionaryTile extends HookWidget {
                                   : ('${dictionary.repoDictionary.words} words, ${(dictionary.repoDictionary.sizeBytes / 1024 / 1024).toStringAsFixed(1)}Mb'),
                           softWrap: false,
                           maxLines: 1,
-                          style: Theme.of(context).textTheme.subtitle2)
+                          style: Theme.of(context).textTheme.titleSmall)
                     ])),
             data.state != OnlineDictionaryState.error
                 ? const SizedBox()
