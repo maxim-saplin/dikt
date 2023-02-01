@@ -23,7 +23,7 @@ class Content extends StatelessWidget {
 
     // TODO, fix blinking when resizing window on macOS
     // TODO, fix blinking when switching words in two pane mode
-    // TODO, fix navigatoin to another article via a link in an article
+
     return AdaptiveSplitView(
         ifOnePane: (c, add) => add(Stack(children: [
               const Lookup(
