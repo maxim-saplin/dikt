@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 
 import 'package:dikt/ui/routes.dart';
 import 'package:dikt/ui/screens/settings.dart';
-import 'package:dikt/common/simple_simple_dialog.dart';
 import 'package:dikt/ui/screens/dictionaries.dart';
 import 'package:dikt/models/master_dictionary.dart';
 
@@ -40,8 +39,8 @@ class MenuButtons extends StatelessWidget {
                     routeSettings:
                         const RouteSettings(name: Routes.dictionariesOffline),
                     builder: (BuildContext context) {
-                      return const SimpleSimpleDialog(
-                          maxWidth: 800,
+                      return const SimpleDialog(
+                          //maxWidth: 800,
                           alignment: Alignment.center,
                           children: [Dictionaries(offline: true)]);
                     });
@@ -57,8 +56,8 @@ class MenuButtons extends StatelessWidget {
                   barrierColor: !kIsWeb ? Colors.transparent : Colors.black54,
                   routeSettings: const RouteSettings(name: '/settings'),
                   builder: (BuildContext context) {
-                    return const SimpleSimpleDialog(
-                        maxWidth: 320,
+                    return const SimpleDialog(
+                        //maxWidth: 320,
                         alignment: Alignment.center,
                         children: [Settings()]);
                   });

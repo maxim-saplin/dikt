@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:dikt/ui/adaptive.dart';
 import 'package:dikt/ui/elements/menu_buttons.dart';
 import 'package:flutter/material.dart';
@@ -22,9 +24,19 @@ class Content extends StatelessWidget {
     // TODO, fix blinking when switching words in two pane mode
     // TODO, fix navigatoin to another article via a link in an article
     return AdaptiveSplitView(
-        ifOnePane: (c, add) => add(Align(
-            alignment: Alignment.bottomCenter,
-            child: WordArticles(articles: articles, word: word))),
+        ifOnePane: (c, add) => add(Stack(children: [
+              const Lookup(searchBarTopRounded: false),
+              const TopButtons(),
+              BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                  child: Expanded(
+                      child: ColoredBox(
+                          color: Colors.transparent,
+                          child: Align(
+                              alignment: Alignment.bottomCenter,
+                              child: WordArticles(
+                                  articles: articles, word: word)))))
+            ])),
         ifTwoPanes: (c, add) => add(
             Stack(children: const [
               Lookup(searchBarTopRounded: false),

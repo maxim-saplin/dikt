@@ -56,20 +56,15 @@ class OnlineDictionaries extends StatelessWidget {
                     ? Text(odm.repoError!)
                     : (odm.dictionaries.isEmpty
                         ? const Text('No dictonaries in the repository')
-                        : LayoutBuilder(
-                            builder: (context, constraints) => Wrap(
-                                  clipBehavior: Clip.hardEdge,
-                                  spacing: 5,
-                                  runSpacing: 5,
-                                  children: odm.dictionaries
-                                      .map((e) => OnlineDictionaryTile(
-                                          e,
-                                          dicHeight,
-                                          constraints.maxWidth < 440
-                                              ? 440
-                                              : constraints.maxWidth / 2 - 5))
-                                      .toList(),
-                                ))))
+                        : Wrap(
+                            clipBehavior: Clip.hardEdge,
+                            spacing: 5,
+                            runSpacing: 5,
+                            children: odm.dictionaries
+                                .map((e) =>
+                                    OnlineDictionaryTile(e, dicHeight, 300))
+                                .toList(),
+                          )))
               ]))),
           !odm.loading ? const SizedBox() : const Text('Loading...'),
         ],
