@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:multi_split_view/multi_split_view.dart';
 
@@ -15,41 +16,48 @@ class AdaptiveSplitView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(child: LayoutBuilder(builder: (context, constraints) {
-      if (constraints.maxWidth >= wideNarrowBreak) {
-        Widget lp = const SizedBox();
-        Widget rp = const SizedBox();
+    return SafeArea(
+        minimum: defaultTargetPlatform == TargetPlatform.macOS ||
+                defaultTargetPlatform == TargetPlatform.linux ||
+                defaultTargetPlatform == TargetPlatform.windows
+            ? const EdgeInsets.only(top: 30)
+            : EdgeInsets.zero,
+        child: LayoutBuilder(builder: (context, constraints) {
+          if (constraints.maxWidth >= wideNarrowBreak) {
+            Widget lp = const SizedBox();
+            Widget rp = const SizedBox();
 
-        void addTwo(Widget leftPane, Widget rightPane) {
-          lp = leftPane;
-          rp = rightPane;
-        }
+            void addTwo(Widget leftPane, Widget rightPane) {
+              lp = leftPane;
+              rp = rightPane;
+            }
 
-        ifTwoPanes(context, addTwo);
+            ifTwoPanes(context, addTwo);
 
-        return MultiSplitViewTheme(
-            data: MultiSplitViewThemeData(
-                dividerThickness: 5,
-                dividerPainter: DividerPainters.background(
-                    highlightedColor: Theme.of(context).colorScheme.secondary)),
-            child: MultiSplitView(
-              initialAreas: [
-                Area(weight: 0.35, minimalSize: 200),
-                Area(minimalSize: 200)
-              ],
-              children: [lp, rp],
-            ));
-      } else {
-        Widget w = const SizedBox();
+            return MultiSplitViewTheme(
+                data: MultiSplitViewThemeData(
+                    dividerThickness: 5,
+                    dividerPainter: DividerPainters.background(
+                        highlightedColor:
+                            Theme.of(context).colorScheme.secondary)),
+                child: MultiSplitView(
+                  initialAreas: [
+                    Area(weight: 0.35, minimalSize: 200),
+                    Area(minimalSize: 200)
+                  ],
+                  children: [lp, rp],
+                ));
+          } else {
+            Widget w = const SizedBox();
 
-        void addOne(Widget widget) {
-          w = widget;
-        }
+            void addOne(Widget widget) {
+              w = widget;
+            }
 
-        ifOnePane(context, addOne);
+            ifOnePane(context, addOne);
 
-        return w;
-      }
-    }));
+            return w;
+          }
+        }));
   }
 }

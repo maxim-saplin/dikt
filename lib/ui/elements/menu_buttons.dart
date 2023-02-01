@@ -15,7 +15,7 @@ class TopButtons extends StatelessWidget {
     var dictionary = Provider.of<MasterDictionary>(context);
     return !dictionary.isFullyLoaded
         ? const Text('')
-        : Align(alignment: Alignment.topRight, child: const MenuButtons());
+        : const Align(alignment: Alignment.topRight, child: MenuButtons());
   }
 }
 
@@ -24,43 +24,51 @@ class MenuButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          IconButton(
-              icon: const Icon(Icons.view_list_rounded, size: 30),
-              onPressed: () {
-                showDialog(
-                    context: context,
-                    barrierColor: !kIsWeb ? Colors.transparent : Colors.black54,
-                    routeSettings:
-                        const RouteSettings(name: Routes.dictionariesOffline),
-                    builder: (BuildContext context) {
-                      return const SimpleDialog(
-                          //maxWidth: 800,
-                          alignment: Alignment.center,
-                          children: [Dictionaries(offline: true)]);
-                    });
-              }),
-          IconButton(
-            icon: const Icon(
-              Icons.space_dashboard_rounded,
-              size: 30,
-            ),
-            onPressed: () {
-              showDialog(
-                  context: context,
-                  barrierColor: !kIsWeb ? Colors.transparent : Colors.black54,
-                  routeSettings: const RouteSettings(name: '/settings'),
-                  builder: (BuildContext context) {
-                    return const SimpleDialog(
-                        //maxWidth: 320,
-                        alignment: Alignment.center,
-                        children: [Settings()]);
-                  });
-            },
-          )
-        ]);
+    return Padding(
+        padding: defaultTargetPlatform == TargetPlatform.macOS ||
+                defaultTargetPlatform == TargetPlatform.linux ||
+                defaultTargetPlatform == TargetPlatform.windows
+            ? const EdgeInsets.only(right: 30)
+            : EdgeInsets.zero,
+        child: Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              IconButton(
+                  icon: const Icon(Icons.view_list_rounded, size: 30),
+                  onPressed: () {
+                    showDialog(
+                        context: context,
+                        barrierColor:
+                            !kIsWeb ? Colors.transparent : Colors.black54,
+                        routeSettings: const RouteSettings(
+                            name: Routes.dictionariesOffline),
+                        builder: (BuildContext context) {
+                          return const SimpleDialog(
+                              //maxWidth: 800,
+                              alignment: Alignment.center,
+                              children: [Dictionaries(offline: true)]);
+                        });
+                  }),
+              IconButton(
+                icon: const Icon(
+                  Icons.space_dashboard_rounded,
+                  size: 30,
+                ),
+                onPressed: () {
+                  showDialog(
+                      context: context,
+                      barrierColor:
+                          !kIsWeb ? Colors.transparent : Colors.black54,
+                      routeSettings: const RouteSettings(name: '/settings'),
+                      builder: (BuildContext context) {
+                        return const SimpleDialog(
+                            //maxWidth: 320,
+                            alignment: Alignment.center,
+                            children: [Settings()]);
+                      });
+                },
+              )
+            ]));
   }
 }

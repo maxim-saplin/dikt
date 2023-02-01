@@ -42,24 +42,26 @@ class WordArticles extends StatelessWidget {
     var w = Stack(children: [
       ClipRRect(
           borderRadius: const BorderRadius.all(Radius.circular(10)),
-          child: Stack(children: [
-            // Article list
-            _FuturedArticles(
-                articles: articles!,
-                dicsCompleter: dicsCompleter,
-                scrollController: scrollController,
-                showAnotherWord: showAnotherWord),
-            // Title with selectable text - word
-            Container(
-                padding: const EdgeInsets.fromLTRB(18, 15, 18, 0),
-                color: Theme.of(context).cardColor,
-                height: 39.0,
-                width: 1000,
-                child: SelectableText(
-                  word,
-                  style: Theme.of(context).textTheme.headlineSmall,
-                )),
-          ])),
+          child: ColoredBox(
+              color: Theme.of(context).cardColor,
+              child: Stack(children: [
+                // Article list
+                _FuturedArticles(
+                    articles: articles!,
+                    dicsCompleter: dicsCompleter,
+                    scrollController: scrollController,
+                    showAnotherWord: showAnotherWord),
+                // Title with selectable text - word
+                Container(
+                    padding: const EdgeInsets.fromLTRB(18, 15, 18, 0),
+                    color: Theme.of(context).cardColor,
+                    height: 39.0,
+                    width: 1000,
+                    child: SelectableText(
+                      word,
+                      style: Theme.of(context).textTheme.headlineSmall,
+                    )),
+              ]))),
       // Bottom buttons
       Positioned(
         bottom: 0.0,

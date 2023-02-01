@@ -28,7 +28,7 @@ class Content extends StatelessWidget {
         ifOnePane: (c, add) => add(Stack(children: [
               const Lookup(
                   searchBarTopRounded: false, autoFocusSearchBar: false),
-              const TopButtons(),
+              //const TopButtons(),
               BackdropFilter(
                   filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
                   child: Expanded(
