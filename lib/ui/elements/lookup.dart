@@ -10,10 +10,16 @@ import '../../models/history.dart';
 import '../routes.dart';
 
 class Lookup extends StatefulWidget {
-  const Lookup({Key? key, this.searchBarTopRounded = true}) : super(key: key);
+  const Lookup(
+      {Key? key,
+      this.searchBarTopRounded = true,
+      this.autoFocusSearchBar = true})
+      : super(key: key);
 
   /// If true, top corners of the search bar are rounded
   final bool searchBarTopRounded;
+
+  final bool autoFocusSearchBar;
 
   @override
   State<StatefulWidget> createState() => LookupState();
@@ -67,21 +73,22 @@ class LookupState extends State<Lookup> with WidgetsBindingObserver {
 
     if (_firstBuild) {
       _firstBuild = false;
-      Future.delayed(Duration.zero, () => _showKeyboard());
+      if (widget.autoFocusSearchBar) {
+        Future.delayed(Duration.zero, () => _showKeyboard());
+      }
     }
 
     if (_resumed) {
       _resumed = false;
-      if (_searchBarFocusNode.hasFocus) {
+      if (widget.autoFocusSearchBar && _searchBarFocusNode.hasFocus) {
         Future.delayed(Duration.zero, () => _showKeyboard());
       }
     }
 
     if (dictionary.isFullyLoaded && !_fullyLoaded) {
-      debugPrint('Dictionaries loaded, lookup view ready');
       _fullyLoaded = true;
       var v = _searchBarController.value;
-      if (v.text.isNotEmpty) {
+      if (v.text.isNotEmpty && widget.autoFocusSearchBar) {
         // If there's text in search bar, trigger lookup
         dictionary.lookupWord = v.text;
       }
@@ -96,8 +103,8 @@ class LookupState extends State<Lookup> with WidgetsBindingObserver {
                 history: history,
               ),
             ),
-      _SearchBar(
-          widget.searchBarTopRounded, _searchBarController, _searchBarFocusNode)
+      _SearchBar(widget.searchBarTopRounded, _searchBarController,
+          _searchBarFocusNode, widget.autoFocusSearchBar)
     ]);
   }
 }
@@ -222,8 +229,10 @@ class _SearchBar extends StatelessWidget {
   final bool roundedTop;
   final TextEditingController controller;
   final FocusNode focusNode;
+  final bool autofocus;
 
-  const _SearchBar(this.roundedTop, this.controller, this.focusNode);
+  const _SearchBar(
+      this.roundedTop, this.controller, this.focusNode, this.autofocus);
 
   @override
   Widget build(BuildContext context) {
@@ -240,7 +249,7 @@ class _SearchBar extends StatelessWidget {
         child: Stack(alignment: Alignment.bottomRight, children: [
           TextField(
             controller: controller,
-            autofocus: true,
+            autofocus: autofocus,
             focusNode: focusNode,
             onChanged: (text) {
               dictionary.lookupWord = text;

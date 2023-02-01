@@ -21,7 +21,16 @@ class Routes {
     var dictionary = Provider.of<MasterDictionary>(context, listen: false);
     dictionary.selectedWord = word;
 
-    Navigator.of(context).pushNamed(Routes.article, arguments: word);
+    var nowAtHome = ModalRoute.of(context)?.settings.name == home;
+
+    Navigator.of(context)
+        .pushNamed(Routes.article, arguments: word)
+        // Force reload when home page is reached
+        .whenComplete(() {
+      if (nowAtHome) {
+        Navigator.of(context).pushReplacementNamed(home);
+      }
+    });
   }
 
   static void showOfflineDictionaries(BuildContext context) {

@@ -9,6 +9,7 @@ import '../../models/master_dictionary.dart';
 import '../elements/loading_progress.dart';
 import '../elements/lookup.dart';
 import '../elements/word_articles.dart';
+import '../routes.dart';
 
 class Content extends StatelessWidget {
   const Content({Key? key, this.word = ''}) : super(key: key);
@@ -25,28 +26,39 @@ class Content extends StatelessWidget {
     // TODO, fix navigatoin to another article via a link in an article
     return AdaptiveSplitView(
         ifOnePane: (c, add) => add(Stack(children: [
-              const Lookup(searchBarTopRounded: false),
+              const Lookup(
+                  searchBarTopRounded: false, autoFocusSearchBar: false),
               const TopButtons(),
               BackdropFilter(
                   filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
                   child: Expanded(
-                      child: ColoredBox(
-                          color: Colors.transparent,
-                          child: Align(
-                              alignment: Alignment.bottomCenter,
-                              child: WordArticles(
-                                  articles: articles, word: word)))))
+                      child: GestureDetector(
+                          onTap: () => Navigator.of(context).pop(),
+                          child: ColoredBox(
+                              color: Colors.transparent,
+                              child: Align(
+                                  alignment: Alignment.bottomCenter,
+                                  child: WordArticles(
+                                      articles: articles,
+                                      word: word,
+                                      showAnotherWord: (word) =>
+                                          Routes.showArticle(
+                                              context, word)))))))
             ])),
         ifTwoPanes: (c, add) => add(
             Stack(children: const [
-              Lookup(searchBarTopRounded: false),
+              Lookup(searchBarTopRounded: false, autoFocusSearchBar: false),
               EmptyHints(showDictionaryStats: false, showSearchBarHint: true)
             ]),
             Stack(children: [
               Center(
                   child: Padding(
                       padding: const EdgeInsets.fromLTRB(0, 38, 0, 0),
-                      child: WordArticles(articles: articles, word: word))),
+                      child: WordArticles(
+                          articles: articles,
+                          word: word,
+                          showAnotherWord: (word) =>
+                              Routes.showArticle(context, word)))),
               const TopButtons()
             ])));
   }

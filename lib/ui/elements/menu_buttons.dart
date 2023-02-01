@@ -15,9 +15,7 @@ class TopButtons extends StatelessWidget {
     var dictionary = Provider.of<MasterDictionary>(context);
     return !dictionary.isFullyLoaded
         ? const Text('')
-        : const SafeArea(
-            minimum: EdgeInsets.all(20),
-            child: Align(alignment: Alignment.topRight, child: MenuButtons()));
+        : Align(alignment: Alignment.topRight, child: const MenuButtons());
   }
 }
 

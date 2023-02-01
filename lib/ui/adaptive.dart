@@ -15,7 +15,7 @@ class AdaptiveSplitView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(builder: (context, constraints) {
+    return SafeArea(child: LayoutBuilder(builder: (context, constraints) {
       if (constraints.maxWidth >= wideNarrowBreak) {
         Widget lp = const SizedBox();
         Widget rp = const SizedBox();
@@ -50,6 +50,6 @@ class AdaptiveSplitView extends StatelessWidget {
 
         return w;
       }
-    });
+    }));
   }
 }
