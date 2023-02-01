@@ -12,7 +12,7 @@ import '../routes.dart';
 class Lookup extends StatefulWidget {
   const Lookup({Key? key, this.searchBarTopRounded = true}) : super(key: key);
 
-  /// If true, top corners og the searc bar are rounded, otherwise only top left
+  /// If true, top corners of the search bar are rounded
   final bool searchBarTopRounded;
 
   @override
@@ -187,7 +187,7 @@ class _Entry extends StatelessWidget {
         child: GestureDetector(
             onTap: () {
               if (word == '') return;
-              showArticle(context, word);
+              Routes.showArticle(context, word);
             },
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -219,7 +219,6 @@ class _Entry extends StatelessWidget {
 }
 
 class _SearchBar extends StatelessWidget {
-  /// If true, top corners are rounded, otherwise only top left
   final bool roundedTop;
   final TextEditingController controller;
   final FocusNode focusNode;
@@ -248,7 +247,7 @@ class _SearchBar extends StatelessWidget {
             },
             onSubmitted: (value) {
               if (dictionary.matchesCount > 0) {
-                showArticle(context, dictionary.getMatch(0));
+                Routes.showArticle(context, dictionary.getMatch(0));
               }
             },
             style: const TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
@@ -348,14 +347,4 @@ Future<List<Article>> getArticles(BuildContext context, String word) async {
   }
 
   return articles;
-}
-
-// TODO, article here
-void showArticle(BuildContext context, String word) {
-  var history = Provider.of<History>(context, listen: false);
-  history.addWord(word);
-  var dictionary = Provider.of<MasterDictionary>(context, listen: false);
-  dictionary.selectedWord = word;
-
-  Navigator.of(context).pushNamed(Routes.showArticle, arguments: word);
 }

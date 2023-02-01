@@ -229,10 +229,10 @@ class _FuturedArticleBodyState extends State<_FuturedArticleBody>
     Widget w = Padding(
         key: scrollKey,
         padding: _FuturedArticles.headerInsets,
-        child: PrimaryScrollController(
+        child: Scrollbar(
             controller: widget.scrollController,
-            child: Scrollbar(
-                child: CustomScrollView(
+            child: CustomScrollView(
+              controller: widget.scrollController,
               physics: const BouncingScrollPhysics(),
               semanticChildCount: list.length,
               scrollDirection: Axis.vertical,
@@ -338,7 +338,7 @@ class _FuturedArticleBodyState extends State<_FuturedArticleBody>
                   )),
                 );
               }).toList(),
-            ))));
+            )));
     // debugPrint(
     //     '_FuturedArticleBody built ${sw.elapsedMilliseconds}ms, total ${globalSw.elapsedMilliseconds}');
 

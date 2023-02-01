@@ -35,7 +35,7 @@ class Settings extends StatelessWidget {
                             if (snapshot.hasData) {
                               return Text(
                                 '${(snapshot.data as PackageInfo).version}+${(snapshot.data as PackageInfo).buildNumber}',
-                                style: Theme.of(context).textTheme.overline,
+                                style: Theme.of(context).textTheme.labelSmall,
                               );
                             }
                             return const SizedBox();

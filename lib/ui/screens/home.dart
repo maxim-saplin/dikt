@@ -3,9 +3,7 @@ import 'package:dikt/ui/elements/menu_buttons.dart';
 import 'package:flutter/material.dart';
 
 import '../elements/loading_progress.dart';
-import '../panes/lookup.dart';
-
-int wideNarrowThreshold = 500;
+import '../elements/lookup.dart';
 
 class Home extends StatelessWidget {
   const Home({Key? key}) : super(key: key);

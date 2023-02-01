@@ -90,7 +90,7 @@ class Title extends StatelessWidget {
                 style: Theme.of(context).textTheme.headlineSmall,
               ),
               Text(' ${manager.totalDictionaries}',
-                  style: Theme.of(context).textTheme.overline)
+                  style: Theme.of(context).textTheme.labelSmall)
             ]));
   }
 }

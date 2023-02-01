@@ -18,8 +18,8 @@ import 'package:dikt/ui/themes.dart';
 
 import 'models/master_dictionary.dart';
 import './models/preferences.dart';
+import 'ui/screens/article.dart';
 import 'ui/screens/home.dart';
-import 'ui/screens/lookup_and_article.dart';
 import './models/history.dart';
 import 'models/dictionary_manager.dart';
 import 'common/analytics_observer.dart';
@@ -141,11 +141,11 @@ class MyApp extends StatelessWidget {
                             settings: settings,
                             child: _getScaffold(const Home()),
                             type: PageTransitionType.fade);
-                      case Routes.showArticle:
+                      case Routes.article:
                         return PageTransition(
                             settings: settings,
-                            child: _getScaffold(LookupAndArticle(
-                                word: settings.arguments as String?)),
+                            child: _getScaffold(Content(
+                                word: (settings.arguments ?? '') as String)),
                             type: PageTransitionType.fade);
                       default:
                         return null;
