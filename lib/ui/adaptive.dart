@@ -25,8 +25,7 @@ class _AdaptiveSplitViewState extends State<AdaptiveSplitView>
 
   @override
   void didChangeMetrics() {
-    var isWideNow =
-        WidgetsBinding.instance.window.physicalSize.width >= wideNarrowBreak;
+    var isWideNow = _checkIsWide();
     if (isWideNow != _isWide) {
       setState(() {
         _isWide = isWideNow;
@@ -38,9 +37,13 @@ class _AdaptiveSplitViewState extends State<AdaptiveSplitView>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _isWide =
-        WidgetsBinding.instance.window.physicalSize.width >= wideNarrowBreak;
+    _isWide = _checkIsWide();
   }
+
+  bool _checkIsWide() =>
+      WidgetsBinding.instance.window.physicalSize.width /
+          WidgetsBinding.instance.window.devicePixelRatio >=
+      wideNarrowBreak;
 
   @override
   void dispose() {
