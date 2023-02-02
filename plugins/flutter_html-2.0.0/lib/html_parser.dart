@@ -641,7 +641,9 @@ class StyledText extends StatelessWidget {
   @override
   final AnchorKey? key;
   final TapHandler? _tapHandler;
-  TextSelectionControls? Function() selectionControlsCallback = () => null;
+  //TextSelectionControls? Function() selectionControlsCallback = () => null;
+  EditableTextContextMenuBuilder? Function() contextMenuBuilderCallback =
+      () => null;
 
   // Workaround for closures which are not allowed
   // to be passed between isolates
@@ -663,7 +665,7 @@ class StyledText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // On ANDROID semantics is somwhow intertwind with platform calls
+    // On ANDROID semantics is somewhow intertwind with platform calls
     // and in articles with to many hrefs (e.g. try opening 'go' in WordNet)
     // it can literly take half a second to draw a single frame with most of
     // delay happening in the native side. Disabling semanticd fixes issues
@@ -672,7 +674,8 @@ class StyledText extends StatelessWidget {
         child: SelectableText.rich(
       textSpan as TextSpan,
       style: style.generateTextStyle(),
-      selectionControls: selectionControlsCallback(),
+      //selectionControls: selectionControlsCallback(),
+      contextMenuBuilder: contextMenuBuilderCallback(),
       textAlign: style.textAlign,
       textDirection: style.direction,
       textScaleFactor: textScaleFactor,

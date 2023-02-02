@@ -9,8 +9,6 @@ import 'package:dikt/models/master_dictionary.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_sticky_header/flutter_sticky_header.dart';
 
-import '../../common/text_selection_controls.dart';
-
 // Started when top level widget build() is called and used to measure article widgets layouts - essentialy time to dispolay
 Stopwatch globalSw = Stopwatch();
 
@@ -270,28 +268,55 @@ class _FuturedArticleBodyState extends State<_FuturedArticleBody>
                     padding: const EdgeInsets.fromLTRB(18, 0, 18, 10),
                     child: Html(
                       //sw: globalSw,
-                      selectionControls: FlutterSelectionControls(
-                          popupBackgroundColor:
-                              ownTheme(context).textSelectionPopupColor,
-                          toolBarItems: <ToolBarItem>[
-                            ToolBarItem(
-                                item: const Icon(Icons.copy),
-                                itemControl: ToolBarItemControl.copy),
-                            ToolBarItem(
-                                item: const Icon(Icons.select_all_rounded),
-                                itemControl: ToolBarItemControl.selectAll),
-                            ToolBarItem(
-                                item: const SizedBox(
-                                  width: 50,
-                                  child: Icon(Icons.search),
-                                ),
-                                onItemPressed: (highlightedText, s, e) {
-                                  if (highlightedText.isNotEmpty) {
-                                    widget.showAnotherWord
-                                        ?.call(highlightedText);
-                                  }
-                                })
-                          ]),
+                      contextMenuBuilder: (BuildContext context,
+                          EditableTextState editableTextState) {
+                        return TextSelectionToolbar(
+                          //anchors: editableTextState.contextMenuAnchors,
+                          anchorAbove: editableTextState
+                              .contextMenuAnchors.primaryAnchor,
+                          anchorBelow: editableTextState
+                              .contextMenuAnchors.primaryAnchor,
+                          children: editableTextState.contextMenuButtonItems
+                              .map<Widget>((ContextMenuButtonItem buttonItem) {
+                            return TextButton(
+                              onPressed: buttonItem.onPressed,
+                              child: Text(buttonItem.type.name),
+                            );
+                          }).toList()
+                            ..add(IconButton(
+                                icon: const Icon(Icons.search_rounded),
+                                onPressed: () {
+                                  widget.showAnotherWord?.call(editableTextState
+                                      .currentTextEditingValue.selection
+                                      .textInside(editableTextState
+                                          .currentTextEditingValue.text));
+                                })),
+                        );
+                      },
+
+                      // selectionControls: FlutterSelectionControls(
+                      //     popupBackgroundColor:
+                      //         ownTheme(context).textSelectionPopupColor,
+                      //     toolBarItems: <ToolBarItem>[
+                      //       ToolBarItem(
+                      //           item: const Icon(Icons.copy),
+                      //           itemControl: ToolBarItemControl.copy),
+                      //       ToolBarItem(
+                      //           item: const Icon(Icons.select_all_rounded),
+                      //           itemControl: ToolBarItemControl.selectAll),
+                      //       ToolBarItem(
+                      //           item: const SizedBox(
+                      //             width: 50,
+                      //             child: Icon(Icons.search),
+                      //           ),
+                      //           onItemPressed: (highlightedText, s, e) {
+                      //             if (highlightedText.isNotEmpty) {
+                      //               widget.showAnotherWord
+                      //                   ?.call(highlightedText);
+                      //             }
+                      //           })
+                      //     ]),
+
                       useIsolate: !kIsWeb,
                       isolatePool: !kIsWeb ? pool : null,
                       data: article.article,

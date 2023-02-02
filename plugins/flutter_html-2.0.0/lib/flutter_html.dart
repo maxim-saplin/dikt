@@ -32,7 +32,7 @@ class Html extends StatelessWidget {
       this.isolatePool,
       this.onBuilt,
       this.onLaidOut,
-      this.selectionControls,
+      this.contextMenuBuilder,
       this.sw})
       : assert(data != null),
         anchorKey = GlobalKey(),
@@ -45,7 +45,7 @@ class Html extends StatelessWidget {
   final String? data;
 
   /// Custom pop-up with actions to be showed when a text span is selected
-  final TextSelectionControls? selectionControls;
+  final EditableTextContextMenuBuilder? contextMenuBuilder;
 
   /// A function that defines what to do when a link is tapped
   final OnTap? onLinkTap;
@@ -95,7 +95,7 @@ class Html extends StatelessWidget {
       onLinkTap: onLinkTap,
       onBuilt: onBuilt,
       onLaidOut: onLaidOut,
-      selectionControls: selectionControls,
+      contextMenuBuilder: contextMenuBuilder,
     );
   }
 
@@ -150,7 +150,7 @@ class _FuturedHtml extends StatelessWidget {
       this.onLinkTap,
       this.onBuilt,
       this.onLaidOut,
-      required this.selectionControls})
+      required this.contextMenuBuilder})
       : super(key: key);
 
   final double? width;
@@ -158,7 +158,8 @@ class _FuturedHtml extends StatelessWidget {
   final OnTap? onLinkTap;
   final Function? onBuilt;
   final Function? onLaidOut;
-  final TextSelectionControls? selectionControls;
+  //final TextSelectionControls? selectionControls;
+  final EditableTextContextMenuBuilder? contextMenuBuilder;
 
   @override
   Widget build(BuildContext context) {
@@ -174,8 +175,13 @@ class _FuturedHtml extends StatelessWidget {
               }
 
               // hack to allow use text selection controlls with event handlers/heavy objects and avoid isolate boundaries crossing errors
-              if (selectionControls != null) {
-                s.data!.selectionControlsCallback = () => selectionControls;
+              // if (selectionControls != null) {
+              //   s.data!.selectionControlsCallback = () => selectionControls;
+              // }
+
+// hack to allow use text selection controlls with event handlers/heavy objects and avoid isolate boundaries crossing errors
+              if (contextMenuBuilder != null) {
+                s.data!.contextMenuBuilderCallback = () => contextMenuBuilder;
               }
 
               return _FuturedBody(s.data!, onBuilt, onLaidOut);
