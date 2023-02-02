@@ -271,26 +271,32 @@ class _FuturedArticleBodyState extends State<_FuturedArticleBody>
                       contextMenuBuilder: (BuildContext context,
                           EditableTextState editableTextState) {
                         return TextSelectionToolbar(
-                          //anchors: editableTextState.contextMenuAnchors,
+                          toolbarBuilder: (context, child) => Material(
+                            borderRadius:
+                                const BorderRadius.all(Radius.circular(5.0)),
+                            color: Theme.of(context).colorScheme.primary,
+                            child: child,
+                          ),
                           anchorAbove: editableTextState
                               .contextMenuAnchors.primaryAnchor,
                           anchorBelow: editableTextState
                               .contextMenuAnchors.primaryAnchor,
-                          children: editableTextState.contextMenuButtonItems
-                              .map<Widget>((ContextMenuButtonItem buttonItem) {
-                            return TextButton(
-                              onPressed: buttonItem.onPressed,
-                              child: Text(buttonItem.type.name),
-                            );
-                          }).toList()
-                            ..add(IconButton(
+                          children: [
+                            IconButton(
+                                highlightColor: Colors.blue,
+                                icon: const Icon(Icons.copy),
+                                onPressed: () =>
+                                    editableTextState.copySelection(
+                                        SelectionChangedCause.toolbar)),
+                            IconButton(
                                 icon: const Icon(Icons.search_rounded),
                                 onPressed: () {
                                   widget.showAnotherWord?.call(editableTextState
                                       .currentTextEditingValue.selection
                                       .textInside(editableTextState
                                           .currentTextEditingValue.text));
-                                })),
+                                })
+                          ],
                         );
                       },
 
