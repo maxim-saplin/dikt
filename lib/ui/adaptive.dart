@@ -76,7 +76,7 @@ class _AdaptiveSplitViewState extends State<AdaptiveSplitView>
               Area(weight: 0.35, minimalSize: 200),
               Area(minimalSize: 200)
             ],
-            children: [lp, rp],
+            children: [_wrapInSafeArea(lp), _wrapInSafeArea(rp)],
           ));
     } else {
       void addOne(Widget widget) {
@@ -84,14 +84,18 @@ class _AdaptiveSplitViewState extends State<AdaptiveSplitView>
       }
 
       widget.ifOnePane(context, addOne);
+
+      w = _wrapInSafeArea(w);
     }
 
-    return SafeArea(
-        minimum: defaultTargetPlatform == TargetPlatform.macOS ||
-                defaultTargetPlatform == TargetPlatform.linux ||
-                defaultTargetPlatform == TargetPlatform.windows
-            ? const EdgeInsets.only(top: 30)
-            : EdgeInsets.zero,
-        child: w);
+    return w;
   }
 }
+
+Widget _wrapInSafeArea(Widget w) => SafeArea(
+    minimum: defaultTargetPlatform == TargetPlatform.macOS ||
+            defaultTargetPlatform == TargetPlatform.linux ||
+            defaultTargetPlatform == TargetPlatform.windows
+        ? const EdgeInsets.only(top: 30)
+        : EdgeInsets.zero,
+    child: w);
