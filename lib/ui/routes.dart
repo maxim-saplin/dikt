@@ -16,12 +16,19 @@ class Routes {
   static const String dictionariesOffline = '/dictionaries';
 
   static void showArticle(BuildContext context, String word) {
+    var route = ModalRoute.of(context);
+    if (route != null &&
+        route.settings.name == article &&
+        (route.settings.arguments as String) == word) {
+      return;
+    }
+
     var history = Provider.of<History>(context, listen: false);
     history.addWord(word);
     var dictionary = Provider.of<MasterDictionary>(context, listen: false);
     dictionary.selectedWord = word;
 
-    var nowAtHome = ModalRoute.of(context)?.settings.name == home;
+    var nowAtHome = route?.settings.name == home;
 
     Navigator.of(context)
         .pushNamed(Routes.article, arguments: word)

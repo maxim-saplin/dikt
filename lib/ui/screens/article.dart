@@ -21,7 +21,6 @@ class Content extends StatelessWidget {
     var dictionary = Provider.of<MasterDictionary>(context);
     Future<List<Article>>? articles = dictionary.getArticles(word);
 
-    // TODO, fix blinking when resizing window on macOS
     // TODO, fix blinking when switching words in two pane mode
 
     return AdaptiveSplitView(
