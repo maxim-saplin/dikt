@@ -194,7 +194,7 @@ class _Entry extends StatelessWidget {
         child: GestureDetector(
             onTap: () {
               if (word == '') return;
-              Routes.showArticle(context, word);
+              Routes.showArticle(word);
             },
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -256,7 +256,7 @@ class _SearchBar extends StatelessWidget {
             },
             onSubmitted: (value) {
               if (dictionary.matchesCount > 0) {
-                Routes.showArticle(context, dictionary.getMatch(0));
+                Routes.showArticle(dictionary.getMatch(0));
               }
             },
             style: const TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),

@@ -83,7 +83,7 @@ class OnlineDictionaries extends StatelessWidget {
                     child: Text('← Offline'.i18n),
                   ),
                   onPressed: () async {
-                    Routes.showOfflineDictionaries(context);
+                    Routes.showOfflineDictionaries();
                   })))
     ]);
   }

@@ -25,7 +25,7 @@ dependencies:
   double_back_to_close: ^2.0.0
   fluttertoast: ^8.0.7
   file_picker: ^5.2.2
-  i18n_extension: ^5.0.0
+  i18n_extension: ^6.0.0
   firebase_core: 
   firebase_analytics: 
   page_transition: ^2.0.2

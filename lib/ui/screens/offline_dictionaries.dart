@@ -182,7 +182,7 @@ class OfflineDictionariesState extends State<OfflineDictionaries> {
                                             child: Text('Online →'.i18n)),
                                       ),
                                       onPressed: () async {
-                                        Routes.showOnlineDictionaries(context);
+                                        Routes.showOnlineDictionaries();
                                       })
                             ]))
                   : Center(child: Text('DELETE'.i18n)),

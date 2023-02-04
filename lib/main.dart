@@ -62,6 +62,7 @@ class MyApp extends StatelessWidget {
 
   Scaffold _getScaffold(Widget child) {
     return Scaffold(
+        //key: Routes.navigator,
         body: DoubleBack(message: 'Tap back again to quit'.i18n, child: child));
   }
 

@@ -17,6 +17,8 @@ class WordArticles extends StatelessWidget {
       {Key? key,
       required this.articles,
       required this.word,
+
+      /// Callback to call in order to navigate to a word within an article
       this.showAnotherWord})
       : super(key: key);
 
@@ -30,6 +32,7 @@ class WordArticles extends StatelessWidget {
   Widget build(BuildContext context) {
     globalSw.reset();
     globalSw.start();
+    // List of dictionaries is only known when all articles are loaded and correponding future is completed, using this completer to trigger UI for dictionaries
     var dicsCompleter = Completer<
         Tuple<List<DropdownMenuItem<String>>, Map<String, GlobalKey>>>();
 
@@ -140,12 +143,12 @@ class _FuturedArticles extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var w = FutureBuilder(
+    var w = FutureBuilder<List<Article>>(
       future: articles,
       builder: (context, snapshot) {
         if (snapshot.hasData) {
-          return _FuturedArticleBody(
-              snapshot, dicsCompleter, scrollController, showAnotherWord);
+          return _FuturedArticleBody(snapshot.data ?? [], dicsCompleter,
+              scrollController, showAnotherWord);
         }
         return const _Empty();
       },
@@ -174,9 +177,9 @@ class _Empty extends StatelessWidget {
 }
 
 class _FuturedArticleBody extends StatefulWidget {
-  const _FuturedArticleBody(this.snapshot, this.dicsCompleter,
+  const _FuturedArticleBody(this.articles, this.dicsCompleter,
       this.scrollController, this.showAnotherWord);
-  final AsyncSnapshot<Object?> snapshot;
+  final List<Article> articles;
   final Completer<
       Tuple<List<DropdownMenuItem<String>>,
           Map<String, GlobalKey<State<StatefulWidget>>>>> dicsCompleter;
@@ -205,9 +208,9 @@ class _FuturedArticleBodyState extends State<_FuturedArticleBody>
   Widget build(BuildContext context) {
     sw.reset();
     sw.start();
-    var list = widget.snapshot.data as List<Article>;
+    //var list = widget.snapshot.data ?? [];
 
-    var dictionaries = list
+    var dictionaries = widget.articles
         .map((a) => DropdownMenuItem<String>(
             alignment: Alignment.centerRight,
             value: a.dictionaryName,
@@ -234,10 +237,10 @@ class _FuturedArticleBodyState extends State<_FuturedArticleBody>
             child: CustomScrollView(
               controller: widget.scrollController,
               physics: const BouncingScrollPhysics(),
-              semanticChildCount: list.length,
+              semanticChildCount: widget.articles.length,
               scrollDirection: Axis.vertical,
               shrinkWrap: true,
-              slivers: list.map((article) {
+              slivers: widget.articles.map((article) {
                 var key = GlobalKey();
                 dicsToKeys[article.dictionaryName] = key;
                 return SliverStickyHeader(
@@ -299,29 +302,6 @@ class _FuturedArticleBodyState extends State<_FuturedArticleBody>
                           ],
                         );
                       },
-
-                      // selectionControls: FlutterSelectionControls(
-                      //     popupBackgroundColor:
-                      //         ownTheme(context).textSelectionPopupColor,
-                      //     toolBarItems: <ToolBarItem>[
-                      //       ToolBarItem(
-                      //           item: const Icon(Icons.copy),
-                      //           itemControl: ToolBarItemControl.copy),
-                      //       ToolBarItem(
-                      //           item: const Icon(Icons.select_all_rounded),
-                      //           itemControl: ToolBarItemControl.selectAll),
-                      //       ToolBarItem(
-                      //           item: const SizedBox(
-                      //             width: 50,
-                      //             child: Icon(Icons.search),
-                      //           ),
-                      //           onItemPressed: (highlightedText, s, e) {
-                      //             if (highlightedText.isNotEmpty) {
-                      //               widget.showAnotherWord
-                      //                   ?.call(highlightedText);
-                      //             }
-                      //           })
-                      //     ]),
 
                       useIsolate: !kIsWeb,
                       isolatePool: !kIsWeb ? pool : null,

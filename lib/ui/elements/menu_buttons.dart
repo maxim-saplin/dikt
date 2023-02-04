@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 
 import 'package:dikt/ui/routes.dart';
 import 'package:dikt/ui/screens/settings.dart';
-import 'package:dikt/ui/screens/dictionaries.dart';
 import 'package:dikt/models/master_dictionary.dart';
 
 class TopButtons extends StatelessWidget {
@@ -37,18 +36,19 @@ class MenuButtons extends StatelessWidget {
               IconButton(
                   icon: const Icon(Icons.view_list_rounded, size: 30),
                   onPressed: () {
-                    showDialog(
-                        context: context,
-                        barrierColor:
-                            !kIsWeb ? Colors.transparent : Colors.black54,
-                        routeSettings: const RouteSettings(
-                            name: Routes.dictionariesOffline),
-                        builder: (BuildContext context) {
-                          return const SimpleDialog(
-                              //maxWidth: 800,
-                              alignment: Alignment.center,
-                              children: [Dictionaries(offline: true)]);
-                        });
+                    // showDialog(
+                    //     context: context,
+                    //     barrierColor:
+                    //         !kIsWeb ? Colors.transparent : Colors.black54,
+                    //     routeSettings: const RouteSettings(
+                    //         name: Routes.dictionariesOffline),
+                    //     builder: (BuildContext context) {
+                    //       return const SimpleDialog(
+                    //           //maxWidth: 800,
+                    //           alignment: Alignment.center,
+                    //           children: [Dictionaries(offline: true)]);
+                    //     });
+                    Routes.showOfflineDictionaries();
                   }),
               IconButton(
                 icon: const Icon(

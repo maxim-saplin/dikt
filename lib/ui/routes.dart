@@ -7,6 +7,9 @@ import '../models/history.dart';
 import '../models/master_dictionary.dart';
 
 class Routes {
+  static BuildContext get currentContext => navigator.currentContext!;
+
+  /// Using this global key to avoid mess with build contexts and potential "Looking up a deactivated widget's ancestor is unsafe" errors
   static final GlobalKey<NavigatorState> navigator =
       GlobalKey<NavigatorState>();
 
@@ -15,38 +18,44 @@ class Routes {
   static const String dictionariesOnline = '/dictionariesOnline';
   static const String dictionariesOffline = '/dictionaries';
 
-  static void showArticle(BuildContext context, String word) {
-    var route = ModalRoute.of(context);
+  static void showArticle(String word) {
+    var route = ModalRoute.of(currentContext);
     if (route != null &&
         route.settings.name == article &&
         (route.settings.arguments as String) == word) {
       return;
     }
 
-    var history = Provider.of<History>(context, listen: false);
+    var history = Provider.of<History>(currentContext, listen: false);
     history.addWord(word);
-    var dictionary = Provider.of<MasterDictionary>(context, listen: false);
+    var dictionary =
+        Provider.of<MasterDictionary>(currentContext, listen: false);
     dictionary.selectedWord = word;
 
     var nowAtHome = route?.settings.name == home;
 
-    Navigator.of(context)
+    Navigator.of(currentContext)
         .pushNamed(Routes.article, arguments: word)
         // Force reload when home page is reached
         .whenComplete(() {
       if (nowAtHome) {
-        Navigator.of(context).pushReplacementNamed(home);
+        Navigator.of(currentContext).pushReplacementNamed(home);
       }
     });
   }
 
-  static void showOfflineDictionaries(BuildContext context) {
-    if (ModalRoute.of(context)!.settings.name == dictionariesOnline) {
-      Navigator.of(context).pop();
-    }
+  static void showOfflineDictionaries() {
+    // After goinf to navigator global key and using it's context this approach stopped returning route from the dialog
+    //  if (ModalRoute.of(currentContext)?.settings.name == dictionariesOnline) {
+    //     Navigator.of(currentContext).pop();
+    //   }
+    Navigator.of(currentContext).popUntil((route) {
+      if (route.settings.name == dictionariesOnline) return false;
+      return true;
+    });
 
     showDialog(
-        context: context,
+        context: currentContext,
         barrierColor: !kIsWeb ? Colors.transparent : Colors.black54,
         routeSettings: const RouteSettings(name: Routes.dictionariesOffline),
         builder: (BuildContext context) {
@@ -57,18 +66,23 @@ class Routes {
         });
   }
 
-  static void showOnlineDictionaries(BuildContext context) {
-    if (ModalRoute.of(context)!.settings.name == dictionariesOffline) {
-      Navigator.of(context).pop();
-    }
+  static void showOnlineDictionaries() {
+    // After goinf to navigator global key and using it's context this approach stopped returning route from the dialog
+    // if (ModalRoute.of(currentContext)?.settings.name == dictionariesOffline) {
+    //   Navigator.of(currentContext).pop();
+    // }
+
+    Navigator.of(currentContext).popUntil((route) {
+      if (route.settings.name == dictionariesOffline) return false;
+      return true;
+    });
 
     showDialog(
-        context: context,
+        context: currentContext,
         barrierColor: !kIsWeb ? Colors.transparent : Colors.black54,
         routeSettings: const RouteSettings(name: Routes.dictionariesOnline),
         builder: (BuildContext context) {
           return const SimpleDialog(
-              //maxWidth: 700,
               alignment: Alignment.center,
               children: [Dictionaries(offline: false)]);
         });

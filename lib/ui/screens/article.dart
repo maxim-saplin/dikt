@@ -41,8 +41,7 @@ class Content extends StatelessWidget {
                                       articles: articles,
                                       word: word,
                                       showAnotherWord: (word) =>
-                                          Routes.showArticle(
-                                              context, word)))))))
+                                          Routes.showArticle(word)))))))
             ])),
         ifTwoPanes: (c, add) => add(
             Stack(children: const [
@@ -57,7 +56,7 @@ class Content extends StatelessWidget {
                           articles: articles,
                           word: word,
                           showAnotherWord: (word) =>
-                              Routes.showArticle(context, word)))),
+                              Routes.showArticle(word)))),
               const TopButtons()
             ])));
   }
