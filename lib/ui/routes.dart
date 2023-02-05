@@ -18,7 +18,11 @@ class Routes {
   static const String dictionariesOnline = '/dictionariesOnline';
   static const String dictionariesOffline = '/dictionaries';
 
-  static void showArticle(String word) {
+  static void goBack() {
+    Navigator.of(currentContext).pop();
+  }
+
+  static void showArticle(String word, [bool addToHistory = true]) {
     var route = ModalRoute.of(currentContext);
     if (route != null &&
         route.settings.name == article &&
@@ -26,8 +30,12 @@ class Routes {
       return;
     }
 
-    var history = Provider.of<History>(currentContext, listen: false);
-    history.addWord(word);
+    if (addToHistory) {
+      var history = Provider.of<History>(currentContext, listen: false);
+      // Future.delayed(
+      //     const Duration(milliseconds: 35), () => history.addWord(word));
+      history.addWord(word);
+    }
     var dictionary =
         Provider.of<MasterDictionary>(currentContext, listen: false);
     dictionary.selectedWord = word;

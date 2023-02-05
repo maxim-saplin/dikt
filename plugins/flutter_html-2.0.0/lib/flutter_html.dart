@@ -87,6 +87,7 @@ class Html extends StatelessWidget {
   Widget build(BuildContext context) {
     final double? width = shrinkWrap ? null : MediaQuery.of(context).size.width;
 
+    // Parsing text to spans was expensive in 2021, decided to use external isolate to off-load
     var text = _parseHtmlToTextSpans(useIsolate);
 
     return _FuturedHtml(
@@ -167,6 +168,7 @@ class _FuturedHtml extends StatelessWidget {
         width: width,
         child: FutureBuilder<StyledText>(
           future: text,
+          //future: Future.delayed(const Duration(seconds: 2), () => text),
           builder: (c, s) {
             if (s.hasData && s.data != null) {
               // similar fix to below

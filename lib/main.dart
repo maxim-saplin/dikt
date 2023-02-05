@@ -143,11 +143,29 @@ class MyApp extends StatelessWidget {
                             child: _getScaffold(const Home()),
                             type: PageTransitionType.fade);
                       case Routes.article:
+
+                        // return PageRouteBuilder(
+                        //   pageBuilder: (BuildContext context,
+                        //       Animation<double> animation1,
+                        //       Animation<double> animation2) {
+                        //     return _getScaffold(Content(
+                        //         word: (settings.arguments ?? '') as String));
+                        //   },
+                        //   transitionDuration: Duration.zero,
+                        //   reverseTransitionDuration: Duration.zero,
+                        // );
+
                         return PageTransition(
                             settings: settings,
+                            duration: const Duration(milliseconds: 1500),
                             child: _getScaffold(Content(
                                 word: (settings.arguments ?? '') as String)),
                             type: PageTransitionType.fade);
+
+                      // var w = _getScaffold(Content(
+                      //     word: (settings.arguments ?? '') as String));
+
+                      // return UnanimatedPageRoute(builder: (context) => w);
                       default:
                         return null;
                     }
@@ -157,5 +175,29 @@ class MyApp extends StatelessWidget {
                   theme: lightTheme,
                   darkTheme: darkTheme,
                 ))));
+  }
+}
+
+class UnanimatedPageRoute<T> extends MaterialPageRoute<T> {
+  UnanimatedPageRoute({
+    required Widget Function(BuildContext) builder,
+    RouteSettings? settings,
+    bool maintainState = true,
+    bool fullscreenDialog = false,
+  }) : super(
+          builder: builder,
+          settings: settings,
+          maintainState: maintainState,
+          fullscreenDialog: fullscreenDialog,
+        );
+
+  @override
+  Widget buildTransitions(
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+    Widget child,
+  ) {
+    return child;
   }
 }
