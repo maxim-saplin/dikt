@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:dikt/ui/screens/dictionaries.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -67,10 +69,9 @@ class Routes {
         barrierColor: !kIsWeb ? Colors.transparent : Colors.black54,
         routeSettings: const RouteSettings(name: Routes.dictionariesOffline),
         builder: (BuildContext context) {
-          return const SimpleDialog(
-              //maxWidth: 500,
+          return blurBackground(const SimpleDialog(
               alignment: Alignment.center,
-              children: [Dictionaries(offline: true)]);
+              children: [Dictionaries(offline: true)]));
         });
   }
 
@@ -90,9 +91,14 @@ class Routes {
         barrierColor: !kIsWeb ? Colors.transparent : Colors.black54,
         routeSettings: const RouteSettings(name: Routes.dictionariesOnline),
         builder: (BuildContext context) {
-          return const SimpleDialog(
+          return blurBackground(const SimpleDialog(
               alignment: Alignment.center,
-              children: [Dictionaries(offline: false)]);
+              children: [Dictionaries(offline: false)]));
         });
   }
+}
+
+BackdropFilter blurBackground(Widget child) {
+  return BackdropFilter(
+      filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10), child: child);
 }

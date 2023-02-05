@@ -75,7 +75,9 @@ extension Localization on String {
           'On': 'Укл',
           'Off': 'Выкл',
           'Loading dictionaries: ': 'Загрузка слоўнiкаў: ',
-          'Loading...': 'Загрузка...'
+          'Loading...': 'Загрузка...',
+          'not found in the available dictionaries':
+              'не знойдзена ў маючыхся слоўнiках',
         },
         'ru': {
           'Search': 'Поиск',
@@ -111,7 +113,9 @@ extension Localization on String {
           'On': 'Вкл',
           'Off': 'Выкл',
           'Loading dictionaries: ': 'Загрузка словарей: ',
-          'Loading...': 'Загрузка...'
+          'Loading...': 'Загрузка...',
+          'not found in the available dictionaries':
+              'не найдено в имющихся словарях',
         },
       };
 

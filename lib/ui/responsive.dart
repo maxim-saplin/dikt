@@ -76,7 +76,8 @@ class _ResponsiveSplitViewState extends State<ResponsiveSplitView>
               Area(weight: 0.35, minimalSize: 200),
               Area(minimalSize: 200)
             ],
-            children: [_wrapInSafeArea(lp), _wrapInSafeArea(rp)],
+            // not wrapping rigt pane to have it take full height on Desktop
+            children: [_wrapInSafeArea(lp), rp],
           ));
     } else {
       void addOne(Widget widget) {

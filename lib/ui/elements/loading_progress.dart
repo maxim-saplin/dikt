@@ -135,19 +135,18 @@ class EmptyHints extends StatelessWidget {
     return dictionary.isFullyLoaded &&
             ((dictionary.isLookupWordEmpty && history.wordsCount < 1) ||
                 dictionary.totalEntries == 0)
-        ? Expanded(
-            child: Center(
-                child: Padding(
-                    padding: const EdgeInsets.fromLTRB(0, 100, 0, 0),
-                    child: Text(
-                      (showDictionaryStats
-                              ? ('${dictionary.totalEntries == 0 ? '↑↑↑\n${'Try adding dictionaries'.i18n}\n\n' : ''}${dictionary.totalEntries} ${'entries'.i18n}')
-                              : '') +
-                          (dictionary.totalEntries > 0 && showSearchBarHint
-                              ? '\n\n${'Type-in text below'.i18n}\n↓ ↓ ↓'
-                              : ''),
-                      textAlign: TextAlign.center,
-                    ))))
+        ? Center(
+            child: Padding(
+                padding: const EdgeInsets.fromLTRB(0, 100, 0, 0),
+                child: Text(
+                  (showDictionaryStats
+                          ? ('${dictionary.totalEntries == 0 ? '↑↑↑\n${'Try adding dictionaries'.i18n}\n\n' : ''}${dictionary.totalEntries} ${'entries'.i18n}')
+                          : '') +
+                      (dictionary.totalEntries > 0 && showSearchBarHint
+                          ? '\n\n${'Type-in text below'.i18n}\n↓ ↓ ↓'
+                          : ''),
+                  textAlign: TextAlign.center,
+                )))
         : const SizedBox();
   }
 }

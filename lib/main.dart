@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io' show Platform;
 
+import 'package:dikt/ui/elements/word_articles.dart';
 import 'package:double_back_to_close/double_back_to_close.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -73,7 +74,10 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
         providers: [
           ChangeNotifierProvider<DictionaryManager>(
-            create: (context) => DictionaryManager(),
+            create: (context) => DictionaryManager()
+              ..addListener(() {
+                WordArticles.invalidateCache();
+              }),
           ),
           ChangeNotifierProvider<OnlineDictionaryManager>(
               create: (context) => OnlineDictionaryManager(
@@ -81,14 +85,16 @@ class MyApp extends StatelessWidget {
               //Provider.of<DictionaryManager>(context, listen: false)),
               ),
           ChangeNotifierProvider<Preferences>(
-            create: (context) => Preferences(),
-          ),
-          ChangeNotifierProvider(create: (context) => History()),
+              create: (context) => Preferences()),
+          ChangeNotifierProvider<History>(create: (context) {
+            return History();
+          }),
           ChangeNotifierProvider<MasterDictionary>(create: (context) {
             var master = MasterDictionary();
             master.dictionaryManager =
                 Provider.of<DictionaryManager>(context, listen: false);
             Timer(Duration.zero, () => master.init()); // run after UI is built
+
             return master;
           }),
         ],
@@ -114,6 +120,7 @@ class MyApp extends StatelessWidget {
                         ]
                       : [],
                   builder: (BuildContext context, Widget? child) {
+                    WordArticles.invalidateCache();
                     Timer.run(() {
                       if (preferences.isLocaleInitialized) {
                         I18n.of(context).locale = preferences.locale;

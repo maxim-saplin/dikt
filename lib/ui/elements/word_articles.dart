@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:collection';
 import 'package:after_layout/after_layout.dart';
 import 'package:dikt/common/helpers.dart';
+import 'package:dikt/common/i18n.dart';
 import 'package:dikt/common/isolate_pool.dart';
 import 'package:dikt/ui/themes.dart';
 import 'package:flutter/foundation.dart';
@@ -11,15 +13,46 @@ import 'package:flutter_sticky_header/flutter_sticky_header.dart';
 
 import '../routes.dart';
 
-// Started when top level widget build() is called and used to measure article widgets layouts - essentialy time to dispolay
-Stopwatch globalSw = Stopwatch();
-final Map<String, Widget> _cache = {};
+Stopwatch _globalSw = Stopwatch();
 
 /// The widget is composed of a number of future builders + part of Html rendering (creating text spans)
 /// is done o external isolates. To avoid blinking and show UI after it is ready Offstage is used
 /// to wait on all FutureBuilders and present complete UI
 /// Besides widget caching is used to avoid expensive rebuilds of Html widgets
 class WordArticles extends StatefulWidget {
+// Started when top level widget build() is called and used to measure article widgets layouts - essentialy time to dispolay
+
+  /// As soon as number of items in the cache is above - remove old items
+  static const _cachePurgeThreshold = 5;
+  static const _cacheItemsToPurge = 2;
+
+  static final LinkedHashMap<String, Widget> _cache =
+      LinkedHashMap<String, Widget>();
+
+  static void invalidateCache() {
+    if (_cache.isNotEmpty) {
+      _cache.clear();
+      debugPrint('WordArtciles widget cache invalidated');
+    }
+  }
+
+  static void _addItemToCache(String key, Widget value) {
+    _cache[key] = value;
+    if (_cache.length >= _cachePurgeThreshold) {
+      Future.delayed(const Duration(milliseconds: 777), () {
+        var keys = _cache.keys.take(_cacheItemsToPurge).toList();
+        for (var k in keys) {
+          _cache.remove(k);
+        }
+        debugPrint('WordArtciles widget cache purged');
+      });
+    }
+  }
+
+  static bool _cacheItemExists(String key) => _cache.keys.contains(key);
+
+  static Widget _getCacheItem(String key) => _cache[key]!;
+
   const WordArticles(
       {Key? key,
       required this.articles,
@@ -51,11 +84,13 @@ class _WordArticlesState extends State<WordArticles> {
     Widget w = const SizedBox();
 
     // TODO, add propper caching with invalidation and freeing up old/first N added entries
-    if (_cache.keys.contains(widget.word)) {
-      w = _cache[widget.word]!;
+    // TODO, invalidate on locale chage, making any changes to dictionaries, ?changing dark/light theme
+    // TODO, test enabling/disabling dictionaries when article is open
+    if (WordArticles._cacheItemExists(widget.word)) {
+      w = WordArticles._getCacheItem(widget.word);
     } else {
-      globalSw.reset();
-      globalSw.start();
+      _globalSw.reset();
+      _globalSw.start();
 
       if (widget.articles == null) {
         return const SizedBox();
@@ -69,6 +104,7 @@ class _WordArticlesState extends State<WordArticles> {
                 child: Stack(children: [
                   // Article list
                   _FuturedArticles(
+                      word: widget.word,
                       articles: widget.articles!,
                       offstageCompleter: _offstageCompleter,
                       bottomDictionariesCompleter: _bottomDictionariesCompleter,
@@ -152,7 +188,7 @@ class _WordArticlesState extends State<WordArticles> {
               ? Offstage(offstage: true, child: x)
               : Offstage(offstage: false, child: x));
 
-      _cache[widget.word] = w;
+      WordArticles._addItemToCache(widget.word, w);
     }
 
     return w;
@@ -163,6 +199,7 @@ class _WordArticlesState extends State<WordArticles> {
 class _FuturedArticles extends StatelessWidget {
   const _FuturedArticles(
       {Key? key,
+      required this.word,
       required this.articles,
       required this.offstageCompleter,
       required this.bottomDictionariesCompleter,
@@ -172,6 +209,7 @@ class _FuturedArticles extends StatelessWidget {
 
   static EdgeInsets headerInsets = const EdgeInsets.fromLTRB(0, 30, 0, 50);
 
+  final String word;
   final Future<List<Article>> articles;
   final Completer offstageCompleter;
   final Completer<Tuple<List<DropdownMenuItem<String>>, Map<String, GlobalKey>>>
@@ -186,7 +224,18 @@ class _FuturedArticles extends StatelessWidget {
       future: articles,
       builder: (context, snapshot) {
         if (snapshot.hasData) {
-          return _FuturedArticleBodies(snapshot.data ?? [], offstageCompleter,
+          var articles = snapshot.data ?? [];
+
+          if (articles.isEmpty) {
+            articles = [
+              Article(
+                  word,
+                  '\'$word\' ${'not found in the available dictionaries'.i18n}',
+                  'N/A')
+            ];
+          }
+
+          return _FuturedArticleBodies(articles, offstageCompleter,
               bottomDictionariesCompleter, scrollController, showAnotherWord);
         }
         return const SizedBox();
@@ -224,7 +273,7 @@ class _FuturedArticleBodiesState extends State<_FuturedArticleBodies>
   @override
   void afterFirstLayout(BuildContext context) {
     debugPrint(
-        '_FuturedArticleBody laidout ${sw.elapsedMilliseconds}ms, total ${globalSw.elapsedMilliseconds}');
+        '_FuturedArticleBody laidout ${sw.elapsedMilliseconds}ms, total ${_globalSw.elapsedMilliseconds}');
   }
 
   final UniqueKey _scrollKey = UniqueKey();
@@ -281,8 +330,6 @@ class _FuturedArticleBodiesState extends State<_FuturedArticleBodies>
 
     // debugPrint(
     //     '_FuturedArticleBody built ${sw.elapsedMilliseconds}ms, total ${globalSw.elapsedMilliseconds}');
-
-    // TODO, check multiple ductionary article works fine, previously there was Offstage wrapping Html widgets assuming is should help with all Html widgets to be displayed at the same time when all are ready
 
     // return FutureBuilder(
     //     future: _offstageCompleter.future,
@@ -372,13 +419,13 @@ class _FuturedArticleBodiesState extends State<_FuturedArticleBodies>
         },
         onBuilt: () => dicsToKeys.length == ++_builtCounter
             ? debugPrint(
-                'Html.built, # $_builtCounter, ${globalSw.elapsedMilliseconds}ms')
+                'Html.built, # $_builtCounter, ${_globalSw.elapsedMilliseconds}ms')
             : {},
         onLaidOut: () {
           if (dicsToKeys.length == ++_laidoutCounter &&
               !widget.offstageCompleter.isCompleted) {
             debugPrint(
-                'Html.laidout, # $_laidoutCounter, ${globalSw.elapsedMilliseconds}ms');
+                'Html.laidout, # $_laidoutCounter, ${_globalSw.elapsedMilliseconds}ms');
             widget.offstageCompleter.complete(true);
           }
         },

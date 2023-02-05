@@ -27,7 +27,10 @@ class MenuButtons extends StatelessWidget {
         padding: defaultTargetPlatform == TargetPlatform.macOS ||
                 defaultTargetPlatform == TargetPlatform.linux ||
                 defaultTargetPlatform == TargetPlatform.windows
-            ? const EdgeInsets.only(right: 30)
+            ? const EdgeInsets.only(
+                top: 20,
+                right: 30,
+              )
             : EdgeInsets.zero,
         child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -62,10 +65,10 @@ class MenuButtons extends StatelessWidget {
                           !kIsWeb ? Colors.transparent : Colors.black54,
                       routeSettings: const RouteSettings(name: '/settings'),
                       builder: (BuildContext context) {
-                        return const SimpleDialog(
+                        return blurBackground(const SimpleDialog(
                             //maxWidth: 320,
                             alignment: Alignment.center,
-                            children: [Settings()]);
+                            children: [Settings()]));
                       });
                 },
               )

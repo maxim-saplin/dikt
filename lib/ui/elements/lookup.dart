@@ -200,22 +200,33 @@ class _Entry extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: SizedBox(
                 height: 26,
-                child: Text(word,
-                    textAlign: dictionary.isLookupWordEmpty
-                        ? TextAlign.right
-                        : TextAlign.left,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                        // Ikv returns original keys, i.e. not lower case
-                        // probably it is better to just highlight selected index rather than compare strings
+                child: Stack(children: [
+                  Positioned(
+                      left: 0,
+                      right: 0,
+                      top: 0,
+                      bottom: 0,
+                      child: Text(word,
+                          textAlign: dictionary.isLookupWordEmpty
+                              ? TextAlign.right
+                              : TextAlign.left,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                              // Ikv returns original keys, i.e. not lower case
+                              // probably it is better to just highlight selected index rather than compare strings
 
-                        fontStyle: dictionary.isLookupWordEmpty
-                            ? FontStyle.italic
-                            : FontStyle.normal,
-                        fontWeight:
-                            word.toLowerCase() == dictionary.selectedWord
-                                ? FontWeight.bold
-                                : FontWeight.normal))),
+                              fontStyle: dictionary.isLookupWordEmpty
+                                  ? FontStyle.italic
+                                  : FontStyle.normal,
+                              fontWeight:
+                                  word.toLowerCase() == dictionary.selectedWord
+                                      ? FontWeight.bold
+                                      : FontWeight.normal))),
+                  dictionary.isLookupWordEmpty
+                      ? const SizedBox()
+                      : const Positioned(
+                          right: 0, child: Icon(Icons.arrow_right))
+                ])),
           ),
         ));
   }

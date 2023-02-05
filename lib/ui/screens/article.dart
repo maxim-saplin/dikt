@@ -21,27 +21,22 @@ class Content extends StatelessWidget {
     var dictionary = Provider.of<MasterDictionary>(context);
     Future<List<Article>>? articles = dictionary.getArticles(word);
 
-    // TODO, fix blinking when switching words in two pane mode
-
     return ResponsiveSplitView(
         ifOnePane: (c, add) => add(Stack(children: [
               const Lookup(
                   searchBarTopRounded: false, autoFocusSearchBar: false),
               //const TopButtons(),
-              BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                  child: Expanded(
-                      child: GestureDetector(
-                          onTap: () => Navigator.of(context).pop(),
-                          child: ColoredBox(
-                              color: Colors.transparent,
-                              child: Align(
-                                  alignment: Alignment.bottomCenter,
-                                  child: WordArticles(
-                                      articles: articles,
-                                      word: word,
-                                      showAnotherWord: (word) =>
-                                          Routes.showArticle(word)))))))
+              blurBackground(GestureDetector(
+                  onTap: () => Navigator.of(context).pop(),
+                  child: ColoredBox(
+                      color: Colors.transparent,
+                      child: Align(
+                          alignment: Alignment.bottomCenter,
+                          child: WordArticles(
+                              articles: articles,
+                              word: word,
+                              showAnotherWord: (word) =>
+                                  Routes.showArticle(word))))))
             ])),
         ifTwoPanes: (c, add) => add(
             Stack(children: const [
@@ -50,7 +45,8 @@ class Content extends StatelessWidget {
             ]),
             Stack(children: [
               Center(
-                  child: Padding(
+                  child: Container(
+                      color: Theme.of(context).cardColor,
                       padding: const EdgeInsets.fromLTRB(0, 38, 0, 0),
                       child: WordArticles(
                           articles: articles,
