@@ -5,8 +5,8 @@ import 'package:multi_split_view/multi_split_view.dart';
 int wideNarrowBreak = 500;
 
 /// Depending on width either display two pane resizable split view or one pane
-class AdaptiveSplitView extends StatefulWidget {
-  const AdaptiveSplitView(
+class ResponsiveSplitView extends StatefulWidget {
+  const ResponsiveSplitView(
       {super.key, required this.ifOnePane, required this.ifTwoPanes});
 
   final void Function(BuildContext context, void Function(Widget widget) add)
@@ -15,11 +15,11 @@ class AdaptiveSplitView extends StatefulWidget {
       void Function(Widget leftPane, Widget rightPane) add) ifTwoPanes;
 
   @override
-  State<AdaptiveSplitView> createState() => _AdaptiveSplitViewState();
+  State<ResponsiveSplitView> createState() => _ResponsiveSplitViewState();
 }
 
 /// Instead of LayoutBuilder/MediaQuery.of causing frequent and expensive builds (Artical -> Html widgets) using stateful widget which respnds to events when width changes and orintation (isWide flag) need yo be updated
-class _AdaptiveSplitViewState extends State<AdaptiveSplitView>
+class _ResponsiveSplitViewState extends State<ResponsiveSplitView>
     with WidgetsBindingObserver {
   bool _isWide = true;
 

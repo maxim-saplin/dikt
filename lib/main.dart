@@ -157,7 +157,7 @@ class MyApp extends StatelessWidget {
 
                         return PageTransition(
                             settings: settings,
-                            duration: const Duration(milliseconds: 1500),
+                            duration: const Duration(milliseconds: 250),
                             child: _getScaffold(Content(
                                 word: (settings.arguments ?? '') as String)),
                             type: PageTransitionType.fade);

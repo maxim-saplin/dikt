@@ -1,14 +1,14 @@
 import 'dart:ui';
 
-import 'package:dikt/ui/adaptive.dart';
-import 'package:dikt/ui/elements/menu_buttons.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../models/master_dictionary.dart';
 import '../elements/loading_progress.dart';
 import '../elements/lookup.dart';
+import '../elements/menu_buttons.dart';
 import '../elements/word_articles.dart';
+import '../responsive.dart';
 import '../routes.dart';
 
 class Content extends StatelessWidget {
@@ -23,7 +23,7 @@ class Content extends StatelessWidget {
 
     // TODO, fix blinking when switching words in two pane mode
 
-    return AdaptiveSplitView(
+    return ResponsiveSplitView(
         ifOnePane: (c, add) => add(Stack(children: [
               const Lookup(
                   searchBarTopRounded: false, autoFocusSearchBar: false),

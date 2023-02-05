@@ -192,36 +192,33 @@ class _Entry extends StatelessWidget {
         cursor:
             word == '' ? SystemMouseCursors.basic : SystemMouseCursors.click,
         child: GestureDetector(
-            onTap: () {
-              if (word == '') return;
-              Routes.showArticle(word, true);
-            },
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: LimitedBox(
-                maxHeight: 48,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                        child: Text(dictionary.isLookupWordEmpty ? '' : word,
-                            style: TextStyle(
-                                // Ikv returns original keys, i.e. not lower case
-                                // probably it is better to just highlight selected index rather than compare strings
-                                fontWeight: word.toLowerCase() ==
-                                        dictionary.selectedWord
-                                    ? FontWeight.bold
-                                    : FontWeight.normal))),
-                    Text(dictionary.isLookupWordEmpty ? word : '·',
+          onTap: () {
+            if (word == '') return;
+            Routes.showArticle(word);
+          },
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: SizedBox(
+                height: 26,
+                child: Expanded(
+                    child: Text(word,
+                        textAlign: dictionary.isLookupWordEmpty
+                            ? TextAlign.right
+                            : TextAlign.left,
+                        overflow: TextOverflow.ellipsis,
                         style: TextStyle(
-                            fontStyle: FontStyle.italic,
-                            fontWeight: word == dictionary.selectedWord
-                                ? FontWeight.bold
-                                : FontWeight.normal)),
-                  ],
-                ),
-              ),
-            )));
+                            // Ikv returns original keys, i.e. not lower case
+                            // probably it is better to just highlight selected index rather than compare strings
+
+                            fontStyle: dictionary.isLookupWordEmpty
+                                ? FontStyle.italic
+                                : FontStyle.normal,
+                            fontWeight:
+                                word.toLowerCase() == dictionary.selectedWord
+                                    ? FontWeight.bold
+                                    : FontWeight.normal)))),
+          ),
+        ));
   }
 }
 
@@ -256,7 +253,7 @@ class _SearchBar extends StatelessWidget {
             },
             onSubmitted: (value) {
               if (dictionary.matchesCount > 0) {
-                Routes.showArticle(dictionary.getMatch(0), true);
+                Routes.showArticle(dictionary.getMatch(0));
               }
             },
             style: const TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),

@@ -15,8 +15,12 @@ import '../routes.dart';
 Stopwatch globalSw = Stopwatch();
 final Map<String, Widget> _cache = {};
 
-class WordArticles extends StatelessWidget {
-  WordArticles(
+/// The widget is composed of a number of future builders + part of Html rendering (creating text spans)
+/// is done o external isolates. To avoid blinking and show UI after it is ready Offstage is used
+/// to wait on all FutureBuilders and present complete UI
+/// Besides widget caching is used to avoid expensive rebuilds of Html widgets
+class WordArticles extends StatefulWidget {
+  const WordArticles(
       {Key? key,
       required this.articles,
       required this.word,
@@ -25,31 +29,39 @@ class WordArticles extends StatelessWidget {
       this.showAnotherWord})
       : super(key: key);
 
-  final ScrollController scrollController = ScrollController();
-
   final Future<List<Article>>? articles;
   final String word;
   final Function(String word)? showAnotherWord;
 
   @override
+  State<WordArticles> createState() => _WordArticlesState();
+}
+
+class _WordArticlesState extends State<WordArticles> {
+  final ScrollController scrollController = ScrollController();
+
+  // List of dictionaries is only known when all articles are loaded and correponding future is completed, using this completer to trigger UI for dictionaries
+  final _bottomDictionariesCompleter = Completer<
+      Tuple<List<DropdownMenuItem<String>>, Map<String, GlobalKey>>>();
+
+  final _offstageCompleter = Completer();
+
+  @override
   Widget build(BuildContext context) {
     Widget w = const SizedBox();
 
-    // TODO, add proper caching with invalidation and freeing up old/first N added entries
-    if (_cache.keys.contains(word)) {
-      w = _cache[word]!;
+    // TODO, add propper caching with invalidation and freeing up old/first N added entries
+    if (_cache.keys.contains(widget.word)) {
+      w = _cache[widget.word]!;
     } else {
       globalSw.reset();
       globalSw.start();
-      // List of dictionaries is only known when all articles are loaded and correponding future is completed, using this completer to trigger UI for dictionaries
-      var dicsCompleter = Completer<
-          Tuple<List<DropdownMenuItem<String>>, Map<String, GlobalKey>>>();
 
-      if (articles == null) {
+      if (widget.articles == null) {
         return const SizedBox();
       }
 
-      w = Stack(children: [
+      var x = Stack(children: [
         ClipRRect(
             borderRadius: const BorderRadius.all(Radius.circular(10)),
             child: ColoredBox(
@@ -57,10 +69,11 @@ class WordArticles extends StatelessWidget {
                 child: Stack(children: [
                   // Article list
                   _FuturedArticles(
-                      articles: articles!,
-                      dicsCompleter: dicsCompleter,
+                      articles: widget.articles!,
+                      offstageCompleter: _offstageCompleter,
+                      bottomDictionariesCompleter: _bottomDictionariesCompleter,
                       scrollController: scrollController,
-                      showAnotherWord: showAnotherWord),
+                      showAnotherWord: widget.showAnotherWord),
                   // Title with selectable text - word
                   Container(
                       padding: const EdgeInsets.fromLTRB(18, 15, 18, 0),
@@ -68,7 +81,7 @@ class WordArticles extends StatelessWidget {
                       height: 39.0,
                       width: 1000,
                       child: SelectableText(
-                        word,
+                        widget.word,
                         style: Theme.of(context).textTheme.headlineSmall,
                       )),
                 ]))),
@@ -111,7 +124,7 @@ class WordArticles extends StatelessWidget {
                           FutureBuilder<
                                   Tuple<List<DropdownMenuItem<String>>,
                                       Map<String, GlobalKey>>>(
-                              future: dicsCompleter.future,
+                              future: _bottomDictionariesCompleter.future,
                               builder: (c, s) => s.hasData && s.data != null
                                   ?
                                   // TODO - fix button being too narrow and icon not covering the click area (e.g. wide window)
@@ -131,7 +144,15 @@ class WordArticles extends StatelessWidget {
         )
       ]);
 
-      _cache[word] = w;
+      w = FutureBuilder(
+          future: _offstageCompleter.future,
+          builder: (c, s) => !s.hasData
+              // Ussing Offstage to prepaer all article and present them in one frame when all are ready
+              // Using stack and _Empty to avoid any jumps and keep width of the widget occupied
+              ? Offstage(offstage: true, child: x)
+              : Offstage(offstage: false, child: x));
+
+      _cache[widget.word] = w;
     }
 
     return w;
@@ -143,7 +164,8 @@ class _FuturedArticles extends StatelessWidget {
   const _FuturedArticles(
       {Key? key,
       required this.articles,
-      required this.dicsCompleter,
+      required this.offstageCompleter,
+      required this.bottomDictionariesCompleter,
       required this.scrollController,
       required this.showAnotherWord})
       : super(key: key);
@@ -151,8 +173,9 @@ class _FuturedArticles extends StatelessWidget {
   static EdgeInsets headerInsets = const EdgeInsets.fromLTRB(0, 30, 0, 50);
 
   final Future<List<Article>> articles;
+  final Completer offstageCompleter;
   final Completer<Tuple<List<DropdownMenuItem<String>>, Map<String, GlobalKey>>>
-      dicsCompleter;
+      bottomDictionariesCompleter;
   final ScrollController scrollController;
   final Function(String word)? showAnotherWord;
 
@@ -163,10 +186,10 @@ class _FuturedArticles extends StatelessWidget {
       future: articles,
       builder: (context, snapshot) {
         if (snapshot.hasData) {
-          return _FuturedArticleBodies(snapshot.data ?? [], dicsCompleter,
-              scrollController, showAnotherWord);
+          return _FuturedArticleBodies(snapshot.data ?? [], offstageCompleter,
+              bottomDictionariesCompleter, scrollController, showAnotherWord);
         }
-        return const _Empty();
+        return const SizedBox();
       },
     );
 
@@ -175,30 +198,16 @@ class _FuturedArticles extends StatelessWidget {
   }
 }
 
-// TODO, get rid of empty, to avoid jump better show UI when ready (prepared off-stage) rather than display empty word header and nav bar with empty space in between, dot in the center might be a better way for empty UI
-/// Empty placeholder to show smth
-class _Empty extends StatelessWidget {
-  const _Empty({
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-        padding: _FuturedArticles.headerInsets,
-        child: Container(
-            color: Theme.of(context).cardColor,
-            width: 10000,
-            height: 40,
-            child: const SizedBox()));
-  }
-}
-
 /// Each individual article is built via Html renderer which potentially can use external isolate. Time to render/layout is measured and printed in debug log
 class _FuturedArticleBodies extends StatefulWidget {
-  const _FuturedArticleBodies(this.articles, this.bottomDictionariesCompleter,
-      this.scrollController, this.showAnotherWord);
+  const _FuturedArticleBodies(
+      this.articles,
+      this.offstageCompleter,
+      this.bottomDictionariesCompleter,
+      this.scrollController,
+      this.showAnotherWord);
   final List<Article> articles;
+  final Completer offstageCompleter;
   final Completer<Tuple<List<DropdownMenuItem<String>>, Map<String, GlobalKey>>>
       bottomDictionariesCompleter;
   final ScrollController scrollController;
@@ -219,8 +228,6 @@ class _FuturedArticleBodiesState extends State<_FuturedArticleBodies>
   }
 
   final UniqueKey _scrollKey = UniqueKey();
-
-  final _offstageCompleter = Completer();
 
   int _builtCounter = 0;
   int _laidoutCounter = 0;
@@ -277,15 +284,6 @@ class _FuturedArticleBodiesState extends State<_FuturedArticleBodies>
 
     // TODO, check multiple ductionary article works fine, previously there was Offstage wrapping Html widgets assuming is should help with all Html widgets to be displayed at the same time when all are ready
 
-    return FutureBuilder(
-        future: _offstageCompleter.future,
-        builder: (c, s) => !s.hasData
-            // Ussing Offstage to prepaer all article and present them in one frame when all are ready
-            // Using stack and _Empty to avoid any jumps and keep width of the widget occupied
-            ? Stack(
-                children: [Offstage(offstage: true, child: w), const _Empty()])
-            : Offstage(offstage: false, child: w));
-
     // return FutureBuilder(
     //     future: _offstageCompleter.future,
     //     builder: (c, s) => !s.hasData
@@ -298,7 +296,7 @@ class _FuturedArticleBodiesState extends State<_FuturedArticleBodies>
     //             opacity: 1.0,
     //             child: w));
 
-    // return w;
+    return w;
   }
 
   Widget _getHtmlHeader(
@@ -378,10 +376,10 @@ class _FuturedArticleBodiesState extends State<_FuturedArticleBodies>
             : {},
         onLaidOut: () {
           if (dicsToKeys.length == ++_laidoutCounter &&
-              !_offstageCompleter.isCompleted) {
+              !widget.offstageCompleter.isCompleted) {
             debugPrint(
                 'Html.laidout, # $_laidoutCounter, ${globalSw.elapsedMilliseconds}ms');
-            _offstageCompleter.complete(true);
+            widget.offstageCompleter.complete(true);
           }
         },
         style: {

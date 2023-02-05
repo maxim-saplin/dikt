@@ -1,16 +1,16 @@
-import 'package:dikt/ui/adaptive.dart';
-import 'package:dikt/ui/elements/menu_buttons.dart';
 import 'package:flutter/material.dart';
 
 import '../elements/loading_progress.dart';
 import '../elements/lookup.dart';
+import '../elements/menu_buttons.dart';
+import '../responsive.dart';
 
 class Home extends StatelessWidget {
   const Home({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return AdaptiveSplitView(
+    return ResponsiveSplitView(
         ifOnePane: (c, add) => add(Stack(children: const [
               Lookup(searchBarTopRounded: true),
               DictionaryIndexingOrLoading(),
