@@ -12,9 +12,9 @@ import '../models/master_dictionary.dart';
 // via simple methods without the need to user context as a params
 // Problems:
 // - Moving to navigatorKey and current contextnbreaks ModaleRoute.of() technique for getting current route (no other way googled so far)
-// Routes are pages with own state which kind of breaks the Web/SPA approach with routes not updating state of the whole page when travling to # addrtesses - brought trouble with my 2 pane layout when different routes had same 2 pane layout but different widthes due to manual split view resizing
-// Going back doesn't invalidate/rebuild widgets, state might be stale, need to triger rebuild manually
-// Need to have own subclass of navigation observer to get hold of nav history/stack
+// - Routes are pages with own state which kind of breaks the Web/SPA approach with routes not updating state of the whole page when travling to # addrtesses - brought trouble with my 2 pane layout when different routes had same 2 pane layout but different widthes due to manual split view resizing
+// - Going back doesn't invalidate/rebuild widgets, state might be stale, need to triger rebuild manually
+// - Need to have own subclass of navigation observer to get hold of nav history/stack
 class Routes {
   static BuildContext get currentContext => navigator.currentContext!;
 

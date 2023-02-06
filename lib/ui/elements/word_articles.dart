@@ -21,22 +21,26 @@ Stopwatch _globalSw = Stopwatch();
 /// Besides widget caching is used to avoid expensive rebuilds of Html widgets
 /// The approach kinda sucks, there're many cases that don't work and require workarounds, e.g. not able
 /// to have duplicate entries in Navogator route history, the need to invalidate cache in multiple cases (e.g. prefference change, dictionary change, 1/2 pane chage)
+/// There's also some tricky bug when dealing with global key for dictionaries, under some navigation cases global keys have null context
 //TODO, add automation, e.g navigating to series of articles, some twice and scrolling/jumping in each case, having lookup word entered and doing nav
-// TODO, fix bug when opening article in wide mode and moving to narrow jumping to article via dictionary popup no longer works
+// TODO, fix bug when opening article !via typing and submitting! in wide mode and moving to narrow jumping to article via dictionary popup no longer works
 class WordArticles extends StatefulWidget {
 // Started when top level widget build() is called and used to measure article widgets layouts - essentialy time to dispolay
 
   /// As soon as number of items in the cache is above - remove old items
   static const _cachePurgeThreshold = 10;
   static const _cacheItemsToPurge = 5;
+  static const _cacheEnabled = true;
 
   static final LinkedHashMap<String, Widget> _cache =
       LinkedHashMap<String, Widget>();
 
-  static void invalidateCache() {
+  static void invalidateCache([bool delayed = false]) {
     if (_cache.isNotEmpty) {
-      _cache.clear();
-      debugPrint('WordArtciles widget cache invalidated');
+      if (!delayed) {
+        _cache.clear();
+        debugPrint('WordArtciles widget cache invalidated');
+      }
     }
   }
 
@@ -85,7 +89,8 @@ class _WordArticlesState extends State<WordArticles> {
   Widget build(BuildContext context) {
     Widget w = const SizedBox();
 
-    if (WordArticles._cacheItemExists(widget.word)) {
+    if (WordArticles._cacheEnabled &&
+        WordArticles._cacheItemExists(widget.word)) {
       w = WordArticles._getCacheItem(widget.word);
     } else {
       _globalSw.reset();
@@ -282,6 +287,7 @@ class _FuturedArticleBodiesState extends State<_FuturedArticleBodies>
 
   int _builtCounter = 0;
   int _laidoutCounter = 0;
+  final _dicsToKeys = <String, GlobalKey>{};
 
   @override
   Widget build(BuildContext context) {
@@ -298,12 +304,10 @@ class _FuturedArticleBodiesState extends State<_FuturedArticleBodies>
             )))
         .toList();
 
-    var dicsToKeys = <String, GlobalKey>{};
-
     // Aggregate all dictionaries in bottom nav bar
     if (!widget.bottomDictionariesCompleter.isCompleted) {
       widget.bottomDictionariesCompleter
-          .complete(Tuple(dictionaries, dicsToKeys));
+          .complete(Tuple(dictionaries, _dicsToKeys));
     }
 
     var w = Padding(
@@ -318,14 +322,17 @@ class _FuturedArticleBodiesState extends State<_FuturedArticleBodies>
               scrollDirection: Axis.vertical,
               shrinkWrap: true,
               slivers: widget.articles.map((article) {
-                var key = GlobalKey();
-                dicsToKeys[article.dictionaryName] = key;
+                if (!_dicsToKeys.keys.contains(article.dictionaryName)) {
+                  _dicsToKeys[article.dictionaryName] = GlobalKey();
+                }
+                var key = _dicsToKeys[article.dictionaryName];
+
                 return SliverStickyHeader(
                   key: key,
                   header: _getHtmlHeader(
-                      context, dictionaries, dicsToKeys, article),
+                      context, dictionaries, _dicsToKeys, article),
                   // Html widget has future builder inside and display empty UI when rendering is not ready but also provides onLaidOut callback to let know that future is received and view is rendered
-                  sliver: _getSliverWithHtml(context, article, dicsToKeys),
+                  sliver: _getSliverWithHtml(context, article, _dicsToKeys),
                 );
               }).toList(),
             )));
