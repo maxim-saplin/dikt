@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:dikt/ui/themes.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
@@ -247,12 +248,26 @@ class _SearchBar extends StatelessWidget {
     var dictionary = Provider.of<MasterDictionary>(context, listen: false);
 
     return Container(
-        decoration: BoxDecoration(
-            color: Theme.of(context).canvasColor,
-            borderRadius: BorderRadius.only(
-                topLeft: roundedTop ? const Radius.circular(12) : Radius.zero,
-                topRight:
-                    roundedTop ? const Radius.circular(12) : Radius.zero)),
+        height: ownTheme(context).searchBarHeight,
+        decoration: roundedTop
+            ? BoxDecoration(
+                color: Theme.of(context).canvasColor,
+                borderRadius: BorderRadius.only(
+                    topLeft:
+                        roundedTop ? const Radius.circular(12) : Radius.zero,
+                    topRight:
+                        roundedTop ? const Radius.circular(12) : Radius.zero))
+            : BoxDecoration(
+                backgroundBlendMode: BlendMode.srcOver,
+                gradient: LinearGradient(
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                  stops: const [0.6, 1],
+                  colors: [
+                    Theme.of(context).cardColor,
+                    Theme.of(context).cardColor.withAlpha(0)
+                  ],
+                )),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         child: Stack(alignment: Alignment.bottomRight, children: [
           TextField(

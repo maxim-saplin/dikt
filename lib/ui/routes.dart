@@ -125,7 +125,7 @@ BackdropFilter blurBackground(Widget child) {
 }
 
 class StackObserver extends NavigatorObserver {
-  List<Route<dynamic>> _routeStack = [];
+  final List<Route<dynamic>> _routeStack = [];
 
   @override
   void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {

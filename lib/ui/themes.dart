@@ -5,16 +5,19 @@ class OwnThemeFields {
   final Color textBaloon;
   final Color spanColor;
   final Color textSelectionPopupColor;
+  final double searchBarHeight;
 
   const OwnThemeFields(
       {Color? errorShade,
       Color? textBaloon,
       Color? spanColor,
-      Color? textSelectionPopupColor})
+      Color? textSelectionPopupColor,
+      double? searchBarHeight})
       : errorShade = errorShade ?? Colors.red,
         textBaloon = textBaloon ?? Colors.black,
         spanColor = spanColor ?? Colors.black,
-        textSelectionPopupColor = textSelectionPopupColor ?? Colors.black;
+        textSelectionPopupColor = textSelectionPopupColor ?? Colors.black,
+        searchBarHeight = 80;
 }
 
 extension ThemeDataExtensions on ThemeData {

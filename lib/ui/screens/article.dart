@@ -33,6 +33,7 @@ class Content extends StatelessWidget {
                           child: WordArticles(
                               articles: articles,
                               word: word,
+                              twoPaneMode: false,
                               showAnotherWord: (word) =>
                                   Routes.showArticle(word))))))
             ])),
@@ -42,13 +43,18 @@ class Content extends StatelessWidget {
               EmptyHints(showDictionaryStats: false, showSearchBarHint: true)
             ]),
             Stack(children: [
-              Center(
+              Positioned(
+                  top: 0,
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
                   child: Container(
                       color: Theme.of(context).cardColor,
                       padding: const EdgeInsets.fromLTRB(0, 38, 0, 0),
                       child: WordArticles(
                           articles: articles,
                           word: word,
+                          twoPaneMode: true,
                           showAnotherWord: (word) =>
                               Routes.showArticle(word)))),
               const TopButtons()

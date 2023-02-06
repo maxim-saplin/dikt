@@ -76,7 +76,7 @@ class MyApp extends StatelessWidget {
           ChangeNotifierProvider<DictionaryManager>(
             create: (context) => DictionaryManager()
               ..addListener(() {
-                WordArticles.invalidateCache();
+                WordArticlesCache.invalidateCache();
               }),
           ),
           ChangeNotifierProvider<OnlineDictionaryManager>(
@@ -121,7 +121,8 @@ class MyApp extends StatelessWidget {
                         ]
                       : [Routes.observer],
                   builder: (BuildContext context, Widget? child) {
-                    WordArticles.invalidateCache();
+                    // Invalidating cache here helps with dark/light theme switching and WordArticles not being broken
+                    WordArticlesCache.invalidateCache();
                     Timer.run(() {
                       if (preferences.isLocaleInitialized) {
                         I18n.of(context).locale = preferences.locale;

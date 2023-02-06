@@ -8,11 +8,13 @@ import 'package:dikt/ui/themes.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:dikt/models/master_dictionary.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_sticky_header/flutter_sticky_header.dart';
 
 import '../routes.dart';
 
+// Started when top level widget build() is called and used to measure article widgets layouts - essentialy time to dispolay
 Stopwatch _globalSw = Stopwatch();
 
 /// The widget is composed of a number of future builders + part of Html rendering (creating text spans)
@@ -23,48 +25,12 @@ Stopwatch _globalSw = Stopwatch();
 /// to have duplicate entries in Navogator route history, the need to invalidate cache in multiple cases (e.g. prefference change, dictionary change, 1/2 pane chage)
 /// There's also some tricky bug when dealing with global key for dictionaries, under some navigation cases global keys have null context
 //TODO, add automation, e.g navigating to series of articles, some twice and scrolling/jumping in each case, having lookup word entered and doing nav
-// TODO, fix bug when opening article !via typing and submitting! in wide mode and moving to narrow jumping to article via dictionary popup no longer works
 class WordArticles extends StatefulWidget {
-// Started when top level widget build() is called and used to measure article widgets layouts - essentialy time to dispolay
-
-  /// As soon as number of items in the cache is above - remove old items
-  static const _cachePurgeThreshold = 10;
-  static const _cacheItemsToPurge = 5;
-  static const _cacheEnabled = true;
-
-  static final LinkedHashMap<String, Widget> _cache =
-      LinkedHashMap<String, Widget>();
-
-  static void invalidateCache([bool delayed = false]) {
-    if (_cache.isNotEmpty) {
-      if (!delayed) {
-        _cache.clear();
-        debugPrint('WordArtciles widget cache invalidated');
-      }
-    }
-  }
-
-  static void _addItemToCache(String key, Widget value) {
-    _cache[key] = value;
-    if (_cache.length >= _cachePurgeThreshold) {
-      Future.delayed(const Duration(milliseconds: 777), () {
-        var keys = _cache.keys.take(_cacheItemsToPurge).toList();
-        for (var k in keys) {
-          _cache.remove(k);
-        }
-        debugPrint('WordArtciles widget cache purged');
-      });
-    }
-  }
-
-  static bool _cacheItemExists(String key) => _cache.keys.contains(key);
-
-  static Widget _getCacheItem(String key) => _cache[key]!;
-
   const WordArticles(
       {Key? key,
       required this.articles,
       required this.word,
+      required this.twoPaneMode,
 
       /// Callback to call in order to navigate to a word within an article
       this.showAnotherWord})
@@ -72,6 +38,7 @@ class WordArticles extends StatefulWidget {
 
   final Future<List<Article>>? articles;
   final String word;
+  final bool twoPaneMode;
   final Function(String word)? showAnotherWord;
 
   @override
@@ -84,14 +51,15 @@ class _WordArticlesState extends State<WordArticles> {
       Tuple<List<DropdownMenuItem<String>>, Map<String, GlobalKey>>>();
 
   final _offstageCompleter = Completer();
+  final _selectorKey = GlobalKey();
 
   @override
   Widget build(BuildContext context) {
     Widget w = const SizedBox();
 
-    if (WordArticles._cacheEnabled &&
-        WordArticles._cacheItemExists(widget.word)) {
-      w = WordArticles._getCacheItem(widget.word);
+    if (WordArticlesCache._cacheEnabled &&
+        WordArticlesCache._cacheItemExists(widget.word)) {
+      w = WordArticlesCache._getCacheItem(widget.word);
     } else {
       _globalSw.reset();
       _globalSw.start();
@@ -103,88 +71,105 @@ class _WordArticlesState extends State<WordArticles> {
       final ScrollController scrollController =
           SinglePositionScrollController();
 
-      var x = Stack(children: [
+      Widget x = ColoredBox(
+          color: Theme.of(context).cardColor,
+          child: Stack(children: [
+            // Article list
+            _FuturedArticles(
+                word: widget.word,
+                articles: widget.articles!,
+                offstageCompleter: _offstageCompleter,
+                bottomDictionariesCompleter: _bottomDictionariesCompleter,
+                scrollController: scrollController,
+                showAnotherWord: widget.showAnotherWord),
+            // Title with selectable text - word
+            Container(
+                padding: const EdgeInsets.fromLTRB(18, 15, 18, 0),
+                color: Theme.of(context).cardColor,
+                height: 39.0,
+                width: 1000,
+                child: SelectableText(
+                  widget.word,
+                  style: Theme.of(context).textTheme.headlineSmall,
+                )),
+          ]));
+
+      x = Stack(children: [
         ClipRRect(
             borderRadius: const BorderRadius.all(Radius.circular(10)),
-            child: ColoredBox(
-                color: Theme.of(context).cardColor,
-                child: Stack(children: [
-                  // Article list
-                  _FuturedArticles(
-                      word: widget.word,
-                      articles: widget.articles!,
-                      offstageCompleter: _offstageCompleter,
-                      bottomDictionariesCompleter: _bottomDictionariesCompleter,
-                      scrollController: scrollController,
-                      showAnotherWord: widget.showAnotherWord),
-                  // Title with selectable text - word
-                  Container(
-                      padding: const EdgeInsets.fromLTRB(18, 15, 18, 0),
-                      color: Theme.of(context).cardColor,
-                      height: 39.0,
-                      width: 1000,
-                      child: SelectableText(
-                        widget.word,
-                        style: Theme.of(context).textTheme.headlineSmall,
-                      )),
-                ]))),
+            child: widget.twoPaneMode ? Center(child: x) : x),
         // Bottom buttons
         Positioned(
           bottom: 0.0,
           left: 0.0,
           right: 0.0,
-          height: 50,
-          child: Container(
-              color: Theme.of(context).cardColor,
-              child: Flex(
-                  direction: Axis.horizontal,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.max,
-                  children: [
-                    // Back button
-                    Expanded(
-                        flex: 1,
-                        child: TextButton(
-                          onPressed: () {
-                            // Due to cachning and routing this context might be bad
-                            //Navigator.of(context).pop();
-                            Routes.goBack();
-                          },
-                          child: Icon(
-                            Icons.arrow_back_ios_new_rounded,
-                            color: Theme.of(context).iconTheme.color,
-                            size: 18,
-                          ),
-                        )),
-                    // Dictionary selector
-                    Expanded(
-                        flex: 1,
-                        child: Stack(alignment: Alignment.center, children: [
-                          const Icon(
-                            Icons.launch_rounded,
-                            size: 20,
-                          ),
-                          FutureBuilder<
-                                  Tuple<List<DropdownMenuItem<String>>,
-                                      Map<String, GlobalKey>>>(
-                              future: _bottomDictionariesCompleter.future,
-                              builder: (c, s) => s.hasData && s.data != null
-                                  ?
-                                  // TODO - fix button being too narrow and icon not covering the click area (e.g. wide window)
-                                  // try Actions https://stackoverflow.com/questions/57529394/how-to-open-dropdownbutton-when-other-widget-is-tapped-in-flutter
-                                  OverflowBox(
-                                      alignment: Alignment.centerRight,
-                                      maxWidth: 500,
-                                      child: SizedBox(
-                                          child: _DictionarySelector(
-                                              dictionaries: s.data!.value1,
-                                              dicsToKeys: s.data!.value2,
-                                              scrollController:
-                                                  scrollController)))
-                                  : const SizedBox())
-                        ])),
-                  ])),
-        )
+          height: widget.twoPaneMode ? ownTheme(context).searchBarHeight : 50,
+          child: Stack(alignment: Alignment.bottomRight, children: [
+            Container(
+                color: Theme.of(context).cardColor,
+                child: Flex(
+                    direction: Axis.horizontal,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.max,
+                    children: [
+                      // Back button
+                      _BottomButton(
+                        twoPaneMode: widget.twoPaneMode,
+                        icon: Icon(
+                          Icons.arrow_back_ios_new_rounded,
+                          color: Theme.of(context).iconTheme.color,
+                          size: 18,
+                        ),
+                        onPressed: () {
+                          // Due to cachning and custom routing this context might be bad, using ad-hoc nav
+                          //Navigator.of(context).pop();
+                          Routes.goBack();
+                        },
+                      ),
+
+                      _BottomButton(
+                        twoPaneMode: widget.twoPaneMode,
+                        icon: const Icon(
+                          Icons.launch_rounded,
+                          size: 20,
+                        ),
+                        onPressed: () {
+                          GestureDetector? detector;
+                          void searchForGestureDetector(BuildContext? element) {
+                            element?.visitChildElements((element) {
+                              if (element.widget is GestureDetector) {
+                                detector = element.widget as GestureDetector?;
+                              } else {
+                                searchForGestureDetector(element);
+                              }
+                            });
+                          }
+
+                          searchForGestureDetector(_selectorKey.currentContext);
+                          assert(detector != null);
+
+                          detector?.onTap?.call();
+                        },
+                      ),
+                    ])),
+            FutureBuilder<
+                    Tuple<List<DropdownMenuItem<String>>,
+                        Map<String, GlobalKey>>>(
+                future: _bottomDictionariesCompleter.future,
+                builder: (c, s) => s.hasData && s.data != null
+                    ? OverflowBox(
+                        alignment: Alignment.centerRight,
+                        maxWidth: 500,
+                        child: SizedBox(
+                            child: _DictionarySelector(
+                                key: _selectorKey,
+                                dictionaries: s.data!.value1,
+                                dicsToKeys: s.data!.value2,
+                                scrollController: scrollController)))
+                    : const SizedBox())
+          ]),
+        ),
+        // Dictionary selector
       ]);
 
       w = FutureBuilder(
@@ -195,10 +180,31 @@ class _WordArticlesState extends State<WordArticles> {
               ? Offstage(offstage: true, child: x)
               : Offstage(offstage: false, child: x));
 
-      WordArticles._addItemToCache(widget.word, w);
+      WordArticlesCache._addItemToCache(widget.word, w);
     }
 
     return w;
+  }
+}
+
+class _BottomButton extends StatelessWidget {
+  const _BottomButton(
+      {required this.twoPaneMode, required this.onPressed, required this.icon});
+
+  final bool twoPaneMode;
+  final void Function() onPressed;
+  final Icon icon;
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+        flex: 1,
+        child: TextButton(
+          onPressed: onPressed,
+          child: SizedBox(
+              height: twoPaneMode ? ownTheme(context).searchBarHeight : 50,
+              child: icon),
+        ));
   }
 }
 
@@ -472,7 +478,9 @@ class _DictionarySelector extends StatelessWidget {
       {required this.dictionaries,
       required this.dicsToKeys,
       required this.scrollController,
-      this.dictionary});
+      this.dictionary,
+      Key? key})
+      : super(key: key);
 
   final List<DropdownMenuItem<String>> dictionaries;
   final Map<String, GlobalKey> dicsToKeys;
@@ -528,4 +536,40 @@ class SinglePositionScrollController extends ScrollController {
     }
     super.attach(position);
   }
+}
+
+class WordArticlesCache {
+  /// As soon as number of items in the cache is above - remove old items
+  static const _cachePurgeThreshold = 10;
+  static const _cacheItemsToPurge = 5;
+  static const _cacheEnabled = true;
+
+  static final LinkedHashMap<String, Widget> _cache =
+      LinkedHashMap<String, Widget>();
+
+  static void invalidateCache([bool delayed = false]) {
+    if (_cache.isNotEmpty) {
+      if (!delayed) {
+        _cache.clear();
+        debugPrint('WordArtciles widget cache invalidated');
+      }
+    }
+  }
+
+  static void _addItemToCache(String key, Widget value) {
+    _cache[key] = value;
+    if (_cache.length >= _cachePurgeThreshold) {
+      Future.delayed(const Duration(milliseconds: 777), () {
+        var keys = _cache.keys.take(_cacheItemsToPurge).toList();
+        for (var k in keys) {
+          _cache.remove(k);
+        }
+        debugPrint('WordArtciles widget cache purged');
+      });
+    }
+  }
+
+  static bool _cacheItemExists(String key) => _cache.keys.contains(key);
+
+  static Widget _getCacheItem(String key) => _cache[key]!;
 }

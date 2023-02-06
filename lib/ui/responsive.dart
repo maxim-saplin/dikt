@@ -1,4 +1,3 @@
-import 'package:dikt/ui/elements/word_articles.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:multi_split_view/multi_split_view.dart';
