@@ -12,7 +12,7 @@ class History extends ChangeNotifier {
 
   int get wordsCount {
     if (!preferencesLoaded) {
-      var list = PreferencesSingleton.sp!.getStringList(_historyParam);
+      var list = PreferencesSingleton.sp.getStringList(_historyParam);
       if (list != null) _words = list;
       preferencesLoaded = true;
     }
@@ -40,12 +40,12 @@ class History extends ChangeNotifier {
     }
 
     Timer.run(
-        () => PreferencesSingleton.sp!.setStringList(_historyParam, _words));
+        () => PreferencesSingleton.sp.setStringList(_historyParam, _words));
   }
 
   void clear() {
     _words = [];
-    PreferencesSingleton.sp!.remove(_historyParam);
+    PreferencesSingleton.sp.remove(_historyParam);
     notifyListeners();
   }
 

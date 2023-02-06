@@ -9,7 +9,7 @@ class Preferences extends ChangeNotifier {
     if (_themeMode == null) {
       int? v;
       try {
-        v = PreferencesSingleton.sp!.getInt(_themeModeParam);
+        v = PreferencesSingleton.sp.getInt(_themeModeParam);
       } catch (_) {}
       if (v == null) {
         _themeMode = ThemeMode.system;
@@ -23,7 +23,7 @@ class Preferences extends ChangeNotifier {
   set themeMode(ThemeMode? value) {
     if (value != _themeMode) {
       _themeMode = value;
-      PreferencesSingleton.sp!.setInt(_themeModeParam, value!.index);
+      PreferencesSingleton.sp.setInt(_themeModeParam, value!.index);
       notifyListeners();
     }
   }
@@ -49,7 +49,7 @@ class Preferences extends ChangeNotifier {
 
   Locale? get locale {
     if (_locale == null) {
-      var v = PreferencesSingleton.sp!.getString(_localeParam);
+      var v = PreferencesSingleton.sp.getString(_localeParam);
       if (v == null) {
         _locale = const Locale('en', '');
       } else {
@@ -60,13 +60,13 @@ class Preferences extends ChangeNotifier {
   }
 
   bool get isLocaleInitialized {
-    return PreferencesSingleton.sp!.containsKey(_localeParam);
+    return PreferencesSingleton.sp.containsKey(_localeParam);
   }
 
   set locale(Locale? value) {
     if (value?.languageCode != _locale?.languageCode) {
       _locale = value;
-      PreferencesSingleton.sp!.setString(_localeParam, value!.languageCode);
+      PreferencesSingleton.sp.setString(_localeParam, value!.languageCode);
       notifyListeners();
     }
   }
@@ -88,7 +88,7 @@ class Preferences extends ChangeNotifier {
     if (_isAnalyticsEnabled == null) {
       bool? v;
       try {
-        v = PreferencesSingleton.sp!.getBool(_analyticsParam);
+        v = PreferencesSingleton.sp.getBool(_analyticsParam);
       } catch (_) {}
       if (v == null) {
         _isAnalyticsEnabled = true;
@@ -102,7 +102,7 @@ class Preferences extends ChangeNotifier {
   set isAnalyticsEnabled(bool? value) {
     if (value != _isAnalyticsEnabled) {
       _isAnalyticsEnabled = value;
-      PreferencesSingleton.sp!.setBool(_analyticsParam, value!);
+      PreferencesSingleton.sp.setBool(_analyticsParam, value!);
       notifyListeners();
     }
   }

@@ -117,8 +117,9 @@ class MyApp extends StatelessWidget {
                           (kIsWeb || Platform.isAndroid || Platform.isIOS)
                       ? [
                           AnalyticsObserver(analytics: analytics!),
+                          Routes.observer
                         ]
-                      : [],
+                      : [Routes.observer],
                   builder: (BuildContext context, Widget? child) {
                     WordArticles.invalidateCache();
                     Timer.run(() {

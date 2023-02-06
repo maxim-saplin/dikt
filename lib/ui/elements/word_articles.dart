@@ -19,12 +19,16 @@ Stopwatch _globalSw = Stopwatch();
 /// is done o external isolates. To avoid blinking and show UI after it is ready Offstage is used
 /// to wait on all FutureBuilders and present complete UI
 /// Besides widget caching is used to avoid expensive rebuilds of Html widgets
+/// The approach kinda sucks, there're many cases that don't work and require workarounds, e.g. not able
+/// to have duplicate entries in Navogator route history, the need to invalidate cache in multiple cases (e.g. prefference change, dictionary change, 1/2 pane chage)
+//TODO, add automation, e.g navigating to series of articles, some twice and scrolling/jumping in each case, having lookup word entered and doing nav
+// TODO, fix bug when opening article in wide mode and moving to narrow jumping to article via dictionary popup no longer works
 class WordArticles extends StatefulWidget {
 // Started when top level widget build() is called and used to measure article widgets layouts - essentialy time to dispolay
 
   /// As soon as number of items in the cache is above - remove old items
-  static const _cachePurgeThreshold = 5;
-  static const _cacheItemsToPurge = 2;
+  static const _cachePurgeThreshold = 10;
+  static const _cacheItemsToPurge = 5;
 
   static final LinkedHashMap<String, Widget> _cache =
       LinkedHashMap<String, Widget>();
@@ -71,8 +75,6 @@ class WordArticles extends StatefulWidget {
 }
 
 class _WordArticlesState extends State<WordArticles> {
-  final ScrollController scrollController = ScrollController();
-
   // List of dictionaries is only known when all articles are loaded and correponding future is completed, using this completer to trigger UI for dictionaries
   final _bottomDictionariesCompleter = Completer<
       Tuple<List<DropdownMenuItem<String>>, Map<String, GlobalKey>>>();
@@ -83,9 +85,6 @@ class _WordArticlesState extends State<WordArticles> {
   Widget build(BuildContext context) {
     Widget w = const SizedBox();
 
-    // TODO, add propper caching with invalidation and freeing up old/first N added entries
-    // TODO, invalidate on locale chage, making any changes to dictionaries, ?changing dark/light theme
-    // TODO, test enabling/disabling dictionaries when article is open
     if (WordArticles._cacheItemExists(widget.word)) {
       w = WordArticles._getCacheItem(widget.word);
     } else {
@@ -95,6 +94,9 @@ class _WordArticlesState extends State<WordArticles> {
       if (widget.articles == null) {
         return const SizedBox();
       }
+
+      final ScrollController scrollController =
+          SinglePositionScrollController();
 
       var x = Stack(children: [
         ClipRRect(
@@ -501,5 +503,22 @@ class _DictionarySelector extends StatelessWidget {
     }
 
     return w;
+  }
+}
+
+/// Hack for cached widget. When returning caceched version of WordArticles there
+/// was scroll controller exception due to more than one client, for some reasons
+/// scroll controller was attached twice. Made this version in order to call
+/// detach() for old position in attach() should there be any possition attached
+/// It will only work if navigating forward, navigating back and comming accross the same cached widget will fail (should there not be logic removing from history stack duplicate routes when opening same article multiple times)
+class SinglePositionScrollController extends ScrollController {
+  @override
+  void attach(ScrollPosition position) {
+    if (positions.isNotEmpty) {
+      if (positions.contains(positions.first)) {
+        detach(positions.first);
+      }
+    }
+    super.attach(position);
   }
 }

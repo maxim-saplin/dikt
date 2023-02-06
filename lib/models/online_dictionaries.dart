@@ -27,7 +27,7 @@ class OnlineDictionaryManager extends ChangeNotifier with Debounce {
 
   String get repoUrl {
     if (_repoUrl.isEmpty) {
-      _repoUrl = PreferencesSingleton.sp!.getString(repoUrlParam) ?? '';
+      _repoUrl = PreferencesSingleton.sp.getString(repoUrlParam) ?? '';
     }
     if (_repoUrl.isEmpty) {
       return defaultUrl;
@@ -72,7 +72,7 @@ class OnlineDictionaryManager extends ChangeNotifier with Debounce {
                   ? OnlineDictionaryState.downloaded
                   : OnlineDictionaryState.notDownloaded))
           .toList();
-      PreferencesSingleton.sp?.setString(repoUrlParam, repoUrl);
+      PreferencesSingleton.sp.setString(repoUrlParam, repoUrl);
     }).catchError((err) {
       _loading = false;
       _repoError = err.toString();

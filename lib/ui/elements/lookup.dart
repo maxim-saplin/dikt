@@ -50,7 +50,8 @@ class LookupState extends State<Lookup> with WidgetsBindingObserver {
 
   @override
   void initState() {
-    _searchBarController = TextEditingController();
+    var dictionary = Provider.of<MasterDictionary>(context, listen: false);
+    _searchBarController = TextEditingController(text: dictionary.lookupWord);
     _searchBarFocusNode = FocusNode();
 
     WidgetsBinding.instance.addObserver(this);

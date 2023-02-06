@@ -1,6 +1,9 @@
+import 'package:dikt/ui/elements/word_articles.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:multi_split_view/multi_split_view.dart';
+
+import '../common/preferences_singleton.dart';
 
 int wideNarrowBreak = 500;
 
@@ -22,6 +25,7 @@ class ResponsiveSplitView extends StatefulWidget {
 class _ResponsiveSplitViewState extends State<ResponsiveSplitView>
     with WidgetsBindingObserver {
   bool _isWide = true;
+  late MultiSplitViewController controller;
 
   @override
   void didChangeMetrics() {
@@ -38,6 +42,15 @@ class _ResponsiveSplitViewState extends State<ResponsiveSplitView>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _isWide = _checkIsWide();
+
+    controller = MultiSplitViewController(areas: [
+      Area(weight: PreferencesSingleton.twoPaneRatio, minimalSize: 200),
+      Area(minimalSize: 200)
+    ]);
+    // For some reasons that doesn't work, Feb 2023, revering to widget callback
+    // controller.addListener(() {
+    //   PreferencesSingleton.twoPaneRatio = controller.areas[0].weight!;
+    // });
   }
 
   bool _checkIsWide() =>
@@ -72,10 +85,10 @@ class _ResponsiveSplitViewState extends State<ResponsiveSplitView>
               dividerPainter: DividerPainters.background(
                   highlightedColor: Theme.of(context).colorScheme.secondary)),
           child: MultiSplitView(
-            initialAreas: [
-              Area(weight: 0.35, minimalSize: 200),
-              Area(minimalSize: 200)
-            ],
+            controller: controller,
+            onWeightChange: () {
+              PreferencesSingleton.twoPaneRatio = controller.areas[0].weight!;
+            },
             // not wrapping rigt pane to have it take full height on Desktop
             children: [_wrapInSafeArea(lp), rp],
           ));
