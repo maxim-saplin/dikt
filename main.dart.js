@@ -50583,7 +50583,7 @@ A.a7l.prototype={
 $0(){var s=0,r=A.T(t.y),q,p=this,o
 var $async$$0=A.P(function(a,b){if(a===1)return A.Q(b,r)
 while(true)switch(s){case 0:if(t.Vk.a(B.b.gC($.z0().a)).b.a!=="/")A.aHI()
-o=p.a
+else{o=p.a
 if(o.d){q=!0
 s=1
 break}else{o.d=!0
@@ -50591,7 +50591,10 @@ A.c5(A.d5(0,0,2),o.garY())
 A.aSl(A.cG("Tap back again to quit",$.dN()),B.dB,p.b,B.dB)
 q=!1
 s=1
-break}case 1:return A.R(q,r)}})
+break}}q=!1
+s=1
+break
+case 1:return A.R(q,r)}})
 return A.S($async$$0,r)},
 $S:79}
 A.Mh.prototype={
