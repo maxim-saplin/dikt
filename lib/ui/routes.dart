@@ -193,8 +193,7 @@ class BackButtonHandlerState extends State<BackButtonHandler> {
         onWillPop: () async {
           if (Routes.currentRoute.settings.name != Routes.home) {
             Routes.goBack();
-          }
-          if (tapped) {
+          } else if (tapped) {
             return true;
           } else {
             tapped = true;
@@ -212,6 +211,7 @@ class BackButtonHandlerState extends State<BackButtonHandler> {
 
             return false;
           }
+          return false;
         },
         child: widget.child,
       );
