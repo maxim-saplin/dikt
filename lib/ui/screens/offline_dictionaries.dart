@@ -29,11 +29,10 @@ class OfflineDictionaries extends StatefulWidget {
 class OfflineDictionariesState extends State<OfflineDictionaries> {
   int? _draggingIndex;
   bool _cancelReorder = false;
+  ScrollController scrollController = ScrollController();
 
   @override
   Widget build(BuildContext context) {
-    ScrollController scrollController = PrimaryScrollController.of(context);
-
     var manager = Provider.of<DictionaryManager>(context);
     var dictionaries = manager.dictionariesAll;
 
@@ -200,6 +199,7 @@ class OfflineDictionariesState extends State<OfflineDictionaries> {
                     shrinkWrap: true,
                     slivers: <Widget>[
                       ReorderableSliverList(
+                        controller: scrollController,
                         delegate: ReorderableSliverChildListDelegate(
                             dictionaries
                                 //.dictionariesReady

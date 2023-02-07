@@ -1,8 +1,11 @@
+import 'dart:async';
 import 'dart:ui';
 
+import 'package:dikt/common/i18n.dart';
 import 'package:dikt/ui/screens/dictionaries.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_styled_toast/flutter_styled_toast.dart';
 import 'package:provider/provider.dart';
 
 import '../models/history.dart';
@@ -32,6 +35,11 @@ class Routes {
   static const String dictionariesOffline = '/dictionaries';
 
   static void goBack() {
+    var route = currentRoute;
+    if (route.settings.name == home) {
+      return;
+    }
+
     Navigator.of(currentContext).pop();
   }
 
@@ -157,5 +165,62 @@ class StackObserver extends NavigatorObserver {
       }
     }
     super.didReplace(newRoute: newRoute, oldRoute: oldRoute);
+  }
+}
+
+/// On Android back button will move pop the current route and if on home screen -> exit the app
+class BackButtonHandler extends StatefulWidget {
+  final Widget child;
+
+  const BackButtonHandler({
+    Key? key,
+    required this.child,
+  }) : super(key: key);
+
+  @override
+  BackButtonHandlerState createState() => BackButtonHandlerState();
+}
+
+class BackButtonHandlerState extends State<BackButtonHandler> {
+  bool tapped = false;
+  bool get _isAndroid => Theme.of(context).platform == TargetPlatform.android;
+  final waitForSecondBackPress = 2;
+
+  @override
+  Widget build(BuildContext context) {
+    if (_isAndroid) {
+      return WillPopScope(
+        onWillPop: () async {
+          if (Routes.currentRoute.settings.name != Routes.home) {
+            Routes.goBack();
+          }
+          if (tapped) {
+            return true;
+          } else {
+            tapped = true;
+            Timer(
+              Duration(
+                seconds: waitForSecondBackPress,
+              ),
+              resetTimer,
+            );
+
+            showToast('Tap back again to quit'.i18n,
+                context: context,
+                animation: StyledToastAnimation.fade,
+                reverseAnimation: StyledToastAnimation.fade);
+
+            return false;
+          }
+        },
+        child: widget.child,
+      );
+    } else {
+      return widget.child;
+    }
+  }
+
+  void resetTimer() {
+    tapped = false;
   }
 }

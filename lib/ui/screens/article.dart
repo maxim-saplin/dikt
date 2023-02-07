@@ -23,13 +23,15 @@ class Content extends StatelessWidget {
         ifOnePane: (c, add) => add(Stack(children: [
               const Lookup(
                   searchBarTopRounded: false, autoFocusSearchBar: false),
-              //const TopButtons(),
               blurBackground(GestureDetector(
-                  onTap: () => Navigator.of(context).pop(),
-                  child: ColoredBox(
-                      color: Colors.transparent,
-                      child: Align(
-                          alignment: Alignment.bottomCenter,
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () => Routes.goBack(),
+                  child: Align(
+                      alignment: Alignment.bottomCenter,
+                      // With this geasture detector swallow tap event that due to some reasons bubbled up and closed article when scrolling animation was active and tap was registered
+                      child: GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTap: () {},
                           child: WordArticles(
                               articles: articles,
                               word: word,

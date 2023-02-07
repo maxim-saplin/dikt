@@ -89,7 +89,13 @@ class _ResponsiveSplitViewState extends State<ResponsiveSplitView>
               PreferencesSingleton.twoPaneRatio = controller.areas[0].weight!;
             },
             // not wrapping rigt pane to have it take full height on Desktop
-            children: [_wrapInSafeArea(lp), rp],
+            children: [
+              _wrapInSafeArea(lp),
+              defaultTargetPlatform == TargetPlatform.android ||
+                      defaultTargetPlatform == TargetPlatform.iOS
+                  ? _wrapInSafeArea(rp)
+                  : rp
+            ],
           ));
     } else {
       void addOne(Widget widget) {

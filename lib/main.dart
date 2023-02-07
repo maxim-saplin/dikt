@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:io' show Platform;
 
 import 'package:dikt/ui/elements/word_articles.dart';
-import 'package:double_back_to_close/double_back_to_close.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
@@ -24,7 +23,6 @@ import 'ui/screens/home.dart';
 import './models/history.dart';
 import 'models/dictionary_manager.dart';
 import 'common/analytics_observer.dart';
-import './common/i18n.dart';
 import 'common/isolate_pool.dart';
 import 'models/online_dictionaries_fakes.dart';
 import 'ui/routes.dart';
@@ -64,7 +62,7 @@ class MyApp extends StatelessWidget {
   Scaffold _getScaffold(Widget child) {
     return Scaffold(
         //key: Routes.navigator,
-        body: DoubleBack(message: 'Tap back again to quit'.i18n, child: child));
+        body: BackButtonHandler(child: child));
   }
 
   static double wideWidth = 600;

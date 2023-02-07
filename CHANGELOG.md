@@ -1,8 +1,10 @@
+- 2.2.0+27 - tap back on Android closing article, no bubbling of tap (closing article) when article is being scrolled, dictionary popup fixed on Android
 - 2.2.0+24
     - Flutter 3.7 update
     - New navigation with responsive UI (no past approach with reseting nav stack when changing between 2 and 1 pane modes)
     - Resizable panes in 2 pane view
     - Updates to articles displaying (caching, new empty structure) aimed at fewer blinks
+    - Revamped wide UI
 - 2.1.0+23 - let's see if it helps with cleared text after load
 - 2.1.0+22 - lookup text input, turned off autocorrect, let's see if it helps with cleared text after load (didn't help)
 - 2.1.0+21 - fixed resuming and keyboard pop-up (broken resume with open article)

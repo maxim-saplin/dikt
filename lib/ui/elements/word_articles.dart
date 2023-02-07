@@ -8,7 +8,6 @@ import 'package:dikt/ui/themes.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:dikt/models/master_dictionary.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_sticky_header/flutter_sticky_header.dart';
 
@@ -105,6 +104,17 @@ class _WordArticlesState extends State<WordArticles> {
           right: 0.0,
           height: widget.twoPaneMode ? ownTheme(context).searchBarHeight : 50,
           child: Stack(alignment: Alignment.bottomRight, children: [
+            FutureBuilder<
+                    Tuple<List<DropdownMenuItem<String>>,
+                        Map<String, GlobalKey>>>(
+                future: _bottomDictionariesCompleter.future,
+                builder: (c, s) => s.hasData && s.data != null
+                    ? _DictionarySelector(
+                        key: _selectorKey,
+                        dictionaries: s.data!.value1,
+                        dicsToKeys: s.data!.value2,
+                        scrollController: scrollController)
+                    : const SizedBox()),
             Container(
                 color: Theme.of(context).cardColor,
                 child: Flex(
@@ -126,11 +136,12 @@ class _WordArticlesState extends State<WordArticles> {
                           Routes.goBack();
                         },
                       ),
-
+                      //TODO, fix blinking bug when hovering over the button, might be some overlap
                       _BottomButton(
                         twoPaneMode: widget.twoPaneMode,
-                        icon: const Icon(
+                        icon: Icon(
                           Icons.launch_rounded,
+                          color: Theme.of(context).iconTheme.color,
                           size: 20,
                         ),
                         onPressed: () {
@@ -152,21 +163,6 @@ class _WordArticlesState extends State<WordArticles> {
                         },
                       ),
                     ])),
-            FutureBuilder<
-                    Tuple<List<DropdownMenuItem<String>>,
-                        Map<String, GlobalKey>>>(
-                future: _bottomDictionariesCompleter.future,
-                builder: (c, s) => s.hasData && s.data != null
-                    ? OverflowBox(
-                        alignment: Alignment.centerRight,
-                        maxWidth: 500,
-                        child: SizedBox(
-                            child: _DictionarySelector(
-                                key: _selectorKey,
-                                dictionaries: s.data!.value1,
-                                dicsToKeys: s.data!.value2,
-                                scrollController: scrollController)))
-                    : const SizedBox())
           ]),
         ),
         // Dictionary selector

@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:flutter_styled_toast/flutter_styled_toast.dart';
 import 'package:provider/provider.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 
 import '../../models/dictionary_manager.dart';
 import '../../common/i18n.dart';
@@ -24,17 +24,12 @@ class Dictionaries extends HookWidget {
   @override
   Widget build(BuildContext context) {
     if (!toastShown) {
-      var fToast = FToast();
       Timer(const Duration(seconds: 1), () {
         try {
-          fToast.showToast(
-              child: Container(
-                color: Colors.grey,
-                padding:
-                    const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-                child: Text('Tap and hold to move'.i18n),
-              ),
-              toastDuration: const Duration(seconds: 3));
+          showToast('Tap and hold to move'.i18n,
+              context: context,
+              animation: StyledToastAnimation.fade,
+              reverseAnimation: StyledToastAnimation.fade);
         } catch (_) {}
       });
       toastShown = true;
