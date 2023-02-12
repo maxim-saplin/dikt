@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:dikt/ui/themes.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart' show defaultTargetPlatform, kIsWeb;
 
 import '../../models/master_dictionary.dart';
 import '../../common/i18n.dart';
@@ -12,15 +12,13 @@ import '../routes.dart';
 
 class Lookup extends StatefulWidget {
   const Lookup(
-      {Key? key,
-      this.searchBarTopRounded = true,
-      this.autoFocusSearchBar = true})
+      {Key? key, this.searchBarTopRounded = true, this.autoFocusSearchBar})
       : super(key: key);
 
   /// If true, top corners of the search bar are rounded
   final bool searchBarTopRounded;
 
-  final bool autoFocusSearchBar;
+  final bool? autoFocusSearchBar;
 
   @override
   State<StatefulWidget> createState() => LookupState();
@@ -33,6 +31,7 @@ class LookupState extends State<Lookup> with WidgetsBindingObserver {
 
   late TextEditingController _searchBarController;
   late FocusNode _searchBarFocusNode;
+  bool autoFocus = true;
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
@@ -57,6 +56,10 @@ class LookupState extends State<Lookup> with WidgetsBindingObserver {
 
     WidgetsBinding.instance.addObserver(this);
 
+    autoFocus = widget.autoFocusSearchBar ??
+        defaultTargetPlatform == TargetPlatform.android ||
+            defaultTargetPlatform == TargetPlatform.iOS;
+
     super.initState();
   }
 
@@ -75,14 +78,14 @@ class LookupState extends State<Lookup> with WidgetsBindingObserver {
 
     if (_firstBuild) {
       _firstBuild = false;
-      if (widget.autoFocusSearchBar) {
+      if (autoFocus) {
         Future.delayed(Duration.zero, () => _showKeyboard());
       }
     }
 
     if (_resumed) {
       _resumed = false;
-      if (widget.autoFocusSearchBar && _searchBarFocusNode.hasFocus) {
+      if (autoFocus && _searchBarFocusNode.hasFocus) {
         Future.delayed(Duration.zero, () => _showKeyboard());
       }
     }
@@ -90,7 +93,7 @@ class LookupState extends State<Lookup> with WidgetsBindingObserver {
     if (dictionary.isFullyLoaded && !_fullyLoaded) {
       _fullyLoaded = true;
       var v = _searchBarController.value;
-      if (v.text.isNotEmpty && widget.autoFocusSearchBar) {
+      if (v.text.isNotEmpty && autoFocus) {
         // If there's text in search bar, trigger lookup
         dictionary.lookupWord = v.text;
       }
@@ -106,7 +109,7 @@ class LookupState extends State<Lookup> with WidgetsBindingObserver {
               ),
             ),
       _SearchBar(widget.searchBarTopRounded, _searchBarController,
-          _searchBarFocusNode, widget.autoFocusSearchBar)
+          _searchBarFocusNode, autoFocus)
     ]);
   }
 }

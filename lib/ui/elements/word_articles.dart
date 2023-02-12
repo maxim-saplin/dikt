@@ -136,7 +136,6 @@ class _WordArticlesState extends State<WordArticles> {
                           Routes.goBack();
                         },
                       ),
-                      //TODO, fix blinking bug when hovering over the button, might be some overlap
                       _BottomButton(
                         twoPaneMode: widget.twoPaneMode,
                         icon: Icon(
@@ -145,6 +144,7 @@ class _WordArticlesState extends State<WordArticles> {
                           size: 20,
                         ),
                         onPressed: () {
+                          // Do click on a DropDownList
                           GestureDetector? detector;
                           void searchForGestureDetector(BuildContext? element) {
                             element?.visitChildElements((element) {

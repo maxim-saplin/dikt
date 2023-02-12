@@ -958,7 +958,6 @@ class JsonFileIndexer extends Indexer {
       try {
         var result =
             (chunks.single! as Map<dynamic, dynamic>).cast<String, String>();
-        //TODO - consider implementing this build method in proxy
         var ikv = await IkvPack.buildFromMapInIsolate(result, true, (progress) {
           updateProgress(20 + (progress * 0.70).round());
         });

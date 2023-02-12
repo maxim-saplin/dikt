@@ -3,7 +3,6 @@
 import 'dart:io';
 
 import 'package:dikt/common/isolate_pool.dart';
-import 'package:dikt/common/preferences_singleton.dart';
 import 'package:dikt/models/dictionary_manager.dart';
 import 'package:dikt/models/indexed_dictionary.dart';
 import 'package:dikt/models/master_dictionary.dart';
@@ -16,11 +15,10 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hive/hive.dart';
 import 'package:ikvpack/ikvpack.dart';
-import 'package:mockito/mockito.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'finders.dart';
+import 'utility.dart';
 
 DictionaryManager? dicManager;
 const tmpPath = 'test/tmp';
@@ -377,7 +375,7 @@ void main() {
         await tester.pumpAndSettle();
 
         // Due to some reasons FutureBuilder in OfflineDictionary proceeds without waiting fot Future to complete
-        // Upd. Wrapping in tester.runAsync and addinf Future.delayed wait helped
+        // Upd. Wrapping in tester.runAsync and adding Future.delayed wait helped
         expect(d.byChildText('entries'), findsOneWidget);
 
         // Adding this await to allow complete another timer and avoid exception in test logs
@@ -495,13 +493,6 @@ void main() {
 
 Type typeOf<T>() => T;
 
-class MockSharedPrefferences extends Mock implements SharedPreferences {
-  @override
-  Future<bool> setString(String key, String value) {
-    return Future.value(true);
-  }
-}
-
 Future _createOnlineDictionaries(WidgetTester tester) async {
   await _createAndWrapWidget(tester, const OnlineDictionaries());
 }
@@ -511,9 +502,10 @@ Future _createOfflineDictionaries(WidgetTester tester) async {
 }
 
 Future _createAndWrapWidget(WidgetTester tester, Widget widget) async {
-  var sp = MockSharedPrefferences();
-  await PreferencesSingleton.init(sp);
-  when(sp.getString('')).thenAnswer((_) => '');
+  // var sp = MockSharedPrefferences();
+  // await PreferencesSingleton.init(sp);
+  // when(sp.getString('')).thenAnswer((_) => '');
+  prepareSharedPreferences();
 
   await tester.pumpWidget(
     MultiProvider(
