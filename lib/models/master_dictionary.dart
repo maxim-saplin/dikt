@@ -69,7 +69,9 @@ class MasterDictionary extends ChangeNotifier {
     } else {
       value = value.toLowerCase();
       _lookupWord = value;
-      _getMatchesForWord(value).whenComplete(() => notifyListeners());
+      _getMatchesForWord(value).whenComplete(() {
+        notifyListeners();
+      });
     }
   }
 
