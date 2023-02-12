@@ -13,7 +13,8 @@ import 'finders.dart';
 import 'utility.dart';
 
 DictionaryManager? dicManager;
-const tmpPath = 'test/tmp';
+//It makes sense to have different paths for different test files to avoid conflicts when running tests in parallel
+const tmpPath = 'test/tmp/smoke';
 
 void main() {
   setUpAll(() async {
