@@ -36,42 +36,34 @@ class MenuButtons extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              IconButton(
-                  icon: const Icon(Icons.view_list_rounded, size: 30),
-                  onPressed: () {
-                    // showDialog(
-                    //     context: context,
-                    //     barrierColor:
-                    //         !kIsWeb ? Colors.transparent : Colors.black54,
-                    //     routeSettings: const RouteSettings(
-                    //         name: Routes.dictionariesOffline),
-                    //     builder: (BuildContext context) {
-                    //       return const SimpleDialog(
-                    //           //maxWidth: 800,
-                    //           alignment: Alignment.center,
-                    //           children: [Dictionaries(offline: true)]);
-                    //     });
-                    Routes.showOfflineDictionaries();
-                  }),
-              IconButton(
-                icon: const Icon(
-                  Icons.space_dashboard_rounded,
-                  size: 30,
-                ),
-                onPressed: () {
-                  showDialog(
-                      context: context,
-                      barrierColor:
-                          !kIsWeb ? Colors.transparent : Colors.black54,
-                      routeSettings: const RouteSettings(name: '/settings'),
-                      builder: (BuildContext context) {
-                        return blurBackground(const SimpleDialog(
-                            //maxWidth: 320,
-                            alignment: Alignment.center,
-                            children: [Settings()]));
-                      });
-                },
-              )
+              Semantics(
+                  tooltip: 'Show dictionaries',
+                  child: IconButton(
+                      icon: const Icon(Icons.view_list_rounded, size: 30),
+                      onPressed: () {
+                        Routes.showOfflineDictionaries();
+                      })),
+              Semantics(
+                  tooltip: 'Show settings',
+                  child: IconButton(
+                    icon: const Icon(
+                      Icons.space_dashboard_rounded,
+                      size: 30,
+                    ),
+                    onPressed: () {
+                      showDialog(
+                          context: context,
+                          barrierColor:
+                              !kIsWeb ? Colors.transparent : Colors.black54,
+                          routeSettings: const RouteSettings(name: '/settings'),
+                          builder: (BuildContext context) {
+                            return blurBackground(const SimpleDialog(
+                                //maxWidth: 320,
+                                alignment: Alignment.center,
+                                children: [Settings()]));
+                          });
+                    },
+                  ))
             ]));
   }
 }

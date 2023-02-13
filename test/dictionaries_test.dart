@@ -116,17 +116,20 @@ void main() {
 
       expect(d, findsOneWidget);
 
-      expect(d.byChildText('EN_RU'), findsOneWidget);
-      expect(d.byChildText('Universal Lngv'), findsOneWidget);
+      expect(d.byChildTextIncludes('EN_RU'), findsOneWidget);
+      expect(d.byChildTextIncludes('Universal Lngv'), findsOneWidget);
 
-      expect(d.byChildText(FakeOnlineRepo.dictionaries[0].words.toString()),
+      expect(
+          d.byChildTextIncludes(
+              FakeOnlineRepo.dictionaries[0].words.toString()),
           findsOneWidget);
       expect(
-          d.byChildText((FakeOnlineRepo.dictionaries[0].sizeBytes / 1024 / 1024)
-              .toStringAsFixed(1)
-              .toString()),
+          d.byChildTextIncludes(
+              (FakeOnlineRepo.dictionaries[0].sizeBytes / 1024 / 1024)
+                  .toStringAsFixed(1)
+                  .toString()),
           findsOneWidget);
-      expect(d.byChildText('+'), findsOneWidget);
+      expect(d.byChildTextIncludes('+'), findsOneWidget);
       //expect(d.byChildIcon(Icons.download_sharp), findsOneWidget);
     });
 
@@ -135,13 +138,13 @@ void main() {
       await _openOnlineDictionariesAndWaitToLoad(tester);
 
       var d = find.byType(OnlineDictionaryTile).first;
-      var t = d.byChildText('+').hitTestable();
+      var t = d.byChildTextIncludes('+').hitTestable();
       expect(t, findsOneWidget);
       await tester.tap(t);
       await tester.pump();
       expect(d.byChildType(LinearProgressIndicator), findsOneWidget);
 
-      expect(d.byChildText('■'), findsOneWidget);
+      expect(d.byChildTextIncludes('■'), findsOneWidget);
       await tester
           .pumpAndSettle(); // finish timers that mimic fake stream download
     });
@@ -151,25 +154,25 @@ void main() {
       await _openOnlineDictionariesAndWaitToLoad(tester);
 
       var d = find.byType(OnlineDictionaryTile).first;
-      var t = d.byChildText('+').hitTestable();
+      var t = d.byChildTextIncludes('+').hitTestable();
       expect(t, findsOneWidget);
       await tester.tap(t);
       await tester.pump(const Duration(milliseconds: 10));
 
       var d7 = find.byType(OnlineDictionaryTile).at(6);
-      var t7 = d7.byChildText('+').hitTestable();
+      var t7 = d7.byChildTextIncludes('+').hitTestable();
       expect(t7, findsOneWidget);
       await tester.tap(t7);
       await tester.pump(const Duration(milliseconds: 10));
 
       expect(d.byChildType(LinearProgressIndicator), findsOneWidget);
-      expect(d.byChildText('■'), findsOneWidget);
+      expect(d.byChildTextIncludes('■'), findsOneWidget);
       expect(d7.byChildType(LinearProgressIndicator), findsOneWidget);
-      expect(d7.byChildText('■'), findsOneWidget);
+      expect(d7.byChildTextIncludes('■'), findsOneWidget);
 
       await tester.pumpAndSettle();
-      expect(d.byChildText('×'), findsOneWidget);
-      expect(d7.byChildText('×'), findsOneWidget);
+      expect(d.byChildTextIncludes('×'), findsOneWidget);
+      expect(d7.byChildTextIncludes('×'), findsOneWidget);
     });
 
     Future<Finder> tapDictionaryWithError(WidgetTester tester) async {
@@ -178,14 +181,14 @@ void main() {
       var d = find
           .byType(OnlineDictionaryTile)
           .at(4); // 5th dictionary throws in repo.download()
-      var t = d.byChildText('+').hitTestable();
+      var t = d.byChildTextIncludes('+').hitTestable();
 
       expect(t, findsOneWidget);
       await tester.tap(t);
       await tester.pump();
 
-      expect(d.byChildText('↻'), findsOneWidget);
-      expect(d.byChildText('error'), findsOneWidget);
+      expect(d.byChildTextIncludes('↻'), findsOneWidget);
+      expect(d.byChildTextIncludes('error'), findsOneWidget);
 
       return d;
     }
@@ -200,14 +203,15 @@ void main() {
       var d = find
           .byType(OnlineDictionaryTile)
           .at(2); // 3rd dictionary throws error in Stream
-      var t = d.byChildText('+').hitTestable();
+      var t = d.byChildTextIncludes('+').hitTestable();
 
       expect(t, findsOneWidget);
       await tester.tap(t);
       await tester.pumpAndSettle();
 
-      expect(d.byChildText('↻'), findsOneWidget);
-      expect(d.byChildText('Error downloading dictionary'), findsOneWidget);
+      expect(d.byChildTextIncludes('↻'), findsOneWidget);
+      expect(d.byChildTextIncludes('Error downloading dictionary'),
+          findsOneWidget);
     });
 
     testWidgets('Error during indexing is properly handled',
@@ -217,26 +221,27 @@ void main() {
       var d = find
           .byType(OnlineDictionaryTile)
           .at(1); // 2nd dictionary throws error in Stream
-      var t = d.byChildText('+').hitTestable();
+      var t = d.byChildTextIncludes('+').hitTestable();
 
       expect(t, findsOneWidget);
       await tester.tap(t);
       await tester.pump(); // Downloading...
-      expect(d.byChildText('Downloading'), findsOneWidget);
+      expect(d.byChildTextIncludes('Downloading'), findsOneWidget);
       await tester.pump(const Duration(seconds: 3)); // Indexing...
 
-      expect(d.byChildText('Indexing'), findsOneWidget);
+      expect(d.byChildTextIncludes('Indexing'), findsOneWidget);
       await tester.pumpAndSettle();
 
-      expect(d.byChildText('↻'), findsOneWidget);
-      expect(d.byChildText('Error indexing dictionary'), findsOneWidget);
+      expect(d.byChildTextIncludes('↻'), findsOneWidget);
+      expect(
+          d.byChildTextIncludes('Error indexing dictionary'), findsOneWidget);
     });
 
     testWidgets('Download can be canceled', (WidgetTester tester) async {
       await _openOnlineDictionariesAndWaitToLoad(tester);
 
       var d = find.byType(OnlineDictionaryTile).at(5);
-      var t = d.byChildText('+').hitTestable();
+      var t = d.byChildTextIncludes('+').hitTestable();
 
       expect(t, findsOneWidget);
       await tester.tap(t);
@@ -244,13 +249,13 @@ void main() {
       // peek into what text is visible
       //var w = tester.widgetList(d.byChildType(Text)).toList();
 
-      expect(d.byChildText('Downloading'), findsOneWidget);
+      expect(d.byChildTextIncludes('Downloading'), findsOneWidget);
 
-      t = d.byChildText('■').hitTestable();
+      t = d.byChildTextIncludes('■').hitTestable();
       expect(t, findsOneWidget);
       await tester.tap(t);
       await tester.pumpAndSettle();
-      t = d.byChildText('+').hitTestable();
+      t = d.byChildTextIncludes('+').hitTestable();
       expect(t, findsOneWidget);
     });
 
@@ -260,7 +265,7 @@ void main() {
 
       var d = find.byType(OnlineDictionaryTile).at(3);
       expect(d, findsOneWidget);
-      var t = d.byChildText('×').hitTestable();
+      var t = d.byChildTextIncludes('×').hitTestable();
       expect(t, findsOneWidget);
 
       await tester.tap(t);
@@ -273,7 +278,7 @@ void main() {
       await tester.tap(delete);
       await tester.pumpAndSettle();
 
-      t = d.byChildText('+').hitTestable();
+      t = d.byChildTextIncludes('+').hitTestable();
       expect(t, findsOneWidget);
     });
 
@@ -281,21 +286,21 @@ void main() {
       await _openOnlineDictionariesAndWaitToLoad(tester);
 
       var d = find.byType(OnlineDictionaryTile).at(5);
-      var t = d.byChildText('+').hitTestable();
+      var t = d.byChildTextIncludes('+').hitTestable();
 
       expect(t, findsOneWidget);
       await tester.tap(t);
       await tester.pump(const Duration(milliseconds: 100)); // Downloading...
 
-      expect(d.byChildText('Downloading'), findsOneWidget);
+      expect(d.byChildTextIncludes('Downloading'), findsOneWidget);
       await tester.pump(const Duration(seconds: 3)); // Indexing...
-      expect(d.byChildText('Indexing'), findsOneWidget);
+      expect(d.byChildTextIncludes('Indexing'), findsOneWidget);
 
-      t = d.byChildText('■').hitTestable();
+      t = d.byChildTextIncludes('■').hitTestable();
       expect(t, findsOneWidget);
       await tester.tap(t);
       await tester.pumpAndSettle();
-      t = d.byChildText('+').hitTestable();
+      t = d.byChildTextIncludes('+').hitTestable();
       expect(t, findsOneWidget);
     });
 
@@ -303,10 +308,10 @@ void main() {
         (WidgetTester tester) async {
       var d = await tapDictionaryWithError(tester);
       // Fake allows second tap to finish without error
-      var t = d.byChildText('↻');
+      var t = d.byChildTextIncludes('↻');
       await tester.tap(t);
       await tester.pumpAndSettle();
-      expect(d.byChildText('×'), findsOneWidget);
+      expect(d.byChildTextIncludes('×'), findsOneWidget);
     });
 
     testWidgets('Invalid URL shows error', (WidgetTester tester) async {
@@ -343,9 +348,9 @@ void main() {
       var buttons = find.byType(OutlinedButton).hitTestable();
       expect(buttons, findsNWidgets(2));
 
-      expect(buttons.byChildText('FILE'), findsOneWidget);
+      expect(buttons.byChildTextIncludes('FILE'), findsOneWidget);
 
-      expect(buttons.byChildText('Online'), findsOneWidget);
+      expect(buttons.byChildTextIncludes('Online'), findsOneWidget);
     });
 
     testWidgets('Dictionaries are displayed on show',
@@ -366,8 +371,8 @@ void main() {
 
         var d = find.byType(OfflineDictionaryTile).first;
 
-        expect(d.byChildText('EN_EN WordNet 3'), findsOneWidget);
-        expect(d.byChildText('↘'), findsOneWidget);
+        expect(d.byChildTextIncludes('EN_EN WordNet 3'), findsOneWidget);
+        expect(d.byChildTextIncludes('↘'), findsOneWidget);
 
         // Let isolates finish work
         await Future.delayed(const Duration(
@@ -376,7 +381,7 @@ void main() {
 
         // Due to some reasons FutureBuilder in OfflineDictionary proceeds without waiting fot Future to complete
         // Upd. Wrapping in tester.runAsync and adding Future.delayed wait helped
-        expect(d.byChildText('entries'), findsOneWidget);
+        expect(d.byChildTextIncludes('entries'), findsOneWidget);
 
         // Adding this await to allow complete another timer and avoid exception in test logs
         await Future.delayed(const Duration(milliseconds: 10));
@@ -392,11 +397,11 @@ void main() {
       var d = find.byType(OfflineDictionaryTile).first;
       expect(d, findsOneWidget);
       var b = d.byChildType(TextButton);
-      expect(b.byChildText('↘'), findsOneWidget);
+      expect(b.byChildTextIncludes('↘'), findsOneWidget);
 
       await tester.tap(b);
       await tester.pumpAndSettle();
-      expect(b.byChildText('↓'), findsOneWidget);
+      expect(b.byChildTextIncludes('↓'), findsOneWidget);
     });
 
     testWidgets('Dictionary can be enabled', (WidgetTester tester) async {
@@ -409,7 +414,7 @@ void main() {
         expect(d, findsOneWidget);
         var b = d.byChildType(TextButton);
         expect(b, findsOneWidget);
-        expect(b.byChildText('↓'), findsOneWidget);
+        expect(b.byChildTextIncludes('↓'), findsOneWidget);
 
         await tester.tap(b);
         await tester.pump();
@@ -422,7 +427,7 @@ void main() {
             milliseconds: 100)); // !! Might need to increase if test fails
         await tester.pumpAndSettle();
 
-        expect(b.byChildText('↘'), findsOneWidget);
+        expect(b.byChildTextIncludes('↘'), findsOneWidget);
 
         // Adding this await to allow complete another timer and avoid exception in test logs
         await Future.delayed(const Duration(milliseconds: 10));
@@ -474,7 +479,7 @@ void main() {
       var dicName = await dragToDelete(tester);
 
       expect(find.byType(OfflineDictionaryTile), findsNWidgets(3));
-      expect(find.byType(OfflineDictionaryTile).byChildText(dicName),
+      expect(find.byType(OfflineDictionaryTile).byChildTextIncludes(dicName),
           findsOneWidget);
 
       var delete = find.text('Delete');
@@ -485,7 +490,7 @@ void main() {
       expect(find.byType(AlertDialog), findsNothing);
 
       expect(find.byType(OfflineDictionaryTile), findsNWidgets(2));
-      expect(find.byType(OfflineDictionaryTile).byChildText(dicName),
+      expect(find.byType(OfflineDictionaryTile).byChildTextIncludes(dicName),
           findsNothing);
     });
   });

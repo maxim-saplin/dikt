@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:dikt/models/preferences.dart';
 import 'package:dikt/ui/themes.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -249,6 +250,7 @@ class _SearchBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var dictionary = Provider.of<MasterDictionary>(context, listen: false);
+    var preferences = Provider.of<Preferences>(context, listen: false);
 
     return Container(
         height: ownTheme(context).searchBarHeight,
@@ -292,7 +294,7 @@ class _SearchBar extends StatelessWidget {
                 suffix: _SearchBarSuffix(dictionary: dictionary)),
           ),
           Opacity(
-              opacity: 0.2,
+              opacity: preferences.showPerfCounters ? 0.2 : 0.0,
               child: Text(
                   (dictionary.lookupSw.elapsedMicroseconds / 1000)
                       .toStringAsFixed(1),

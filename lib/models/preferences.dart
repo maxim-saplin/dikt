@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:dikt/common/preferences_singleton.dart';
 
+bool widgetTestMode = false;
+
 class Preferences extends ChangeNotifier {
   static const String _themeModeParam = 'themeMode';
   ThemeMode? _themeMode;
@@ -110,4 +112,6 @@ class Preferences extends ChangeNotifier {
   void circleAnalyticsEnabled() {
     isAnalyticsEnabled = !isAnalyticsEnabled!;
   }
+
+  bool get showPerfCounters => !widgetTestMode;
 }
