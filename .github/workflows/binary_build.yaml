@@ -32,4 +32,8 @@ jobs:
     - name: Build macOS
       run: flutter build macos
       working-directory: ./
+    - uses: actions/upload-artifact@v3
+      with:
+        name: macOS Build
+        path: ./build/macos/Build/Products/Release/dikt.app
 
