@@ -1,4 +1,4 @@
-name: dikt
+name: Build and Publish Web
 
 on: [push]
 
