@@ -5,6 +5,7 @@ jobs:
     runs-on: self-hosted   
     steps:
     - uses: actions/checkout@v1
+# No need for self-hosted runnder
 #     - uses: actions/setup-java@v3
 #       with:
 #         distribution: zulu
@@ -15,7 +16,7 @@ jobs:
          channel: 'stable'
          architecture: arm64
          cache: true
-         cache-key: 'flutter-:os:-:channel:-:version:-:arch:-:hash:'
+         cache-key: 'flutter-:os:-:channel:-:version:-:arch:'
     - name: Flutter Doctor
       run: flutter doctor
       working-directory: ./
@@ -28,15 +29,18 @@ jobs:
     - name: Build macOS
       run: flutter build macos
       working-directory: ./
-    - name: Read app version from pubspec
-      uses: NiklasLehnfeld/flutter-version-number-action@main
-      with:
-        file-path: ./pubspec.yaml
-    - name: Compress dikt.app
+    - name: Extract version from pubspec.yaml
+    # sed -n 's/^version: *//p' pubspec.yaml     
       run: |
-        zip -r ./build/dikt-macOS-ARM64.zip ./build/macos/Build/Products/Release/dikt.app/
+        echo "VERSION=$(sed -n 's/^version: *//p' pubspec.yaml)" >> $GITHUB_OUTPUT
+      id: app_version
+      
+    - name: Compress dikt.app
+      working-directory: ./build/macos/Build/Products/Release/
+      run: |
+        zip -r -D -y ./build/dikt-macOS-ARM64.zip dikt.app
     - name: Upload artifact
       uses: actions/upload-artifact@v3
       with:
-        name: dikt-${{ steps.read-version.outputs.version-number }}(macOS-ARM64).zip
+        name: dikt-${{ steps.app_version.outputs.VERSION }}(macOS-ARM64).zip
         path: ./build/dikt-macOS-ARM64.zip
