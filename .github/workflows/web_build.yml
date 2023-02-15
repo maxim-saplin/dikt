@@ -1,6 +1,10 @@
 name: Build and Publish Web
 
-on: [push]
+on:
+  schedule:
+    - cron: '0 0 * * *' # Run once a day at 00:00 UTC
+  push:
+    branches: [main] # only if there're commits
 
 jobs:
   build:
