@@ -36,11 +36,12 @@ jobs:
       id: app_version
       
     - name: Compress dikt.app
-      working-directory: ./build/macos/Build/Products/Release/
       run: |
-        zip -r -D -y ./build/dikt-macOS-ARM64.zip dikt.app
+        cd ./build/macos/Build/Products/Release/
+        zip -r -D -y dikt-macOS-ARM64.zip dikt.app
+      working-directory: ./
     - name: Upload artifact
       uses: actions/upload-artifact@v3
       with:
         name: dikt-${{ steps.app_version.outputs.VERSION }}(macOS-ARM64).zip
-        path: ./build/dikt-macOS-ARM64.zip
+        path: ./build/macos/Build/Products/Release/dikt-macOS-ARM64.zip
