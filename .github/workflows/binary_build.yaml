@@ -17,6 +17,7 @@ jobs:
         channel: 'stable'
         architecture: arm64
         cache: true
+        cache-key: 'flutter-:os:-:channel:-:version:-:arch:-:hash:'
     - name: Flutter Doctor
       run: flutter doctor
       working-directory: ./
