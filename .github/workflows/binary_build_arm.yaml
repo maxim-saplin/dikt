@@ -28,7 +28,11 @@ jobs:
     - name: Build macOS
       run: flutter build macos
       working-directory: ./
-    - uses: actions/upload-artifact@v3
+    - name: Compress dikt.app
+      run: |
+        zip -r ./build/dikt-macOS-ARM64.zip ./build/macos/Build/Products/Release/dikt.app/
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
       with:
-        name: dikt.app
-        path: ./build/macos/Build/Products/Release/dikt.app
+        name: dikt-macOS-ARM64.zip
+        path: ./build/dikt-macOS-ARM64.zip
