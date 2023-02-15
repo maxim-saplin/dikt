@@ -28,11 +28,15 @@ jobs:
     - name: Build macOS
       run: flutter build macos
       working-directory: ./
+    - name: Read app version from pubspec
+      uses: NiklasLehnfeld/flutter-version-number-action@main
+      with:
+        file-path: ./pubspec.yaml
     - name: Compress dikt.app
       run: |
         zip -r ./build/dikt-macOS-ARM64.zip ./build/macos/Build/Products/Release/dikt.app/
     - name: Upload artifact
       uses: actions/upload-artifact@v3
       with:
-        name: dikt-macOS-ARM64.zip
+        name: dikt-${{ steps.read-version.outputs.version-number }}(macOS-ARM64).zip
         path: ./build/dikt-macOS-ARM64.zip
