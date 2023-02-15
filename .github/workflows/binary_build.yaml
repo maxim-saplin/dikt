@@ -33,5 +33,5 @@ jobs:
     - uses: actions/upload-artifact@v3
       with:
         name: dikt.exe
-        path: .\build\windows\runner\Release\dikt.exe
+        path: .\build\windows\runner\Release\
 
