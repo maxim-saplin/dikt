@@ -15,7 +15,7 @@ jobs:
     - uses: subosito/flutter-action@v2
       with:
         channel: 'stable'
-        architecture: x64
+        architecture: arm64
         cache: true
     - name: Flutter Doctor
       run: flutter doctor
@@ -31,6 +31,6 @@ jobs:
       working-directory: ./
     - uses: actions/upload-artifact@v3
       with:
-        name: macOS Build
+        name: dikt.app
         path: ./build/macos/Build/Products/Release/dikt.app
 
