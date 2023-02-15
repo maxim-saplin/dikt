@@ -1,4 +1,4 @@
-name: Build Release Binaries (ARM)
+name: Build macOS (ARM)
 on: [workflow_dispatch]
 jobs:
   build:
