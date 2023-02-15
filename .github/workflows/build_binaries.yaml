@@ -1,0 +1,79 @@
+name: Build Release Binaries
+on: [workflow_dispatch]
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-latest, ubuntu-latest, windows-latest]
+    steps:
+    - uses: actions/checkout@v1
+
+    - name: Set up Java
+      if: matrix.os == 'macos-latest' || matrix.os == 'ubuntu-latest'
+      uses: actions/setup-java@v3
+      with:
+        distribution: zulu
+        java-version: 19.x
+        cache: 'gradle'
+
+    - name: Install Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        channel: 'stable'
+        architecture: x64
+        cache: true
+        cache-key: 'flutter-:os:-:channel:-:version:-:arch:'
+
+    - name: Check Flutter Version
+      run: flutter --version
+
+    - name: Upgrade Flutter
+      run: flutter upgrade
+
+    - name: Get Dependencies
+      run: flutter pub get
+
+    - name: Build for Windows
+      if: matrix.os == 'windows-latest'
+      run: flutter build windows
+
+    - name: Build for Linux
+      if: matrix.os == 'ubuntu-latest'
+      run: flutter build linux
+
+    - name: Build for macOS
+      if: matrix.os == 'macos-latest'
+      run: flutter build macos
+
+    - name: Extract version from pubspec.yaml
+      if: matrix.os == 'macos-latest' || matrix.os == 'ubuntu-latest'
+      run: |
+        echo "VERSION=$(sed -n 's/^version: *//p' pubspec.yaml)" >> $GITHUB_ENV
+      shell: bash
+
+    - name: Extract version from pubspec.yaml
+      if: matrix.os == 'windows-latest'
+      run: |
+        for /f "tokens=2 delims=: " %%v in ('findstr /C:"version:" pubspec.yaml') do set VERSION=%%v
+        echo "VERSION=%VERSION%" >> $GITHUB_ENV
+      shell: cmd
+
+    - name: Compress and package the artifact
+      run: |
+        cd build
+        if [ ${{ matrix.os }} == 'windows-latest' ]; then
+          zip -r -D -y dikt-windows-x64-${{ env.VERSION }}.zip windows
+        elif [ ${{ matrix.os }} == 'ubuntu-latest' ]; then
+          tar -czf dikt-linux-x64-${{ env.VERSION }}.tar.gz linux
+        else
+          cd macos/Build/Products/Release
+          zip -r -D -y dikt-macos-ARM64-${{ env.VERSION }}.zip dikt.app
+          mv dikt-macos-ARM64-${{ env.VERSION }}.zip ../../../dikt-macos-ARM64-${{ env.VERSION }}.zip
+        fi
+
+    - name: Upload Artefact
+      uses: actions/upload-artifact@v2
+      with:
+        name: dikt-${{ env.VERSION }}-${{ matrix.os }}.zip
+        path: dikt-${{ matrix.os }}-x64-${{ env.VERSION }}.zip
