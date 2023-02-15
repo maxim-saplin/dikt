@@ -11,18 +11,18 @@ jobs:
 #         distribution: zulu
 #         java-version: 19.x
 #         cache: 'gradle' 
-    - uses: subosito/flutter-action@v2
-      with:
-         channel: 'stable'
-         architecture: arm64
-         cache: true
-         cache-key: 'flutter-:os:-:channel:-:version:-:arch:'
-    - name: Flutter Doctor
-      run: flutter doctor
-      working-directory: ./
-    - name: Upgrades flutter
-      run: flutter upgrade
-      working-directory: ./
+#    - uses: subosito/flutter-action@v2
+#      with:
+#         channel: 'stable'
+#         architecture: arm64
+#         cache: true
+#         cache-key: 'flutter-:os:-:channel:-:version:-:arch:'
+#    - name: Flutter Doctor
+#      run: flutter doctor
+#      working-directory: ./
+#    - name: Upgrades flutter
+#      run: flutter upgrade
+#      working-directory: ./
     - name: Install dependencies
       run: flutter packages get
       working-directory: ./
