@@ -2,7 +2,7 @@ name: Build Release Binaries (ARM)
 on: [workflow_dispatch]
 jobs:
   build:
-    runs-on: macOS ARM64   
+    runs-on: self-hosted   
     steps:
     - uses: actions/checkout@v1
     - uses: actions/setup-java@v3
