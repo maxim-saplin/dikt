@@ -12,7 +12,7 @@ jobs:
         distribution: 'zulu'
         java-version: "12.x"
         cache: 'gradle' 
-    - uses: subosito/flutter-action@v2
+    - uses: subosito/flutter-action@v2.4.0
       with:
         channel: 'stable'
         architecture: arm64
