@@ -62,9 +62,9 @@ jobs:
     - name: Extract version from pubspec.yaml (Windows)
       if: matrix.os == 'windows-latest'
       run: |
-        for /f "tokens=2 delims=: " %%v in ('findstr /C:"version:" pubspec.yaml') do set VERSION=%%v
+        $version = (Select-String -Path "pubspec.yaml" -Pattern 'version: (.+)$').Matches.Groups[1].Value.Trim()
         echo "VERSION=%VERSION%" >> $GITHUB_ENV
-      shell: cmd
+      shell: powershell
 
     - name: Compress and package the artifact (Linux)
       if: matrix.os == 'ubuntu-latest'
