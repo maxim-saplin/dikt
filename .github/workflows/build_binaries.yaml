@@ -68,14 +68,14 @@ jobs:
 
     - name: Compress and package the artifact (Linux)
       if: matrix.os == 'ubuntu-latest'
-      run: tar -czf ./build/dikt-linux-x64-${{ env.VERSION }}.tar.gz ./build/linux/x64/release/bundle
+      run: tar -czf ./build/dikt-linux-x64-${{ env.VERSION }}.zip ./build/linux/x64/release/bundle
     
     - name: Compress and package the artifact (macOS)
       if: matrix.os == 'macos-latest'
       run: |
         cd ./build/macos/Build/Products/Release/
-        zip -r -D -y dikt-macos-x64-${{ env.VERSION }}.zip dikt.app
-        mv dikt-macos-x64-${{ env.VERSION }}.zip ../../../../dikt-macos-x64-${{ env.VERSION }}.zip
+        zip -r -D -y dikt-macOS-x64-${{ env.VERSION }}.zip dikt.app
+        mv dikt-macOS-x64-${{ env.VERSION }}.zip ../../../../dikt-macOS-x64-${{ env.VERSION }}.zip
 
     - name: Compress and package the artifact (Windows)
       if: matrix.os == 'windows-latest'
@@ -86,5 +86,6 @@ jobs:
     - name: Upload Artifact
       uses: actions/upload-artifact@v2
       with:
-        name: dikt-${{ env.VERSION }}-${{ matrix.os }}.zip
-        path: ./build/dikt-${{ matrix.os }}-x64-${{ env.VERSION }}.zip
+        name: dikt-${{  matrix.os == 'ubuntu-latest' && 'linux' || matrix.os == 'macos-latest' && 'macOS' || matrix.os == 'windows-latest' && 'windows' }}-x64-${{ env.VERSION }}.zip
+        path: ./build/dikt-${{  matrix.os == 'ubuntu-latest' && 'linux' || matrix.os == 'macos-latest' && 'macOS' || matrix.os == 'windows-latest' && 'windows' }}-x64-${{ env.VERSION }}.zip
+        
