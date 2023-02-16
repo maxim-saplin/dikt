@@ -87,5 +87,4 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: dikt-${{ env.VERSION }}-${{ matrix.os }}.zip
-        path: dikt-${{ matrix.os }}-x64-${{ env.VERSION }}.zip
-        working-directory: ./build
+        path: ./build/dikt-${{ matrix.os }}-x64-${{ env.VERSION }}.zip
