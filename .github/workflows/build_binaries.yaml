@@ -34,6 +34,12 @@ jobs:
 
     - name: Get Dependencies
       run: flutter pub get
+      
+    - name: Install ninja-build for Linux
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y ninja-build
 
     - name: Build for Windows
       if: matrix.os == 'windows-latest'
@@ -47,13 +53,13 @@ jobs:
       if: matrix.os == 'macos-latest'
       run: flutter build macos
 
-    - name: Extract version from pubspec.yaml
+    - name: Extract version from pubspec.yaml (macOS and Linux)
       if: matrix.os == 'macos-latest' || matrix.os == 'ubuntu-latest'
       run: |
         echo "VERSION=$(sed -n 's/^version: *//p' pubspec.yaml)" >> $GITHUB_ENV
       shell: bash
 
-    - name: Extract version from pubspec.yaml
+    - name: Extract version from pubspec.yaml (Windows)
       if: matrix.os == 'windows-latest'
       run: |
         for /f "tokens=2 delims=: " %%v in ('findstr /C:"version:" pubspec.yaml') do set VERSION=%%v
@@ -70,7 +76,7 @@ jobs:
         else
           cd macos/Build/Products/Release
           zip -r -D -y dikt-macos-ARM64-${{ env.VERSION }}.zip dikt.app
-          mv dikt-macos-ARM64-${{ env.VERSION }}.zip ../../../dikt-macos-ARM64-${{ env.VERSION }}.zip
+          mv dikt-macos-x64-${{ env.VERSION }}.zip ../../../dikt-macos-x64-${{ env.VERSION }}.zip
         fi
 
     - name: Upload Artefact
