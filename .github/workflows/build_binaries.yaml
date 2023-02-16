@@ -66,20 +66,26 @@ jobs:
         echo "VERSION=%VERSION%" >> $GITHUB_ENV
       shell: cmd
 
-    - name: Compress and package the artifact
+    - name: Compress and package the artifact (Linux)
+      if: matrix.os == 'ubuntu-latest'
       run: |
         cd build
-        if [ ${{ matrix.os }} == 'windows-latest' ]; then
-          zip -r -D -y dikt-windows-x64-${{ env.VERSION }}.zip windows
-        elif [ ${{ matrix.os }} == 'ubuntu-latest' ]; then
-          tar -czf dikt-linux-x64-${{ env.VERSION }}.tar.gz linux
-        else
-          cd macos/Build/Products/Release
-          zip -r -D -y dikt-macos-x64-${{ env.VERSION }}.zip dikt.app
-          mv dikt-macos-x64-${{ env.VERSION }}.zip ../../../dikt-macos-x64-${{ env.VERSION }}.zip
-        fi
+        tar -czf dikt-linux-x64-${{ env.VERSION }}.tar.gz linux
+    
+    - name: Compress and package the artifact (macOS)
+      if: matrix.os == 'macos-latest'
+      run: |
+        cd macos/Build/Products/Release
+        zip -r -D -y dikt-macos-x64-${{ env.VERSION }}.zip dikt.app
+        mv dikt-macos-x64-${{ env.VERSION }}.zip ../../../dikt-macos-x64-${{ env.VERSION }}.zip
 
-    - name: Upload Artefact
+    - name: Compress and package the artifact (Windows)
+      if: matrix.os == 'windows-latest'
+      run: Compress-Archive -Path ".\build\windows\runner\Release\" -DestinationPath "dikt-windows-x64-${{ env.VERSION }}.zip"
+      shell: powershell
+      working-directory: ./
+
+    - name: Upload Artifact
       uses: actions/upload-artifact@v2
       with:
         name: dikt-${{ env.VERSION }}-${{ matrix.os }}.zip
