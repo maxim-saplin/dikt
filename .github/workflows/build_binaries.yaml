@@ -63,7 +63,7 @@ jobs:
       if: matrix.os == 'windows-latest'
       run: |
         $version = (Select-String -Path "pubspec.yaml" -Pattern 'version: (.+)$').Matches.Groups[1].Value.Trim()
-        echo "VERSION=$version" >> $GITHUB_ENV
+        "VERSION=$version" >> $env:GITHUB_ENV
       shell: powershell
 
     - name: Compress and package the artifact (Linux)
