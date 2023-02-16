@@ -75,7 +75,7 @@ jobs:
           tar -czf dikt-linux-x64-${{ env.VERSION }}.tar.gz linux
         else
           cd macos/Build/Products/Release
-          zip -r -D -y dikt-macos-ARM64-${{ env.VERSION }}.zip dikt.app
+          zip -r -D -y dikt-macos-x64-${{ env.VERSION }}.zip dikt.app
           mv dikt-macos-x64-${{ env.VERSION }}.zip ../../../dikt-macos-x64-${{ env.VERSION }}.zip
         fi
 
