@@ -66,9 +66,10 @@ jobs:
         "VERSION=$version" >> $env:GITHUB_ENV
       shell: powershell
 
-    - name: Compress and package the artifact (Linux)
-      if: matrix.os == 'ubuntu-latest'
-      run: tar -czf ./build/dikt-linux-x64-${{ env.VERSION }}.zip ./build/linux/x64/release/bundle
+# Zip file will be zipped by GH when creating artifcat, no need
+#    - name: Compress and package the artifact (Linux)
+#      if: matrix.os == 'ubuntu-latest'
+#      run: tar -czf ./build/dikt-linux-x64-${{ env.VERSION }}.zip ./build/linux/x64/release/bundle
     
     - name: Compress and package the artifact (macOS)
       if: matrix.os == 'macos-latest'
@@ -77,15 +78,16 @@ jobs:
         zip -r -D -y dikt-macOS-x64-${{ env.VERSION }}.zip dikt.app
         mv dikt-macOS-x64-${{ env.VERSION }}.zip ../../../../dikt-macOS-x64-${{ env.VERSION }}.zip
 
-    - name: Compress and package the artifact (Windows)
-      if: matrix.os == 'windows-latest'
-      run: Compress-Archive -Path ".\build\windows\runner\Release\" -DestinationPath ".\build\dikt-windows-x64-${{ env.VERSION }}.zip"
-      shell: powershell
-      working-directory: ./
+# Zip file will be zipped by GH when creating artifcat, no need
+#    - name: Compress and package the artifact (Windows)
+#      if: matrix.os == 'windows-latest'
+#      run: Compress-Archive -Path ".\build\windows\runner\Release\" -DestinationPath ".\build\dikt-windows-x64-${{ env.VERSION }}.zip"
+#      shell: powershell
+#      working-directory: ./
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v2
       with:
         name: dikt-${{  matrix.os == 'ubuntu-latest' && 'linux' || matrix.os == 'macos-latest' && 'macOS' || matrix.os == 'windows-latest' && 'windows' }}-x64-${{ env.VERSION }}.zip
-        path: ./build/dikt-${{  matrix.os == 'ubuntu-latest' && 'linux' || matrix.os == 'macos-latest' && 'macOS' || matrix.os == 'windows-latest' && 'windows' }}-x64-${{ env.VERSION }}.zip
+        path: ${{  matrix.os == 'ubuntu-latest' && './build/linux/x64/release/bundle' || matrix.os == 'macos-latest' && './build/dikt-macOS-x64-${{ env.VERSION }}.zip' || matrix.os == 'windows-latest' && '.\build\windows\runner\Release\' }}
         
