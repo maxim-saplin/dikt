@@ -60,6 +60,7 @@ void main() {
 
   tearDownAll(() {
     try {
+      pool!.stop();
       Directory(tmpPath).delete(recursive: true);
     } catch (_) {}
   });
