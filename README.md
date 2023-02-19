@@ -1,6 +1,11 @@
 ## dikt / bottom-up dictionary
 
-One-hand adapted, off-line dictionary with simplistic UI, dark and light themes
+Off-line dictionary with simplistic UI optimized for one-hand use with mobiles, cross-platform and working great on desktop as well:
+- UI is inverted to be easily reachable by a thumb alone
+ - The search bar is at the bottom
+ - The lookup list starts at the bottom
+ - Major controls (e.g. navigation) are the the bottom
+- The app built to be fast event with large dictionaries
 
 WordNet® 3 (large lexical dictionary of English) is bundled with the app. Other dictionaries can be imported from JSON files.
 
