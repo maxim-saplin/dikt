@@ -59,7 +59,7 @@ jobs:
     - name: Get Android keystore
       if: matrix.os == 'ubuntu-latest'
       id: android_keystore
-      uses: timheuer/base64-to-file@v1.0.3
+      uses: timheuer/base64-to-file@v1.2
       with:
         fileName: keystore.jks
         encodedString: ${{ secrets.STOREFILE }}
@@ -72,7 +72,8 @@ jobs:
         echo "keyPassword=${{ secrets.KEYPASSWORD }}" >> android/key.properties
         echo "keyAlias=${{ secrets.KEYALIAS }}" >> android/key.properties
     
-    - name: Build Android abb
+    - name: Build Android aab
+      if: matrix.os == 'ubuntu-latest'
       run: flutter build appbundle
 
     - name: Extract version from pubspec.yaml (macOS and Linux)
