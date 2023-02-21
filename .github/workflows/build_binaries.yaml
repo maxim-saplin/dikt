@@ -55,6 +55,24 @@ jobs:
     - name: Build for macOS
       if: matrix.os == 'macos-latest'
       run: flutter build macos
+    
+    - name: Get Android keystore
+      if: matrix.os == 'ubuntu-latest'
+      id: android_keystore
+      uses: timheuer/base64-to-file@v1.0.3
+      with:
+        fileName: keystore.jks
+        encodedString: ${{ secrets.STOREFILE }}
+        
+    - name: Create key.properties for Android
+      run: |
+        echo "storeFile=${{ steps.android_keystore.outputs.filePath }}" > android/key.properties
+        echo "storePassword=${{ secrets.STOREPASSWORD }}" >> android/key.properties
+        echo "keyPassword=${{ secrets.KEYPASSWORD }}" >> android/key.properties
+        echo "keyAlias=${{ secrets.KEYALIAS }}" >> android/key.properties
+    
+    - name: Build Android abb
+      run: flutter build appbundle
 
     - name: Extract version from pubspec.yaml (macOS and Linux)
       if: matrix.os == 'macos-latest' || matrix.os == 'ubuntu-latest'

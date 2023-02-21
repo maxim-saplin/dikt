@@ -1,10 +1,24 @@
 ## dikt / bottom-up dictionary
 
-One-hand adapted, off-line dictionary with simplistic UI, dark and light themes
+Off-line dictionary with simplistic UI optimized for one-hand use with mobiles, cross-platform and working great on desktop as well:
+- UI is inverted to be easily reachable by a thumb alone
+  - The search bar is at the bottom
+  - The lookup list starts at the bottom
+  - Major controls (e.g. navigation) are the the bottom
+- The app built to be fast with large dictionaries
+  - It take 1.5 seconds to fully load 90 dictionaries with cummulative nubmer of words at over 6 mil (in Galaxy S22)
+  - It takes under 15 ms to do a lookup among 6 mil word
+  - The lookup is case insensitive
+- For smaller storage footprint the dictionaries are partly compressed providing ±30-40% of space savings
+- Bonus for Belarusian and RU speakers, teh app can substitue "и" for "і", "у" for "ў" and "e" for "ё" for faster typing withoud the need to change keyboard layout
 
-WordNet® 3 (large lexical dictionary of English) is bundled with the app. Other dictionaries can be imported from JSON files.
+## Dictionaries
 
-How do I get JSON dictionaris? You can use available dictionaries in various formats (DSL, StarDict, etc.) and convert them using PyGlossary free tool (available on GitHub) to JSON.
+The app comes preloaded with WordNet® 3 (large lexical dictionary of English). Other dictionaries can be imported from JSON files.
+
+Dictionaries in various formats (DSL, StarDict, etc.) can be converted by PyGlossary free tool (available on GitHub) to JSON.
+
+JSON files can be bulky to handle and slow to be added to the app. There's a binary format of ditionaries used internally (IKV or .dikt files), those ones can be generated via a command line tool: https://github.com/maxim-saplin/dikt_converter
 
 ## Try/Download
 
