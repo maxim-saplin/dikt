@@ -72,12 +72,16 @@ jobs:
         echo "keyPassword=${{ secrets.KEYPASSWORD }}" >> android/key.properties
         echo "keyAlias=${{ secrets.KEYALIAS }}" >> android/key.properties
     
-    - name: Build Android (aab and apk)
+    - name: Build Android (aab)
       if: matrix.os == 'ubuntu-latest'
       run: |
         flutter build appbundle
-        flutter build apk
         mv build/app/outputs/bundle/release/app-release.aab build/app/outputs/bundle/release/dikt-android-${{ env.VERSION }}.aab
+        
+    - name: Build Android (apk)
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        flutter build apk
         mv build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/dikt-android-${{ env.VERSION }}.apk
 
     - name: Extract version from pubspec.yaml (macOS and Linux)
