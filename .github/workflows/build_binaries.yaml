@@ -114,10 +114,18 @@ jobs:
       with:
         name: dikt-${{  matrix.os == 'ubuntu-latest' && 'linux' || matrix.os == 'windows-latest' && 'windows' }}-x64-${{ env.VERSION }}
         path: ${{  matrix.os == 'ubuntu-latest' && './build/linux/x64/release/bundle' || matrix.os == 'windows-latest' && '.\build\windows\runner\Release\' }}
+    
+    - name: Upload Artifact (Android aab)
+      if:  matrix.os == 'ubuntu-latest'
+      uses: actions/upload-artifact@v2
+      with:
+        name: dikt-android-${{ env.VERSION }}.aab
+        path: build/app/outputs/bundle/release/app-release.aab
+
    
     - name: Upload Artifact (macOS)
       if: matrix.os == 'macos-latest'
       uses: actions/upload-artifact@v2
       with:
         name: dikt-macOS-x64-${{ env.VERSION }}
-        path: './build/dikt-macOS-x64-${{ env.VERSION }}.zip'
+        path: build/dikt-macOS-x64-${{ env.VERSION }}.zip
