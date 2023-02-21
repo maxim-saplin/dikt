@@ -72,9 +72,13 @@ jobs:
         echo "keyPassword=${{ secrets.KEYPASSWORD }}" >> android/key.properties
         echo "keyAlias=${{ secrets.KEYALIAS }}" >> android/key.properties
     
-    - name: Build Android aab
+    - name: Build Android (aab and apk)
       if: matrix.os == 'ubuntu-latest'
-      run: flutter build appbundle
+      run: |
+        flutter build appbundle
+        flutter build apk
+        mv build/app/outputs/bundle/release/app-release.aab build/app/outputs/bundle/release/dikt-android-${{ env.VERSION }}.aab
+        mv build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/dikt-android-${{ env.VERSION }}.apk
 
     - name: Extract version from pubspec.yaml (macOS and Linux)
       if: matrix.os == 'macos-latest' || matrix.os == 'ubuntu-latest'
@@ -120,7 +124,14 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: dikt-android-${{ env.VERSION }}.aab
-        path: build/app/outputs/bundle/release/app-release.aab
+        path: build/app/outputs/bundle/release/dikt-android-${{ env.VERSION }}.aab
+        
+    - name: Upload Artifact (Android apk)
+      if:  matrix.os == 'ubuntu-latest'
+      uses: actions/upload-artifact@v2
+      with:
+        name: dikt-android-${{ env.VERSION }}.apk
+        path: build/app/outputs/flutter-apk/dikt-android-${{ env.VERSION }}.apk
 
    
     - name: Upload Artifact (macOS)
