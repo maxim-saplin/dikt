@@ -102,10 +102,10 @@ jobs:
         mv build/app/outputs/bundle/release/app-release.aab build/app/outputs/bundle/release/dikt-android-${{ env.VERSION }}.aab
         mv build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/dikt-android-${{ env.VERSION }}.apk
 
-# Zip file will be zipped by GH when creating artifcat, no need
-#    - name: Compress and package the artifact (Linux)
-#      if: matrix.os == 'ubuntu-latest'
-#      run: tar -czf ./build/dikt-linux-x64-${{ env.VERSION }}.zip ./build/linux/x64/release/bundle
+# Will it keep 'execute' attribute of binary?
+    - name: Compress and package the artifact (Linux)
+      if: matrix.os == 'ubuntu-latest'
+      run: tar -czfp ./build/dikt-linux-x64-${{ env.VERSION }}.tar ./build/linux/x64/release/bundle
     
     - name: Compress and package the artifact (macOS)
       if: matrix.os == 'macos-latest'
@@ -121,12 +121,19 @@ jobs:
 #      shell: powershell
 #      working-directory: ./
 
-    - name: Upload Artifact (Windows and Linux)
-      if: matrix.os == 'windows-latest' || matrix.os == 'ubuntu-latest'
+    - name: Upload Artifact (Windows)
+      if: matrix.os == 'windows-latest'
       uses: actions/upload-artifact@v2
       with:
-        name: dikt-${{  matrix.os == 'ubuntu-latest' && 'linux' || matrix.os == 'windows-latest' && 'windows' }}-x64-${{ env.VERSION }}
-        path: ${{  matrix.os == 'ubuntu-latest' && './build/linux/x64/release/bundle' || matrix.os == 'windows-latest' && '.\build\windows\runner\Release\' }}
+        name: dikt-windows-x64-${{ env.VERSION }}
+        path: .\build\windows\runner\Release\'
+    
+    - name: Upload Artifact (Linux)
+      if: matrix.os == 'ubuntu-latest'
+      uses: actions/upload-artifact@v2
+      with:
+        name: dikt-linux-x64-${{ env.VERSION }}.tar
+        path: ./build/dikt-linux-x64-${{ env.VERSION }}.tar
     
     - name: Upload Artifact (Android aab)
       if:  matrix.os == 'ubuntu-latest'
