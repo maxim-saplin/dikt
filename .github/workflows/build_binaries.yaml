@@ -105,7 +105,7 @@ jobs:
 # Will it keep 'execute' attribute of binary?
     - name: Compress and package the artifact (Linux)
       if: matrix.os == 'ubuntu-latest'
-      run: tar -czfp ./build/dikt-linux-x64-${{ env.VERSION }}.tar ./build/linux/x64/release/bundle
+      run: tar -czf ./build/dikt-linux-x64-${{ env.VERSION }}.tar ./build/linux/x64/release/bundle
     
     - name: Compress and package the artifact (macOS)
       if: matrix.os == 'macos-latest'
