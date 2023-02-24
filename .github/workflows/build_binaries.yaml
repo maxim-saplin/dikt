@@ -123,36 +123,40 @@ jobs:
 
     - name: Upload Artifact (Windows)
       if: matrix.os == 'windows-latest'
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: dikt-windows-x64-${{ env.VERSION }}
         path: .\build\windows\runner\Release\'
+        if-no-files-found: error
     
     - name: Upload Artifact (Linux)
       if: matrix.os == 'ubuntu-latest'
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: dikt-linux-x64-${{ env.VERSION }}.tar
         path: ./build/dikt-linux-x64-${{ env.VERSION }}.tar
+        if-no-files-found: error
     
     - name: Upload Artifact (Android aab)
       if:  matrix.os == 'ubuntu-latest'
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: dikt-android-${{ env.VERSION }}.aab
         path: build/app/outputs/bundle/release/dikt-android-${{ env.VERSION }}.aab
+        if-no-files-found: error
         
     - name: Upload Artifact (Android apk)
       if:  matrix.os == 'ubuntu-latest'
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: dikt-android-${{ env.VERSION }}.apk
         path: build/app/outputs/flutter-apk/dikt-android-${{ env.VERSION }}.apk
-
+        if-no-files-found: error
    
     - name: Upload Artifact (macOS)
       if: matrix.os == 'macos-latest'
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: dikt-macOS-x64-${{ env.VERSION }}
         path: build/dikt-macOS-x64-${{ env.VERSION }}.zip
+        if-no-files-found: error
