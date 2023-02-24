@@ -130,7 +130,7 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: dikt-windows-x64-${{ env.VERSION }}
-        path: .\build\windows\runner\Release\'
+        path: build/windows/runner/Release
         if-no-files-found: error
     
     - name: Upload Artifact (Linux)
@@ -138,7 +138,7 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: dikt-linux-x64-${{ env.VERSION }}.tar
-        path: ./build/dikt-linux-x64-${{ env.VERSION }}.tar
+        path: build/dikt-linux-x64-${{ env.VERSION }}.tar
         if-no-files-found: error
     
     - name: Upload Artifact (Android aab)
