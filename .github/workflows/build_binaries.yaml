@@ -169,7 +169,9 @@ jobs:
    
     - name: Run app (macOS)
       if: matrix.os == 'macos-latest'
-      run: open build/macos/Build/Products/Release/dikt.app
+      run: | 
+       open build/macos/Build/Products/Release/dikt.app
+       sleep 5
      
     - name: Make screenshot (macOS)
       if: matrix.os == 'macos-latest'
