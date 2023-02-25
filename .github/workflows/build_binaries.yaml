@@ -39,7 +39,7 @@ jobs:
       if: matrix.os == 'ubuntu-latest'
       run: |
         sudo apt-get update -y
-        sudo sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev 
+        sudo sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev imagemagick
 
     - name: Run tests
       run: flutter test --coverage
@@ -116,7 +116,7 @@ jobs:
     - name: Compress and package the artifact (macOS)
       if: matrix.os == 'macos-latest'
       run: |
-        cd ./build/macos/Build/Products/Release/
+        cd build/macos/Build/Products/Release/
         zip -r -D -y dikt-macOS-x64-${{ env.VERSION }}.zip dikt.app
         mv dikt-macOS-x64-${{ env.VERSION }}.zip ../../../../dikt-macOS-x64-${{ env.VERSION }}.zip
 
@@ -166,3 +166,13 @@ jobs:
         name: dikt-macOS-x64-${{ env.VERSION }}
         path: build/dikt-macOS-x64-${{ env.VERSION }}.zip
         if-no-files-found: error
+   
+    - name: Run app (macOS)
+      if: matrix.os == 'macos-latest'
+      run: open build/macos/Build/Products/Release/dikt.app
+     
+    - name: Make screenshot (macOS)
+      if: matrix.os == 'macos-latest'
+      uses: OrbitalOwen/desktop-screenshot-action@0.1
+      with:
+        file-name: 'macOS.jpg'
