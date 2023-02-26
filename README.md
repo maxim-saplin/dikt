@@ -10,7 +10,7 @@ Off-line dictionary with simplistic UI optimized for one-hand use with mobiles, 
   - It takes under 15 ms to do a lookup among 6 mil word
   - The lookup is case insensitive
 - For smaller storage footprint the dictionaries are partly compressed providing ±30-40% of space savings
-- Bonus for Belarusian and RU speakers, teh app can substitue "и" for "і", "у" for "ў" and "e" for "ё" for faster typing withoud the need to change keyboard layout
+- Belarusian and RU speakers can benefit from the feature of substituting "и" for "і", "у" for "ў" and "e" for "ё" for faster typing withoud the need to change keyboard layout
 
 ## Dictionaries
 
