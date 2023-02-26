@@ -194,7 +194,7 @@ jobs:
        sleep 4
    
     - name: Make screenshot (Linux)
-      if: matrix.os == 'macos-latest'
+      if: matrix.os == 'ubuntu-latest'
       uses: OrbitalOwen/desktop-screenshot-action@0.1
       with:
-        file-name: 'macOS.jpg'
+        file-name: 'Linux.jpg'
