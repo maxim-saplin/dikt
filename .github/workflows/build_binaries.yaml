@@ -170,9 +170,16 @@ jobs:
     - name: Run app (macOS)
       if: matrix.os == 'macos-latest'
       run: | 
-       open build/macos/Build/Products/Release/dikt.app --stdout stdout_dikt.txt
+       open build/macos/Build/Products/Release/dikt.app --stdout build/stdout_dikt.txt
        sleep 3
-       cat stdout_dikt.txt
+   
+    - name: Upload stdout (macOS)
+      if: matrix.os == 'macos-latest'
+      uses: actions/upload-artifact@v3
+      with:
+        name: stdout_dikt.txt
+        path: build/stdout_dikt.txt
+        if-no-files-found: error
      
     - name: Make screenshot (macOS)
       if: matrix.os == 'macos-latest'
