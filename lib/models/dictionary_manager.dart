@@ -109,8 +109,8 @@ class DictionaryManager extends ChangeNotifier with Debounce {
 
   static bool hiveDicsDeleted = false;
 
-  static Future<void> init([String? testPath]) async {
-    if (testPath == null) {
+  static Future<void> init([String? filesFolder]) async {
+    if (filesFolder == null) {
       homePath =
           kIsWeb ? '/webhome' : (await getApplicationDocumentsDirectory()).path;
       if (!kIsWeb && Platform.isWindows) {
@@ -134,9 +134,9 @@ class DictionaryManager extends ChangeNotifier with Debounce {
         }
       } catch (_) {}
     } else {
-      Hive.init(testPath); // autotests
-      homePath = testPath;
-      DictionaryManager.testPath = testPath;
+      Hive.init(filesFolder); // autotests
+      homePath = filesFolder;
+      DictionaryManager.testPath = filesFolder;
     }
     Hive.registerAdapter(IndexedDictionaryAdapter());
     _dictionaries = await Hive.openBox(dictionairesBoxName);

@@ -29,19 +29,26 @@ import 'ui/routes.dart';
 
 // Ad Blockers can break app due to exception in Firebase
 bool _firebaseError = false;
+String _error = '';
 
-void main() async {
-  if (!kIsWeb) initIsolatePool();
-  WidgetsFlutterBinding.ensureInitialized();
+// On desktop it is possible to override the path (via arg) where the app stores it's files
+void main(List<String> arguments) async {
   try {
-    if (kIsWeb || Platform.isAndroid || Platform.isIOS) {
-      await Firebase.initializeApp();
+    if (!kIsWeb) initIsolatePool();
+    WidgetsFlutterBinding.ensureInitialized();
+    try {
+      if (kIsWeb || Platform.isAndroid || Platform.isIOS) {
+        await Firebase.initializeApp();
+      }
+    } catch (_) {
+      _firebaseError = true;
     }
-  } catch (_) {
-    _firebaseError = true;
+    await PreferencesSingleton.init();
+
+    await DictionaryManager.init(arguments.isNotEmpty ? arguments[0] : null);
+  } catch (e) {
+    _error = e.toString();
   }
-  await PreferencesSingleton.init();
-  await DictionaryManager.init();
 
   runApp(MyApp());
 }
@@ -69,6 +76,16 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (_error.isNotEmpty) {
+      return MaterialApp(
+          home: _getScaffold(Padding(
+              padding: const EdgeInsets.all(20),
+              child: Center(
+                  child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 600),
+                      child: Text('Error launching app. \n\n $_error'))))));
+    }
+
     return MultiProvider(
         providers: [
           ChangeNotifierProvider<DictionaryManager>(
