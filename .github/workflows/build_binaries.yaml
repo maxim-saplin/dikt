@@ -125,7 +125,40 @@ jobs:
 #      if: matrix.os == 'windows-latest'
 #      run: Compress-Archive -Path ".\build\windows\runner\Release\" -DestinationPath ".\build\dikt-windows-x64-${{ env.VERSION }}.zip"
 #      shell: powershell
-#      working-directory: ./
+
+
+    - name: Smoketest/run app (macOS)
+      if: matrix.os == 'macos-latest'
+      run: | 
+       open build/macos/Build/Products/Release/dikt.app --stdout build/stdout_dikt.txt --args build/
+#      sleep 3
+
+# For some reasons the app shows empty window
+#     - name: Upload stdout (macOS)
+#       if: matrix.os == 'macos-latest'
+#       uses: actions/upload-artifact@v3
+#       with:
+#         name: stdout_dikt.txt
+#         path: build/stdout_dikt.txt
+#         if-no-files-found: error
+     
+#     - name: Make screenshot (macOS)
+#       if: matrix.os == 'macos-latest'
+#       uses: OrbitalOwen/desktop-screenshot-action@0.1
+#       with:
+#         file-name: 'macOS.jpg'
+        
+    - name: Smoketest/run app (Linux)
+      if: matrix.os == 'ubuntu-latest'
+      run: | 
+       nohup build/linux/x64/release/bundle/dikt &
+
+# Action doesn't work on Linux, no desktop environment likely
+#     - name: Make screenshot (Linux)
+#       if: matrix.os == 'ubuntu-latest'
+#       uses: OrbitalOwen/desktop-screenshot-action@0.1
+#       with:
+#         file-name: 'Linux.jpg'
 
     - name: Upload Artifact (Windows)
       if: matrix.os == 'windows-latest'
@@ -166,35 +199,3 @@ jobs:
         name: dikt-macOS-x64-${{ env.VERSION }}
         path: build/dikt-macOS-x64-${{ env.VERSION }}.zip
         if-no-files-found: error
-   
-    - name: Run app (macOS)
-      if: matrix.os == 'macos-latest'
-      run: | 
-       open build/macos/Build/Products/Release/dikt.app --stdout build/stdout_dikt.txt --args build/
-       sleep 3
-   
-    - name: Upload stdout (macOS)
-      if: matrix.os == 'macos-latest'
-      uses: actions/upload-artifact@v3
-      with:
-        name: stdout_dikt.txt
-        path: build/stdout_dikt.txt
-        if-no-files-found: error
-     
-    - name: Make screenshot (macOS)
-      if: matrix.os == 'macos-latest'
-      uses: OrbitalOwen/desktop-screenshot-action@0.1
-      with:
-        file-name: 'macOS.jpg'
-        
-    - name: Run app (Linux)
-      if: matrix.os == 'ubuntu-latest'
-      run: | 
-       nohup build/linux/x64/release/bundle/dikt &
-       sleep 4
-   
-    - name: Make screenshot (Linux)
-      if: matrix.os == 'ubuntu-latest'
-      uses: OrbitalOwen/desktop-screenshot-action@0.1
-      with:
-        file-name: 'Linux.jpg'
