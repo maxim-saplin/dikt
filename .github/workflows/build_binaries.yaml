@@ -186,3 +186,15 @@ jobs:
       uses: OrbitalOwen/desktop-screenshot-action@0.1
       with:
         file-name: 'macOS.jpg'
+        
+    - name: Run app (Linux)
+      if: matrix.os == 'ubuntu-latest'
+      run: | 
+       nohup build/linux/x64/release/bundle/dikt &
+       sleep 4
+   
+    - name: Make screenshot (Linux)
+      if: matrix.os == 'macos-latest'
+      uses: OrbitalOwen/desktop-screenshot-action@0.1
+      with:
+        file-name: 'macOS.jpg'
