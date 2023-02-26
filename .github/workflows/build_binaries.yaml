@@ -110,7 +110,7 @@ jobs:
     - name: Compress and package the artifact (Linux)
       if: matrix.os == 'ubuntu-latest'
       run: |
-        cd ./build/linux/x64/release/bundle
+        cd build/linux/x64/release/bundle
         tar -czf ../../../../dikt-linux-x64-${{ env.VERSION }}.tar ./
     
     - name: Compress and package the artifact (macOS)
@@ -170,7 +170,7 @@ jobs:
     - name: Run app (macOS)
       if: matrix.os == 'macos-latest'
       run: | 
-       open build/macos/Build/Products/Release/dikt.app --stdout build/stdout_dikt.txt
+       open build/macos/Build/Products/Release/dikt.app --stdout build/stdout_dikt.txt --args build/
        sleep 3
    
     - name: Upload stdout (macOS)
