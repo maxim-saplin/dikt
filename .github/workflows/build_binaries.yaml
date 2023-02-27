@@ -47,10 +47,6 @@ jobs:
     - name: Build for Windows
       if: matrix.os == 'windows-latest'
       run: flutter build windows
-      
-    - name: List output for Windows
-      if: matrix.os == 'windows-latest'
-      run: ls -r .\build
 
     - name: Build for Linux
       if: matrix.os == 'ubuntu-latest'
@@ -126,6 +122,10 @@ jobs:
 #      run: Compress-Archive -Path ".\build\windows\runner\Release\" -DestinationPath ".\build\dikt-windows-x64-${{ env.VERSION }}.zip"
 #      shell: powershell
 
+    - name: Smoketest/run app (Windows)
+      if: matrix.os == 'windows-latest'
+      run: Start-Process -FilePath ".\build\windows\runner\Release\dikt.exr"
+      shell: powershell
 
     - name: Smoketest/run app (macOS)
       if: matrix.os == 'macos-latest'
