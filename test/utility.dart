@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:dikt/common/preferences_singleton.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
