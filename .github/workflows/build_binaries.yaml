@@ -124,7 +124,7 @@ jobs:
 
     - name: Smoketest/run app (Windows)
       if: matrix.os == 'windows-latest'
-      run: Start-Process -FilePath ".\build\windows\runner\Release\dikt.exr"
+      run: Start-Process -FilePath ".\build\windows\runner\Release\dikt.exe"
       shell: powershell
 
     - name: Smoketest/run app (macOS)
