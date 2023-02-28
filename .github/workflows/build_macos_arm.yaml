@@ -1,5 +1,5 @@
-name: Build macOS (ARM)
-on: [workflow_dispatch]
+name: Build macOS (ARM/self-hosted)
+on: [workflow_dispatch, workflow_call]
 jobs:
   build:
     runs-on: self-hosted   
@@ -19,29 +19,29 @@ jobs:
 #         cache-key: 'flutter-:os:-:channel:-:version:-:arch:'
 #    - name: Flutter Doctor
 #      run: flutter doctor
-#      working-directory: ./
 #    - name: Upgrades flutter
 #      run: flutter upgrade
-#      working-directory: ./
     - name: Install dependencies
       run: flutter packages get
-      working-directory: ./
+    - name: Run tests
+      run: flutter test --coverage
     - name: Build macOS
       run: flutter build macos
-      working-directory: ./
     - name: Extract version from pubspec.yaml
     # sed -n 's/^version: *//p' pubspec.yaml     
       run: |
-        echo "VERSION=$(sed -n 's/^version: *//p' pubspec.yaml)" >> $GITHUB_OUTPUT
+        echo "VERSION=$(sed -n 's/^version: *//p' pubspec.yaml)" >> $GITHUB_ENV
       id: app_version
       
-    - name: Compress dikt.app
+    - name: Compress and package the artifact (macOS)
       run: |
-        cd ./build/macos/Build/Products/Release/
-        zip -r -D -y dikt-macOS-ARM64.zip dikt.app
-      working-directory: ./
-    - name: Upload artifact
+        cd build/macos/Build/Products/Release/
+        zip -r -D -y dikt-macOS-arm64-${{ env.VERSION }}.zip dikt.app
+        mv dikt-macOS-arm64-${{ env.VERSION }}.zip ../../../../dikt-macOS-amr64-${{ env.VERSION }}.zip
+        
+    - name: Upload Artifact (macOS)
       uses: actions/upload-artifact@v3
       with:
-        name: dikt-${{ steps.app_version.outputs.VERSION }}(macOS-ARM64).zip
-        path: ./build/macos/Build/Products/Release/dikt-macOS-ARM64.zip
+        name: dikt-macOS-arm64-${{ env.VERSION }}
+        path: build/dikt-macOS-arm64-${{ env.VERSION }}.zip
+        if-no-files-found: error
