@@ -9,3 +9,4 @@ jobs:
   GH-hosted:
     name: Run GH-hosted
     uses: ./.github/workflows/build_wlma_binaries_ghh.yaml
+    secrets: inherit
