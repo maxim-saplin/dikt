@@ -1,5 +1,5 @@
 name: Build Window, Liunx, macOS, Android (GH hosted)
-on: [workflow_dispatch]
+on: [workflow_dispatch, workflow_call]
 jobs:
   build:
     runs-on: ${{ matrix.os }}
