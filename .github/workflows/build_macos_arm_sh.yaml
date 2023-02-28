@@ -37,7 +37,7 @@ jobs:
       run: |
         cd build/macos/Build/Products/Release/
         zip -r -D -y dikt-macOS-arm64-${{ env.VERSION }}.zip dikt.app
-        mv dikt-macOS-arm64-${{ env.VERSION }}.zip ../../../../dikt-macOS-amr64-${{ env.VERSION }}.zip
+        mv dikt-macOS-arm64-${{ env.VERSION }}.zip ../../../../dikt-macOS-arm64-${{ env.VERSION }}.zip
         
     - name: Upload Artifact (macOS)
       uses: actions/upload-artifact@v3
