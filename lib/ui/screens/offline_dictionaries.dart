@@ -345,9 +345,12 @@ class OfflineDictionaryTile extends StatelessWidget {
                                           snapshot.data != null &&
                                           snapshot.error == null) {
                                         Timer.run(() {
-                                          Provider.of<MasterDictionary>(context,
-                                                  listen: false)
-                                              .notify();
+                                          if (context.mounted) {
+                                            Provider.of<MasterDictionary>(
+                                                    context,
+                                                    listen: false)
+                                                .notify();
+                                          }
                                         }); // let Lookup update (e.g. no history and number of entries shown) if a new dictionary is imported
                                         var info = snapshot.data as IkvInfo;
                                         return Text(
