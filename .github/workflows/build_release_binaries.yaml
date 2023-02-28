@@ -5,7 +5,7 @@ on: [workflow_dispatch]
 jobs:
   self-hosted:
     name: Run self-hosted
-    uses: maxim-saplin/dikt/blob/master/.github/workflows/build_macos_arm_sh.yaml@main
+    uses: ./dikt/.github/workflows/build_macos_arm_sh.yaml
   GH-hosted:
     name: Run GH-hosted
-    uses: maxim-saplin/dikt/blob/master/.github/workflows/build_wlma_binaries_ghh.yaml@main
+    uses: ./dikt/.github/workflows/build_wlma_binaries_ghh.yaml
