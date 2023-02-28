@@ -1,4 +1,4 @@
-name: Build Release Binaries
+name: Build Window, Liunx, macOS, Android (GH hosted)
 on: [workflow_dispatch]
 jobs:
   build:
