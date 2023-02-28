@@ -74,13 +74,11 @@ jobs:
     
     - name: Build Android (aab)
       if: matrix.os == 'ubuntu-latest'
-      run: |
-        flutter build appbundle
+      run: flutter build appbundle
         
     - name: Build Android (apk)
       if: matrix.os == 'ubuntu-latest'
-      run: |
-        flutter build apk
+      run: flutter build apk
 
     - name: Extract version from pubspec.yaml (macOS and Linux)
       if: matrix.os == 'macos-latest' || matrix.os == 'ubuntu-latest'
