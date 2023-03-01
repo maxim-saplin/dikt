@@ -15,6 +15,12 @@ jobs:
     needs: [self-hosted, gh-hosted]
     runs-on: ubuntu-latest
     steps:
+    - name: Download build artifacts
+    - uses: actions/download-artifact@v3
+
+    - name: Display structure of downloaded files
+      run: ls -R
+      
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
