@@ -6,21 +6,21 @@ jobs:
   self-hosted:
     name: Run self-hosted
     uses: ./.github/workflows/build_macos_arm_sh.yaml
-  GH-hosted:
+  gh-hosted:
     name: Run GH-hosted
     uses: ./.github/workflows/build_wlma_binaries_ghh.yaml
     secrets: inherit
   pre-release:
     name: Create release
-    needs: GH-hosted
+    needs: [self-hosted, gh-hosted]
     runs-on: ubuntu-latest
     steps:
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ${{ GH-hosted.build.outputs.version }}
-        release_name: ${{ GH-hosted.build.outputs.version }}
+        tag_name: ${{ needs.gh-hosted.build.outputs.version }}
+        release_name: ${{ needs.gh-hosted.build.outputs.version }}
         draft: true
