@@ -1,8 +1,16 @@
 name: Build Window, Liunx, macOS, Android (GH hosted)
-on: [workflow_dispatch, workflow_call]
+on: 
+  workflow_dispatch:
+  workflow_call:
+    outputs:
+      version:
+        description: "Version string extracted from pubspec.yaml"
+        value: ${{ jobs.build.outputs.version }}
 jobs:
   build:
     runs-on: ${{ matrix.os }}
+    outputs:
+        version: ${{ env.VERSION }}
     strategy:
       matrix:
         os: [macos-latest, ubuntu-latest, windows-latest]
@@ -85,6 +93,7 @@ jobs:
       run: |
         echo "VERSION=$(sed -n 's/^version: *//p' pubspec.yaml)" >> $GITHUB_ENV
       shell: bash
+
 
     - name: Extract version from pubspec.yaml (Windows)
       if: matrix.os == 'windows-latest'
