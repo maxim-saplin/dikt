@@ -50844,7 +50844,8 @@ s=A.cH("entries",$.dN())
 return A.bB(""+q.b+" "+s,r,B.br,r,r,A.Y(a).p3.x,r,r)}else return B.adn},
 $S:199}
 A.ajS.prototype={
-$0(){A.cT(this.a,!1,t.h).ag()},
+$0(){var s=this.a
+if(s.f!=null)A.cT(s,!1,t.h).ag()},
 $S:0}
 A.TK.prototype={
 K(a){var s,r,q,p,o,n=null,m=A.cT(a,!0,t.lJ),l=A.Y(a).p3.z.b
