@@ -15,18 +15,40 @@ jobs:
     needs: [self-hosted, gh-hosted]
     runs-on: ubuntu-latest
     steps:
+    
     - name: Download build artifacts
       uses: actions/download-artifact@v3
 
-    - name: Display structure of downloaded files
-      run: ls -R
-      
-    - name: Create Release
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#    - name: Display structure of downloaded files
+#      run: ls -R
+
+    - name: Prepare artifacts for uploading
+      run: |
+        folders=$(find . -maxdepth 1 -type d ! -name .)
+        mkdir _output
+
+        for folder in $folders; do
+          subfolders=$(find "$folder/." -mindepth 1 -maxdepth 1 -type d ! -name .)
+          if [ -n "$subfolders" ]; then
+            for subfolder in $subfolders; do
+              zip -r "$subfolder".zip "$subfolder"
+              cp "$subfolder".zip ./_output
+              rm "$subfolder".zip
+            done
+          else
+            files=$(find "$folder" -maxdepth 1 -type f)
+            if [ -n "$files" ]; then
+              cp "$folder"/* ./_output
+            fi
+          fi
+    
+    - name: Release draft
+      uses: softprops/action-gh-release@v1
       with:
-        tag_name: ${{ needs.gh-hosted.outputs.version }}
-        release_name: ${{ needs.gh-hosted.outputs.version }}
-        draft: true
+        files: _output/*
+      tag_name: ${{ needs.gh-hosted.outputs.version }}
+      draft: true
+      
+done
+      
+
