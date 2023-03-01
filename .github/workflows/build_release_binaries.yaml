@@ -26,7 +26,6 @@ jobs:
       run: |
         folders=$(find . -maxdepth 1 -type d ! -name .)
         mkdir _output
-
         for folder in $folders; do
           subfolders=$(find "$folder/." -mindepth 1 -maxdepth 1 -type d ! -name .)
           if [ -n "$subfolders" ]; then
@@ -41,6 +40,7 @@ jobs:
               cp "$folder"/* ./_output
             fi
           fi
+        done
     
     - name: Release draft
       uses: softprops/action-gh-release@v1
