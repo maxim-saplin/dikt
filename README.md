@@ -1,6 +1,6 @@
 ## dikt / bottom-up dictionary
 
-Off-line dictionary with simplistic UI optimized for one-hand use with mobiles, cross-platform and working great on desktop as well:
+Off-line dictionary with simplistic UI optimized for one-hand use on mobile phobes (Android, Web), cross-platform (macOS, Windows, Linux) and working great on desktop as well:
 - UI is inverted to be easily reachable by a thumb alone
   - The search bar is at the bottom
   - The lookup list starts at the bottom
