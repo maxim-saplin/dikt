@@ -46,5 +46,5 @@ jobs:
       uses: softprops/action-gh-release@v1
       with:
         files: _output/*
-      tag_name: ${{ needs.gh-hosted.outputs.version }}
-      draft: true
+        tag_name: ${{ needs.gh-hosted.outputs.version }}
+        draft: true
