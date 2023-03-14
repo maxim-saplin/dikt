@@ -51049,7 +51049,7 @@ $1(a){this.a.$4(this.b,t.nc.a(B.rk.gYj(this.c)),null,null)},
 $S:153}
 A.adA.prototype={
 $1(a){B.Hf.arM(window,"focus",this)
-A.iO(A.d5(0,500,0),null,t.z).bp(0,new A.adB(this.a,this.b),t.P)},
+A.iO(A.d5(0,0,1),null,t.z).bp(0,new A.adB(this.a,this.b),t.P)},
 $S:16}
 A.adB.prototype={
 $1(a){var s=this.a
