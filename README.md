@@ -31,6 +31,4 @@ JSON files can be bulky to handle and slow to be added to the app. There's a bin
 - Linux (x64): https://github.com/maxim-saplin/dikt/releases/download/2.2.1%2B29/dikt-linux-x64-2.2.1+29.tar
 - Windows: https://github.com/maxim-saplin/dikt/releases/download/2.2.1%2B29/dikt-windows-x64-2.2.1+29.zip
 
-
-<img align="left" src="https://raw.githubusercontent.com/maxim-saplin/dikt/master/_misc/1.gif" width="360"/>
-<img align="left" src="https://raw.githubusercontent.com/maxim-saplin/dikt/master/_misc/2.gif" width="360"/>
+[dikt.webm](https://user-images.githubusercontent.com/7947027/223116663-4db81908-a66f-4d6f-b91e-4cae2355f8d8.webm)
