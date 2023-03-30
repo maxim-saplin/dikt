@@ -96243,9 +96243,7 @@ o=t.K
 s=3
 return A.M(B.lx.vu("getAll",p,o),$async$fS)
 case 3:n=c
-if(n==null){q=A.z(p,o)
-s=1
-break}q=n
+q=n==null?A.z(p,o):n
 s=1
 break
 case 1:return A.R(q,r)}})
