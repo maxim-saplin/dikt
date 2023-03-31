@@ -51648,7 +51648,7 @@ var $async$xx=A.P(function(a,b){if(a===1)return A.Q(b,r)
 while(true)switch(s){case 0:m=$.z2()
 if(m.h(0,"firebase_core")!=null){s=1
 break}m=m.h(0,"flutterfire_web_sdk_version")
-if(m==null)m="9.15.0"
+if(m==null)m="9.18.0"
 o=p.gac3()
 n=$.aFV()
 n=n.gbm(n)
