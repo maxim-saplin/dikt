@@ -28,7 +28,7 @@ class _ResponsiveSplitViewState extends State<ResponsiveSplitView>
 
   @override
   void didChangeMetrics() {
-    var isWideNow = _checkIsWide();
+    var isWideNow = _checkIsWide(context);
     if (isWideNow != _isWide) {
       setState(() {
         _isWide = isWideNow;
@@ -37,10 +37,10 @@ class _ResponsiveSplitViewState extends State<ResponsiveSplitView>
   }
 
   @override
-  void initState() {
-    super.initState();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
     WidgetsBinding.instance.addObserver(this);
-    _isWide = _checkIsWide();
+    _isWide = _checkIsWide(context);
 
     controller = MultiSplitViewController(areas: [
       Area(weight: PreferencesSingleton.twoPaneRatio, minimalSize: 200),
@@ -52,10 +52,12 @@ class _ResponsiveSplitViewState extends State<ResponsiveSplitView>
     // });
   }
 
-  bool _checkIsWide() =>
-      WidgetsBinding.instance.window.physicalSize.width /
-          WidgetsBinding.instance.window.devicePixelRatio >=
+  bool _checkIsWide(BuildContext context) =>
+      View.of(context).physicalSize.width / View.of(context).devicePixelRatio >=
       wideNarrowBreak;
+  // WidgetsBinding.instance.window.physicalSize.width /
+  //     WidgetsBinding.instance.window.devicePixelRatio >=
+  // wideNarrowBreak;
 
   @override
   void dispose() {

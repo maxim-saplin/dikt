@@ -5,7 +5,7 @@ publish_to: 'none'
 version: 2.2.1+29
 
 environment:
-  sdk: '>=2.17.0 <3.0.0'
+  sdk: '>=3.0.0 <4.0.0'
 
 dependencies:
   flutter:
@@ -23,9 +23,9 @@ dependencies:
   reorderables: # added onDragging event handler to allow deletion of dics by dragging them on a dedicated elemtn
     path: ./plugins/reorderables-0.4.1/
   file_picker: ^5.2.2
-  i18n_extension: ^6.0.0
-  firebase_core: 
-  firebase_analytics: 
+  i18n_extension: ^9.0.0
+  firebase_core: ^2.12.0
+  firebase_analytics: ^10.4.0
   page_transition: ^2.0.2
   file_selector_platform_interface: any
   file_selector_linux: any
@@ -36,7 +36,7 @@ dependencies:
   ikvpack:
     git: https://github.com/maxim-saplin/ikvpack
     #path: '../ikvpack'
-  package_info_plus: ^3.0.2  
+  package_info_plus: ^4.0.0  
   after_layout: ^1.1.0  
   path: ^1.8.1
   js:

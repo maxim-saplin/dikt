@@ -40,7 +40,7 @@ class Content extends StatelessWidget {
                                   Routes.showArticle(word))))))
             ])),
         ifTwoPanes: (c, add) => add(
-            Stack(children: const [
+            const Stack(children: [
               Lookup(searchBarTopRounded: false, autoFocusSearchBar: false),
               EmptyHints(showDictionaryStats: false, showSearchBarHint: true)
             ]),
