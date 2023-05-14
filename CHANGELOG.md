@@ -1,3 +1,4 @@
+- 2.2.1+30 - Flutter 3.10.0/Dart 3 update, removing deprecated APIs
 - 2.2.1+29 - showing error message should app launch fail (instead of empty window)
 - 2.2.0+28 - fixed tap again toast shown when not needed
 - 2.2.0+27 - tap back on Android closing article, no bubbling of tap (closing article) when article is being scrolled, dictionary popup fixed on Android
