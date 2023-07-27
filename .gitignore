@@ -77,7 +77,6 @@ test/tmp/*
 
 .flutter-plugins
 .flutter-plugins-dependencies
-lib/generated_plugin_registrant.dart
 macos/Flutter/GeneratedPluginRegistrant.swift
 .flutter-plugins-dependencies
 ios/Podfile.lock
