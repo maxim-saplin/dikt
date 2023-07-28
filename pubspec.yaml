@@ -31,7 +31,7 @@ dependencies:
   file_selector_linux: any
   file_selector_macos: any
   file_selector_windows: any
-  flutter_hooks: ^0.18.0
+  flutter_hooks: ^0.20.0
   superellipse_shape: ^0.2.0
   ikvpack:
     git: https://github.com/maxim-saplin/ikvpack
@@ -53,7 +53,7 @@ dev_dependencies:
   build_runner: 
   flutter_launcher_icons:
   flutter_native_splash:
-  test:
+  test: ^1.24.0
   flutter_lints:
   golden_toolkit: # Solving problem with not rendered fonts
 
