@@ -16,13 +16,20 @@
       "type": "dart",
       "flutterMode" : "debug",
       "program" : "lib/main.dart",
+      "toolArgs": [
+        "--dart-define",
+        "testVal=MY_VALUE",
+      ]
+    },
+    {
+      "name": "Debug (dartdefine)",
+      "request": "launch",
+      "type": "dart",
+      "flutterMode" : "debug",
+      "program" : "lib/main.dart",
       "args": [
-        "--web-renderer", "canvaskit"
+        "--dart-define", "testVal=TestValue",
       ],
-       
-      // "args": [
-      //   "--web-renderer", "html" // dev channel switched to canvaskit which in 1.26 can't work offline and has issues with fonts
-      // ],
     },
     {
       "name": "Release",
@@ -33,9 +40,6 @@
       "args": [
         "--web-renderer", "canvaskit"
       ],
-      // "args": [
-      //   "--web-renderer", "html" // dev channel switched to canvaskit which in 1.26 can't work offline and has issues with fonts
-      // ],
     }
   ]
 }

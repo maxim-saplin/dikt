@@ -511,7 +511,7 @@ Future _createAndWrapWidget(WidgetTester tester, Widget widget) async {
   // var sp = MockSharedPrefferences();
   // await PreferencesSingleton.init(sp);
   // when(sp.getString('')).thenAnswer((_) => '');
-  prepareSharedPreferences();
+  await prepareSharedPreferences();
 
   await tester.pumpWidget(
     MultiProvider(

@@ -86,7 +86,7 @@ class Preferences extends ChangeNotifier {
   static const String _analyticsParam = 'analytics';
   bool? _isAnalyticsEnabled;
 
-  bool? get isAnalyticsEnabled {
+  bool get isAnalyticsEnabled {
     if (_isAnalyticsEnabled == null) {
       bool? v;
       try {
@@ -98,19 +98,19 @@ class Preferences extends ChangeNotifier {
         _isAnalyticsEnabled = v;
       }
     }
-    return _isAnalyticsEnabled;
+    return _isAnalyticsEnabled!;
   }
 
-  set isAnalyticsEnabled(bool? value) {
+  set isAnalyticsEnabled(bool value) {
     if (value != _isAnalyticsEnabled) {
       _isAnalyticsEnabled = value;
-      PreferencesSingleton.sp.setBool(_analyticsParam, value!);
+      PreferencesSingleton.sp.setBool(_analyticsParam, value);
       notifyListeners();
     }
   }
 
   void circleAnalyticsEnabled() {
-    isAnalyticsEnabled = !isAnalyticsEnabled!;
+    isAnalyticsEnabled = !isAnalyticsEnabled;
   }
 
   bool get showPerfCounters => !widgetTestMode;

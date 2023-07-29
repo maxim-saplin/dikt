@@ -83,3 +83,4 @@ ios/Podfile.lock
 .gitignore
 macos/Podfile.lock
 .idea/
+lib/firebase_options.dart

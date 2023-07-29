@@ -11,6 +11,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:golden_toolkit/golden_toolkit.dart';
+import 'package:ambilytics/ambilytics.dart' as ambilytics;
 
 import 'finders.dart';
 import 'utility.dart';
@@ -24,8 +25,9 @@ void main() {
     debugPrint('Setting up SMOKE test');
     // E.g. disabling performance counters in the UI which can break goldens
     widgetTestMode = true;
-    initIsolatePool();
-    prepareSharedPreferences();
+    initIsolatePool(1);
+    await prepareSharedPreferences();
+
     await pool!.started;
 
     var tmpDir = Directory(tmpPath);
@@ -57,10 +59,12 @@ void main() {
 Future<void> _smokeTest(WidgetTester tester, bool doGoldens) async {
   var defaultPlatform = debugDefaultTargetPlatformOverride;
   debugDefaultTargetPlatformOverride = TargetPlatform
-      .macOS; // Default is Android, search bar auto focus is broken under widget test environment
+      .windows; // Default is Android, search bar auto focus is broken under widget test environment
   // Fix fonts not visible in widget test golden images
   await loadAppFonts();
-  await tester.pumpWidget(MyApp());
+  await ambilytics.initAnalytics(
+      disableAnalytics: true, measurementId: '1', apiSecret: '2');
+  await tester.pumpWidget(const MyApp());
   var scaffold = find.byType(Scaffold);
   expect(scaffold, findsOneWidget);
 
@@ -97,7 +101,8 @@ Future<void> _smokeTest(WidgetTester tester, bool doGoldens) async {
   }
 
   await tester.runAsync(() async {
-    await tester.tap(scaffold.byChildTextIncludes('go about'));
+    var item = scaffold.byChildTextIncludes('go about');
+    await tester.tap(item);
     var article = scaffold.byChildType(Content);
     // Wait for the article to be composed in future builders and go visible
     await tester.waitForWidget(article.byChildType(Offstage), 20, 20,

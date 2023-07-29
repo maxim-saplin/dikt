@@ -26,6 +26,9 @@ def flutterCompileSdkVersion = localProperties.getProperty('flutter.compileSdkVe
 def flutterMinSdkVersion = localProperties.getProperty('flutter.minSdkVersion').toInteger()
 
 apply plugin: 'com.android.application'
+// START: FlutterFire Configuration
+apply plugin: 'com.google.gms.google-services'
+// END: FlutterFire Configuration
 apply plugin: 'kotlin-android'
 apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 

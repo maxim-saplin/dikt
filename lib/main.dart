@@ -1,6 +1,6 @@
 import 'dart:async';
-import 'dart:io' show Platform;
 
+import 'package:ambilytics/ambilytics.dart';
 import 'package:dikt/ui/elements/word_articles.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -8,27 +8,24 @@ import 'package:page_transition/page_transition.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/services.dart';
 import 'package:i18n_extension/i18n_widget.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:firebase_analytics/firebase_analytics.dart';
 
 import 'package:dikt/common/preferences_singleton.dart';
 import 'package:dikt/models/online_dictionaries.dart';
 import 'package:dikt/ui/themes.dart';
+import 'package:ambilytics/ambilytics.dart' as ambilytics;
 
+import 'firebase_options.dart';
 import 'models/master_dictionary.dart';
 import './models/preferences.dart';
 import 'ui/screens/article.dart';
 import 'ui/screens/home.dart';
 import './models/history.dart';
 import 'models/dictionary_manager.dart';
-import 'common/analytics_observer.dart';
 import 'common/isolate_pool.dart';
 import 'models/online_dictionaries_fakes.dart';
 import 'ui/routes.dart';
 
-// Ad Blockers can break app due to exception in Firebase
-bool _firebaseError = false;
 String _error = '';
 
 // On desktop it is possible to override the path (via arg) where the app stores it's files
@@ -36,35 +33,26 @@ void main(List<String> arguments) async {
   try {
     if (!kIsWeb) initIsolatePool();
     WidgetsFlutterBinding.ensureInitialized();
-    try {
-      if (kIsWeb || Platform.isAndroid || Platform.isIOS) {
-        await Firebase.initializeApp();
-      }
-    } catch (_) {
-      _firebaseError = true;
-    }
     await PreferencesSingleton.init();
+
+    await ambilytics.initAnalytics(
+        disableAnalytics: !Preferences().isAnalyticsEnabled,
+        firebaseOptions: DefaultFirebaseOptions.currentPlatform,
+        measurementId: measurementId,
+        apiSecret: apiSecret);
 
     await DictionaryManager.init(arguments.isNotEmpty ? arguments[0] : null);
   } catch (e) {
     _error = e.toString();
   }
 
-  runApp(MyApp());
+  //print(const String.fromEnvironment("testVal2", defaultValue: "NOT FOUND"));
+
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  static FirebaseAnalytics? analytics;
-
-  MyApp({Key? key}) : super(key: key) {
-    if (!_firebaseError && analytics == null) {
-      try {
-        analytics = FirebaseAnalytics.instance;
-      } catch (_) {
-        _firebaseError = true;
-      }
-    }
-  }
+  const MyApp({Key? key}) : super(key: key);
 
   Scaffold _getScaffold(Widget child) {
     return Scaffold(
@@ -127,15 +115,18 @@ class MyApp extends StatelessWidget {
                     Locale('ru', ''),
                   ],
                   navigatorKey: Routes.navigator,
-                  navigatorObservers: preferences.isAnalyticsEnabled! &&
-                          !_firebaseError &&
-                          (kIsWeb || Platform.isAndroid || Platform.isIOS)
-                      ? [
-                          AnalyticsObserver(analytics: analytics!),
-                          Routes.observer
-                        ]
-                      : [Routes.observer],
+                  navigatorObservers: [
+                    Routes
+                        .observer, // this one is needed for reliable current route identification via custom routing helpers
+                    AmbilyticsObserver(routeFilter: ambilytics.anyRouteFilter)
+                  ],
                   builder: (BuildContext context, Widget? child) {
+                    // Timer.run(() => ScaffoldMessenger.of(context).showSnackBar(
+                    //     const SnackBar(
+                    //         content: Text('Compile variable: ' +
+                    //             String.fromEnvironment("testVal",
+                    //                 defaultValue: "NOT FOUND")))));
+
                     // Invalidating cache here helps with dark/light theme switching and WordArticles not being broken
                     WordArticlesCache.invalidateCache();
                     Timer.run(() {

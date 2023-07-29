@@ -63,7 +63,7 @@ class Settings extends StatelessWidget {
             Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
               Text('Analytics'.i18n),
               OutlinedButton(
-                child: Text(model.isAnalyticsEnabled! ? 'On'.i18n : 'Off'.i18n),
+                child: Text(model.isAnalyticsEnabled ? 'On'.i18n : 'Off'.i18n),
                 onPressed: () => model.circleAnalyticsEnabled(),
               )
             ]),

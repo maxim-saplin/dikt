@@ -3,10 +3,11 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-void prepareSharedPreferences() async {
-  SharedPreferences.setMockInitialValues({});
+@visibleForTesting
+Future<void> prepareSharedPreferences() async {
+  SharedPreferences.setMockInitialValues({'analytics': false});
   var sp = await SharedPreferences.getInstance();
-  PreferencesSingleton.init(sp);
+  await PreferencesSingleton.init(sp);
 }
 
 extension TesterExtensions on WidgetTester {
