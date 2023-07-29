@@ -121,12 +121,6 @@ class MyApp extends StatelessWidget {
                     AmbilyticsObserver(routeFilter: ambilytics.anyRouteFilter)
                   ],
                   builder: (BuildContext context, Widget? child) {
-                    // Timer.run(() => ScaffoldMessenger.of(context).showSnackBar(
-                    //     const SnackBar(
-                    //         content: Text('Compile variable: ' +
-                    //             String.fromEnvironment("testVal",
-                    //                 defaultValue: "NOT FOUND")))));
-
                     // Invalidating cache here helps with dark/light theme switching and WordArticles not being broken
                     WordArticlesCache.invalidateCache();
                     Timer.run(() {
