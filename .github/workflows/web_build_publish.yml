@@ -9,7 +9,7 @@ jobs:
     - uses: actions/checkout@v1
     - name: Extract secrets
       run: |
-        echo "${{ secrets.SECRET_FILES }}"" | base64 -d > secret_files.zip
+        echo "${{ secrets.SECRET_FILES }}" | base64 -d > secret_files.zip
         unzip secret_files.zip -d .
     - uses: actions/setup-java@v3
       with:
