@@ -3,16 +3,18 @@ name: Build and Release (Desktop and Mobile)
 on: [workflow_dispatch]
 
 jobs:
-  self-hosted:
-    name: Run self-hosted
-    uses: ./.github/workflows/build_macos_arm_sh.yaml
+# Skipping self-hosted ARM build for the sake of universla binary built on Intel macOS runner
+#  self-hosted:
+#    name: Run self-hosted
+#    uses: ./.github/workflows/build_macos_arm_sh.yaml
   gh-hosted:
     name: Run GitHub-hosted
     uses: ./.github/workflows/build_wlma_binaries_ghh.yaml
     secrets: inherit
   pre-release:
     name: Create release
-    needs: [self-hosted, gh-hosted]
+#    needs: [self-hosted, gh-hosted]
+    needs: [gh-hosted]
     runs-on: ubuntu-latest
     steps:
     

@@ -45,7 +45,8 @@ jobs:
       uses: subosito/flutter-action@v2
       with:
         channel: 'stable'
-        architecture: x64
+        # Commenting out to build Unversal binary on macOS
+        #architecture: x64
         cache: true
         cache-key: 'flutter-:os:-:channel:-:version:-:arch:'
 
@@ -135,8 +136,10 @@ jobs:
       if: matrix.os == 'macos-latest'
       run: |
         cd build/macos/Build/Products/Release/
-        zip -r -D -y dikt-macOS-x64-${{ env.VERSION }}.zip dikt.app
-        mv dikt-macOS-x64-${{ env.VERSION }}.zip ../../../../dikt-macOS-x64-${{ env.VERSION }}.zip
+        zip -r -D -y dikt-macOS-${{ env.VERSION }}.zip dikt.app
+        mv dikt-macOS-${{ env.VERSION }}.zip ../../../../dikt-macOS-${{ env.VERSION }}.zip
+#        zip -r -D -y dikt-macOS-x64-${{ env.VERSION }}.zip dikt.app
+#        mv dikt-macOS-x64-${{ env.VERSION }}.zip ../../../../dikt-macOS-x64-${{ env.VERSION }}.zip
 
 # Zip file will be zipped by GH when creating artifcat, no need
 #    - name: Compress and package the artifact (Windows)
@@ -218,6 +221,8 @@ jobs:
       if: matrix.os == 'macos-latest'
       uses: actions/upload-artifact@v3
       with:
-        name: dikt-macOS-x64-${{ env.VERSION }}
-        path: build/dikt-macOS-x64-${{ env.VERSION }}.zip
+        name: dikt-macOS-${{ env.VERSION }}
+        path: build/dikt-macOS-${{ env.VERSION }}.zip
+#        name: dikt-macOS-x64-${{ env.VERSION }}
+#        path: build/dikt-macOS-x64-${{ env.VERSION }}.zip
         if-no-files-found: error
