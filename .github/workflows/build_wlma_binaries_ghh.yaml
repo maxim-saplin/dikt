@@ -17,6 +17,21 @@ jobs:
       fail-fast: false
     steps:
     - uses: actions/checkout@v1
+    - name: Extract secrets
+      if: matrix.os == 'macos-latest' || matrix.os == 'ubuntu-latest'
+      run: |
+        echo "${{ secrets.SECRET_FILES }}" | base64 -d > secret_files.zip
+        unzip secret_files.zip -d .
+    - name: Extract secrets
+      if: matrix.os == 'windows-latest'
+      env:
+        secretfiles: "${{ secrets.SECRET_FILES }}" 
+      run: |
+        $secretFiles = $env:secretfiles
+        $secretFilesBytes = [System.Convert]::FromBase64String($secretFiles)
+        $secretFilesZip = "secret_files.zip"
+        [IO.File]::WriteAllBytes($secretFilesZip, $secretFilesBytes)
+        unzip $secretFilesZip -d .
 
     - name: Set up Java
       if: matrix.os == 'macos-latest' || matrix.os == 'ubuntu-latest'
