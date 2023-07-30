@@ -45,7 +45,6 @@ jobs:
       uses: subosito/flutter-action@v2
       with:
         channel: 'stable'
-        # Commenting out to build Unversal binary on macOS
         #architecture: x64
         cache: true
         cache-key: 'flutter-:os:-:channel:-:version:-:arch:'
