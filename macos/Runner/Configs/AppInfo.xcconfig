@@ -11,4 +11,4 @@ PRODUCT_NAME = dikt
 PRODUCT_BUNDLE_IDENTIFIER = com.saplin.dikt
 
 // The copyright displayed in application information
-PRODUCT_COPYRIGHT = Copyright © 2020 com.saplin. All rights reserved.
+PRODUCT_COPYRIGHT = Copyright © 2023 com.saplin. All rights reserved.
