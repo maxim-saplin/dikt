@@ -47,8 +47,8 @@ jobs:
         channel: 'stable'
         # Commenting out to build Unversal binary on macOS
         #architecture: x64
-        #cache: true
-        #cache-key: 'flutter-:os:-:channel:-:version:-:arch:'
+        cache: true
+        cache-key: 'flutter-:os:-:channel:-:version:-:arch:'
 
     - name: Check Flutter Version
       run: flutter --version
