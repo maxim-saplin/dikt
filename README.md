@@ -24,11 +24,9 @@ JSON files can be bulky to handle and slow to be added to the app. There's a bin
 
 - Android
   - Google Play: https://play.google.com/store/apps/details?id=com.saplin.dikt
-  - Download APK: https://github.com/maxim-saplin/dikt/releases/download/2.2.1%2B29/dikt-android-2.2.1+29.apk
-- macOS:
-  - Apple Silicon/Arm64: https://github.com/maxim-saplin/dikt/releases/download/2.2.1%2B29/dikt-macOS-arm64-2.2.1+29.zip
-  - Intel/x64: https://github.com/maxim-saplin/dikt/releases/download/2.2.1%2B29/dikt-macOS-x64-2.2.1+29.zip
-- Linux (x64): https://github.com/maxim-saplin/dikt/releases/download/2.2.1%2B29/dikt-linux-x64-2.2.1+29.tar
-- Windows: https://github.com/maxim-saplin/dikt/releases/download/2.2.1%2B29/dikt-windows-x64-2.2.1+29.zip
+  - Download APK: https://github.com/maxim-saplin/dikt/releases/download/2.2.1%2B29/dikt-android-2.2.1+30.apk
+- macOS (Universal app, Intel and Apple Silicon): https://github.com/maxim-saplin/dikt/releases/download/2.2.1%2B29/dikt-macOS-2.2.1+30.zip
+- Linux (x64): https://github.com/maxim-saplin/dikt/releases/download/2.2.1%2B29/dikt-linux-x64-2.2.1+30.tar
+- Windows: https://github.com/maxim-saplin/dikt/releases/download/2.2.1%2B29/dikt-windows-x64-2.2.1+30.zip
 
 [dikt.webm](https://user-images.githubusercontent.com/7947027/223116663-4db81908-a66f-4d6f-b91e-4cae2355f8d8.webm)
