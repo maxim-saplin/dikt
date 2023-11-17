@@ -6,7 +6,7 @@ import '../../common/i18n.dart';
 class ManagerState extends StatelessWidget {
   final bool onlyErrors;
 
-  const ManagerState({Key? key, this.onlyErrors = false}) : super(key: key);
+  const ManagerState({super.key, this.onlyErrors = false});
 
   @override
   Widget build(BuildContext context) {

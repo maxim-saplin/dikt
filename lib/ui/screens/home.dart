@@ -6,7 +6,7 @@ import '../elements/menu_buttons.dart';
 import '../responsive.dart';
 
 class Home extends StatelessWidget {
-  const Home({Key? key}) : super(key: key);
+  const Home({super.key});
 
   @override
   Widget build(BuildContext context) {

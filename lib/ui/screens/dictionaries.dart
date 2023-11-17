@@ -19,7 +19,7 @@ class Dictionaries extends HookWidget {
   static bool toastShown = false;
   final bool offline;
 
-  const Dictionaries({Key? key, this.offline = false}) : super(key: key);
+  const Dictionaries({super.key, this.offline = false});
 
   @override
   Widget build(BuildContext context) {
@@ -46,14 +46,17 @@ class Dictionaries extends HookWidget {
       }
     }
 
-    return WillPopScope(
-        onWillPop: () async {
-          var manager = Provider.of<DictionaryManager>(context, listen: false);
-          if (manager.isRunning) {
-            return false;
-          }
-          return true;
-        },
+    var manager = Provider.of<DictionaryManager>(context, listen: false);
+
+    return PopScope(
+        canPop: !manager.isRunning,
+        // onWillPop: () async {
+        //   var manager = Provider.of<DictionaryManager>(context, listen: false);
+        //   if (manager.isRunning) {
+        //     return false;
+        //   }
+        //   return true;
+        // },
         child: Stack(children: [
           const Title(),
           Padding(
@@ -67,8 +70,8 @@ class Dictionaries extends HookWidget {
 
 class Title extends StatelessWidget {
   const Title({
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {

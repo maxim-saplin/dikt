@@ -26,14 +26,13 @@ Stopwatch _globalSw = Stopwatch();
 //TODO, add automation, e.g navigating to series of articles, some twice and scrolling/jumping in each case, having lookup word entered and doing nav
 class WordArticles extends StatefulWidget {
   const WordArticles(
-      {Key? key,
+      {super.key,
       required this.articles,
       required this.word,
       required this.twoPaneMode,
 
       /// Callback to call in order to navigate to a word within an article
-      this.showAnotherWord})
-      : super(key: key);
+      this.showAnotherWord});
 
   final Future<List<Article>>? articles;
   final String word;
@@ -207,14 +206,12 @@ class _BottomButton extends StatelessWidget {
 /// Awaits for articles from Futures and passes their contents for rendering
 class _FuturedArticles extends StatelessWidget {
   const _FuturedArticles(
-      {Key? key,
-      required this.word,
+      {required this.word,
       required this.articles,
       required this.offstageCompleter,
       required this.bottomDictionariesCompleter,
       required this.scrollController,
-      required this.showAnotherWord})
-      : super(key: key);
+      required this.showAnotherWord});
 
   static EdgeInsets headerInsets = const EdgeInsets.fromLTRB(0, 30, 0, 50);
 
@@ -475,8 +472,7 @@ class _DictionarySelector extends StatelessWidget {
       required this.dicsToKeys,
       required this.scrollController,
       this.dictionary,
-      Key? key})
-      : super(key: key);
+      super.key});
 
   final List<DropdownMenuItem<String>> dictionaries;
   final Map<String, GlobalKey> dicsToKeys;

@@ -1,3 +1,5 @@
+// ignore_for_file: unused_element
+
 import 'dart:async';
 import 'package:dikt/models/preferences.dart';
 import 'package:dikt/ui/themes.dart';
@@ -13,8 +15,7 @@ import '../routes.dart';
 
 class Lookup extends StatefulWidget {
   const Lookup(
-      {Key? key, this.searchBarTopRounded = true, this.autoFocusSearchBar})
-      : super(key: key);
+      {super.key, this.searchBarTopRounded = true, this.autoFocusSearchBar});
 
   /// If true, top corners of the search bar are rounded
   final bool searchBarTopRounded;
@@ -182,8 +183,7 @@ class _Entry extends StatelessWidget {
   final MasterDictionary dictionary;
   final History history;
 
-  const _Entry(this.index, this.dictionary, this.history, {Key? key})
-      : super(key: key);
+  const _Entry(this.index, this.dictionary, this.history);
 
   @override
   Widget build(BuildContext context) {
@@ -310,11 +310,11 @@ class _SearchBar extends StatelessWidget {
 
 class _ClearInvisibleButton extends StatelessWidget {
   const _ClearInvisibleButton({
-    Key? key,
+    super.key,
     required this.dictionary,
     required this.controller,
     required this.focusNode,
-  }) : super(key: key);
+  });
 
   final MasterDictionary dictionary;
   final TextEditingController controller;
@@ -339,9 +339,9 @@ class _ClearInvisibleButton extends StatelessWidget {
 
 class _SearchBarSuffix extends StatelessWidget {
   const _SearchBarSuffix({
-    Key? key,
+    super.key,
     required this.dictionary,
-  }) : super(key: key);
+  });
 
   final MasterDictionary dictionary;
 

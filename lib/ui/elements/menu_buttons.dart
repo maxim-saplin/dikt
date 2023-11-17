@@ -7,7 +7,7 @@ import 'package:dikt/ui/screens/settings.dart';
 import 'package:dikt/models/master_dictionary.dart';
 
 class TopButtons extends StatelessWidget {
-  const TopButtons({Key? key}) : super(key: key);
+  const TopButtons({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +19,7 @@ class TopButtons extends StatelessWidget {
 }
 
 class MenuButtons extends StatelessWidget {
-  const MenuButtons({Key? key}) : super(key: key);
+  const MenuButtons({super.key});
 
   @override
   Widget build(BuildContext context) {

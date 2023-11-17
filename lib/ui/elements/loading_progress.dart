@@ -8,7 +8,7 @@ import '../../common/i18n.dart';
 import '../../models/history.dart';
 
 class DictionaryIndexingOrLoading extends StatelessWidget {
-  const DictionaryIndexingOrLoading({Key? key}) : super(key: key);
+  const DictionaryIndexingOrLoading({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +27,7 @@ class DictionaryIndexingOrLoading extends StatelessWidget {
 }
 
 class DictionaryIndexing extends StatelessWidget {
-  const DictionaryIndexing({Key? key}) : super(key: key);
+  const DictionaryIndexing({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +47,7 @@ class DictionaryIndexing extends StatelessWidget {
 }
 
 class DictionaryLoading extends StatelessWidget {
-  const DictionaryLoading({Key? key}) : super(key: key);
+  const DictionaryLoading({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +62,7 @@ class DictionaryLoading extends StatelessWidget {
 bool fadeShown = false;
 
 class DictionaryLoadingNoAlign extends HookWidget {
-  const DictionaryLoadingNoAlign({Key? key}) : super(key: key);
+  const DictionaryLoadingNoAlign({super.key});
 
   @override
   Widget build(BuildContext context) {

@@ -10,7 +10,7 @@ import '../responsive.dart';
 import '../routes.dart';
 
 class Content extends StatelessWidget {
-  const Content({Key? key, this.word = ''}) : super(key: key);
+  const Content({super.key, this.word = ''});
 
   final String word;
 

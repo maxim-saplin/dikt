@@ -2,13 +2,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/material.dart';
 
 class WidgetChildTypeFinder extends ChainedFinder {
-  WidgetChildTypeFinder(Finder parent, this.childType) : super(parent);
+  WidgetChildTypeFinder(Finder super.parent, this.childType);
 
   final Type childType;
 
   @override
-  String get description =>
-      '${parent.description} (considering only types of children)';
+  String get description => '$parent (considering only types of children)';
 
   @override
   Iterable<Element> filter(Iterable<Element> parentCandidates) sync* {
@@ -24,13 +23,12 @@ class WidgetChildTypeFinder extends ChainedFinder {
 }
 
 class WidgetChildTextFinder extends ChainedFinder {
-  WidgetChildTextFinder(Finder parent, this.childTextIncludes) : super(parent);
+  WidgetChildTextFinder(Finder super.parent, this.childTextIncludes);
 
   final String? childTextIncludes;
 
   @override
-  String get description =>
-      '${parent.description} (considering only types of children)';
+  String get description => '$parent (considering only types of children)';
 
   @override
   Iterable<Element> filter(Iterable<Element> parentCandidates) sync* {
@@ -52,13 +50,12 @@ class WidgetChildTextFinder extends ChainedFinder {
 }
 
 class WidgetChildIconFinder extends ChainedFinder {
-  WidgetChildIconFinder(Finder parent, this.iconData) : super(parent);
+  WidgetChildIconFinder(Finder super.parent, this.iconData);
 
   final IconData iconData;
 
   @override
-  String get description =>
-      '${parent.description} (considering only types of children)';
+  String get description => '$parent (considering only types of children)';
 
   @override
   Iterable<Element> filter(Iterable<Element> parentCandidates) sync* {
@@ -74,13 +71,12 @@ class WidgetChildIconFinder extends ChainedFinder {
 }
 
 class WidgetChildSemanticsFinder extends ChainedFinder {
-  WidgetChildSemanticsFinder(Finder parent, this.tooltip) : super(parent);
+  WidgetChildSemanticsFinder(Finder super.parent, this.tooltip);
 
   final String tooltip;
 
   @override
-  String get description =>
-      '${parent.description} (considering only types of children)';
+  String get description => '$parent (considering only types of children)';
 
   @override
   Iterable<Element> filter(Iterable<Element> parentCandidates) sync* {

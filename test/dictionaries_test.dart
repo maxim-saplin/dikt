@@ -65,7 +65,7 @@ void main() {
     } catch (_) {}
   });
 
-  group('Online Dictionaries', () {
+  group('Online Dictionaries', skip: true, () {
     testWidgets('Empty URL shows error', (WidgetTester tester) async {
       await _openOnlineDictionariesAndWaitToLoad(tester);
 

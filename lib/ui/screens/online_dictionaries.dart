@@ -10,7 +10,7 @@ import '../../models/online_dictionaries.dart';
 import '../elements/delete_confirmation.dart';
 
 class OnlineDictionaries extends StatelessWidget {
-  const OnlineDictionaries({Key? key}) : super(key: key);
+  const OnlineDictionaries({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -91,10 +91,7 @@ class OnlineDictionaries extends StatelessWidget {
 
 class OnlineDictionaryTile extends HookWidget {
   const OnlineDictionaryTile(this.dictionary, this.dicHeight, this.dicWidth,
-      {Key? key})
-      : super(
-          key: key,
-        );
+      {super.key});
 
   final double dicHeight;
   final double dicWidth;

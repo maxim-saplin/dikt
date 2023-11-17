@@ -173,54 +173,57 @@ class BackButtonHandler extends StatefulWidget {
   final Widget child;
 
   const BackButtonHandler({
-    Key? key,
+    super.key,
     required this.child,
-  }) : super(key: key);
+  });
 
   @override
   BackButtonHandlerState createState() => BackButtonHandlerState();
 }
 
 class BackButtonHandlerState extends State<BackButtonHandler> {
-  bool tapped = false;
+  bool canPop = false;
   bool get _isAndroid => Theme.of(context).platform == TargetPlatform.android;
-  final waitForSecondBackPress = 2;
+  final waitForSecondBackPress = 20;
 
   @override
   Widget build(BuildContext context) {
     if (_isAndroid) {
-      return WillPopScope(
-        onWillPop: () async {
-          if (Routes.currentRoute.settings.name != Routes.home) {
-            Routes.goBack();
-          } else if (tapped) {
-            return true;
-          } else {
-            tapped = true;
-            Timer(
-              Duration(
-                seconds: waitForSecondBackPress,
-              ),
-              resetTimer,
-            );
+      return PopScope(
+          canPop: canPop,
+          onPopInvoked: (didPop) {
+            if (didPop) {
+              return;
+            }
+            if (Routes.currentRoute.settings.name != Routes.home) {
+              setState(() {
+                Routes.goBack();
+              });
+            } else if (!canPop) {
+              Timer(
+                Duration(
+                  seconds: waitForSecondBackPress,
+                ),
+                () {
+                  setState(() {
+                    canPop = false;
+                  });
+                },
+              );
 
-            showToast('Tap back again to quit'.i18n,
-                context: context,
-                animation: StyledToastAnimation.fade,
-                reverseAnimation: StyledToastAnimation.fade);
+              showToast('Tap back again to quit'.i18n,
+                  context: context,
+                  animation: StyledToastAnimation.fade,
+                  reverseAnimation: StyledToastAnimation.fade);
 
-            return false;
-          }
-          return false;
-        },
-        child: widget.child,
-      );
+              setState(() {
+                canPop = true;
+              });
+            }
+          },
+          child: widget.child);
     } else {
       return widget.child;
     }
-  }
-
-  void resetTimer() {
-    tapped = false;
   }
 }

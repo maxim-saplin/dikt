@@ -8,7 +8,7 @@ import '../../models/history.dart';
 import '../../models/master_dictionary.dart';
 
 class Settings extends StatelessWidget {
-  const Settings({Key? key}) : super(key: key);
+  const Settings({super.key});
 
   @override
   Widget build(BuildContext context) {

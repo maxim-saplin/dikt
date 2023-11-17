@@ -20,7 +20,7 @@ import '../../models/indexed_dictionary.dart';
 import '../elements/delete_confirmation.dart';
 
 class OfflineDictionaries extends StatefulWidget {
-  const OfflineDictionaries({Key? key}) : super(key: key);
+  const OfflineDictionaries({super.key});
 
   @override
   OfflineDictionariesState createState() => OfflineDictionariesState();
@@ -276,8 +276,7 @@ class _LoadAndEnabledButton extends HookWidget {
 
 class OfflineDictionaryTile extends StatelessWidget {
   const OfflineDictionaryTile(
-      {Key? key, required this.manager, required this.dictionary})
-      : super(key: key);
+      {super.key, required this.manager, required this.dictionary});
 
   final DictionaryManager manager;
   final IndexedDictionary dictionary;

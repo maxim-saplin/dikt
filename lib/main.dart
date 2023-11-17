@@ -52,7 +52,7 @@ void main(List<String> arguments) async {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   Scaffold _getScaffold(Widget child) {
     return Scaffold(
@@ -138,8 +138,8 @@ class MyApp extends StatelessWidget {
                     ));
 
                     return MediaQuery(
-                      data:
-                          MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
+                      data: MediaQuery.of(context)
+                          .copyWith(textScaler: const TextScaler.linear(1.0)),
                       child: child!,
                     );
                   },
@@ -189,16 +189,11 @@ class MyApp extends StatelessWidget {
 
 class UnanimatedPageRoute<T> extends MaterialPageRoute<T> {
   UnanimatedPageRoute({
-    required Widget Function(BuildContext) builder,
-    RouteSettings? settings,
-    bool maintainState = true,
-    bool fullscreenDialog = false,
-  }) : super(
-          builder: builder,
-          settings: settings,
-          maintainState: maintainState,
-          fullscreenDialog: fullscreenDialog,
-        );
+    required super.builder,
+    super.settings,
+    super.maintainState,
+    super.fullscreenDialog,
+  });
 
   @override
   Widget buildTransitions(
