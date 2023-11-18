@@ -43,7 +43,13 @@ const bundledBinaryDictionaries = [
       'assets/dictionaries/dik_enenwordnet3.dikt', 'EN_EN WordNet 3', '4')
 ];
 
-enum DictionaryBeingProcessedState { pending, inprogress, success, error }
+enum DictionaryBeingProcessedState {
+  pending,
+  inprogress,
+  success,
+  error,
+  skipped
+}
 
 class DictionaryBeingProcessed {
   final String name;
@@ -357,6 +363,16 @@ class DictionaryManager extends ChangeNotifier with Debounce {
         d.hash = dictionariesProcessed[i].bundledBinaryDictionary!.hash;
       }
       d.name = dictionariesProcessed[i].name;
+
+      // Check if the dictionary name already exists in the list of dictionaries being processed
+      bool doesDictionaryExist =
+          _dictionariesAllList.any((dictionary) => dictionary.name == d.name);
+
+      if (doesDictionaryExist) {
+        // If the dictionary already exists, set its state to skipped and continue to the next iteration
+        dictionariesProcessed[i].state = DictionaryBeingProcessedState.skipped;
+        continue;
+      }
 
       debugPrint('  /Dictionary: ${d.name}');
 

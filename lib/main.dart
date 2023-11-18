@@ -65,7 +65,9 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   _MyAppState() {
-    _initReceiveIntentit();
+    if (defaultTargetPlatform == TargetPlatform.android) {
+      _initReceiveIntentit();
+    }
   }
 
   Future<void> _initReceiveIntent() async {
