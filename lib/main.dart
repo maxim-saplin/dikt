@@ -14,6 +14,7 @@ import 'package:dikt/common/preferences_singleton.dart';
 import 'package:dikt/models/online_dictionaries.dart';
 import 'package:dikt/ui/themes.dart';
 import 'package:ambilytics/ambilytics.dart' as ambilytics;
+import 'package:receive_intent/receive_intent.dart' as rt;
 
 import 'firebase_options.dart';
 import 'models/master_dictionary.dart';
@@ -27,6 +28,8 @@ import 'models/online_dictionaries_fakes.dart';
 import 'ui/routes.dart';
 
 String _error = '';
+
+var _master = MasterDictionary();
 
 // On desktop it is possible to override the path (via arg) where the app stores it's files
 void main(List<String> arguments) async {
@@ -51,16 +54,83 @@ void main(List<String> arguments) async {
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  static double wideWidth = 600;
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  _MyAppState() {
+    _initReceiveIntentit();
+  }
+
+  Future<void> _initReceiveIntent() async {
+    try {
+      final receivedIntent = await rt.ReceiveIntent.getInitialIntent();
+      if (receivedIntent != null) {
+        _handleIntent(receivedIntent);
+      }
+    } finally {}
+  }
+
+  void _handleIntent(rt.Intent intent) {
+    var text = '';
+
+    var md = _master;
+    void dicListener() {
+      if (md.isFullyLoaded && text.isNotEmpty) {
+        Routes.showArticle(text);
+        md.removeListener(dicListener);
+      }
+    }
+
+    if (intent.action == "android.intent.action.PROCESS_TEXT") {
+      debugPrint(
+          'Intent data: ${intent.extra?['android.intent.extra.PROCESS_TEXT']}');
+      text = intent.extra?['android.intent.extra.PROCESS_TEXT'] ?? '';
+
+      if (text.isNotEmpty) {
+        Timer.run(() {
+          if (md.isFullyLoaded) {
+            Routes.showArticle(text);
+          } else {
+            md.removeListener(dicListener);
+            md.addListener(dicListener);
+          }
+        });
+      }
+    }
+  }
+
+  StreamSubscription? _intentSubscription;
+
+  Future<void> _initReceiveIntentit() async {
+    await _initReceiveIntent();
+
+    // Attach a listener to the stream
+    _intentSubscription = rt.ReceiveIntent.receivedIntentStream.listen(
+        (rt.Intent? receivedIntent) {
+      if (receivedIntent != null) {
+        _handleIntent(receivedIntent);
+      }
+    }, onError: (err) {});
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _intentSubscription?.cancel();
+  }
 
   Scaffold _getScaffold(Widget child) {
     return Scaffold(
         //key: Routes.navigator,
         body: BackButtonHandler(child: child));
   }
-
-  static double wideWidth = 600;
 
   @override
   Widget build(BuildContext context) {
@@ -93,12 +163,11 @@ class MyApp extends StatelessWidget {
             return History();
           }),
           ChangeNotifierProvider<MasterDictionary>(create: (context) {
-            var master = MasterDictionary();
-            master.dictionaryManager =
+            _master.dictionaryManager =
                 Provider.of<DictionaryManager>(context, listen: false);
-            Timer(Duration.zero, () => master.init()); // run after UI is built
+            Timer(Duration.zero, () => _master.init()); // run after UI is built
 
-            return master;
+            return _master;
           }),
         ],
         child: Consumer<Preferences>(
@@ -152,29 +221,12 @@ class MyApp extends StatelessWidget {
                             child: _getScaffold(const Home()),
                             type: PageTransitionType.fade);
                       case Routes.article:
-
-                        // return PageRouteBuilder(
-                        //   pageBuilder: (BuildContext context,
-                        //       Animation<double> animation1,
-                        //       Animation<double> animation2) {
-                        //     return _getScaffold(Content(
-                        //         word: (settings.arguments ?? '') as String));
-                        //   },
-                        //   transitionDuration: Duration.zero,
-                        //   reverseTransitionDuration: Duration.zero,
-                        // );
-
                         return PageTransition(
                             settings: settings,
                             duration: const Duration(milliseconds: 250),
                             child: _getScaffold(Content(
                                 word: (settings.arguments ?? '') as String)),
                             type: PageTransitionType.fade);
-
-                      // var w = _getScaffold(Content(
-                      //     word: (settings.arguments ?? '') as String));
-
-                      // return UnanimatedPageRoute(builder: (context) => w);
                       default:
                         return null;
                     }

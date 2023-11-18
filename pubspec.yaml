@@ -2,7 +2,7 @@ name: dikt
 description: dikt - bottom-up offline dictionary
 publish_to: 'none'
 
-version: 2.2.1+31
+version: 2.2.1+32
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
@@ -44,6 +44,10 @@ dependencies:
   multi_split_view: ^2.2.0
   flutter_styled_toast: ^2.1.3
   ambilytics: ^1.0.1
+  receive_intent:
+  # action_process_text:
+  #   path: ../action_process_text
+
 
 dev_dependencies:
   flutter_test:

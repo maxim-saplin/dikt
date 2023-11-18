@@ -46,7 +46,7 @@ class Dictionaries extends HookWidget {
       }
     }
 
-    var manager = Provider.of<DictionaryManager>(context, listen: false);
+    var manager = Provider.of<DictionaryManager>(context, listen: true);
 
     return PopScope(
         canPop: !manager.isRunning,
