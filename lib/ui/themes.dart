@@ -95,6 +95,10 @@ final ThemeData lightTheme = ThemeData.light().copyWith(
       // Dictionary card, dictionary  name
       bodySmall: const TextStyle(
           fontSize: 17.0, fontFamily: 'Montserrat', color: Colors.black),
+    ),
+    dialogTheme: const DialogTheme(
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(12))),
     ))
   ..addOwn(const OwnThemeFields(
       errorShade: Color.fromARGB(240, 255, 200, 200),
@@ -153,6 +157,10 @@ final ThemeData darkTheme = ThemeData.dark().copyWith(
           fontFamily: 'Montserrat',
           color: Colors.white,
           fontFamilyFallback: ['Roboto']),
+    ),
+    dialogTheme: const DialogTheme(
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(12))),
     ))
   ..addOwn(OwnThemeFields(
       spanColor: Colors.grey[400],
