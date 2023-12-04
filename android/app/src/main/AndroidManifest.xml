@@ -2,13 +2,26 @@
    <application
         android:label="dikt"
         android:name="${applicationName}"
-        android:taskAffinity=""
+        android:taskAffinity="com.saplin.dikt"
         android:requestLegacyExternalStorage="true" 
         android:icon="@mipmap/launcher_icon">
+        <activity android:name=".TextActivity"
+            android:launchMode="singleTop"
+            android:exported="true"
+            android:taskAffinity="com.saplin.dikt"
+            android:label="ツdikt"
+            android:theme="@style/Transparent">
+            <intent-filter>
+                <action android:name="android.intent.action.PROCESS_TEXT" />
+                <data android:mimeType="text/plain"/>
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:launchMode="singleTask"
+            android:taskAffinity="com.saplin.dikt"
+            android:launchMode="singleTop"
             android:theme="@style/LaunchTheme"
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
             android:hardwareAccelerated="true"
@@ -24,11 +37,6 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
-            </intent-filter>
-            <intent-filter android:label="ツdikt">
-                <action android:name="android.intent.action.PROCESS_TEXT" />
-                <data android:mimeType="text/plain"/>
-                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
         <!-- Don't delete the meta-data below.
