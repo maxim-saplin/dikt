@@ -11,26 +11,25 @@ import 'package:test/test.dart';
 var tmpPath = 'test/tmp_int';
 
 void main() {
-  Future<DictionaryManager> _getManager() async {
+  Future<DictionaryManager> getManager() async {
     print('Setting up tests, tmp path $tmpPath');
 
     var tmpDir = Directory('$tmpPath/${DateTime.now().millisecondsSinceEpoch}');
     if (tmpDir.existsSync()) tmpDir.deleteSync(recursive: true);
     tmpDir.createSync(recursive: true);
 
-    await DictionaryManager.init(tmpPath);
+    await DictionaryManager.init(tmpDir.path);
     return DictionaryManager();
   }
 
   group('DictionaryManager', () {
-    tearDownAll(() {
+    tearDownAll(() async {
       try {
-        Directory(tmpPath).delete(recursive: true);
+        await Directory(tmpPath).delete(recursive: true);
       } catch (_) {}
     });
 
-    test('DictionaryManager - corrupted JSON dictionary is properlly handled',
-        () async {
+    test('Corrupted JSON dictionary is properlly handled', () async {
       // All this zone fuss is to allow bypass async unhandled error somehwere in
       // darts internals of stream listener which doesn't influence anything
       var files = [
@@ -38,7 +37,7 @@ void main() {
         'test/data/broken_BY_RU Ворвуль.json'
       ];
 
-      var dicManager = await _getManager();
+      var dicManager = await getManager();
 
       for (var file in files) {
         var f = runZonedGuarded(() async {
@@ -62,10 +61,8 @@ void main() {
       }
     }, timeout: const Timeout(Duration(milliseconds: 800)));
 
-    test(
-        'DictionaryManager - fine JSON and IKV dictionaries are properlly handled',
-        () async {
-      var dicManager = await _getManager();
+    test('JSON and IKV dictionaries are properlly handled', () async {
+      var dicManager = await getManager();
 
       var f = dicManager.indexAndLoadJsonOrDiktFiles([
         PlatformFile(
@@ -92,10 +89,9 @@ void main() {
           DictionaryBeingProcessedState.success);
     });
 
-    test(
-        'DictionaryManager - isolate pool, fine JSON and IKV dictionaries are properlly handled',
+    test('Isolate pool, JSON and IKV dictionaries are properlly handled',
         () async {
-      var dicManager = await _getManager();
+      var dicManager = await getManager();
 
       var f = dicManager.indexAndLoadJsonOrDiktFiles([
         PlatformFile(
@@ -121,6 +117,34 @@ void main() {
           DictionaryBeingProcessedState.success);
       expect(dicManager.dictionariesBeingProcessed[1].state,
           DictionaryBeingProcessedState.success);
+    });
+
+    test('Already added dictionary is skipped', () async {
+      var dicManager = await getManager();
+
+      initIsolatePool();
+      await pool!.started;
+
+      var f = dicManager.indexAndLoadJsonOrDiktFiles([
+        PlatformFile(
+            path: 'test/data/dik_enenwordnet3.dikt',
+            name: 'test/data/dik_enenwordnet3.dikt',
+            size: 1)
+      ]);
+
+      await f;
+      expect(dicManager.dictionariesBeingProcessed[0].state,
+          DictionaryBeingProcessedState.success);
+
+      await dicManager.indexAndLoadJsonOrDiktFiles([
+        PlatformFile(
+            path: 'test/data/dik_enenwordnet3.dikt',
+            name: 'test/data/dik_enenwordnet3.dikt',
+            size: 1)
+      ]);
+
+      expect(dicManager.dictionariesBeingProcessed[0].state,
+          DictionaryBeingProcessedState.skipped);
     });
   });
 }

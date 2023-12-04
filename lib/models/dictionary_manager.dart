@@ -371,6 +371,9 @@ class DictionaryManager extends ChangeNotifier with Debounce {
       if (doesDictionaryExist) {
         // If the dictionary already exists, set its state to skipped and continue to the next iteration
         dictionariesProcessed[i].state = DictionaryBeingProcessedState.skipped;
+        if (i == dictionariesProcessed.length - 1 && finished != null) {
+          finished.complete();
+        }
         continue;
       }
 
