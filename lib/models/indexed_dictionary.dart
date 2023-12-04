@@ -32,7 +32,7 @@ class IndexedDictionary extends HiveObject {
   bool isLoading = false;
   bool isBundled = false;
 
-  /// If multy file dictionary is used, number of dictionaries used is returned. If single file dictionary 0 is returned
+  /// If multi file dictionary is used, number of dictionaries used is returned. If single file dictionary 0 is returned
   static int getNumOfParts(String path) {
     var exp = RegExp(r'(\.part\d+.dikt)');
     var matches = exp.allMatches(path);

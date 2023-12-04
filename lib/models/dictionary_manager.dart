@@ -144,7 +144,7 @@ class DictionaryManager extends ChangeNotifier with Debounce {
       homePath = filesFolder;
       DictionaryManager.testPath = filesFolder;
     }
-    Hive.registerAdapter(IndexedDictionaryAdapter());
+    Hive.registerAdapter(IndexedDictionaryAdapter(), override: true);
     _dictionaries = await Hive.openBox(dictionairesBoxName);
   }
 

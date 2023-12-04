@@ -8,22 +8,21 @@ import 'package:dikt/models/dictionary_manager.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:test/test.dart';
 
-late DictionaryManager dicManager;
 var tmpPath = 'test/tmp_int';
 
 void main() {
+  Future<DictionaryManager> _getManager() async {
+    print('Setting up tests, tmp path $tmpPath');
+
+    var tmpDir = Directory('$tmpPath/${DateTime.now().millisecondsSinceEpoch}');
+    if (tmpDir.existsSync()) tmpDir.deleteSync(recursive: true);
+    tmpDir.createSync(recursive: true);
+
+    await DictionaryManager.init(tmpPath);
+    return DictionaryManager();
+  }
+
   group('DictionaryManager', () {
-    setUpAll(() async {
-      print('Setting up tests, tmp path $tmpPath');
-
-      var tmpDir = Directory(tmpPath);
-      if (tmpDir.existsSync()) tmpDir.deleteSync(recursive: true);
-      Directory(tmpPath).createSync();
-
-      await DictionaryManager.init(tmpPath);
-      dicManager = DictionaryManager();
-    });
-
     tearDownAll(() {
       try {
         Directory(tmpPath).delete(recursive: true);
@@ -38,6 +37,8 @@ void main() {
         'test/data/3 MES.csv',
         'test/data/broken_BY_RU Ворвуль.json'
       ];
+
+      var dicManager = await _getManager();
 
       for (var file in files) {
         var f = runZonedGuarded(() async {
@@ -64,6 +65,8 @@ void main() {
     test(
         'DictionaryManager - fine JSON and IKV dictionaries are properlly handled',
         () async {
+      var dicManager = await _getManager();
+
       var f = dicManager.indexAndLoadJsonOrDiktFiles([
         PlatformFile(
             path: 'test/data/BY_RU Ворвуль.json',
@@ -92,6 +95,8 @@ void main() {
     test(
         'DictionaryManager - isolate pool, fine JSON and IKV dictionaries are properlly handled',
         () async {
+      var dicManager = await _getManager();
+
       var f = dicManager.indexAndLoadJsonOrDiktFiles([
         PlatformFile(
             path: 'test/data/BY_RU Ворвуль.json',

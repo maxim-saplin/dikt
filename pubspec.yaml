@@ -18,7 +18,7 @@ dependencies:
   shared_preferences:
   flutter_html:
     path: ./plugins/flutter_html-2.0.0
-  hive: ^2.0.4
+  hive: ^2.2.0
   flutter_sticky_header: ^0.6.3 # fixing at 0.6.1, 0.6.2 breaked dictionary selection via drop down list at _FuturedArticleBodyState
   reorderables: # added onDragging event handler to allow deletion of dics by dragging them on a dedicated elemtn
     path: ./plugins/reorderables-0.4.1/
