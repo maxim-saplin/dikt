@@ -44,7 +44,7 @@ class WordArticles extends StatefulWidget {
 }
 
 class _WordArticlesState extends State<WordArticles> {
-  // List of dictionaries is only known when all articles are loaded and correponding future is completed, using this completer to trigger UI for dictionaries
+  // List of dictionaries is only known when all articles are loaded and corresponding future is completed, using this completer to trigger UI for dictionaries
   final _bottomDictionariesCompleter = Completer<
       Tuple<List<DropdownMenuItem<String>>, Map<String, GlobalKey>>>();
 

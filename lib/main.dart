@@ -14,7 +14,6 @@ import 'package:dikt/common/preferences_singleton.dart';
 import 'package:dikt/models/online_dictionaries.dart';
 import 'package:dikt/ui/themes.dart';
 import 'package:ambilytics/ambilytics.dart' as ambilytics;
-import 'package:receive_intent/receive_intent.dart' as rt;
 
 import 'firebase_options.dart';
 import 'models/master_dictionary.dart';
@@ -49,8 +48,6 @@ void main(List<String> arguments) async {
     _error = e.toString();
   }
 
-  //print(const String.fromEnvironment("testVal2", defaultValue: "NOT FOUND"));
-
   runApp(const MyApp());
 }
 
@@ -66,66 +63,55 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   _MyAppState() {
     if (defaultTargetPlatform == TargetPlatform.android) {
-      _initReceiveIntentit();
+      _initReceiveSelectedText();
     }
   }
 
-  Future<void> _initReceiveIntent() async {
-    try {
-      final receivedIntent = await rt.ReceiveIntent.getInitialIntent();
-      if (receivedIntent != null) {
-        _handleIntent(receivedIntent);
+  static const _channel = MethodChannel('dikt.select.text');
+
+  Future<void> _initReceiveSelectedText() async {
+    _channel.setMethodCallHandler((call) async {
+      if (call.method == "sendParams" &&
+          call.arguments["selectedText"] is String &&
+          (call.arguments["selectedText"] as String).isNotEmpty) {
+        _handleSelectedText(call.arguments["selectedText"]);
       }
-    } finally {}
-  }
-
-  void _handleIntent(rt.Intent intent) {
-    var text = '';
-
-    var md = _master;
-    void dicListener() {
-      if (md.isFullyLoaded && text.isNotEmpty) {
-        Routes.showArticle(text);
-        md.removeListener(dicListener);
-      }
-    }
-
-    if (intent.action == "android.intent.action.PROCESS_TEXT") {
-      debugPrint(
-          'Intent data: ${intent.extra?['android.intent.extra.PROCESS_TEXT']}');
-      text = intent.extra?['android.intent.extra.PROCESS_TEXT'] ?? '';
-
-      if (text.isNotEmpty) {
-        Timer.run(() {
-          if (md.isFullyLoaded) {
-            Routes.showArticle(text);
-          } else {
-            md.removeListener(dicListener);
-            md.addListener(dicListener);
-          }
-        });
-      }
-    }
-  }
-
-  StreamSubscription? _intentSubscription;
-
-  Future<void> _initReceiveIntentit() async {
-    await _initReceiveIntent();
-
-    // Attach a listener to the stream
-    _intentSubscription = rt.ReceiveIntent.receivedIntentStream.listen(
-        (rt.Intent? receivedIntent) {
-      if (receivedIntent != null) {
-        _handleIntent(receivedIntent);
-      }
-    }, onError: (err) {});
+    });
   }
 
   @override
   void dispose() {
     super.dispose();
-    _intentSubscription?.cancel();
+    _channel.setMethodCallHandler(null);
+  }
+
+  bool _dicListenerExecuted = false;
+
+  void _handleSelectedText(String selectedText) {
+    var md = _master;
+    // There can be multiple updates from dictionary and removeListener won't help
+    _dicListenerExecuted = false;
+
+    void dicListener() {
+      if (md.isFullyLoaded &&
+          selectedText.isNotEmpty &&
+          !_dicListenerExecuted) {
+        _dicListenerExecuted = true;
+        Routes.showArticle(selectedText);
+        md.removeListener(dicListener);
+      }
+    }
+
+    if (selectedText.isNotEmpty) {
+      Timer.run(() {
+        if (md.isFullyLoaded) {
+          Routes.showArticle(selectedText);
+        } else {
+          md.removeListener(dicListener);
+          md.addListener(dicListener);
+        }
+      });
+    }
   }
 
   Scaffold _getScaffold(Widget child) {
