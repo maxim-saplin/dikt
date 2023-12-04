@@ -11,11 +11,17 @@ import 'package:test/test.dart';
 var tmpPath = 'test/tmp_int';
 
 void main() {
+  void deleteDir(String path) {
+    try {
+      Directory(tmpPath).deleteSync(recursive: true);
+    } catch (_) {}
+  }
+
   Future<DictionaryManager> getManager() async {
     print('Setting up tests, tmp path $tmpPath');
 
     var tmpDir = Directory('$tmpPath/${DateTime.now().millisecondsSinceEpoch}');
-    if (tmpDir.existsSync()) tmpDir.deleteSync(recursive: true);
+    deleteDir(tmpDir.path);
     tmpDir.createSync(recursive: true);
 
     await DictionaryManager.init(tmpDir.path);
@@ -23,9 +29,9 @@ void main() {
   }
 
   group('DictionaryManager', () {
-    tearDownAll(() async {
+    tearDownAll(() {
       try {
-        await Directory(tmpPath).delete(recursive: true);
+        deleteDir(tmpPath);
       } catch (_) {}
     });
 
