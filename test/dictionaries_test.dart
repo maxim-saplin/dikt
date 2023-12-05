@@ -21,7 +21,7 @@ import 'finders.dart';
 import 'utility.dart';
 
 DictionaryManager? dicManager;
-const tmpPath = 'test/tmp';
+const tmpPath = 'test/tmp/offline_dic';
 
 void main() {
   setUpAll(() async {
@@ -30,7 +30,7 @@ void main() {
 
     var tmpDir = Directory(tmpPath);
     if (tmpDir.existsSync()) tmpDir.deleteSync(recursive: true);
-    Directory(tmpPath).createSync();
+    Directory(tmpPath).createSync(recursive: true);
 
     await DictionaryManager.init(tmpPath);
 

@@ -8,7 +8,7 @@ import 'package:dikt/models/dictionary_manager.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:test/test.dart';
 
-var tmpPath = 'test/tmp_int';
+var tmpPath = 'test/tmp/dic_mngr';
 
 void main() {
   void deleteDir(String path) {
