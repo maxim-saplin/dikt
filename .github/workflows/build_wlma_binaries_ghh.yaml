@@ -148,12 +148,12 @@ jobs:
 
     - name: List contents of the Release directory (Windows)
       if: matrix.os == 'windows-latest'
-      run: Get-ChildItem -Path ".\build\windows\runner\Release\" -Name
+      run: Get-ChildItem -Path ".\build\windows\x64\runner\Release\" -Name
       shell: powershell
 
     - name: Smoketest/run app (Windows)
       if: matrix.os == 'windows-latest'
-      run: Start-Process -FilePath ".\build\windows\runner\Release\dikt.exe"
+      run: Start-Process -FilePath ".\build\windows\x64\runner\Release\dikt.exe"
       shell: powershell
 
     - name: Smoketest/run app (macOS)
@@ -194,7 +194,7 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: dikt-windows-x64-${{ env.VERSION }}
-        path: build/windows/runner/Release
+        path: build/windows/x64/runner/Release/
         if-no-files-found: error
     
     - name: Upload Artifact (Linux)
