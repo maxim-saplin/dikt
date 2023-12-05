@@ -146,6 +146,11 @@ jobs:
 #      run: Compress-Archive -Path ".\build\windows\runner\Release\" -DestinationPath ".\build\dikt-windows-x64-${{ env.VERSION }}.zip"
 #      shell: powershell
 
+    - name: List contents of the Release directory (Windows)
+      if: matrix.os == 'windows-latest'
+      run: Get-ChildItem -Path ".\build\windows\runner\Release\" -Name
+      shell: powershell
+
     - name: Smoketest/run app (Windows)
       if: matrix.os == 'windows-latest'
       run: Start-Process -FilePath ".\build\windows\runner\Release\dikt.exe"
