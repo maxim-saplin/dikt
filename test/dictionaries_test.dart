@@ -61,7 +61,7 @@ void main() {
   tearDownAll(() {
     try {
       pool!.stop();
-      Directory(tmpPath).delete(recursive: true);
+      Directory(tmpPath).deleteSync(recursive: true);
     } catch (_) {}
   });
 
