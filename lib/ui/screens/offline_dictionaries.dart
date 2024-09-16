@@ -102,27 +102,29 @@ class OfflineDictionariesState extends State<OfflineDictionaries> {
       manager.gettingFileList = false;
 
       if (files != null && files.isNotEmpty) {
-        manager
-            .indexAndLoadJsonOrDiktFiles(files)
-            .whenComplete(() =>
-                Provider.of<MasterDictionary>(context, listen: false).notify())
-            .catchError((err) {
-          showDialog(
-              context: context,
-              barrierColor: !kIsWeb ? Colors.transparent : Colors.black54,
-              routeSettings: const RouteSettings(name: '/dic_import_error'),
-              builder: (context) => AlertDialog(
-                    title: Text('There\'re issues...'.i18n),
-                    content: const SingleChildScrollView(
-                        child: ManagerState(onlyErrors: true)),
-                    actions: [
-                      TextButton(
-                          child: const Text('OK'),
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          }),
-                    ],
-                  ));
+        manager.indexAndLoadJsonOrDiktFiles(files).whenComplete(() {
+          if (context.mounted) {
+            Provider.of<MasterDictionary>(context, listen: false).notify();
+          }
+        }).catchError((err) {
+          if (context.mounted) {
+            showDialog(
+                context: context,
+                barrierColor: !kIsWeb ? Colors.transparent : Colors.black54,
+                routeSettings: const RouteSettings(name: '/dic_import_error'),
+                builder: (context) => AlertDialog(
+                      title: Text('There\'re issues...'.i18n),
+                      content: const SingleChildScrollView(
+                          child: ManagerState(onlyErrors: true)),
+                      actions: [
+                        TextButton(
+                            child: const Text('OK'),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            }),
+                      ],
+                    ));
+          }
         });
       }
     }
@@ -267,7 +269,9 @@ class _LoadAndEnabledButton extends HookWidget {
             child: Text('↓', style: Theme.of(context).textTheme.bodySmall)),
         onPressed: () {
           dictionary.openIkvs(pool).then((value) {
-            _swithcEnabled(context);
+            if (context.mounted) {
+              _swithcEnabled(context);
+            }
           });
           state.value = _TileState.loading;
         });

@@ -78,7 +78,9 @@ class Routes {
         // Force reload when home page is reached, e.g. to update the lookup list
         .whenComplete(() {
       if (currentRoute.settings.name == home) {
-        Navigator.of(currentContext).pushReplacementNamed(home);
+        if (currentContext.mounted) {
+          Navigator.of(currentContext).pushReplacementNamed(home);
+        }
       }
     });
   }
@@ -191,7 +193,7 @@ class BackButtonHandlerState extends State<BackButtonHandler> {
     if (_isAndroid) {
       return PopScope(
           canPop: canPop,
-          onPopInvoked: (didPop) {
+          onPopInvokedWithResult: (didPop, res) {
             if (didPop) {
               return;
             }
