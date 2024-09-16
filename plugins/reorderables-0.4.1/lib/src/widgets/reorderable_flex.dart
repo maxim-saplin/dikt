@@ -103,7 +103,7 @@ class ReorderableFlex extends StatefulWidget {
   final bool ignorePrimaryScrollController;
 
   @override
-  _ReorderableFlexState createState() => _ReorderableFlexState();
+  ReorderableFlexState createState() => ReorderableFlexState();
 }
 
 // This top-level state manages an Overlay that contains the list and
@@ -115,7 +115,7 @@ class ReorderableFlex extends StatefulWidget {
 // and so we cache a single OverlayEntry for use as the list layer.
 // That overlay entry then builds a _ReorderableListContent which may
 // insert Draggables into the Overlay above itself.
-class _ReorderableFlexState extends State<ReorderableFlex> {
+class ReorderableFlexState extends State<ReorderableFlex> {
   // We use an inner overlay so that the dragging list item doesn't draw outside of the list itself.
   final GlobalKey _overlayKey =
       GlobalKey(debugLabel: '$ReorderableFlex overlay key');
@@ -132,7 +132,6 @@ class _ReorderableFlexState extends State<ReorderableFlex> {
         return _ReorderableFlexContent(
           header: widget.header,
           footer: widget.footer,
-          children: widget.children,
           direction: widget.direction,
           scrollDirection: widget.scrollDirection,
           onReorder: widget.onReorder,
@@ -148,6 +147,7 @@ class _ReorderableFlexState extends State<ReorderableFlex> {
               const Duration(milliseconds: 200),
           scrollAnimationDuration: widget.scrollAnimationDuration ??
               const Duration(milliseconds: 200),
+          children: widget.children,
         );
       },
     );
@@ -247,7 +247,7 @@ class _ReorderableFlexContentState extends State<_ReorderableFlexContent>
   Widget? _draggingWidget;
 
   // The last computed size of the feedback widget being dragged.
-  Size? _draggingFeedbackSize = Size(0, 0);
+  Size? _draggingFeedbackSize = const Size(0, 0);
 
   // The location that the dragging widget occupied before it started to drag.
   int _dragStartIndex = -1;
@@ -269,9 +269,10 @@ class _ReorderableFlexContentState extends State<_ReorderableFlexContent>
 
   Size get _dropAreaSize {
     if (_draggingFeedbackSize == null) {
-      return Size(0, 0);
+      return const Size(0, 0);
     }
-    return _draggingFeedbackSize! + Offset(_dropAreaMargin, _dropAreaMargin);
+    return _draggingFeedbackSize! +
+        const Offset(_dropAreaMargin, _dropAreaMargin);
 //    double dropAreaWithoutMargin;
 //    switch (widget.direction) {
 //      case Axis.horizontal:
@@ -408,14 +409,14 @@ class _ReorderableFlexContentState extends State<_ReorderableFlexContent>
       case Axis.horizontal:
         return Row(
             mainAxisSize: MainAxisSize.min,
-            children: children,
-            mainAxisAlignment: widget.mainAxisAlignment);
+            mainAxisAlignment: widget.mainAxisAlignment,
+            children: children);
       case Axis.vertical:
       default:
         return Column(
             mainAxisSize: MainAxisSize.min,
-            children: children,
-            mainAxisAlignment: widget.mainAxisAlignment);
+            mainAxisAlignment: widget.mainAxisAlignment,
+            children: children);
     }
   }
 
@@ -442,10 +443,12 @@ class _ReorderableFlexContentState extends State<_ReorderableFlexContent>
     }
 
     // Places the value from startIndex one space before the element at endIndex.
-    void _reorder(int startIndex, int endIndex) {
-      if (startIndex != endIndex)
+    void reorder2(int startIndex, int endIndex) {
+      if (startIndex != endIndex) {
         widget.onReorder(startIndex, endIndex);
-      else if (widget.onNoReorder != null) widget.onNoReorder!(startIndex);
+      } else if (widget.onNoReorder != null) {
+        widget.onNoReorder!(startIndex);
+      }
       // Animates leftover space in the drop area closed.
       _ghostController.reverse(from: 0.1);
       _entranceController.reverse(from: 0);
@@ -455,14 +458,14 @@ class _ReorderableFlexContentState extends State<_ReorderableFlexContent>
 
     void reorder(int startIndex, int endIndex) {
       setState(() {
-        _reorder(startIndex, endIndex);
+        reorder2(startIndex, endIndex);
       });
     }
 
     // Drops toWrap into the last position it was hovering over.
     void onDragEnded() {
       setState(() {
-        _reorder(_dragStartIndex, _currentIndex);
+        reorder2(_dragStartIndex, _currentIndex);
         _dragStartIndex = -1;
         _ghostIndex = -1;
         _currentIndex = -1;
@@ -483,8 +486,8 @@ class _ReorderableFlexContentState extends State<_ReorderableFlexContent>
       // before index+2, which is after the space at index+1.
       void moveAfter() => reorder(index, index + 2);
 
-      final MaterialLocalizations localizations =
-          MaterialLocalizations.of(context);
+      final WidgetsLocalizations localizations =
+          WidgetsLocalizations.of(context);
 
       if (index > 0) {
         semanticsActions[CustomSemanticsAction(
@@ -537,7 +540,7 @@ class _ReorderableFlexContentState extends State<_ReorderableFlexContent>
 //      );
     }
 
-    Widget _makeAppearingWidget(Widget child) {
+    Widget makeAppearingWidget2(Widget child) {
       return makeAppearingWidget(
         child,
         _entranceController,
@@ -546,7 +549,7 @@ class _ReorderableFlexContentState extends State<_ReorderableFlexContent>
       );
     }
 
-    Widget _makeDisappearingWidget(Widget child) {
+    Widget makeDisappearingWidget2(Widget child) {
       return makeDisappearingWidget(
         child,
         _ghostController,
@@ -590,15 +593,11 @@ class _ReorderableFlexContentState extends State<_ReorderableFlexContent>
 
                 feedback: feedbackBuilder,
 
-                child: MetaData(
-                    child: toWrapWithSemantics,
-                    behavior: HitTestBehavior.opaque),
-
                 childWhenDragging: IgnorePointer(
                     ignoring: true,
                     child: Opacity(
                         opacity: 0,
-                        child: Container(width: 0, height: 0, child: toWrap))),
+                        child: SizedBox(width: 0, height: 0, child: toWrap))),
                 onDragStarted: onDragStarted,
                 // When the drag ends inside a DragTarget widget, the drag
                 // succeeds, and we reorder the widget into position appropriately.
@@ -608,6 +607,10 @@ class _ReorderableFlexContentState extends State<_ReorderableFlexContent>
                 // had been dragged to.
                 onDraggableCanceled: (Velocity velocity, Offset offset) =>
                     onDragEnded(),
+
+                child: MetaData(
+                    behavior: HitTestBehavior.opaque,
+                    child: toWrapWithSemantics),
               )
             : Draggable<Key>(
                 maxSimultaneousDrags: 1,
@@ -615,16 +618,11 @@ class _ReorderableFlexContentState extends State<_ReorderableFlexContent>
                 data: toWrap.key,
                 ignoringFeedbackSemantics: false,
                 feedback: feedbackBuilder,
-                // Wrap toWrapWithSemantics with a widget that supports HitTestBehavior
-                // to make sure the whole toWrapWithSemantics responds to pointer events, i.e. dragging
-                child: MetaData(
-                    child: toWrapWithSemantics,
-                    behavior: HitTestBehavior.opaque),
                 childWhenDragging: IgnorePointer(
                     ignoring: true,
                     child: Opacity(
                         opacity: 0,
-                        child: Container(width: 0, height: 0, child: toWrap))),
+                        child: SizedBox(width: 0, height: 0, child: toWrap))),
 
                 onDragStarted: onDragStarted,
                 // When the drag ends inside a DragTarget widget, the drag
@@ -635,6 +633,11 @@ class _ReorderableFlexContentState extends State<_ReorderableFlexContent>
                 // had been dragged to.
                 onDraggableCanceled: (Velocity velocity, Offset offset) =>
                     onDragEnded(),
+                // Wrap toWrapWithSemantics with a widget that supports HitTestBehavior
+                // to make sure the whole toWrapWithSemantics responds to pointer events, i.e. dragging
+                child: MetaData(
+                    behavior: HitTestBehavior.opaque,
+                    child: toWrapWithSemantics),
               );
       }
 
@@ -684,8 +687,9 @@ class _ReorderableFlexContentState extends State<_ReorderableFlexContent>
     return Builder(builder: (BuildContext context) {
       Widget dragTarget = DragTarget<Key>(
         builder: buildDragTarget,
-        onWillAccept: (Key? toAccept) {
-          bool willAccept = _dragging == toAccept && toAccept != toWrap.key;
+        onWillAcceptWithDetails: (DragTargetDetails<Key>? toAccept) {
+          bool willAccept =
+              _dragging == toAccept!.data && toAccept.data != toWrap.key;
 
 //          debugPrint('${DateTime.now().toString().substring(5, 22)} reorderable_flex.dart(609) $this._wrap: '
 //            'onWillAccept: toAccept:$toAccept return:$willAccept _nextIndex:$_nextIndex index:$index _currentIndex:$_currentIndex _dragStartIndex:$_dragStartIndex');
@@ -711,7 +715,7 @@ class _ReorderableFlexContentState extends State<_ReorderableFlexContent>
           // If the target is not the original starting point, then we will accept the drop.
           return willAccept; //_dragging == toAccept && toAccept != toWrap.key;
         },
-        onAccept: (Key accepted) {},
+        // onAccept: (Key accepted) {},
         onLeave: (Object? leaving) {},
       );
 
@@ -743,8 +747,8 @@ class _ReorderableFlexContentState extends State<_ReorderableFlexContent>
 //        'index:$index shiftedIndex:$shiftedIndex _nextIndex:$_nextIndex _currentIndex:$_currentIndex _ghostIndex:$_ghostIndex _dragStartIndex:$_dragStartIndex');
 
       if (shiftedIndex == _currentIndex || index == _ghostIndex) {
-        Widget entranceSpacing = _makeAppearingWidget(spacing);
-        Widget ghostSpacing = _makeDisappearingWidget(spacing);
+        Widget entranceSpacing = makeAppearingWidget2(spacing);
+        Widget ghostSpacing = makeDisappearingWidget2(spacing);
 
         if (_dragStartIndex == -1) {
           return _buildContainerForMainAxis(children: [dragTarget]);
@@ -848,10 +852,10 @@ class _ReorderableFlexContentState extends State<_ReorderableFlexContent>
       return SingleChildScrollView(
 //      key: _contentKey,
         scrollDirection: widget.scrollDirection,
-        child: (widget.buildItemsContainer ?? defaultBuildItemsContainer)(
-            context, widget.direction, wrappedChildren),
         padding: widget.padding,
         controller: _scrollController,
+        child: (widget.buildItemsContainer ?? defaultBuildItemsContainer)(
+            context, widget.direction, wrappedChildren),
       );
     }
 
@@ -890,11 +894,11 @@ class _ReorderableFlexContentState extends State<_ReorderableFlexContent>
       transform: Matrix4.rotationZ(0),
       alignment: FractionalOffset.topLeft,
       child: Material(
-        child:
-            Card(child: ConstrainedBox(constraints: constraints, child: child)),
         elevation: 6.0,
         color: Colors.transparent,
         borderRadius: BorderRadius.zero,
+        child:
+            Card(child: ConstrainedBox(constraints: constraints, child: child)),
       ),
     );
   }

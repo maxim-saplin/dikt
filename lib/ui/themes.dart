@@ -46,7 +46,7 @@ final ThemeData lightTheme = ThemeData.light().copyWith(
     canvasColor: const Color.fromARGB(255, 240, 242, 243),
     outlinedButtonTheme: OutlinedButtonThemeData(
         style: ButtonStyle(
-            foregroundColor: MaterialStateProperty.all<Color>(Colors.black))),
+            foregroundColor: WidgetStateProperty.all<Color>(Colors.black))),
     inputDecorationTheme: const InputDecorationTheme(
         focusedBorder: InputBorder.none,
         border: InputBorder.none,
@@ -54,7 +54,7 @@ final ThemeData lightTheme = ThemeData.light().copyWith(
             fontSize: 18, fontFamily: 'Montserrat', color: Colors.red)),
     // backgroundColor: const Color.fromARGB(255, 240, 242, 243),
     colorScheme: const ColorScheme.light().copyWith(
-        background: const Color.fromARGB(255, 240, 242, 243),
+        surface: const Color.fromARGB(255, 240, 242, 243),
         secondary: Colors.grey.withAlpha(128)),
     textTheme: TextTheme(
       labelLarge: const TextStyle(
@@ -112,10 +112,10 @@ final ThemeData darkTheme = ThemeData.dark().copyWith(
     scaffoldBackgroundColor: const Color.fromARGB(255, 16, 17, 18),
     outlinedButtonTheme: OutlinedButtonThemeData(
         style: ButtonStyle(
-            foregroundColor: MaterialStateProperty.all<Color>(Colors.white))),
+            foregroundColor: WidgetStateProperty.all<Color>(Colors.white))),
     //backgroundColor: const Color.fromARGB(255, 32, 35, 36),
     colorScheme: const ColorScheme.dark().copyWith(
-        background: const Color.fromARGB(255, 32, 35, 36),
+        surface: const Color.fromARGB(255, 32, 35, 36),
         secondary: Colors.green),
     buttonTheme: const ButtonThemeData(
         buttonColor: Colors.white, splashColor: Colors.white),

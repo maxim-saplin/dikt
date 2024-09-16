@@ -377,7 +377,7 @@ class PassthroughOverlayState extends State<PassthroughOverlay>
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
-    // TODO(jacobr): use IterableProperty instead as that would
+    // TDO(jacobr): use IterableProperty instead as that would
     // provide a slightly more consistent string summary of the List.
     properties.add(DiagnosticsProperty<List<PassthroughOverlayEntry>>(
         'entries', _entries));
@@ -393,7 +393,7 @@ class PassthroughOverlayState extends State<PassthroughOverlay>
 /// For convenience, it is legal to use [Positioned] widgets around the offstage
 /// widgets.
 class _Theatre extends RenderObjectWidget {
-  _Theatre({
+  const _Theatre({
     required this.offstage,
     this.onstage,
   });
@@ -528,8 +528,9 @@ class _RenderTheatre extends RenderBox
         ContainerRenderObjectMixin<RenderBox, StackParentData> {
   @override
   void setupParentData(RenderObject child) {
-    if (child.parentData is! StackParentData)
+    if (child.parentData is! StackParentData) {
       child.parentData = StackParentData();
+    }
   }
 
   // Because both RenderObjectWithChildMixin and ContainerRenderObjectMixin
@@ -543,7 +544,7 @@ class _RenderTheatre extends RenderBox
   // definition from RenderObjectWithChildMixin inline in our version here.
   //
   // This code duplication is suboptimal.
-  // TODO(ianh): Replace this with a better solution once https://github.com/dart-lang/sdk/issues/27100 is fixed
+  // TDO(ianh): Replace this with a better solution once https://github.com/dart-lang/sdk/issues/27100 is fixed
   //
   // For debugDescribeChildren we just roll our own because otherwise the line
   // drawings won't really work as well.

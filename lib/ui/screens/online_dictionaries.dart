@@ -76,7 +76,7 @@ class OnlineDictionaries extends StatelessWidget {
               alignment: Alignment.center,
               child: OutlinedButton(
                   style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all<Color>(
+                      backgroundColor: WidgetStateProperty.all<Color>(
                           Colors.red.withAlpha(128))),
                   child: SizedBox(
                     width: 85,

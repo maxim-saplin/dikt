@@ -130,13 +130,13 @@ class OfflineDictionariesState extends State<OfflineDictionaries> {
     return SizedBox(
         width: 450,
         child: Stack(alignment: AlignmentDirectional.bottomCenter, children: [
-          DragTarget<int>(onAccept: (index) {
+          DragTarget<int>(onAcceptWithDetails: (index) {
             _cancelReorder = true;
-            confirmAndDelete(context, dictionaries[index].name, () {
-              manager.deleteDictionary(dictionaries[index].ikvPath);
+            confirmAndDelete(context, dictionaries[index.data].name, () {
+              manager.deleteDictionary(dictionaries[index.data].ikvPath);
               Provider.of<MasterDictionary>(context, listen: false).notify();
             });
-          }, onWillAccept: (data) {
+          }, onWillAcceptWithDetails: (data) {
             return true;
           }, builder: (context, List<int?> candidateData, rejectedData) {
             return Container(
@@ -172,7 +172,7 @@ class OfflineDictionariesState extends State<OfflineDictionaries> {
                                   : OutlinedButton(
                                       style: ButtonStyle(
                                           backgroundColor:
-                                              MaterialStateProperty.all<Color>(
+                                              WidgetStateProperty.all<Color>(
                                                   Colors.red.withAlpha(128))),
                                       child: SizedBox(
                                         width: 85,
