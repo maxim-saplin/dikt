@@ -38,7 +38,7 @@ jobs:
       uses: actions/setup-java@v3
       with:
         distribution: 'zulu'
-        java-version: "12.x"
+        java-version: "22.0.2+9"
         cache: gradle
 
     - name: Install Flutter
