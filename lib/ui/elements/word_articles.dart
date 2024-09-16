@@ -194,12 +194,14 @@ class _BottomButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Expanded(
         flex: 1,
-        child: TextButton(
-          onPressed: onPressed,
-          child: SizedBox(
-              height: twoPaneMode ? ownTheme(context).searchBarHeight : 50,
-              child: icon),
-        ));
+        child: Padding(
+            padding: const EdgeInsets.all(15),
+            child: TextButton(
+              onPressed: onPressed,
+              child: SizedBox(
+                  height: twoPaneMode ? ownTheme(context).searchBarHeight : 50,
+                  child: icon),
+            )));
   }
 }
 
@@ -370,6 +372,7 @@ class _FuturedArticleBodiesState extends State<_FuturedArticleBodies>
               stops: const [0.6, 1],
               colors: [
                 Theme.of(context).cardColor,
+                //Theme.of(context).cardColor
                 Theme.of(context).cardColor.withAlpha(0)
               ],
             )),

@@ -30,11 +30,13 @@ class _ResponsiveSplitViewState extends State<ResponsiveSplitView>
 
   @override
   void didChangeMetrics() {
-    var isWideNow = _checkIsWide(context);
-    if (isWideNow != _isWide) {
-      setState(() {
-        _isWide = isWideNow;
-      });
+    if (context.mounted) {
+      var isWideNow = _checkIsWide(context);
+      if (isWideNow != _isWide) {
+        setState(() {
+          _isWide = isWideNow;
+        });
+      }
     }
   }
 
@@ -88,9 +90,6 @@ class _ResponsiveSplitViewState extends State<ResponsiveSplitView>
                   highlightedColor: Theme.of(context).colorScheme.secondary)),
           child: MultiSplitView(
               controller: controller,
-              // onDividerDragUpdate: (int index) {
-              //   PreferencesSingleton.twoPaneRatio = controller.areas[0].flex!;
-              // },
               // not wrapping rigt pane to have it take full height on Desktop
               builder: (BuildContext context, Area area) => area.index == 0
                   ? _wrapInSafeArea(lp)

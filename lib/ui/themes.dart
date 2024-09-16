@@ -52,10 +52,13 @@ final ThemeData lightTheme = ThemeData.light().copyWith(
         border: InputBorder.none,
         labelStyle: TextStyle(
             fontSize: 18, fontFamily: 'Montserrat', color: Colors.red)),
-    // backgroundColor: const Color.fromARGB(255, 240, 242, 243),
     colorScheme: const ColorScheme.light().copyWith(
         surface: const Color.fromARGB(255, 240, 242, 243),
         secondary: Colors.grey.withAlpha(128)),
+    textButtonTheme: TextButtonThemeData(
+        style: ButtonStyle(
+            overlayColor: WidgetStateProperty.all<Color>(
+                const Color.fromARGB(255, 33, 213, 159)))),
     textTheme: TextTheme(
       labelLarge: const TextStyle(
           fontSize: 18, fontFamily: 'Montserrat', color: Colors.black),
@@ -109,7 +112,7 @@ final ThemeData lightTheme = ThemeData.light().copyWith(
       textSelectionPopupColor: Color.fromARGB(255, 165, 183, 173)));
 
 final ThemeData darkTheme = ThemeData.dark().copyWith(
-    cardColor: const Color.fromARGB(255, 32, 33, 36),
+    cardColor: const Color.fromARGB(255, 26, 26, 26),
     dialogBackgroundColor: const Color.fromARGB(255, 32, 33, 36),
     canvasColor: const Color.fromARGB(255, 32, 33, 36),
     scaffoldBackgroundColor: const Color.fromARGB(255, 16, 17, 18),
@@ -121,6 +124,10 @@ final ThemeData darkTheme = ThemeData.dark().copyWith(
         secondary: Colors.green),
     buttonTheme: const ButtonThemeData(
         buttonColor: Colors.white, splashColor: Colors.white),
+    textButtonTheme: TextButtonThemeData(
+        style: ButtonStyle(
+            overlayColor: WidgetStateProperty.all<Color>(
+                const Color.fromARGB(255, 14, 88, 66)))),
     textTheme: TextTheme(
       labelLarge: const TextStyle(fontSize: 18, fontFamily: 'Montserrat'),
       headlineSmall: const TextStyle(
