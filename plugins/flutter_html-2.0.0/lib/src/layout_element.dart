@@ -13,15 +13,12 @@ import 'package:html/dom.dart' as dom;
 /// an html document with a more complex layout. LayoutElements handle
 abstract class LayoutElement extends StyledElement {
   LayoutElement({
-    String name = "[[No Name]]",
-    required List<StyledElement> children,
+    super.name = "[[No Name]]",
+    required super.children,
     String? elementId,
-    dom.Element? node,
+    super.node,
   }) : super(
-            name: name,
-            children: children,
             style: Style(),
-            node: node,
             elementId: elementId ?? "[[No ID]]");
 
   Widget? toWidget(RenderContext context);
@@ -29,10 +26,10 @@ abstract class LayoutElement extends StyledElement {
 
 class TableLayoutElement extends LayoutElement {
   TableLayoutElement({
-    required String name,
-    required List<StyledElement> children,
-    required dom.Element node,
-  }) : super(name: name, children: children, node: node, elementId: node.id);
+    required super.name,
+    required super.children,
+    required dom.Element super.node,
+  }) : super(elementId: node.id);
 
   @override
   Widget toWidget(RenderContext context) {
@@ -165,9 +162,9 @@ class TableLayoutElement extends LayoutElement {
 
 class TableSectionLayoutElement extends LayoutElement {
   TableSectionLayoutElement({
-    required String name,
-    required List<StyledElement> children,
-  }) : super(name: name, children: children);
+    required super.name,
+    required super.children,
+  });
 
   @override
   Widget toWidget(RenderContext context) {
@@ -178,10 +175,10 @@ class TableSectionLayoutElement extends LayoutElement {
 
 class TableRowLayoutElement extends LayoutElement {
   TableRowLayoutElement({
-    required String name,
-    required List<StyledElement> children,
-    required dom.Element node,
-  }) : super(name: name, children: children, node: node);
+    required super.name,
+    required super.children,
+    required dom.Element super.node,
+  });
 
   @override
   Widget toWidget(RenderContext context) {
@@ -195,19 +192,13 @@ class TableCellElement extends StyledElement {
   int rowspan = 1;
 
   TableCellElement({
-    required String name,
-    required String elementId,
-    required List<String> elementClasses,
-    required List<StyledElement> children,
-    required Style style,
-    required dom.Element node,
-  }) : super(
-            name: name,
-            elementId: elementId,
-            elementClasses: elementClasses,
-            children: children,
-            style: style,
-            node: node) {
+    required super.name,
+    required super.elementId,
+    required super.elementClasses,
+    required super.children,
+    required super.style,
+    required dom.Element super.node,
+  }) {
     colspan = _parseSpan(this, "colspan");
     rowspan = _parseSpan(this, "rowspan");
   }
@@ -240,11 +231,11 @@ TableCellElement parseTableCellElement(
 
 class TableStyleElement extends StyledElement {
   TableStyleElement({
-    required String name,
-    required List<StyledElement> children,
-    required Style style,
-    required dom.Element node,
-  }) : super(name: name, children: children, style: style, node: node);
+    required super.name,
+    required super.children,
+    required super.style,
+    required dom.Element super.node,
+  });
 }
 
 TableStyleElement parseTableDefinitionElement(
@@ -274,11 +265,11 @@ class DetailsContentElement extends LayoutElement {
   List<dom.Element> elementList;
 
   DetailsContentElement({
-    required String name,
-    required List<StyledElement> children,
-    required dom.Element node,
+    required super.name,
+    required super.children,
+    required dom.Element super.node,
     required this.elementList,
-  }) : super(name: name, node: node, children: children, elementId: node.id);
+  }) : super(elementId: node.id);
 
   @override
   Widget toWidget(RenderContext context) {
@@ -337,7 +328,7 @@ class DetailsContentElement extends LayoutElement {
 }
 
 class EmptyLayoutElement extends LayoutElement {
-  EmptyLayoutElement({required String name}) : super(name: name, children: []);
+  EmptyLayoutElement({required super.name}) : super(children: []);
 
   @override
   Widget? toWidget(context) => null;

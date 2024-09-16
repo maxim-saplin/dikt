@@ -96,14 +96,17 @@ final ThemeData lightTheme = ThemeData.light().copyWith(
       bodySmall: const TextStyle(
           fontSize: 17.0, fontFamily: 'Montserrat', color: Colors.black),
     ),
-    dialogTheme: const DialogTheme(
-      shape: RoundedRectangleBorder(
+    textSelectionTheme: const TextSelectionThemeData(
+        selectionColor: Color.fromARGB(255, 33, 213, 159)),
+    dialogTheme: DialogTheme(
+      backgroundColor: Colors.grey[100],
+      shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(12))),
     ))
   ..addOwn(const OwnThemeFields(
       errorShade: Color.fromARGB(240, 255, 200, 200),
       textBaloon: Color.fromARGB(240, 255, 200, 200),
-      textSelectionPopupColor: Color.fromARGB(255, 255, 200, 200)));
+      textSelectionPopupColor: Color.fromARGB(255, 165, 183, 173)));
 
 final ThemeData darkTheme = ThemeData.dark().copyWith(
     cardColor: const Color.fromARGB(255, 32, 33, 36),
@@ -113,13 +116,11 @@ final ThemeData darkTheme = ThemeData.dark().copyWith(
     outlinedButtonTheme: OutlinedButtonThemeData(
         style: ButtonStyle(
             foregroundColor: WidgetStateProperty.all<Color>(Colors.white))),
-    //backgroundColor: const Color.fromARGB(255, 32, 35, 36),
     colorScheme: const ColorScheme.dark().copyWith(
         surface: const Color.fromARGB(255, 32, 35, 36),
         secondary: Colors.green),
     buttonTheme: const ButtonThemeData(
         buttonColor: Colors.white, splashColor: Colors.white),
-    //menuTheme: const MenuThemeData(style: MenuStyle(backgroundColor: Colors.blueGrey)),
     textTheme: TextTheme(
       labelLarge: const TextStyle(fontSize: 18, fontFamily: 'Montserrat'),
       headlineSmall: const TextStyle(
@@ -158,6 +159,8 @@ final ThemeData darkTheme = ThemeData.dark().copyWith(
           color: Colors.white,
           fontFamilyFallback: ['Roboto']),
     ),
+    textSelectionTheme: const TextSelectionThemeData(
+        selectionColor: Color.fromARGB(255, 14, 88, 66)),
     dialogTheme: const DialogTheme(
       shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(12))),
@@ -166,4 +169,4 @@ final ThemeData darkTheme = ThemeData.dark().copyWith(
       spanColor: Colors.grey[400],
       errorShade: const Color.fromARGB(240, 200, 0, 0),
       textBaloon: const Color.fromARGB(255, 200, 80, 80),
-      textSelectionPopupColor: const Color.fromARGB(255, 200, 80, 80)));
+      textSelectionPopupColor: const Color(0xFF1C2B3A)));

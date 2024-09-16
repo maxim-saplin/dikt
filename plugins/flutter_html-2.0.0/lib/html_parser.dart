@@ -590,7 +590,7 @@ class RenderContext {
 /// and can represent either an INLINE or BLOCK-level element.
 class ContainerSpan extends StatelessWidget {
   @override
-  final AnchorKey? key;
+  AnchorKey? get key => super.key as AnchorKey?;
   final Widget? child;
   final List<InlineSpan>? children;
   final Style style;
@@ -599,14 +599,13 @@ class ContainerSpan extends StatelessWidget {
   final TextSelectionControls? Function() selectionControlsCallback;
 
   const ContainerSpan(
-      {this.key,
+      {super.key,
       this.child,
       this.children,
       required this.style,
       required this.newContext,
       this.shrinkWrap = false,
-      required this.selectionControlsCallback})
-      : super(key: key);
+      required this.selectionControlsCallback});
 
   @override
   Widget build(BuildContext context) {
@@ -639,7 +638,7 @@ class StyledText extends StatelessWidget {
   final double textScaleFactor;
   final RenderContext? renderContext;
   @override
-  final AnchorKey? key;
+  AnchorKey? get key => super.key as AnchorKey?;
   final TapHandler? _tapHandler;
   //TextSelectionControls? Function() selectionControlsCallback = () => null;
   EditableTextContextMenuBuilder? Function() contextMenuBuilderCallback =
@@ -659,9 +658,8 @@ class StyledText extends StatelessWidget {
       this.textScaleFactor = 1.0,
       this.renderContext,
       TapHandler? tapHandler,
-      this.key})
-      : _tapHandler = tapHandler,
-        super(key: key);
+      super.key})
+      : _tapHandler = tapHandler;
 
   @override
   Widget build(BuildContext context) {
@@ -678,7 +676,7 @@ class StyledText extends StatelessWidget {
       contextMenuBuilder: contextMenuBuilderCallback(),
       textAlign: style.textAlign,
       textDirection: style.direction,
-      textScaleFactor: textScaleFactor,
+      textScaler: TextScaler.linear(textScaleFactor),
       maxLines: style.maxLines,
     ));
   }

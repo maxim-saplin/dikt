@@ -22,7 +22,7 @@ import 'package:isolate_pool_2/isolate_pool_2.dart';
 
 class Html extends StatelessWidget {
   Html(
-      {Key? key,
+      {super.key,
       required this.data,
       this.onLinkTap,
       this.shrinkWrap = false,
@@ -35,8 +35,7 @@ class Html extends StatelessWidget {
       this.contextMenuBuilder,
       this.sw})
       : assert(data != null),
-        anchorKey = GlobalKey(),
-        super(key: key);
+        anchorKey = GlobalKey();
 
   /// A unique key for this Html widget to ensure uniqueness of anchors
   final Key anchorKey;
@@ -145,14 +144,12 @@ class _ParseHtmlJob extends PooledJob<StyledText> {
 
 class _FuturedHtml extends StatelessWidget {
   const _FuturedHtml(
-      {Key? key,
-      required this.width,
+      {required this.width,
       required this.text,
       this.onLinkTap,
       this.onBuilt,
       this.onLaidOut,
-      required this.contextMenuBuilder})
-      : super(key: key);
+      required this.contextMenuBuilder});
 
   final double? width;
   final Future<StyledText> text;
@@ -181,7 +178,7 @@ class _FuturedHtml extends StatelessWidget {
               //   s.data!.selectionControlsCallback = () => selectionControls;
               // }
 
-// hack to allow use text selection controlls with event handlers/heavy objects and avoid isolate boundaries crossing errors
+              // hack to allow use text selection controlls with event handlers/heavy objects and avoid isolate boundaries crossing errors
               if (contextMenuBuilder != null) {
                 s.data!.contextMenuBuilderCallback = () => contextMenuBuilder;
               }

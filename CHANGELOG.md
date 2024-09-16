@@ -1,3 +1,4 @@
+- 2.3.1+34 - updated dependencies + refactored code to accomodate, fixed text selection/popup color
 - 2.3.0+33 - Android 'PROCESS_TEXT' opens app in popup window
 - 2.3.0+32 - Android 'PROCESS_TEXT' integration (select text in any app and look it up in dikt), dictionary import/skipping same name dictionaries, minor UI updates, Flutter 3.16.0, Android SDK 34
 - 2.2.1+31 - Flutter 3.13.1/, Android SDK 33

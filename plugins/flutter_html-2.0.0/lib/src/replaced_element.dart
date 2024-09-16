@@ -16,17 +16,13 @@ abstract class ReplacedElement extends StyledElement {
   PlaceholderAlignment alignment;
 
   ReplacedElement({
-    required String name,
-    required Style style,
-    required String elementId,
-    dom.Element? node,
+    required super.name,
+    required super.style,
+    required super.elementId,
+    super.node,
     this.alignment = PlaceholderAlignment.aboveBaseline,
   }) : super(
-            name: name,
-            children: [],
-            style: style,
-            node: node,
-            elementId: elementId);
+            children: []);
 
   static List<String?> parseMediaSources(List<dom.Element> elements) {
     return elements
@@ -45,13 +41,12 @@ class TextContentElement extends ReplacedElement {
   dom.Node? node;
 
   TextContentElement({
-    required Style style,
+    required super.style,
     required this.text,
     this.node,
     dom.Element? element,
   }) : super(
             name: "[text]",
-            style: style,
             node: element,
             elementId: "[[No ID]]");
 
@@ -71,12 +66,12 @@ class SvgContentElement extends ReplacedElement {
   final double? height;
 
   SvgContentElement({
-    required String name,
+    required super.name,
     required this.data,
     required this.width,
     required this.height,
-    required dom.Element node,
-  }) : super(name: name, style: Style(), node: node, elementId: node.id);
+    required dom.Element super.node,
+  }) : super(style: Style(), elementId: node.id);
 
   @override
   Widget toWidget(RenderContext context) {
@@ -90,8 +85,8 @@ class SvgContentElement extends ReplacedElement {
 }
 
 class EmptyContentElement extends ReplacedElement {
-  EmptyContentElement({String name = "empty"})
-      : super(name: name, style: Style(), elementId: "[[No ID]]");
+  EmptyContentElement({super.name = "empty"})
+      : super(style: Style(), elementId: "[[No ID]]");
 
   @override
   Widget? toWidget(context) => null;
@@ -101,9 +96,8 @@ class RubyElement extends ReplacedElement {
   @override
   dom.Element element;
 
-  RubyElement({required this.element, String name = "ruby"})
+  RubyElement({required this.element, super.name = "ruby"})
       : super(
-            name: name,
             alignment: PlaceholderAlignment.middle,
             style: Style(),
             elementId: element.id);

@@ -394,7 +394,7 @@ class _FuturedArticleBodiesState extends State<_FuturedArticleBodies>
           return TextSelectionToolbar(
             toolbarBuilder: (context, child) => Material(
               borderRadius: const BorderRadius.all(Radius.circular(5.0)),
-              color: Theme.of(context).colorScheme.primary,
+              color: ownTheme(context).textSelectionPopupColor,
               child: child,
             ),
             anchorAbove: editableTextState.contextMenuAnchors.primaryAnchor,
@@ -482,15 +482,16 @@ class _DictionarySelector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Widget w = DropdownButton(
-      dropdownColor: Theme.of(context).scaffoldBackgroundColor,
+      // dropdownColor: Theme.of(context).scaffoldBackgroundColor,
       iconSize: 0,
       underline: const SizedBox(),
+      elevation: 0,
+      borderRadius: const BorderRadius.all(Radius.circular(8)),
       iconEnabledColor: Theme.of(context).iconTheme.color,
       alignment: Alignment.centerRight,
       isDense: true,
       items: dictionaries,
       value: dictionary,
-      borderRadius: const BorderRadius.all(Radius.circular(8)),
       onChanged: (v) {
         var key = dicsToKeys[v];
         if (key != null) {
@@ -505,7 +506,7 @@ class _DictionarySelector extends StatelessWidget {
     if (dictionary == null) {
       w = Theme(
           data: Theme.of(context)
-              .copyWith(focusColor: Theme.of(context).scaffoldBackgroundColor),
+              .copyWith(focusColor: Theme.of(context).canvasColor),
           child: w);
     }
 
