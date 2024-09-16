@@ -19,8 +19,8 @@ class PreferencesSingleton {
     double? v;
     v = PreferencesSingleton.sp.getDouble(_twoPaneRatioParam);
 
-    if (v == null) {
-      return 0.35;
+    if (v == null || v <= 0.0 || v >= 4.0) {
+      return 1;
     }
 
     return v;

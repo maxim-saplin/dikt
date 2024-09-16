@@ -20,7 +20,7 @@ class Content extends StatelessWidget {
     Future<List<Article>>? articles = dictionary.getArticles(word);
 
     return ResponsiveSplitView(
-        ifOnePane: (c, add) => add(Stack(children: [
+        whenOnePaneBuilder: (c, add) => add(Stack(children: [
               const Lookup(
                   searchBarTopRounded: false, autoFocusSearchBar: false),
               blurBackground(GestureDetector(
@@ -39,7 +39,7 @@ class Content extends StatelessWidget {
                               showAnotherWord: (word) =>
                                   Routes.showArticle(word))))))
             ])),
-        ifTwoPanes: (c, add) => add(
+        whenTwoPanesBuilder: (c, add) => add(
             const Stack(children: [
               Lookup(searchBarTopRounded: false, autoFocusSearchBar: false),
               EmptyHints(showDictionaryStats: false, showSearchBarHint: true)

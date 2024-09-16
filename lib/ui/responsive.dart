@@ -9,12 +9,14 @@ int wideNarrowBreak = 500;
 /// Depending on width either display two pane resizable split view or one pane
 class ResponsiveSplitView extends StatefulWidget {
   const ResponsiveSplitView(
-      {super.key, required this.ifOnePane, required this.ifTwoPanes});
+      {super.key,
+      required this.whenOnePaneBuilder,
+      required this.whenTwoPanesBuilder});
 
   final void Function(BuildContext context, void Function(Widget widget) add)
-      ifOnePane;
+      whenOnePaneBuilder;
   final void Function(BuildContext context,
-      void Function(Widget leftPane, Widget rightPane) add) ifTwoPanes;
+      void Function(Widget leftPane, Widget rightPane) add) whenTwoPanesBuilder;
 
   @override
   State<ResponsiveSplitView> createState() => _ResponsiveSplitViewState();
@@ -40,24 +42,23 @@ class _ResponsiveSplitViewState extends State<ResponsiveSplitView>
   void didChangeDependencies() {
     super.didChangeDependencies();
     WidgetsBinding.instance.addObserver(this);
+    // Update the wide state
     _isWide = _checkIsWide(context);
 
+    // Assuming 4.0 is the total widht in relative units
     controller = MultiSplitViewController(areas: [
-      Area(weight: PreferencesSingleton.twoPaneRatio, minimalSize: 200),
-      Area(minimalSize: 200)
+      Area(flex: PreferencesSingleton.twoPaneRatio),
+      Area(flex: 4 - PreferencesSingleton.twoPaneRatio)
     ]);
-    // For some reasons that doesn't work, Feb 2023, revering to widget callback
-    // controller.addListener(() {
-    //   PreferencesSingleton.twoPaneRatio = controller.areas[0].weight!;
-    // });
+
+    controller.addListener(() {
+      PreferencesSingleton.twoPaneRatio = controller.areas[0].flex!;
+    });
   }
 
   bool _checkIsWide(BuildContext context) =>
       View.of(context).physicalSize.width / View.of(context).devicePixelRatio >=
       wideNarrowBreak;
-  // WidgetsBinding.instance.window.physicalSize.width /
-  //     WidgetsBinding.instance.window.devicePixelRatio >=
-  // wideNarrowBreak;
 
   @override
   void dispose() {
@@ -78,7 +79,7 @@ class _ResponsiveSplitViewState extends State<ResponsiveSplitView>
         rp = rightPane;
       }
 
-      widget.ifTwoPanes(context, addTwo);
+      widget.whenTwoPanesBuilder(context, addTwo);
 
       w = MultiSplitViewTheme(
           data: MultiSplitViewThemeData(
@@ -86,27 +87,28 @@ class _ResponsiveSplitViewState extends State<ResponsiveSplitView>
               dividerPainter: DividerPainters.background(
                   highlightedColor: Theme.of(context).colorScheme.secondary)),
           child: MultiSplitView(
-            controller: controller,
-            onWeightChange: () {
-              PreferencesSingleton.twoPaneRatio = controller.areas[0].weight!;
-            },
-            // not wrapping rigt pane to have it take full height on Desktop
-            children: [
-              _wrapInSafeArea(lp),
-              defaultTargetPlatform == TargetPlatform.android ||
-                      defaultTargetPlatform == TargetPlatform.iOS
-                  ? _wrapInSafeArea(rp)
-                  : rp
-            ],
-          ));
+              controller: controller,
+              // onDividerDragUpdate: (int index) {
+              //   PreferencesSingleton.twoPaneRatio = controller.areas[0].flex!;
+              // },
+              // not wrapping rigt pane to have it take full height on Desktop
+              builder: (BuildContext context, Area area) => area.index == 0
+                  ? _wrapInSafeArea(lp)
+                  : defaultTargetPlatform == TargetPlatform.android ||
+                          defaultTargetPlatform == TargetPlatform.iOS
+                      ? _wrapInSafeArea(rp)
+                      : rp));
     } else {
       void addOne(Widget widget) {
         w = widget;
       }
 
-      widget.ifOnePane(context, addOne);
+      widget.whenOnePaneBuilder(context, addOne);
 
-      w = _wrapInSafeArea(w);
+      if (defaultTargetPlatform == TargetPlatform.android ||
+          defaultTargetPlatform == TargetPlatform.iOS) {
+        w = _wrapInSafeArea(w);
+      }
     }
 
     return w;

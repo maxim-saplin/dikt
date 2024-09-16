@@ -11,13 +11,13 @@ class Home extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ResponsiveSplitView(
-        ifOnePane: (c, add) => add(const Stack(children: [
+        whenOnePaneBuilder: (c, add) => add(const Stack(children: [
               Lookup(searchBarTopRounded: true),
               DictionaryIndexingOrLoading(),
               EmptyHints(showDictionaryStats: true, showSearchBarHint: true),
               TopButtons()
             ])),
-        ifTwoPanes: (c, add) => add(
+        whenTwoPanesBuilder: (c, add) => add(
             const Stack(children: [
               Lookup(searchBarTopRounded: false),
               EmptyHints(showDictionaryStats: false, showSearchBarHint: true)

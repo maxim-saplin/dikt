@@ -87,3 +87,4 @@ lib/firebase_options.dart
 ios/Runner/GoogleService-Info.plist
 macos/Runner/GoogleService-Info.plist
 .cptx/
+.aider*

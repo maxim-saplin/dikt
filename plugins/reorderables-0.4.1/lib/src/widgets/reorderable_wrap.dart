@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+// ignore_for_file: prefer_const_constructors_in_immutables
+
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -268,7 +270,6 @@ class _ReorderableWrapState extends State<ReorderableWrap> {
         return _ReorderableWrapContent(
           header: widget.header,
           footer: widget.footer,
-          children: widget.children,
           direction: widget.direction,
           scrollDirection: widget.scrollDirection,
           onReorder: widget.onReorder,
@@ -290,6 +291,7 @@ class _ReorderableWrapState extends State<ReorderableWrap> {
           controller: widget.controller,
           reorderAnimationDuration: widget.reorderAnimationDuration,
           scrollAnimationDuration: widget.scrollAnimationDuration,
+          children: widget.children,
         );
       },
     );
@@ -436,9 +438,10 @@ class _ReorderableWrapContentState extends State<_ReorderableWrapContent>
 
   Size get _dropAreaSize {
     if (_draggingFeedbackSize == null) {
-      return Size(0, 0);
+      return const Size(0, 0);
     }
-    return _draggingFeedbackSize! + Offset(_dropAreaMargin, _dropAreaMargin);
+    return _draggingFeedbackSize! +
+        const Offset(_dropAreaMargin, _dropAreaMargin);
 //    double dropAreaWithoutMargin;
 //    switch (widget.direction) {
 //      case Axis.horizontal:
@@ -464,7 +467,7 @@ class _ReorderableWrapContentState extends State<_ReorderableWrapContent>
     _entranceController.addStatusListener(_onEntranceStatusChanged);
 //    _childKeys = List.filled(widget.children.length, null);
     _childContexts = List.filled(widget.children.length, null);
-    _childSizes = List.filled(widget.children.length, Size(0, 0));
+    _childSizes = List.filled(widget.children.length, const Size(0, 0));
 //    _childIndexToDisplayIndex =
 //        List.generate(widget.children.length, (int index) => index);
 //    _childDisplayIndexToIndex =
@@ -661,7 +664,7 @@ class _ReorderableWrapContentState extends State<_ReorderableWrapContent>
     }
 
     // Places the value from startIndex one space before the element at endIndex.
-    void _reorder(int startIndex, int endIndex) {
+    void reorder2(int startIndex, int endIndex) {
       if (startIndex != endIndex)
         widget.onReorder(startIndex, endIndex);
       else if (widget.onNoReorder != null) widget.onNoReorder!(startIndex);
@@ -674,14 +677,14 @@ class _ReorderableWrapContentState extends State<_ReorderableWrapContent>
     void reorder(int startIndex, int endIndex) {
 //      debugPrint('reorder: startIndex:$startIndex endIndex:$endIndex');
       setState(() {
-        _reorder(startIndex, endIndex);
+        reorder2(startIndex, endIndex);
       });
     }
 
     // Drops toWrap into the last position it was hovering over.
     void onDragEnded() {
       setState(() {
-        _reorder(_dragStartIndex, _currentDisplayIndex);
+        reorder2(_dragStartIndex, _currentDisplayIndex);
         _dragStartIndex = -1;
         _ghostDisplayIndex = -1;
         _currentDisplayIndex = -1;
@@ -984,7 +987,7 @@ class _ReorderableWrapContentState extends State<_ReorderableWrapContent>
       Widget preDragTarget = DragTarget<int>(
         builder: (BuildContext context, List<int?> acceptedCandidates,
                 List<dynamic> rejectedCandidates) =>
-            SizedBox(),
+            const SizedBox(),
         onWillAccept: (int? toAccept) => _onWillAccept(toAccept, true),
         onAccept: (int accepted) {},
         onLeave: (Object? leaving) {},
@@ -992,7 +995,7 @@ class _ReorderableWrapContentState extends State<_ReorderableWrapContent>
       Widget nextDragTarget = DragTarget<int>(
         builder: (BuildContext context, List<int?> acceptedCandidates,
                 List<dynamic> rejectedCandidates) =>
-            SizedBox(),
+            const SizedBox(),
         onWillAccept: (int? toAccept) => _onWillAccept(toAccept, false),
         onAccept: (int accepted) {},
         onLeave: (Object? leaving) {},
@@ -1152,7 +1155,7 @@ class _ReorderableWrapContentState extends State<_ReorderableWrapContent>
 
 //    _childKeys = _resizeListMember(_childKeys, null);
     _childContexts = _resizeListMember(_childContexts, null);
-    _childSizes = _resizeListMember(_childSizes, Size(0, 0));
+    _childSizes = _resizeListMember(_childSizes, const Size(0, 0));
 
     _childDisplayIndexToIndex =
         List.generate(widget.children.length, (int index) => index);

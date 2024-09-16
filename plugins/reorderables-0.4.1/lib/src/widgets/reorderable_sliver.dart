@@ -1002,11 +1002,11 @@ class _ReorderableSliverListState extends State<ReorderableSliverList>
       transform: Matrix4.rotationZ(0),
       alignment: FractionalOffset.topLeft,
       child: Material(
-        child:
-            Card(child: ConstrainedBox(constraints: constraints, child: child)),
         elevation: 6.0,
         color: Colors.transparent,
         borderRadius: BorderRadius.zero,
+        child:
+            Card(child: ConstrainedBox(constraints: constraints, child: child)),
       ),
     );
   }
