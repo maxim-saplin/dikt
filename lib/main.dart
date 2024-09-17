@@ -190,8 +190,11 @@ class _MyAppState extends State<MyApp> {
                     });
 
                     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-                      systemNavigationBarColor: Theme.of(context)
-                          .canvasColor, //  Android navigation bar color
+                      systemNavigationBarColor: Theme.of(context).canvasColor,
+                      systemNavigationBarIconBrightness:
+                          Theme.of(context).brightness == Brightness.dark
+                              ? Brightness.light // Light icons for dark theme
+                              : Brightness.dark, // Dark icons for light theme
                     ));
 
                     return MediaQuery(

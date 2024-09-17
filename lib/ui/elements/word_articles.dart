@@ -195,7 +195,14 @@ class _BottomButton extends StatelessWidget {
     return Expanded(
         flex: 1,
         child: Padding(
-            padding: const EdgeInsets.all(15),
+            padding: EdgeInsets.all(
+              kIsWeb ||
+                      defaultTargetPlatform == TargetPlatform.windows ||
+                      defaultTargetPlatform == TargetPlatform.macOS ||
+                      defaultTargetPlatform == TargetPlatform.linux
+                  ? 15
+                  : 5,
+            ),
             child: TextButton(
               onPressed: onPressed,
               child: SizedBox(
