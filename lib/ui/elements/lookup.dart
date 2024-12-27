@@ -58,9 +58,10 @@ class LookupState extends State<Lookup> with WidgetsBindingObserver {
 
     WidgetsBinding.instance.addObserver(this);
 
-    autoFocus = widget.autoFocusSearchBar ??
-        defaultTargetPlatform == TargetPlatform.android ||
-            defaultTargetPlatform == TargetPlatform.iOS;
+    autoFocus = true;
+    // autoFocus = widget.autoFocusSearchBar ??
+    //     defaultTargetPlatform == TargetPlatform.android ||
+    //         defaultTargetPlatform == TargetPlatform.iOS;
 
     super.initState();
   }

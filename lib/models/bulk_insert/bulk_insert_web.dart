@@ -1,5 +1,4 @@
 @JS()
-library bulk_insert;
 
 import 'dart:typed_data';
 
