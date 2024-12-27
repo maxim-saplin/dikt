@@ -25,9 +25,9 @@ JSON files can be bulky to handle and slow to be added to the app. There's a bin
 
 - Android
   - Google Play: https://play.google.com/store/apps/details?id=com.saplin.dikt
-  - Download APK:  [https://github.com/maxim-saplin/dikt/releases/download/2.3.0%2B33/dikt-android-2.3.0+33.apk](https://github.com/maxim-saplin/dikt/releases/download/2.3.0%2B33/dikt-android-2.3.0+33.apk)
-- macOS (Universal app, Intel and Apple Silicon): [https://github.com/maxim-saplin/dikt/releases/download/2.3.0%2B33/dikt-macOS-2.3.0+33.zip](https://github.com/maxim-saplin/dikt/releases/download/2.3.0%2B33/dikt-macOS-2.3.0+33.zip)
-- Linux (x64): [https://github.com/maxim-saplin/dikt/releases/download/2.3.0%2B33/dikt-linux-x64-2.3.0+33.tar](https://github.com/maxim-saplin/dikt/releases/download/2.3.0%2B33/dikt-linux-x64-2.3.0+33.tar)
-- Windows: [https://github.com/maxim-saplin/dikt/releases/download/2.3.0%2B33/dikt-windows-x64-2.3.0+33.zip](https://github.com/maxim-saplin/dikt/releases/download/2.3.0%2B33/dikt-windows-x64-2.3.0+33.zip)
+  - Download APK:  [https://github.com/maxim-saplin/dikt/releases/download/2.3.1%2B35/dikt-android-2.3.1+35.apk](https://github.com/maxim-saplin/dikt/releases/download/2.3.1%2B35/dikt-android-2.3.1+35.apk)
+- macOS (Universal app, Intel and Apple Silicon): (https://github.com/maxim-saplin/dikt/releases/download/2.3.1%2B35/dikt-macOS-2.3.1+35.zip)[https://github.com/maxim-saplin/dikt/releases/download/2.3.1%2B35/dikt-macOS-2.3.1+35.zip]
+- Linux (x64): [https://github.com/maxim-saplin/dikt/releases/download/2.3.1%2B35/dikt-linux-x64-2.3.1+35.tar](https://github.com/maxim-saplin/dikt/releases/download/2.3.1%2B35/dikt-linux-x64-2.3.1+35.tar)
+- Windows: [https://github.com/maxim-saplin/dikt/releases/download/2.3.1%2B35/dikt-windows-x64-2.3.1+35.zip](https://github.com/maxim-saplin/dikt/releases/download/2.3.1%2B35/dikt-windows-x64-2.3.1+35.zip)
 
 [dikt.webm](https://user-images.githubusercontent.com/7947027/223116663-4db81908-a66f-4d6f-b91e-4cae2355f8d8.webm)
