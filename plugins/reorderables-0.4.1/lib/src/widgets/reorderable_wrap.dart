@@ -573,8 +573,7 @@ class _ReorderableWrapContentState extends State<_ReorderableWrapContent>
         runAlignment = WrapAlignment.end;
         break;
       case WrapCrossAlignment.center:
-      default:
-//        crossAxisAlignment = CrossAxisAlignment.center;
+        //        crossAxisAlignment = CrossAxisAlignment.center;
         runAlignment = WrapAlignment.center;
         break;
     }

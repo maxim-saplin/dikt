@@ -5,9 +5,9 @@ extension Localization on String {
       {
         'en': {
           //   'Search': 'Search',
-          //   'en': 'ENG',
-          //   'be': 'БЕЛ',
-          //   'ru': 'РУС',
+          'en': 'ENG',
+          'be': 'БЕЛ',
+          'ru': 'РУС',
           //   'Language': 'Language',
           //   'Settings': 'Settings',
           //   'Theme': 'Theme',

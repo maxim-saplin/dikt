@@ -412,8 +412,7 @@ class _ReorderableFlexContentState extends State<_ReorderableFlexContent>
             mainAxisAlignment: widget.mainAxisAlignment,
             children: children);
       case Axis.vertical:
-      default:
-        return Column(
+      return Column(
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: widget.mainAxisAlignment,
             children: children);
@@ -883,8 +882,7 @@ class _ReorderableFlexContentState extends State<_ReorderableFlexContent>
       case Axis.horizontal:
         return Row(children: children);
       case Axis.vertical:
-      default:
-        return Column(children: children);
+      return Column(children: children);
     }
   }
 

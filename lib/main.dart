@@ -48,7 +48,19 @@ void main(List<String> arguments) async {
     _error = e.toString();
   }
 
-  runApp(const MyApp());
+  runApp(I18n(
+      autoSaveLocale: false,
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('en', ''),
+        Locale('be', ''),
+        Locale('ru', ''),
+      ],
+      child: const MyApp()));
 }
 
 class MyApp extends StatefulWidget {
@@ -122,6 +134,8 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
+    //debugPrint('Building main widget');
+
     if (_error.isNotEmpty) {
       return MaterialApp(
           home: _getScaffold(Padding(
@@ -158,75 +172,71 @@ class _MyAppState extends State<MyApp> {
             return _master;
           }),
         ],
-        child: Consumer<Preferences>(
-            builder: (context, preferences, child) => I18n(
-                    child: MaterialApp(
-                  localizationsDelegates: const [
-                    GlobalMaterialLocalizations.delegate,
-                    GlobalWidgetsLocalizations.delegate,
-                    GlobalCupertinoLocalizations.delegate,
-                  ],
-                  supportedLocales: const [
-                    Locale('en', ''),
-                    Locale('be', ''),
-                    Locale('ru', ''),
-                  ],
-                  navigatorKey: Routes.navigator,
-                  navigatorObservers: [
-                    Routes
-                        .observer, // this one is needed for reliable current route identification via custom routing helpers
-                    AmbilyticsObserver(routeFilter: ambilytics.anyRouteFilter)
-                  ],
-                  builder: (BuildContext context, Widget? child) {
-                    // Invalidating cache here helps with dark/light theme switching and WordArticles not being broken
-                    WordArticlesCache.invalidateCache();
-                    Timer.run(() {
-                      if (preferences.isLocaleInitialized) {
-                        I18n.of(context).locale = preferences.locale;
-                      } else {
-                        preferences.locale = Localizations.localeOf(
-                            context); // set to system default locale. Flutter picks one of supported locales is there's a match
-                      }
-                    });
+        child: Consumer<Preferences>(builder: (context, preferences, child) {
+          //debugPrint('Main > Consumer  build');
+          return MaterialApp(
+            localizationsDelegates: I18n.localizationsDelegates,
+            supportedLocales: I18n.supportedLocales,
+            navigatorKey: Routes.navigator,
+            navigatorObservers: [
+              Routes
+                  .observer, // this one is needed for reliable current route identification via custom routing helpers
+              AmbilyticsObserver(routeFilter: ambilytics.anyRouteFilter)
+            ],
+            builder: (BuildContext context, Widget? child) {
+              //debugPrint('Main > Consumer > MaterialApp build');
+              //Invalidating cache here helps with dark/light theme switching and WordArticles not being broken
+              WordArticlesCache.invalidateCache();
+              Timer.run(() {
+                if (preferences.isLocaleInitialized) {
+                  if (I18n.of(context).locale != preferences.locale) {
+                    I18n.of(context).locale = preferences.locale;
+                  }
+                } else {
+                  preferences.locale = Localizations.localeOf(
+                      context); // set to system default locale. Flutter picks one of supported locales is there's a match
+                }
+              });
 
-                    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-                      systemNavigationBarColor: Theme.of(context).canvasColor,
-                      systemNavigationBarIconBrightness:
-                          Theme.of(context).brightness == Brightness.dark
-                              ? Brightness.light // Light icons for dark theme
-                              : Brightness.dark, // Dark icons for light theme
-                    ));
+              SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+                systemNavigationBarColor: Theme.of(context).canvasColor,
+                systemNavigationBarIconBrightness:
+                    Theme.of(context).brightness == Brightness.dark
+                        ? Brightness.light // Light icons for dark theme
+                        : Brightness.dark, // Dark icons for light theme
+              ));
 
-                    return MediaQuery(
-                      data: MediaQuery.of(context)
-                          .copyWith(textScaler: const TextScaler.linear(1.0)),
-                      child: child!,
-                    );
-                  },
-                  title: 'dikt',
-                  onGenerateRoute: (settings) {
-                    switch (settings.name) {
-                      case Routes.home:
-                        return PageTransition(
-                            settings: settings,
-                            child: _getScaffold(const Home()),
-                            type: PageTransitionType.fade);
-                      case Routes.article:
-                        return PageTransition(
-                            settings: settings,
-                            duration: const Duration(milliseconds: 250),
-                            child: _getScaffold(Content(
-                                word: (settings.arguments ?? '') as String)),
-                            type: PageTransitionType.fade);
-                      default:
-                        return null;
-                    }
-                  },
-                  initialRoute: Routes.home,
-                  themeMode: preferences.themeMode,
-                  theme: lightTheme,
-                  darkTheme: darkTheme,
-                ))));
+              return MediaQuery(
+                data: MediaQuery.of(context)
+                    .copyWith(textScaler: const TextScaler.linear(1.0)),
+                child: child!,
+              );
+            },
+            title: 'dikt',
+            onGenerateRoute: (settings) {
+              switch (settings.name) {
+                case Routes.home:
+                  return PageTransition(
+                      settings: settings,
+                      child: _getScaffold(const Home()),
+                      type: PageTransitionType.fade);
+                case Routes.article:
+                  return PageTransition(
+                      settings: settings,
+                      duration: const Duration(milliseconds: 250),
+                      child: _getScaffold(
+                          Content(word: (settings.arguments ?? '') as String)),
+                      type: PageTransitionType.fade);
+                default:
+                  return null;
+              }
+            },
+            initialRoute: Routes.home,
+            themeMode: preferences.themeMode,
+            theme: lightTheme,
+            darkTheme: darkTheme,
+          );
+        }));
   }
 }
 

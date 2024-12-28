@@ -1,4 +1,4 @@
-- 2.3.2+36 - dependencies updated, auto focus of search field when launching (now on all platforms)
+- 2.3.2+36 - dependencies updated, auto focus of search field when launching (now on all platforms), Impeller rendering engine on Mac
 - 2.3.1+35 - fixed Android light buttons on light BG for Android, smaller article bottom buttons for mobile
 - 2.3.1+34 - updated dependencies (Flutter 3.24.3 + Android SDK 35) + refactored code to accomodate, fixed text selection/popup color
 - 2.3.0+33 - Android 'PROCESS_TEXT' opens app in popup window

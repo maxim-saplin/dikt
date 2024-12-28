@@ -524,7 +524,7 @@ class _DictionarySelector extends StatelessWidget {
   }
 }
 
-/// Hack for cached widget. When returning caceched version of WordArticles there
+/// Hack for cached widget. When returning cached version of WordArticles there
 /// was scroll controller exception due to more than one client, for some reasons
 /// scroll controller was attached twice. Made this version in order to call
 /// detach() for old position in attach() should there be any possition attached

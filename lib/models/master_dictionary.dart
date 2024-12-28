@@ -118,6 +118,7 @@ class MasterDictionary extends ChangeNotifier {
     List<Article> articles = [];
 
     for (var d in dictionaryManager.dictionariesLoaded) {
+      var sw = Stopwatch()..start();
       try {
         var s = '';
         for (var i = 0; i < d.ikvs.length; i++) {
@@ -139,6 +140,9 @@ class MasterDictionary extends ChangeNotifier {
       } catch (e) {
         debugPrint('Cant decode value for $word, dictionary ${d.ikvPath}');
         debugPrint(e.toString());
+      } finally {
+        sw.stop();
+        debugPrint('Articles loaded for $word: ${sw.elapsedMilliseconds}ms');
       }
     }
 
