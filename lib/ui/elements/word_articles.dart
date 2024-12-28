@@ -79,7 +79,10 @@ class _WordArticlesState extends State<WordArticles> {
                 offstageCompleter: _offstageCompleter,
                 bottomDictionariesCompleter: _bottomDictionariesCompleter,
                 scrollController: scrollController,
-                showAnotherWord: widget.showAnotherWord),
+                showAnotherWord: widget.showAnotherWord,
+                articleEdgeInsets: widget.twoPaneMode
+                    ? EdgeInsets.fromLTRB(0, 30, 0, 80)
+                    : EdgeInsets.fromLTRB(0, 30, 0, 50)),
             // Title with selectable text - word
             Container(
                 padding: const EdgeInsets.fromLTRB(18, 15, 18, 0),
@@ -220,9 +223,12 @@ class _FuturedArticles extends StatelessWidget {
       required this.offstageCompleter,
       required this.bottomDictionariesCompleter,
       required this.scrollController,
-      required this.showAnotherWord});
+      required this.showAnotherWord,
+      required this.articleEdgeInsets});
 
-  static EdgeInsets headerInsets = const EdgeInsets.fromLTRB(0, 30, 0, 50);
+  // Controls paddings at the top and bottom to leave place to buttons
+  final EdgeInsets
+      articleEdgeInsets; // = const EdgeInsets.fromLTRB(0, 30, 0, 50);
 
   final String word;
   final Future<List<Article>> articles;
@@ -250,8 +256,13 @@ class _FuturedArticles extends StatelessWidget {
             ];
           }
 
-          return _FuturedArticleBodies(articles, offstageCompleter,
-              bottomDictionariesCompleter, scrollController, showAnotherWord);
+          return _FuturedArticleBodies(
+              articles,
+              offstageCompleter,
+              bottomDictionariesCompleter,
+              scrollController,
+              showAnotherWord,
+              articleEdgeInsets);
         }
         return const SizedBox();
       },
@@ -269,13 +280,16 @@ class _FuturedArticleBodies extends StatefulWidget {
       this.offstageCompleter,
       this.bottomDictionariesCompleter,
       this.scrollController,
-      this.showAnotherWord);
+      this.showAnotherWord,
+      this.articleEdgeInsets);
+
   final List<Article> articles;
   final Completer offstageCompleter;
   final Completer<Tuple<List<DropdownMenuItem<String>>, Map<String, GlobalKey>>>
       bottomDictionariesCompleter;
   final ScrollController scrollController;
   final Function(String word)? showAnotherWord;
+  final EdgeInsets articleEdgeInsets;
 
   @override
   State<_FuturedArticleBodies> createState() => _FuturedArticleBodiesState();
@@ -320,7 +334,7 @@ class _FuturedArticleBodiesState extends State<_FuturedArticleBodies>
 
     var w = Padding(
         key: _scrollKey,
-        padding: _FuturedArticles.headerInsets,
+        padding: widget.articleEdgeInsets,
         child: Scrollbar(
             controller: widget.scrollController,
             child: CustomScrollView(

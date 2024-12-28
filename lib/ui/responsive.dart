@@ -47,7 +47,7 @@ class _ResponsiveSplitViewState extends State<ResponsiveSplitView>
     // Update the wide state
     _isWide = _checkIsWide(context);
 
-    // Assuming 4.0 is the total widht in relative units
+    // Assuming 4.0 is the total width in relative units
     controller = MultiSplitViewController(areas: [
       Area(flex: PreferencesSingleton.twoPaneRatio),
       Area(flex: 4 - PreferencesSingleton.twoPaneRatio)
