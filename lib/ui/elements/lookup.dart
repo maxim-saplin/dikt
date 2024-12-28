@@ -5,7 +5,7 @@ import 'package:dikt/models/preferences.dart';
 import 'package:dikt/ui/themes.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter/foundation.dart' show defaultTargetPlatform, kIsWeb;
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 import '../../models/master_dictionary.dart';
 import '../../common/i18n.dart';

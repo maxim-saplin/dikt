@@ -59,24 +59,23 @@ void main() {
 
 Future<void> _smokeTest(WidgetTester tester, bool doGoldens) async {
   var defaultPlatform = debugDefaultTargetPlatformOverride;
-  debugDefaultTargetPlatformOverride = TargetPlatform
-      .windows; // Default is Android, search bar auto focus is broken under widget test environment
-  // Fix fonts not visible in widget test golden images
-  await loadAppFonts();
-  await ambilytics.initAnalytics(
-      disableAnalytics: true, measurementId: '1', apiSecret: '2');
-  await tester.pumpWidget(const MyApp());
-  var scaffold = find.byType(Scaffold);
-  expect(scaffold, findsOneWidget);
-
-  // Check what text is in the screen
-  // var txt =
-  //     tester.widgetList(find.byType(Scaffold).byChildType(Text)).toList();
-  // Print to console widget tree
-  //debugDumpApp();
-
-  // Wrapping into runAsync() whatever action that happen in isolates or depend on futures
   await tester.runAsync(() async {
+    debugDefaultTargetPlatformOverride = TargetPlatform
+        .windows; // Default is Android, search bar auto focus is broken under widget test environment
+    // Fix fonts not visible in widget test golden images
+    await loadAppFonts();
+    await ambilytics.initAnalytics(
+        disableAnalytics: true, measurementId: '1', apiSecret: '2');
+    await tester.pumpWidget(const MyApp());
+    var scaffold = find.byType(Scaffold);
+    expect(scaffold, findsOneWidget);
+
+    // Check what text is in the screen
+    // var txt =
+    //     tester.widgetList(find.byType(Scaffold).byChildType(Text)).toList();
+    // Print to console widget tree
+    //debugDumpApp();
+
     await tester.waitForWidget(scaffold.byChildTextIncludes('Loading'));
     await tester
         .waitForWidget(scaffold.byChildTextIncludes('Type-in text below'));
@@ -90,49 +89,48 @@ Future<void> _smokeTest(WidgetTester tester, bool doGoldens) async {
 
     await tester.waitForWidget(scaffold.byChildTextIncludes(
         '99')); // search box shows number of matches after succesfull lookup
-  });
+    //});
 
-  // App loaded and looked up word
-  expect(scaffold.byChildType(Lookup).byChildTextIncludes('go a long way'),
-      findsOneWidget);
-  // Can fail due to blinking cursor
-  if (doGoldens) {
-    await expectLater(
-        find.byType(MyApp), matchesGoldenFile('smoke_test_lookup.png'));
-  }
+    // App loaded and looked up word
+    expect(scaffold.byChildType(Lookup).byChildTextIncludes('go a long way'),
+        findsOneWidget);
+    // Can fail due to blinking cursor
+    if (doGoldens) {
+      await expectLater(
+          find.byType(MyApp), matchesGoldenFile('smoke_test_lookup.png'));
+    }
 
-  await tester.runAsync(() async {
     var item = scaffold.byChildTextIncludes('go about');
     await tester.tap(item);
     var article = scaffold.byChildType(Content);
     // Wait for the article to be composed in future builders and go visible
     await tester.waitForWidget(article.byChildType(Offstage), 20, 20,
         (w) => (w as Offstage).offstage == false);
+
+    // Shpwing article adds a new route and hence 2 scaffolds
+    expect(find.byType(Scaffold), findsNWidgets(2));
+    scaffold = find.byType(Scaffold).last;
+
+    // Article displayed
+    expect(scaffold.byChildType(Offstage).byChildTextIncludes('go about'),
+        findsOneWidget);
+    if (doGoldens) {
+      await expectLater(
+          find.byType(MyApp), matchesGoldenFile('smoke_test_article.png'));
+    }
+
+    // Check settings dialog is opened
+    expect(find.byType(Settings), findsNothing);
+    await tester.tap(scaffold.byChildSemantics('Show settings'));
+    await tester.waitForWidget(find.byType(Settings));
+    // scaffold no longer actual here, might be due to nav
+    expect(find.byType(Settings).byChildTextIncludes('Clear History'),
+        findsOneWidget);
+    if (doGoldens) {
+      await expectLater(
+          find.byType(MyApp), matchesGoldenFile('smoke_test_settings.png'));
+    }
   });
-
-  // Shpwing article adds a new route and hence 2 scaffolds
-  expect(find.byType(Scaffold), findsNWidgets(2));
-  scaffold = find.byType(Scaffold).last;
-
-  // Article displayed
-  expect(scaffold.byChildType(Offstage).byChildTextIncludes('go about'),
-      findsOneWidget);
-  if (doGoldens) {
-    await expectLater(
-        find.byType(MyApp), matchesGoldenFile('smoke_test_article.png'));
-  }
-
-  // Check settings dialog is opened
-  expect(find.byType(Settings), findsNothing);
-  await tester.tap(scaffold.byChildSemantics('Show settings'));
-  await tester.waitForWidget(find.byType(Settings));
-  // scaffold no longer actual here, might be due to nav
-  expect(find.byType(Settings).byChildTextIncludes('Clear History'),
-      findsOneWidget);
-  if (doGoldens) {
-    await expectLater(
-        find.byType(MyApp), matchesGoldenFile('smoke_test_settings.png'));
-  }
 
   debugDefaultTargetPlatformOverride = defaultPlatform;
 
