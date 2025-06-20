@@ -36,10 +36,7 @@
       "request": "launch",
       "type": "dart",
       "flutterMode" : "release",
-      "program" : "lib/main.dart",
-      "args": [
-        "--web-renderer", "canvaskit"
-      ],
+      "program" : "lib/main.dart"
     }
   ]
 }

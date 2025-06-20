@@ -311,7 +311,6 @@ class _SearchBar extends StatelessWidget {
 
 class _ClearInvisibleButton extends StatelessWidget {
   const _ClearInvisibleButton({
-    super.key,
     required this.dictionary,
     required this.controller,
     required this.focusNode,
@@ -340,7 +339,6 @@ class _ClearInvisibleButton extends StatelessWidget {
 
 class _SearchBarSuffix extends StatelessWidget {
   const _SearchBarSuffix({
-    super.key,
     required this.dictionary,
   });
 

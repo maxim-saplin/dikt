@@ -101,7 +101,7 @@ final ThemeData lightTheme = ThemeData.light().copyWith(
     ),
     textSelectionTheme: const TextSelectionThemeData(
         selectionColor: Color.fromARGB(255, 33, 213, 159)),
-    dialogTheme: DialogTheme(
+    dialogTheme: DialogThemeData(
       backgroundColor: Colors.grey[100],
       shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(12))),
@@ -113,7 +113,6 @@ final ThemeData lightTheme = ThemeData.light().copyWith(
 
 final ThemeData darkTheme = ThemeData.dark().copyWith(
     cardColor: const Color.fromARGB(255, 26, 26, 26),
-    dialogBackgroundColor: const Color.fromARGB(255, 32, 33, 36),
     canvasColor: const Color.fromARGB(255, 32, 33, 36),
     scaffoldBackgroundColor: const Color.fromARGB(255, 16, 17, 18),
     outlinedButtonTheme: OutlinedButtonThemeData(
@@ -168,7 +167,7 @@ final ThemeData darkTheme = ThemeData.dark().copyWith(
     ),
     textSelectionTheme: const TextSelectionThemeData(
         selectionColor: Color.fromARGB(255, 14, 88, 66)),
-    dialogTheme: const DialogTheme(
+    dialogTheme: const DialogThemeData(
       shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(12))),
     ))

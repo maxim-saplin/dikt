@@ -19,10 +19,10 @@ dependencies:
   flutter_html:
     path: ./plugins/flutter_html-2.0.0
   hive: ^2.2.0
-  flutter_sticky_header: ^0.7.0 # fixing at 0.6.1, 0.6.2 breaked dictionary selection via drop down list at _FuturedArticleBodyState
+  flutter_sticky_header: ^0.8.0 # fixing at 0.6.1, 0.6.2 breaked dictionary selection via drop down list at _FuturedArticleBodyState
   reorderables: # added onDragging event handler to allow deletion of dics by dragging them on a dedicated elemtn
     path: ./plugins/reorderables-0.4.1/
-  file_picker: ^8.1.2
+  file_picker: ^10.2.0
   i18n_extension: ^15.0.0
   firebase_core: ^3.4.1
   page_transition: ^2.0.2
@@ -30,7 +30,7 @@ dependencies:
   file_selector_linux: any
   file_selector_macos: any
   file_selector_windows: any
-  flutter_hooks: ^0.20.0
+  flutter_hooks: ^0.21.2
   superellipse_shape: ^0.2.0
   ikvpack:
     git: https://github.com/maxim-saplin/ikvpack
